@@ -43,23 +43,20 @@ export default {
 };
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .timeslot {
-    margin-top: 5px;
+    margin-top: 0.375rem;
     display: inline-block;
     font-size: 14px;
-    background-color: rgba(255, 255, 255, 0.5);
-    border-radius: 20px;
-    padding: 0 10px;
-    margin-right: 5px;
+    color: var(--color-text-muted);
+    background-color: var(--color-surface-subtle);
+    border-radius: 999px;
+    padding: 0 0.625rem;
+    margin-right: 0.375rem;
 
     .to {
         margin: 0 6px;
     }
 
-    .dark & {
-        color: white;
-        background-color: rgba(255, 255, 255, 0.1);
-    }
 }
 </style>

@@ -1,43 +1,35 @@
 <template>
     <transition ref="tableContainer" name="slide-fade" appear>
-        <div v-if="$route.name === 'DashboardHome'">
-            <h1 class="mb-3">
-                {{ $t("Quick Stats") }}
-            </h1>
+        <div v-if="$route.name === 'DashboardHome'" class="dashboard-overview">
+            <header class="dashboard-overview-header">
+                <h1>{{ $t("Quick Stats") }}</h1>
+            </header>
 
-            <div class="shadow-box big-padding text-center mb-3">
-                <div class="row">
-                    <div class="col">
-                        <h3>{{ $t("Up") }}</h3>
-                        <span class="num" :class="$root.stats.up === 0 && 'text-secondary'">
-                            {{ $root.stats.up }}
-                        </span>
-                    </div>
-                    <div class="col">
-                        <h3>{{ $t("Down") }}</h3>
-                        <span class="num" :class="$root.stats.down > 0 ? 'text-danger' : 'text-secondary'">
-                            {{ $root.stats.down }}
-                        </span>
-                    </div>
-                    <div class="col">
-                        <h3>{{ $t("Maintenance") }}</h3>
-                        <span class="num" :class="$root.stats.maintenance > 0 ? 'text-maintenance' : 'text-secondary'">
-                            {{ $root.stats.maintenance }}
-                        </span>
-                    </div>
-                    <div class="col">
-                        <h3>{{ $t("Unknown") }}</h3>
-                        <span class="num text-secondary">{{ $root.stats.unknown }}</span>
-                    </div>
-                    <div class="col">
-                        <h3>{{ $t("pauseDashboardHome") }}</h3>
-                        <span class="num text-secondary">{{ $root.stats.pause }}</span>
-                    </div>
+            <section class="stat-grid" :aria-label="$t('Quick Stats')">
+                <div class="stat-card stat-card-up" :class="{ 'is-muted': $root.stats.up === 0 }">
+                    <h2>{{ $t("Up") }}</h2>
+                    <span class="stat-card-value">{{ $root.stats.up }}</span>
                 </div>
-            </div>
+                <div class="stat-card stat-card-down" :class="{ 'is-muted': $root.stats.down === 0 }">
+                    <h2>{{ $t("Down") }}</h2>
+                    <span class="stat-card-value">{{ $root.stats.down }}</span>
+                </div>
+                <div class="stat-card stat-card-maintenance" :class="{ 'is-muted': $root.stats.maintenance === 0 }">
+                    <h2>{{ $t("Maintenance") }}</h2>
+                    <span class="stat-card-value">{{ $root.stats.maintenance }}</span>
+                </div>
+                <div class="stat-card stat-card-unknown">
+                    <h2>{{ $t("Unknown") }}</h2>
+                    <span class="stat-card-value">{{ $root.stats.unknown }}</span>
+                </div>
+                <div class="stat-card stat-card-unknown">
+                    <h2>{{ $t("pauseDashboardHome") }}</h2>
+                    <span class="stat-card-value">{{ $root.stats.pause }}</span>
+                </div>
+            </section>
 
-            <div class="shadow-box table-shadow-box table-wrapper">
-                <div class="mb-3 text-end">
+            <section class="event-panel shadow-box table-shadow-box table-wrapper">
+                <div class="event-panel-header">
                     <button
                         class="btn btn-sm btn-outline-danger"
                         :disabled="clearingAllEvents"
@@ -97,7 +89,7 @@
                         :options="paginationConfig"
                     />
                 </div>
-            </div>
+            </section>
         </div>
     </transition>
     <Confirm
@@ -306,17 +298,70 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "../assets/vars";
-
-.num {
-    font-size: 30px;
-    color: $primary;
-    font-weight: bold;
-    display: block;
+.dashboard-overview {
+    display: grid;
+    gap: 1.25rem;
 }
 
-.shadow-box {
-    padding: 20px;
+.dashboard-overview-header h1 {
+    margin: 0;
+    color: var(--color-text);
+    font-size: clamp(1.6rem, 3vw, 2.25rem);
+    font-weight: 750;
+    letter-spacing: -0.04em;
+}
+
+.stat-grid {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 0.75rem;
+}
+
+.stat-card {
+    min-width: 0;
+    padding: 1rem;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-top: 3px solid var(--status-unknown);
+    border-radius: 1rem;
+    box-shadow: 0 12px 32px rgba(10, 21, 30, 0.06);
+
+    h2 {
+        margin: 0 0 0.55rem;
+        color: var(--color-text-muted);
+        font-size: 0.78rem;
+        font-weight: 750;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+    }
+}
+
+.stat-card-value {
+    display: block;
+    color: var(--color-text);
+    font-family: "IBM Plex Mono", "Noto Sans Mono", monospace;
+    font-size: clamp(1.75rem, 4vw, 2.6rem);
+    font-weight: 700;
+    line-height: 1;
+}
+
+.stat-card-up { border-top-color: var(--status-up); }
+.stat-card-down { border-top-color: var(--status-down); }
+.stat-card-maintenance { border-top-color: var(--status-maintenance); }
+.stat-card-unknown { border-top-color: var(--status-unknown); }
+
+.stat-card.is-muted {
+    opacity: 0.62;
+}
+
+.event-panel {
+    padding: clamp(1rem, 2vw, 1.5rem);
+}
+
+.event-panel-header {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 1rem;
 }
 
 table {
@@ -346,5 +391,17 @@ table {
 
 .table-wrapper {
     overflow-x: auto;
+}
+
+@media (max-width: 1100px) {
+    .stat-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 620px) {
+    .stat-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
 }
 </style>

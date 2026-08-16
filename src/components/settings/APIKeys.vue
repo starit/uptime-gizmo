@@ -155,46 +155,47 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "../../assets/vars.scss";
 
 .mobile {
     .item {
         flex-direction: column;
         align-items: flex-start;
-        margin-bottom: 20px;
+        margin-bottom: 1rem;
     }
 }
 
 .add-btn {
-    padding-top: 20px;
-    padding-bottom: 20px;
+    padding-top: 1.25rem;
+    padding-bottom: 1.25rem;
 }
 
 .item {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 0.75rem;
     text-decoration: none;
-    border-radius: 10px;
-    transition: all ease-in-out 0.15s;
+    border: 1px solid transparent;
+    border-radius: 0.875rem;
+    transition: background-color 160ms ease, border-color 160ms ease;
     justify-content: space-between;
-    padding: 10px;
+    padding: 0.875rem;
     min-height: 90px;
-    margin-bottom: 5px;
+    margin-bottom: 0.375rem;
 
     &:hover {
-        background-color: $highlight-white;
+        background-color: var(--color-surface-hover);
+        border-color: var(--color-border);
     }
 
     &.active {
         .circle {
-            background-color: $primary;
+            background-color: var(--status-up);
         }
     }
 
     &.inactive {
         .circle {
-            background-color: $danger;
+            background-color: var(--status-down);
         }
     }
 
@@ -204,25 +205,25 @@ export default {
         }
 
         .circle {
-            background-color: $dark-font-color;
+            background-color: var(--status-unknown);
         }
     }
 
     .left-part {
         display: flex;
-        gap: 12px;
+        gap: 0.75rem;
         align-items: center;
 
         .circle {
-            width: 25px;
-            height: 25px;
+            width: 1.5rem;
+            height: 1.5rem;
             border-radius: 50rem;
         }
 
         .info {
             .title {
                 font-weight: bold;
-                font-size: 20px;
+                font-size: 1.1rem;
             }
 
             .status {
@@ -233,7 +234,7 @@ export default {
 
     .buttons {
         display: flex;
-        gap: 8px;
+        gap: 0.5rem;
         flex-direction: row-reverse;
 
         .btn-group {
@@ -243,25 +244,14 @@ export default {
 }
 
 .date {
-    margin-top: 5px;
+    margin-top: 0.375rem;
     display: block;
     font-size: 14px;
-    background-color: rgba(255, 255, 255, 0.5);
-    border-radius: 20px;
-    padding: 0 10px;
+    color: var(--color-text-muted);
+    background-color: var(--color-surface-subtle);
+    border-radius: 999px;
+    padding: 0 0.625rem;
     width: fit-content;
 
-    .dark & {
-        color: white;
-        background-color: rgba(255, 255, 255, 0.1);
-    }
-}
-
-.dark {
-    .item {
-        &:hover {
-            background-color: $dark-bg2;
-        }
-    }
 }
 </style>

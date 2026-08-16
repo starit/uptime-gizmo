@@ -155,22 +155,11 @@ export default {};
 </script>
 
 <style lang="scss" scoped>
-@import "../../assets/vars.scss";
-
 .btn-check:active + .btn-outline-primary,
 .btn-check:checked + .btn-outline-primary,
 .btn-check:hover + .btn-outline-primary {
-    color: #fff;
-
-    .dark & {
-        color: #000;
-    }
-}
-
-.dark {
-    .list-group-item {
-        background-color: $dark-bg2;
-        color: $dark-font-color;
-    }
+    color: var(--color-brand-contrast);
+    background: var(--color-brand);
+    border-color: var(--color-brand);
 }
 </style>

@@ -101,6 +101,7 @@ Use semantic UI tokens in application code instead of hard-coding primitive colo
     --status-unknown-border: #D1D5DB;
 }
 
+body.dark,
 [data-theme="dark"] {
     /* Surfaces */
     --color-bg: #0A151E;

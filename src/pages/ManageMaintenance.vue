@@ -1,7 +1,7 @@
 <template>
     <transition name="slide-fade" appear>
-        <div>
-            <h1 class="mb-3">
+        <div class="management-workspace maintenance-workspace">
+            <h1 class="management-workspace-title mb-3">
                 {{ $t("Maintenance") }}
             </h1>
 
@@ -12,7 +12,7 @@
                 </router-link>
             </div>
 
-            <div class="shadow-box">
+            <div class="shadow-box management-workspace-surface">
                 <span
                     v-if="Object.keys(sortedMaintenanceList).length === 0"
                     class="d-flex align-items-center justify-content-center my-3"
@@ -221,53 +221,66 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "../assets/vars.scss";
+.management-workspace {
+    max-width: 1040px;
+}
+
+.management-workspace-title {
+    letter-spacing: -0.035em;
+}
+
+.management-workspace-surface {
+    padding: 0.75rem;
+    border: 1px solid var(--color-border);
+}
 
 .mobile {
     .item {
         flex-direction: column;
         align-items: flex-start;
-        margin-bottom: 20px;
+        margin-bottom: 1rem;
     }
 }
 
 .item {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 0.75rem;
     text-decoration: none;
-    border-radius: 10px;
-    transition: all ease-in-out 0.15s;
+    border: 1px solid transparent;
+    border-radius: 0.875rem;
+    transition: background-color 160ms ease, border-color 160ms ease;
     justify-content: space-between;
-    padding: 10px;
+    padding: 0.875rem;
     min-height: 90px;
-    margin-bottom: 5px;
+    margin-bottom: 0.375rem;
 
     &:hover {
-        background-color: $highlight-white;
+        background-color: var(--color-surface-hover);
+        border-color: var(--color-border);
     }
 
     &.under-maintenance {
-        background-color: rgba(23, 71, 245, 0.16);
+        background-color: var(--status-maintenance-bg);
 
         &:hover {
-            background-color: rgba(23, 71, 245, 0.3) !important;
+            background-color: var(--status-maintenance-bg) !important;
         }
 
         .circle {
-            background-color: $maintenance;
+            background-color: var(--status-maintenance);
         }
     }
 
     &.scheduled {
         .circle {
-            background-color: $primary;
+            background-color: var(--status-degraded);
         }
     }
 
     &.inactive {
         .circle {
-            background-color: $danger;
+            background-color: var(--status-down);
         }
     }
 
@@ -277,13 +290,13 @@ export default {
         }
 
         .circle {
-            background-color: $dark-font-color;
+            background-color: var(--status-unknown);
         }
     }
 
     &.unknown {
         .circle {
-            background-color: $dark-font-color;
+            background-color: var(--status-unknown);
         }
     }
 
@@ -328,11 +341,4 @@ export default {
     }
 }
 
-.dark {
-    .item {
-        &:hover {
-            background-color: $dark-bg2;
-        }
-    }
-}
 </style>

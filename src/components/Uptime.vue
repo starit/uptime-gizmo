@@ -55,7 +55,7 @@ export default {
             }
 
             if (this.lastHeartBeat.status === UP) {
-                return "primary";
+                return "up";
             }
 
             if (this.lastHeartBeat.status === PENDING) {
@@ -77,7 +77,7 @@ export default {
 
         className() {
             if (this.pill) {
-                return `badge rounded-pill bg-${this.color}`;
+                return `uptime-pill uptime-pill-${this.color}`;
             }
 
             return "";
@@ -96,8 +96,39 @@ export default {
 };
 </script>
 
-<style>
-.badge {
+<style scoped>
+.uptime-pill {
     min-width: 62px;
+    display: inline-flex;
+    justify-content: center;
+    padding: 0.2rem 0.5rem;
+    border: 1px solid var(--status-unknown-border);
+    border-radius: 999px;
+    color: var(--status-unknown-fg);
+    background: var(--status-unknown-bg);
+}
+
+.uptime-pill-up {
+    border-color: var(--status-up-border);
+    color: var(--status-up-fg);
+    background: var(--status-up-bg);
+}
+
+.uptime-pill-danger {
+    border-color: var(--status-down-border);
+    color: var(--status-down-fg);
+    background: var(--status-down-bg);
+}
+
+.uptime-pill-warning {
+    border-color: var(--status-degraded-border);
+    color: var(--status-degraded-fg);
+    background: var(--status-degraded-bg);
+}
+
+.uptime-pill-maintenance {
+    border-color: var(--status-maintenance-border);
+    color: var(--status-maintenance-fg);
+    background: var(--status-maintenance-bg);
 }
 </style>

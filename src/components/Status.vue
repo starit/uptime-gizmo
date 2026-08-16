@@ -1,5 +1,8 @@
 <template>
-    <span class="badge rounded-pill" :class="'bg-' + color">{{ text }}</span>
+    <span class="gizmo-status" :class="`gizmo-status--${tone}`">
+        <span class="gizmo-status__dot" aria-hidden="true"></span>
+        {{ text }}
+    </span>
 </template>
 
 <script>
@@ -13,24 +16,24 @@ export default {
     },
 
     computed: {
-        color() {
+        tone() {
             if (this.status === 0) {
-                return "danger";
+                return "down";
             }
 
             if (this.status === 1) {
-                return "primary";
+                return "up";
             }
 
             if (this.status === 2) {
-                return "warning";
+                return "degraded";
             }
 
             if (this.status === 3) {
                 return "maintenance";
             }
 
-            return "secondary";
+            return "unknown";
         },
 
         text() {
@@ -55,9 +58,3 @@ export default {
     },
 };
 </script>
-
-<style scoped>
-span {
-    min-width: 64px;
-}
-</style>

@@ -1,5 +1,5 @@
 <template>
-    <div v-if="loadedTheme" class="container mt-3">
+    <div v-if="loadedTheme" class="container status-page-shell mt-3">
         <!-- Sidebar for edit mode -->
         <div v-if="enableEditMode" class="sidebar" data-testid="edit-sidebar">
             <div class="sidebar-body">
@@ -1494,22 +1494,25 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "../assets/vars.scss";
+.status-page-shell {
+    max-width: 1040px;
+    padding-bottom: 2rem;
+}
 
 .overall-status {
     font-weight: bold;
     font-size: 25px;
 
     .ok {
-        color: $primary;
+        color: var(--status-up-fg);
     }
 
     .warning {
-        color: $warning;
+        color: var(--status-degraded-fg);
     }
 
     .danger {
-        color: $danger;
+        color: var(--status-down-fg);
     }
 }
 
@@ -1524,7 +1527,7 @@ h1 {
 }
 
 .main {
-    transition: all ease-in-out 0.1s;
+    transition: margin 180ms ease;
 
     &.edit {
         margin-left: 300px;
@@ -1538,10 +1541,12 @@ h1 {
     width: 300px;
     height: 100vh;
 
-    border-right: 1px solid #ededed;
+    color: var(--color-text);
+    background: var(--color-surface);
+    border-right: 1px solid var(--color-border);
 
     .danger-zone {
-        border-top: 1px solid #ededed;
+        border-top: 1px solid var(--color-border);
         padding-top: 15px;
     }
 
@@ -1553,15 +1558,15 @@ h1 {
     }
 
     .sidebar-footer {
-        border-top: 1px solid #ededed;
-        border-right: 1px solid #ededed;
+        border-top: 1px solid var(--color-border);
+        border-right: 1px solid var(--color-border);
         padding: 10px;
         width: 300px;
         height: 70px;
         position: fixed;
         left: 0;
         bottom: 0;
-        background-color: white;
+        background-color: var(--color-surface);
         display: flex;
         align-items: center;
     }
@@ -1593,24 +1598,24 @@ footer {
     }
 
     .icon-upload {
-        transition: all $easing-in 0.2s;
+        transition: transform 200ms ease;
         position: absolute;
         bottom: 6px;
         font-size: 20px;
         left: -14px;
-        background-color: white;
+        background-color: var(--color-surface);
         padding: 5px;
         border-radius: 10px;
         cursor: pointer;
-        box-shadow: 0 15px 70px rgba(0, 0, 0, 0.9);
+        box-shadow: var(--shadow-float);
     }
 
     /* Reset button placed at top-left of the logo */
     .reset-top-left {
         transition:
-            transform $easing-in 0.18s,
-            box-shadow $easing-in 0.18s,
-            background-color $easing-in 0.18s;
+            transform 180ms ease,
+            box-shadow 180ms ease,
+            background-color 180ms ease;
         font-size: 18px;
         width: 18px;
         height: 18px;
@@ -1619,14 +1624,14 @@ footer {
         align-items: center;
         justify-content: center;
         border-radius: 50%;
-        background: white;
+        background: var(--color-surface);
         border: none;
         box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
         cursor: pointer;
         transform-origin: center;
 
         &:hover {
-            background-color: rgba(0, 0, 0, 0.06);
+            background-color: var(--color-surface-hover);
             transform: scale(1.18);
             box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
         }
@@ -1638,9 +1643,9 @@ footer {
 
     .small-reset-btn {
         transition:
-            transform $easing-in 0.18s,
-            box-shadow $easing-in 0.18s,
-            background-color $easing-in 0.18s;
+            transform 180ms ease,
+            box-shadow 180ms ease,
+            background-color 180ms ease;
         font-size: 18px;
         width: 18px;
         height: 18px;
@@ -1654,7 +1659,7 @@ footer {
         cursor: pointer;
 
         &:hover {
-            background-color: rgba(0, 0, 0, 0.04);
+            background-color: var(--color-surface-hover);
             transform: scale(1.18);
             box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
         }
@@ -1662,7 +1667,7 @@ footer {
 }
 
 .logo {
-    transition: all $easing-in 0.2s;
+    transition: transform 200ms ease;
 
     &.edit-mode {
         cursor: pointer;
@@ -1686,7 +1691,7 @@ footer {
 }
 
 .maintenance-bg-info {
-    color: $maintenance;
+    color: var(--status-maintenance-fg);
 }
 
 .maintenance-icon {
@@ -1694,12 +1699,8 @@ footer {
     vertical-align: middle;
 }
 
-.dark .shadow-box {
-    background-color: #0d1117;
-}
-
 .status-maintenance {
-    color: $maintenance;
+    color: var(--status-maintenance-fg);
     margin-right: 5px;
 }
 
@@ -1713,23 +1714,6 @@ footer {
     }
 }
 
-.dark {
-    .sidebar {
-        background-color: $dark-header-bg;
-        border-right-color: $dark-border-color;
-
-        .danger-zone {
-            border-top-color: $dark-border-color;
-        }
-
-        .sidebar-footer {
-            border-right-color: $dark-border-color;
-            border-top-color: $dark-border-color;
-            background-color: $dark-header-bg;
-        }
-    }
-}
-
 .domain-name-list {
     li {
         display: flex;
@@ -1740,11 +1724,11 @@ footer {
             flex-grow: 1;
             background-color: transparent;
             border: none;
-            color: $dark-font-color;
+            color: var(--color-text);
             outline: none;
 
             &::placeholder {
-                color: #1d2634;
+                color: var(--color-text-subtle);
             }
         }
     }

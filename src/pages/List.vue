@@ -25,11 +25,3 @@ export default {
     },
 };
 </script>
-
-<style lang="scss" scoped>
-@import "../assets/vars";
-
-.shadow-box {
-    padding: 20px;
-}
-</style>

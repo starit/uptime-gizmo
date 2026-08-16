@@ -1,7 +1,7 @@
 <template>
     <transition name="slide-fade" appear>
-        <div>
-            <h1 class="mb-3">
+        <div class="management-workspace">
+            <h1 class="management-workspace-title mb-3">
                 {{ $t("Status Pages") }}
             </h1>
 
@@ -12,7 +12,7 @@
                 </router-link>
             </div>
 
-            <div class="shadow-box">
+            <div class="shadow-box management-workspace-surface">
                 <template v-if="$root.statusPageListLoaded">
                     <span
                         v-if="Object.keys($root.statusPageList).length === 0"
@@ -108,27 +108,37 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "../assets/vars.scss";
+.management-workspace {
+    max-width: 960px;
+}
+
+.management-workspace-title {
+    letter-spacing: -0.035em;
+}
+
+.management-workspace-surface {
+    padding: 0.75rem;
+    border: 1px solid var(--color-border);
+}
 
 .item {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 0.75rem;
     text-decoration: none;
-    border-radius: 10px;
-    transition: all ease-in-out 0.15s;
-    padding: 10px;
+    color: var(--color-text);
+    border: 1px solid transparent;
+    border-radius: 0.875rem;
+    transition: background-color 160ms ease, border-color 160ms ease;
+    padding: 0.75rem;
 
     &:hover {
-        background-color: $highlight-white;
+        background-color: var(--color-surface-hover);
+        border-color: var(--color-border);
 
         & .actions {
             visibility: visible;
         }
-    }
-
-    &.active {
-        background-color: #cdf8f4;
     }
 
     $logo-width: 70px;
@@ -146,7 +156,7 @@ export default {
 
         .title {
             font-weight: bold;
-            font-size: 20px;
+        font-size: 1.1rem;
         }
 
         .slug {
@@ -164,18 +174,6 @@ export default {
             display: inline-flex;
             align-items: center;
             gap: 0.25rem;
-        }
-    }
-}
-
-.dark {
-    .item {
-        &:hover {
-            background-color: $dark-bg2;
-        }
-
-        &.active {
-            background-color: $dark-bg2;
         }
     }
 }

@@ -100,20 +100,26 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "../assets/vars.scss";
 
 .incident-group {
-    padding: 10px;
+    padding: 0.75rem;
 
     .incident-list {
         .incident-item {
             display: flex;
-            padding: 13px 15px 10px 15px;
-            border-radius: 10px;
-            transition: all ease-in-out 0.15s;
+            padding: 0.875rem;
+            border: 1px solid var(--color-border);
+            border-radius: 0.875rem;
+            background: var(--color-surface);
+            transition: background-color 160ms ease, border-color 160ms ease;
+
+            & + .incident-item {
+                margin-top: 0.625rem;
+            }
 
             &:hover {
-                background-color: $highlight-white;
+                background-color: var(--color-surface-hover);
+                border-color: var(--color-border-strong);
             }
 
             &.resolved {
@@ -123,9 +129,9 @@ export default {
             .incident-style-indicator {
                 width: 6px;
                 min-height: 100%;
-                border-radius: 3px;
+                border-radius: 999px;
                 flex-shrink: 0;
-                margin-right: 12px;
+                margin-right: 0.75rem;
             }
 
             .incident-body {
@@ -140,15 +146,4 @@ export default {
     }
 }
 
-.dark {
-    .incident-group {
-        .incident-list {
-            .incident-item {
-                &:hover {
-                    background-color: $dark-bg2;
-                }
-            }
-        }
-    }
-}
 </style>

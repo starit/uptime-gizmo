@@ -332,16 +332,14 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "../assets/vars.scss";
-
 .small-padding {
-    padding-left: 5px !important;
-    padding-right: 5px !important;
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
 }
 
 .tags {
-    margin-top: 4px;
-    padding-left: 4px;
+    margin-top: 0.25rem;
+    padding-left: 0.25rem;
     display: flex;
     flex-wrap: wrap;
     gap: 0;
@@ -352,44 +350,54 @@ export default {
 }
 
 .animated {
-    transition: all 0.2s $easing-in;
+    transition: transform 0.2s ease-in;
 }
 
 .select-input-wrapper {
     float: left;
-    margin-top: 15px;
-    margin-left: 3px;
-    margin-right: 10px;
-    padding-left: 4px;
+    margin-top: 0.875rem;
+    margin-left: 0.25rem;
+    margin-right: 0.625rem;
+    padding-left: 0.25rem;
     position: relative;
     z-index: 15;
 }
 
 .drag-over {
-    border: 4px dashed $primary;
-    border-radius: 0.5rem;
-    background-color: $highlight-white;
+    outline: 2px dashed var(--color-interactive);
+    outline-offset: 2px;
+    border-radius: 0.875rem;
+    background-color: var(--color-interactive-subtle);
 }
 
-.dark {
-    .drag-over {
-        background-color: $dark-bg2;
-    }
-}
-
-/* -4px on all due to border-width */
 .monitor-list .drag-over .item {
-    padding: 9px 11px 6px 11px;
+    background: var(--color-interactive-subtle);
 }
 
 .draggable-item {
     cursor: grab;
     position: relative;
 
-    /* We don't want the padding change due to the border animated */
     .item {
-        padding: 12px 15px;
-        transition: none !important;
+        display: block;
+        margin: 0.25rem 0;
+        padding: 0.75rem;
+        color: var(--color-text);
+        background: var(--color-surface);
+        border: 1px solid transparent;
+        border-radius: 0.875rem;
+        transition: background-color 160ms ease, border-color 160ms ease, transform 160ms ease;
+
+        &:hover {
+            color: var(--color-text);
+            background: var(--color-surface-hover);
+            border-color: var(--color-border);
+            transform: translateX(2px);
+        }
+
+        &.disabled {
+            opacity: 0.58;
+        }
     }
 
     &.dragging {
@@ -398,7 +406,7 @@ export default {
 }
 
 .bottom-style {
-    margin-left: -10px;
-    margin-top: 5px;
+    margin-left: -0.625rem;
+    margin-top: 0.375rem;
 }
 </style>

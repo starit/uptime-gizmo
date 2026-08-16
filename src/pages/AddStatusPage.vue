@@ -1,12 +1,12 @@
 <template>
     <transition name="slide-fade" appear>
-        <div>
-            <h1 class="mb-3">
+        <div class="status-page-onboarding">
+            <h1 class="status-page-onboarding-title mb-3">
                 {{ $t("Add New Status Page") }}
             </h1>
 
             <form @submit.prevent="submit">
-                <div class="shadow-box">
+                <div class="shadow-box status-page-onboarding-surface">
                     <div class="mb-3">
                         <label for="name" class="form-label">{{ $t("Name") }}</label>
                         <input
@@ -106,8 +106,17 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.shadow-box {
-    padding: 20px;
+.status-page-onboarding {
+    max-width: 640px;
+}
+
+.status-page-onboarding-title {
+    letter-spacing: -0.035em;
+}
+
+.status-page-onboarding-surface {
+    padding: 1.5rem;
+    border: 1px solid var(--color-border);
 }
 
 #slug {

@@ -1,6 +1,6 @@
 <template>
-    <div>
-        <div v-if="$root.isMobile" class="shadow-box mb-3">
+    <div class="settings-workspace">
+        <div v-if="$root.isMobile" class="shadow-box settings-mobile-links mb-3">
             <router-link to="/manage-status-page" class="nav-link">
                 <font-awesome-icon icon="stream" />
                 {{ $t("Status Pages") }}
@@ -11,11 +11,11 @@
             </router-link>
         </div>
 
-        <h1 v-show="show" class="mb-3">
+        <h1 v-show="show" class="settings-workspace-title mb-3">
             {{ $t("Settings") }}
         </h1>
 
-        <div class="shadow-box shadow-box-settings">
+        <div class="shadow-box shadow-box-settings settings-workspace-surface">
             <div class="row">
                 <div v-if="showSubMenu" class="settings-menu col-lg-3 col-md-5">
                     <router-link v-for="(item, key) in subMenus" :key="key" :to="`/settings/${key}`">
@@ -242,15 +242,30 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "../assets/vars.scss";
+.settings-workspace {
+    max-width: 1240px;
+}
+
+.settings-workspace-title {
+    letter-spacing: -0.035em;
+}
+
+.settings-mobile-links {
+    display: grid;
+    gap: 0.25rem;
+}
+
+.settings-workspace-surface {
+    border: 1px solid var(--color-border);
+}
 
 .shadow-box-settings {
-    padding: 20px;
+    padding: 1.25rem;
     min-height: calc(100vh - 155px);
 }
 
 footer {
-    color: $secondary-text;
+    color: var(--color-text-muted);
     font-size: 13px;
     margin-top: 20px;
     padding-bottom: 30px;
@@ -263,60 +278,46 @@ footer {
     }
 
     .menu-item {
-        border-radius: 10px;
+        color: var(--color-text-muted);
+        border-radius: 0.75rem;
         margin: 0.5em;
         padding: 0.7em 1em;
         cursor: pointer;
         border-left-width: 0;
-        transition: all ease-in-out 0.1s;
+        transition: background-color 160ms ease, color 160ms ease, border-color 160ms ease;
     }
 
     .menu-item:hover {
-        background: $highlight-white;
-
-        .dark & {
-            background: $dark-header-bg;
-        }
+        color: var(--color-text);
+        background: var(--color-surface-hover);
     }
 
     .active .menu-item {
-        background: $highlight-white;
-        border-left: 4px solid $primary;
+        color: var(--color-text);
+        background: var(--color-interactive-subtle);
+        border-left: 4px solid var(--color-interactive);
         border-top-left-radius: 0;
         border-bottom-left-radius: 0;
-
-        .dark & {
-            background: $dark-header-bg;
-        }
     }
 }
 
 .settings-content {
     .settings-content-header {
         width: calc(100% + 20px);
-        border-bottom: 1px solid #dee2e6;
+        border-bottom: 1px solid var(--color-border);
         border-radius: 0 10px 0 0;
         margin-top: -20px;
         margin-right: -20px;
         padding: 12.5px 1em;
         font-size: 26px;
 
-        .dark & {
-            background: $dark-header-bg;
-            border-bottom: 0;
-        }
-
         .mobile & {
             padding: 15px 0 0 0;
-
-            .dark & {
-                background-color: transparent;
-            }
         }
     }
 }
 
 .logout {
-    color: $danger !important;
+    color: var(--color-status-down) !important;
 }
 </style>

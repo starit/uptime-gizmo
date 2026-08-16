@@ -1,9 +1,8 @@
 <template>
-    <div v-if="show" class="form-container">
-        <form @submit.prevent="submit">
-            <div>
-                <object width="64" height="64" data="/icon.svg" />
-                <div style="font-size: 28px; font-weight: bold; margin-top: 5px">Uptime Kuma</div>
+    <main v-if="show" class="onboarding-shell">
+        <form class="onboarding-card" @submit.prevent="submit">
+            <div class="onboarding-brand">
+                <img src="/images/logo.png" :alt="$root.appName" />
             </div>
 
             <div v-if="info.runningSetup" class="mt-5">
@@ -18,7 +17,7 @@
             </div>
 
             <template v-if="!info.runningSetup">
-                <div class="form-floating short mt-3">
+                <div class="form-floating mt-4">
                     <select id="language" v-model="$root.language" class="form-select">
                         <option v-for="(lang, i) in $i18n.availableLocales" :key="`Lang${i}`" :value="lang">
                             {{ $i18n.messages[lang].languageName }}
@@ -27,11 +26,11 @@
                     <label for="language" class="form-label">{{ $t("Language") }}</label>
                 </div>
 
-                <p class="mt-5 short">
+                <p class="onboarding-card-prompt">
                     {{ $t("setupDatabaseChooseDatabase") }}
                 </p>
 
-                <div class="btn-group" role="group" :aria-label="$t('Basic radio toggle button group')">
+                <div class="database-options" role="group" :aria-label="$t('Basic radio toggle button group')">
                     <template v-if="info.isEnabledEmbeddedMariaDB">
                         <input
                             id="btnradio3"
@@ -66,20 +65,20 @@
                     <label class="btn btn-outline-primary" for="btnradio1">SQLite</label>
                 </div>
 
-                <div v-if="dbConfig.type === 'embedded-mariadb'" class="mt-3 short">
+                <div v-if="dbConfig.type === 'embedded-mariadb'" class="form-text mt-3 text-start">
                     {{ $t("setupDatabaseEmbeddedMariaDB") }}
                 </div>
 
-                <div v-if="dbConfig.type === 'mariadb'" class="mt-3 short">
+                <div v-if="dbConfig.type === 'mariadb'" class="form-text mt-3 text-start">
                     {{ $t("setupDatabaseMariaDB") }}
                 </div>
 
-                <div v-if="dbConfig.type === 'sqlite'" class="mt-3 short">
+                <div v-if="dbConfig.type === 'sqlite'" class="form-text mt-3 text-start">
                     {{ $t("setupDatabaseSQLite") }}
                 </div>
 
                 <template v-if="dbConfig.type === 'mariadb'">
-                    <div v-if="!isProvidedMariaDBSocket" class="form-floating mt-3 short">
+                    <div v-if="!isProvidedMariaDBSocket" class="form-floating mt-3">
                         <input
                             id="floatingInput"
                             v-model="dbConfig.hostname"
@@ -90,20 +89,20 @@
                         <label for="floatingInput">{{ $t("Hostname") }}</label>
                     </div>
 
-                    <div v-if="!isProvidedMariaDBSocket" class="form-floating mt-3 short">
+                    <div v-if="!isProvidedMariaDBSocket" class="form-floating mt-3">
                         <input id="floatingInput" v-model="dbConfig.port" type="text" class="form-control" required />
                         <label for="floatingInput">{{ $t("Port") }}</label>
                     </div>
 
-                    <div v-if="isProvidedMariaDBSocket" class="mt-1 short text-start">
+                    <div v-if="isProvidedMariaDBSocket" class="mt-1 text-start">
                         <i18n-t keypath="mariadbSocketPathDetectedHelptext" tag="div" class="form-text">
                             <code>UPTIME_KUMA_DB_SOCKET</code>
                         </i18n-t>
                     </div>
 
-                    <hr v-if="isProvidedMariaDBSocket" class="mt-3 mb-2 short" />
+                    <hr v-if="isProvidedMariaDBSocket" class="mt-3 mb-2" />
 
-                    <div class="form-floating mt-3 short">
+                    <div class="form-floating mt-3">
                         <input
                             id="floatingInput"
                             v-model="dbConfig.username"
@@ -114,7 +113,7 @@
                         <label for="floatingInput">{{ $t("Username") }}</label>
                     </div>
 
-                    <div class="form-floating mt-3 short">
+                    <div class="form-floating mt-3">
                         <input
                             id="floatingInput"
                             v-model="dbConfig.password"
@@ -125,12 +124,12 @@
                         <label for="floatingInput">{{ $t("Password") }}</label>
                     </div>
 
-                    <div class="form-floating mt-3 short">
+                    <div class="form-floating mt-3">
                         <input id="floatingInput" v-model="dbConfig.dbName" type="text" class="form-control" required />
                         <label for="floatingInput">{{ $t("dbName") }}</label>
                     </div>
 
-                    <div class="mt-3 short text-start">
+                    <div class="mt-3 text-start">
                         <div class="form-check form-switch ps-0" style="height: auto; display: block; padding: 0">
                             <div class="d-flex align-items-center">
                                 <input
@@ -154,7 +153,7 @@
                         </div>
                     </div>
 
-                    <div v-if="dbConfig.ssl" class="form-floating mt-3 short">
+                    <div v-if="dbConfig.ssl" class="form-floating mt-3">
                         <textarea
                             id="caInput"
                             v-model="dbConfig.ca"
@@ -167,12 +166,12 @@
                     </div>
                 </template>
 
-                <button class="btn btn-primary mt-4 short" type="submit" :disabled="disabledButton">
+                <button class="btn btn-primary mt-4 w-100" type="submit" :disabled="disabledButton">
                     {{ $t("Next") }}
                 </button>
             </template>
         </form>
-    </div>
+    </main>
 </template>
 
 <script>
@@ -265,20 +264,54 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.form-container {
+.onboarding-shell {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
-    padding-top: 40px;
-    padding-bottom: 40px;
+    min-height: 100vh;
+    padding: clamp(2rem, 8vh, 7rem) 1rem;
+    background:
+        radial-gradient(circle at 85% 15%, color-mix(in srgb, var(--color-brand) 18%, transparent), transparent 22rem),
+        var(--color-bg);
 }
 
-.btn-group {
+.onboarding-card {
+    width: min(100%, 34rem);
+    padding: clamp(1.5rem, 4vw, 2.75rem);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 1.25rem;
+    box-shadow: 0 24px 70px rgba(10, 21, 30, 0.12);
+}
+
+.onboarding-brand {
+    display: flex;
+    justify-content: center;
+
+    img {
+        width: min(100%, 16rem);
+        height: auto;
+        border-radius: 0.75rem;
+    }
+}
+
+.onboarding-card-prompt {
+    margin: 2rem 0 1rem;
+    color: var(--color-text);
+    font-size: 1.05rem;
+    font-weight: 700;
+}
+
+.database-options {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(8.5rem, 1fr));
+    gap: 0.625rem;
+
     label {
-        width: 200px;
-        line-height: 55px;
-        font-size: 16px;
-        font-weight: bold;
+        min-height: 4.25rem;
+        padding: 0.75rem;
+        border-radius: 0.875rem !important;
+        font-weight: 700;
     }
 }
 
@@ -302,24 +335,9 @@ export default {
     }
 }
 
-.form-check {
-    height: calc(3.5rem + 2px);
-    padding: 0;
-    display: flex;
-    align-items: center;
-    justify-content: space-around;
-}
-
-.short {
-    width: 300px;
-}
-
-form {
-    max-width: 800px;
-    text-align: center;
-    display: flex;
-    justify-content: center;
-    flex-direction: column;
-    align-items: center;
+@media (max-width: 480px) {
+    .onboarding-card {
+        padding: 1.25rem;
+    }
 }
 </style>

@@ -79,10 +79,7 @@ export default {
 .tag-wrapper {
     color: white;
     opacity: 0.85;
-
-    .dark & {
-        opacity: 1;
-    }
+    border: 1px solid rgba(255, 255, 255, 0.18);
 }
 
 .tag-text {

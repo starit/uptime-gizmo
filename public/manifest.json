@@ -1,10 +1,10 @@
 {
-    "name": "Uptime Kuma",
-    "short_name": "Uptime Kuma",
-    "description": "An easy-to-use self-hosted monitoring tool.",
-    "theme_color": "#5cdd8b",
+    "name": "Uptime Gizmo",
+    "short_name": "Uptime Gizmo",
+    "description": "A self-hosted monitoring platform for humans and AI agents.",
+    "theme_color": "#0A151E",
     "start_url": "/",
-    "background_color": "#fff",
+    "background_color": "#FCFCFC",
     "display": "standalone",
     "icons": [
         {

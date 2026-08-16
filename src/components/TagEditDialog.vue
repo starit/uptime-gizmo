@@ -476,18 +476,9 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "../assets/vars.scss";
-
-.dark {
-    .modal-dialog .form-text,
-    .modal-dialog p {
-        color: $dark-font-color;
-    }
-}
-
 .btn-rm-monitor {
-    padding-left: 11px;
-    padding-right: 11px;
+    padding-left: 0.7rem;
+    padding-right: 0.7rem;
 }
 
 .tag-monitors-list {
@@ -497,18 +488,10 @@ export default {
 
 .tag-monitors-list .tag-monitors-list-row {
     cursor: pointer;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.125);
-
-    .dark & {
-        border-bottom: 1px solid $dark-border-color;
-    }
+    border-bottom: 1px solid var(--color-border);
 
     &:hover {
-        background-color: $highlight-white;
-    }
-
-    .dark &:hover {
-        background-color: $dark-bg2;
+        background-color: var(--color-surface-hover);
     }
 }
 </style>

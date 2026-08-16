@@ -278,7 +278,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "../assets/vars.scss";
 
 .dropdown-item {
     cursor: pointer;
@@ -286,46 +285,30 @@ export default {
 
 .simple-status {
     min-width: 64px;
-    border: 1px solid #d1d5db;
+    border: 1px solid var(--color-border);
     background-color: transparent !important;
     color: inherit !important;
-
-    .dark & {
-        border-color: #6b7280;
-    }
 }
 
 .clear-filters-btn {
     font-size: 0.8em;
-    margin-right: 5px;
+    margin-right: 0.375rem;
     display: flex;
     align-items: center;
-    padding: 2px 10px;
+    padding: 0.125rem 0.625rem;
     border-radius: 16px;
     background-color: transparent;
 
-    .dark & {
-        color: $dark-font-color;
-        border: 1px solid $dark-font-color2;
-    }
-
     &.active {
-        border: 1px solid $highlight;
-        background-color: $highlight-white;
-
-        .dark & {
-            background-color: $dark-font-color2;
-        }
+        color: var(--color-text);
+        border: 1px solid var(--color-brand);
+        background-color: var(--color-interactive-subtle);
     }
 }
 
 .dropdown-divider {
     margin: 0.5rem 0;
-    border-top: 1px solid #d1d5db;
-
-    .dark & {
-        border-top-color: #6b7280;
-    }
+    border-top: 1px solid var(--color-border);
 }
 
 .status-pill {
@@ -335,15 +318,9 @@ export default {
 
     &.running,
     &.paused {
-        background-color: white !important;
-        border: 1px solid #d1d5db;
+        background-color: var(--color-surface) !important;
+        border: 1px solid var(--color-border);
         color: inherit;
-
-        .dark & {
-            background-color: transparent !important;
-            border-color: #6b7280;
-            color: $dark-font-color;
-        }
 
         .icon-small {
             font-size: 0.75em;

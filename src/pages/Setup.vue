@@ -1,13 +1,12 @@
 <template>
-    <div class="form-container" data-cy="setup-form">
-        <div class="form">
+    <main class="onboarding-shell" data-cy="setup-form">
+        <div class="onboarding-card">
             <form @submit.prevent="submit">
-                <div>
-                    <object width="64" height="64" data="/icon.svg" />
-                    <div style="font-size: 28px; font-weight: bold; margin-top: 5px">Uptime Kuma</div>
+                <div class="onboarding-brand">
+                    <img src="/images/logo.png" :alt="$root.appName" />
                 </div>
 
-                <p class="mt-3">
+                <p class="onboarding-card-prompt">
                     {{ $t("Create your admin account") }}
                 </p>
 
@@ -69,7 +68,7 @@
                 </button>
             </form>
         </div>
-    </div>
+    </main>
 </template>
 
 <script>
@@ -125,11 +124,15 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.form-container {
+.onboarding-shell {
     display: flex;
-    align-items: center;
-    padding-top: 40px;
-    padding-bottom: 40px;
+    align-items: flex-start;
+    justify-content: center;
+    min-height: 100vh;
+    padding: clamp(2rem, 8vh, 7rem) 1rem;
+    background:
+        radial-gradient(circle at 85% 15%, color-mix(in srgb, var(--color-brand) 18%, transparent), transparent 22rem),
+        var(--color-bg);
 }
 
 .form-floating {
@@ -152,11 +155,27 @@ export default {
     }
 }
 
-.form {
+.onboarding-card {
     width: 100%;
-    max-width: 330px;
-    padding: 15px;
-    margin: auto;
+    max-width: 30rem;
+    padding: clamp(1.5rem, 4vw, 2.75rem);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 1.25rem;
+    box-shadow: 0 24px 70px rgba(10, 21, 30, 0.12);
     text-align: center;
+}
+
+.onboarding-brand img {
+    width: min(100%, 16rem);
+    height: auto;
+    border-radius: 0.75rem;
+}
+
+.onboarding-card-prompt {
+    margin: 2rem 0 1rem;
+    color: var(--color-text);
+    font-size: 1.05rem;
+    font-weight: 700;
 }
 </style>

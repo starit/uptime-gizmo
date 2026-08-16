@@ -560,11 +560,11 @@ export default {
             const rootStyles = getComputedStyle(document.documentElement);
             const canvasStyles = getComputedStyle(canvas.parentElement);
             const colors = {
-                empty: canvasStyles.getPropertyValue("--beat-empty-color") || "#f0f8ff",
-                down: rootStyles.getPropertyValue("--bs-danger") || "#dc3545",
-                pending: rootStyles.getPropertyValue("--bs-warning") || "#ffc107",
-                maintenance: rootStyles.getPropertyValue("--maintenance") || "#1d4ed8",
-                up: rootStyles.getPropertyValue("--bs-primary") || "#5cdd8b",
+                empty: canvasStyles.getPropertyValue("--beat-empty-color") || "#f4f5f6",
+                down: rootStyles.getPropertyValue("--status-down") || "#ef4444",
+                pending: rootStyles.getPropertyValue("--status-degraded") || "#f59e0b",
+                maintenance: rootStyles.getPropertyValue("--status-maintenance") || "#8b5cf6",
+                up: rootStyles.getPropertyValue("--status-up") || "#22c55e",
             };
 
             // Draw each beat
@@ -813,7 +813,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "../assets/vars.scss";
 
 .wrap {
     overflow: hidden;
@@ -822,11 +821,7 @@ export default {
 }
 
 .hp-bar-big {
-    --beat-empty-color: #f0f8ff;
-
-    .dark & {
-        --beat-empty-color: #848484;
-    }
+    --beat-empty-color: var(--color-surface-subtle);
 
     .heartbeat-canvas {
         display: block;
@@ -835,20 +830,17 @@ export default {
 }
 
 .word {
-    color: $secondary-text;
+    color: var(--color-text-muted);
     font-size: 12px;
 }
 
 .connecting-line {
     flex-grow: 1;
     height: 1px;
-    background-color: #ededed;
-    margin-left: 10px;
-    margin-right: 10px;
+    background-color: var(--color-border);
+    margin-left: 0.625rem;
+    margin-right: 0.625rem;
     margin-top: 2px;
 
-    .dark & {
-        background-color: #333;
-    }
 }
 </style>

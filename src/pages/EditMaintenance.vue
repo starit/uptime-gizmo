@@ -1,9 +1,9 @@
 <template>
     <transition name="slide-fade" appear>
-        <div>
-            <h1 class="mb-3">{{ pageName }}</h1>
+        <div class="maintenance-editor">
+            <h1 class="maintenance-editor-title mb-3">{{ pageName }}</h1>
             <form @submit.prevent="submit">
-                <div class="shadow-box shadow-box-with-fixed-bottom-bar">
+                <div class="shadow-box shadow-box-with-fixed-bottom-bar maintenance-editor-surface">
                     <div class="row">
                         <div class="col-xl-10">
                             <!-- Title -->
@@ -906,23 +906,32 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.maintenance-editor {
+    max-width: 1100px;
+    padding-bottom: 5.5rem;
+}
+
+.maintenance-editor-title {
+    letter-spacing: -0.035em;
+}
+
+.maintenance-editor-surface {
+    border: 1px solid var(--color-border);
+}
+
 textarea {
     min-height: 150px;
 }
 
-.dark-calendar::-webkit-calendar-picker-indicator {
-    filter: invert(1);
-}
-
 .weekday-picker {
     display: flex;
-    gap: 10px;
+    gap: 0.625rem;
 
     & > div {
         display: flex;
         flex-direction: column;
         align-items: center;
-        width: 40px;
+        width: 2.5rem;
 
         .form-check-inline {
             margin-right: 0;
@@ -932,14 +941,14 @@ textarea {
 
 .day-picker {
     display: flex;
-    gap: 10px;
+    gap: 0.625rem;
     flex-wrap: wrap;
 
     & > div {
         display: flex;
         flex-direction: column;
         align-items: center;
-        width: 40px;
+        width: 2.5rem;
 
         .form-check-inline {
             margin-right: 0;

@@ -1,5 +1,5 @@
 <template>
-    <div class="shadow-box mb-3 p-0" :style="boxStyle">
+    <div class="shadow-box monitor-list-panel mb-3 p-0" :style="boxStyle">
         <div class="list-header">
             <!-- Line 1: Checkbox + Status + Tags + Search Bar -->
             <div class="filter-row">
@@ -608,46 +608,37 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "../assets/vars.scss";
-
-.shadow-box {
+.monitor-list-panel {
     height: calc(100vh - 150px);
     position: sticky;
     top: 10px;
-}
-
-.small-padding {
-    padding-left: 5px !important;
-    padding-right: 5px !important;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
 }
 
 .list-header {
-    border-bottom: 1px solid #dee2e6;
-    border-radius: 10px 10px 0 0;
-    margin-bottom: 10px;
-    padding: 10px;
+    padding: 0.875rem;
+    background: var(--color-surface-subtle);
+    border-bottom: 1px solid var(--color-border);
+    border-radius: 1rem 1rem 0 0;
     display: flex;
     flex-direction: column;
-    gap: 8px;
-
-    .dark & {
-        background-color: $dark-header-bg;
-        border-bottom: 0;
-    }
+    gap: 0.625rem;
 }
 
 .filter-row {
     display: flex;
     justify-content: flex-start;
     align-items: center;
-    gap: 8px;
+    gap: 0.625rem;
     flex-wrap: nowrap;
     width: 100%;
 
     .form-check-input {
         cursor: pointer;
         margin: 0;
-        margin-left: 6px;
+        margin-left: 0.25rem;
         flex-shrink: 0;
     }
 }
@@ -655,7 +646,7 @@ export default {
 .filters-group {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 0.5rem;
 }
 
 .actions-wrapper {
@@ -675,13 +666,9 @@ export default {
         min-width: 140px;
         padding: 4px 0;
         border-radius: 8px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-
-        .dark & {
-            background-color: $dark-bg;
-            border-color: $dark-border-color;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-        }
+        background: var(--color-surface);
+        border-color: var(--color-border);
+        box-shadow: var(--shadow-float);
     }
 
     .dropdown-item {
@@ -689,33 +676,20 @@ export default {
         padding: 6px 12px;
         font-size: 0.9em;
 
-        .dark & {
-            color: $dark-font-color;
-
-            &:hover {
-                background-color: $dark-bg2;
-                color: $dark-font-color;
-            }
+        &:hover {
+            background: var(--color-surface-hover);
+            color: var(--color-text);
         }
 
         &.text-danger {
-            color: #dc3545;
-
-            .dark & {
-                color: #dc3545;
-            }
+            color: var(--color-status-down);
 
             &:hover {
-                background-color: #dc3545 !important;
-                color: white !important;
-
-                .dark & {
-                    background-color: #dc3545 !important;
-                    color: white !important;
-                }
+                background-color: var(--color-status-down) !important;
+                color: var(--color-text-inverse) !important;
 
                 svg {
-                    color: white !important;
+                    color: var(--color-text-inverse) !important;
                 }
             }
         }
@@ -725,18 +699,14 @@ export default {
 .selection-row {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 0.5rem;
     width: 100%;
 }
 
 .selected-count {
     white-space: nowrap;
     font-size: 0.9em;
-    color: $primary;
-
-    .dark & {
-        color: $dark-font-color;
-    }
+    color: var(--color-interactive);
 }
 
 .selection-controls {
@@ -761,7 +731,7 @@ export default {
     .filter-row {
         flex-direction: column-reverse;
         align-items: stretch;
-        gap: 8px;
+        gap: 0.625rem;
     }
 
     .search-wrapper {
@@ -778,8 +748,8 @@ export default {
 
 @media (max-width: 770px) {
     .list-header {
-        margin-bottom: 10px;
-        padding: 20px;
+        margin-bottom: 0.625rem;
+        padding: 1rem;
     }
 }
 
@@ -801,7 +771,7 @@ export default {
 .search-icon {
     position: absolute;
     right: 10px;
-    color: #c0c0c0;
+    color: var(--color-text-muted);
     cursor: pointer;
     transition: all ease-in-out 0.1s;
     z-index: 1;
@@ -815,14 +785,6 @@ export default {
     width: 100%;
     padding-right: 30px;
     transition: none !important;
-}
-
-.tags {
-    margin-top: 4px;
-    padding-left: 67px;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0;
 }
 
 @media (max-width: 549px), (min-width: 770px) and (max-width: 1149px), (min-width: 1200px) and (max-width: 1499px) {

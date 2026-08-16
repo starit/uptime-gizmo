@@ -1,11 +1,11 @@
 <template>
-    <div :class="classes">
+    <div :class="classes" class="app-shell">
         <div v-if="!$root.socket.connected && !$root.socket.firstConnect" class="lost-connection">
             <div class="container-fluid">
                 {{ $root.connectionErrorMsg }}
                 <div v-if="$root.showReverseProxyGuide">
                     {{ $t("Using a Reverse Proxy?") }}
-                    <a href="https://github.com/louislam/uptime-kuma/wiki/Reverse-Proxy" target="_blank">
+                    <a href="https://github.com/starit/uptime-gizmo/wiki/Reverse-Proxy" target="_blank">
                         {{ $t("Check how to config it for WebSocket") }}
                     </a>
                 </div>
@@ -13,39 +13,38 @@
         </div>
 
         <!-- Desktop header -->
-        <header v-if="!$root.isMobile" class="d-flex flex-wrap justify-content-center py-3 mb-3 border-bottom">
+        <header v-if="!$root.isMobile" class="app-header">
             <router-link
                 to="/dashboard"
-                class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-dark text-decoration-none"
+                class="app-brand"
             >
-                <object class="bi me-2 ms-4" width="40" height="40" data="/icon.svg" />
-                <span class="fs-4 title">{{ $t("Uptime Kuma") }}</span>
+                <img class="app-brand-logo" src="/images/logo.png" :alt="$root.appName" />
             </router-link>
 
             <a
                 v-if="hasNewVersion"
                 target="_blank"
-                href="https://github.com/louislam/uptime-kuma/releases"
-                class="btn btn-primary me-3"
+                href="https://github.com/starit/uptime-gizmo/releases"
+                class="btn btn-primary app-header-update"
             >
                 <font-awesome-icon icon="arrow-alt-circle-up" />
                 {{ $t("New Update") }}
             </a>
 
-            <ul class="nav nav-pills">
-                <li v-if="$root.loggedIn" class="nav-item me-2">
-                    <router-link to="/manage-status-page" class="nav-link">
+            <ul class="app-nav">
+                <li v-if="$root.loggedIn" class="app-nav-item">
+                    <router-link to="/manage-status-page" class="app-nav-link">
                         <font-awesome-icon icon="stream" />
                         {{ $t("Status Pages") }}
                     </router-link>
                 </li>
-                <li v-if="$root.loggedIn" class="nav-item me-2">
-                    <router-link to="/dashboard" class="nav-link">
+                <li v-if="$root.loggedIn" class="app-nav-item">
+                    <router-link to="/dashboard" class="app-nav-link">
                         <font-awesome-icon icon="tachometer-alt" />
                         {{ $t("Dashboard") }}
                     </router-link>
                 </li>
-                <li v-if="$root.loggedIn" class="nav-item">
+                <li v-if="$root.loggedIn" class="app-nav-item">
                     <div class="dropdown dropdown-profile-pic">
                         <div class="nav-link" data-bs-toggle="dropdown">
                             <div class="profile-pic">{{ $root.usernameFirstChar }}</div>
@@ -96,7 +95,7 @@
 
                             <li>
                                 <a
-                                    href="https://github.com/louislam/uptime-kuma/wiki"
+                                    href="https://github.com/starit/uptime-gizmo/wiki"
                                     class="dropdown-item"
                                     target="_blank"
                                 >
@@ -118,37 +117,36 @@
         </header>
 
         <!-- Mobile header -->
-        <header v-else class="d-flex flex-wrap justify-content-center pt-2 pb-2 mb-3">
-            <router-link to="/dashboard" class="d-flex align-items-center text-dark text-decoration-none">
-                <object class="bi" width="40" height="40" data="/icon.svg" />
-                <span class="fs-4 title ms-2">Uptime Kuma</span>
+        <header v-else class="app-header app-header-mobile">
+            <router-link to="/dashboard" class="app-brand">
+                <img class="app-brand-logo" src="/images/logo.png" :alt="$root.appName" />
             </router-link>
         </header>
 
-        <main>
+        <main class="app-main">
             <router-view v-if="$root.loggedIn" />
             <Login v-if="!$root.loggedIn && $root.allowLoginDialog" />
         </main>
 
         <!-- Mobile Only -->
         <div v-if="$root.isMobile" style="width: 100%; height: calc(60px + env(safe-area-inset-bottom))" />
-        <nav v-if="$root.isMobile && $root.loggedIn" class="bottom-nav">
-            <router-link to="/dashboard" class="nav-link">
+        <nav v-if="$root.isMobile && $root.loggedIn" class="bottom-nav" :aria-label="$t('Dashboard')">
+            <router-link to="/dashboard" class="bottom-nav-link">
                 <div><font-awesome-icon icon="tachometer-alt" /></div>
                 {{ $t("Home") }}
             </router-link>
 
-            <router-link to="/list" class="nav-link">
+            <router-link to="/list" class="bottom-nav-link">
                 <div><font-awesome-icon icon="list" /></div>
                 {{ $t("List") }}
             </router-link>
 
-            <router-link to="/add" class="nav-link">
+            <router-link to="/add" class="bottom-nav-link">
                 <div><font-awesome-icon icon="plus" /></div>
                 {{ $t("Add") }}
             </router-link>
 
-            <router-link to="/settings" class="nav-link">
+            <router-link to="/settings" class="bottom-nav-link">
                 <div><font-awesome-icon icon="cog" /></div>
                 {{ $t("Settings") }}
             </router-link>
@@ -238,82 +236,89 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "../assets/vars.scss";
-
-.nav-link {
-    &:hover {
-        background-color: $primary;
-        color: #fff;
-
-        .dark & {
-            background-color: $primary;
-            color: #000;
-        }
-
-        &.active {
-            background-color: $highlight;
-        }
-    }
-
-    &.status-page {
-        background-color: rgba(255, 255, 255, 0.1);
-    }
+.app-shell {
+    min-height: 100vh;
+    background:
+        linear-gradient(135deg, color-mix(in srgb, var(--color-brand) 8%, transparent), transparent 28rem),
+        var(--color-bg);
 }
 
-.bottom-nav {
+.app-header {
+    position: sticky;
+    top: 0;
     z-index: 1000;
-    position: fixed;
-    bottom: 0;
-    height: calc(60px + env(safe-area-inset-bottom));
-    width: 100%;
-    left: 0;
-    background-color: #fff;
-    box-shadow:
-        0 15px 47px 0 rgba(0, 0, 0, 0.05),
-        0 5px 14px 0 rgba(0, 0, 0, 0.05);
-    text-align: center;
-    white-space: nowrap;
-    padding: 0 10px env(safe-area-inset-bottom);
+    display: flex;
+    align-items: center;
+    min-height: 76px;
+    padding: 0.75rem clamp(1rem, 3vw, 3rem);
+    background: color-mix(in srgb, var(--color-surface) 90%, transparent);
+    border-bottom: 1px solid var(--color-border);
+    backdrop-filter: blur(18px);
+}
 
-    a {
-        text-align: center;
-        width: 25%;
-        display: inline-block;
-        height: 100%;
-        padding: 8px 10px 0;
-        font-size: 13px;
-        color: #c1c1c1;
-        overflow: hidden;
-        text-decoration: none;
+.app-header-mobile {
+    justify-content: center;
+    min-height: 64px;
 
-        &.router-link-exact-active,
-        &.active {
-            color: $primary;
-            font-weight: bold;
-        }
-
-        div {
-            font-size: 20px;
-        }
+    .app-brand {
+        margin-right: 0;
     }
 }
 
-main {
-    min-height: calc(100vh - 160px);
+.app-brand {
+    display: inline-flex;
+    align-items: center;
+    min-width: 0;
+    margin-right: auto;
 }
 
-.title {
-    font-weight: bold;
+.app-brand-logo {
+    display: block;
+    width: min(13rem, 42vw);
+    height: auto;
+    border-radius: 0.65rem;
 }
 
-.nav {
-    margin-right: 25px;
+.app-header-update {
+    margin-right: 0.75rem;
+}
+
+.app-nav {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+
+.app-nav-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 0.8rem;
+    border-radius: 0.7rem;
+    color: var(--color-text-muted);
+    font-weight: 650;
+    text-decoration: none;
+
+    &:hover,
+    &.router-link-active {
+        background-color: var(--color-interactive-subtle);
+        color: var(--color-interactive);
+    }
+}
+
+.app-main {
+    min-height: calc(100vh - 76px);
+    padding: clamp(1rem, 2vw, 2rem) 0;
 }
 
 .lost-connection {
-    padding: 5px;
-    background-color: crimson;
-    color: white;
+    padding: 0.75rem 1rem;
+    background-color: var(--status-down-bg);
+    border-bottom: 1px solid var(--status-down-border);
+    color: var(--status-down-fg);
     position: fixed;
     width: 100%;
     z-index: 99999;
@@ -328,11 +333,11 @@ main {
         display: flex;
         gap: 6px;
         align-items: center;
-        background-color: rgba(200, 200, 200, 0.2);
+        background-color: var(--color-surface-subtle);
         padding: 0.5rem 0.8rem;
 
         &:hover {
-            background-color: rgba(255, 255, 255, 0.2);
+            background-color: var(--color-surface-hover);
         }
     }
 
@@ -341,12 +346,13 @@ main {
         padding-left: 0;
         padding-bottom: 0;
         margin-top: 8px !important;
-        border-radius: 16px;
+        border: 1px solid var(--color-border);
+        border-radius: 0.875rem;
         overflow: hidden;
 
         .dropdown-divider {
             margin: 0;
-            border-top: 1px solid rgba(0, 0, 0, 0.4);
+            border-top: 1px solid var(--color-border);
             background-color: transparent;
         }
 
@@ -356,25 +362,13 @@ main {
         }
 
         .dropdown-item {
+            color: var(--color-text);
             padding: 0.7rem 1rem;
-        }
 
-        .dark & {
-            background-color: $dark-bg;
-            color: $dark-font-color;
-            border-color: $dark-border-color;
-
-            .dropdown-item {
-                color: $dark-font-color;
-
-                &.active {
-                    color: $dark-font-color2;
-                    background-color: $highlight !important;
-                }
-
-                &:hover {
-                    background-color: $dark-bg2;
-                }
+            &.active,
+            &:hover {
+                background-color: var(--color-surface-hover);
+                color: var(--color-text);
             }
         }
     }
@@ -383,8 +377,8 @@ main {
         display: flex;
         align-items: center;
         justify-content: center;
-        color: white;
-        background-color: $primary;
+        color: var(--color-brand-contrast);
+        background-color: var(--color-brand);
         width: 24px;
         height: 24px;
         margin-right: 5px;
@@ -394,18 +388,39 @@ main {
     }
 }
 
-.dark {
-    header {
-        background-color: $dark-header-bg;
-        border-bottom-color: $dark-header-bg !important;
+.bottom-nav {
+    position: fixed;
+    z-index: 1000;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    height: calc(64px + env(safe-area-inset-bottom));
+    padding: 0.35rem 0.5rem env(safe-area-inset-bottom);
+    background: color-mix(in srgb, var(--color-surface) 94%, transparent);
+    border-top: 1px solid var(--color-border);
+    backdrop-filter: blur(18px);
+}
 
-        span {
-            color: #f0f6fc;
-        }
+.bottom-nav-link {
+    display: grid;
+    place-content: center;
+    gap: 0.2rem;
+    min-width: 0;
+    color: var(--color-text-subtle);
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-align: center;
+    text-decoration: none;
+
+    div {
+        font-size: 1.05rem;
     }
 
-    .bottom-nav {
-        background-color: $dark-bg;
+    &.router-link-exact-active,
+    &.active {
+        color: var(--color-interactive);
     }
 }
 
@@ -420,7 +435,17 @@ main {
     z-index: 100;
 
     .dark & {
-        box-shadow: 2px 2px 30px rgba(0, 0, 0, 0.5);
+        box-shadow: 2px 2px 30px rgba(10, 21, 30, 0.45);
+    }
+}
+
+@media (max-width: 900px) {
+    .app-nav-link {
+        font-size: 0;
+
+        svg {
+            font-size: 1rem;
+        }
     }
 }
 

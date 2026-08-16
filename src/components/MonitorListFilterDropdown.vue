@@ -46,26 +46,25 @@ export default {
 </script>
 
 <style lang="scss">
-@import "../assets/vars.scss";
-@import "../assets/app.scss";
-
 .filter-dropdown-menu {
     z-index: 100;
-    transition: all 0.2s;
-    padding: 5px 0 !important;
-    border-radius: 16px;
+    transition: opacity 160ms ease, transform 160ms ease;
+    padding: 0.25rem 0 !important;
+    border: 1px solid var(--color-border);
+    border-radius: 0.875rem;
     overflow: hidden;
 
     position: absolute;
     inset: 0 auto auto 0;
     margin: 0;
-    transform: translate(0, 36px);
-    box-shadow: 0 15px 70px rgba(0, 0, 0, 0.1);
+    transform: translate(0, 2.5rem);
+    box-shadow: var(--shadow-float);
     visibility: hidden;
     list-style: none;
     height: 0;
     opacity: 0;
-    background: white;
+    background: var(--color-surface);
+    color: var(--color-text);
 
     &.open {
         height: unset;
@@ -74,67 +73,37 @@ export default {
     }
 
     .dropdown-item {
-        padding: 5px 15px;
+        padding: 0.375rem 0.875rem;
     }
 
     .dropdown-item:focus {
-        background: $highlight-white;
-
-        .dark & {
-            background: $dark-bg2;
-        }
-    }
-
-    .dark & {
-        background-color: $dark-bg;
-        color: $dark-font-color;
-        border-color: $dark-border-color;
-
-        .dropdown-item {
-            color: $dark-font-color;
-
-            &.active {
-                color: $dark-font-color2;
-                background-color: $highlight !important;
-            }
-
-            &:hover {
-                background-color: $dark-bg2;
-            }
-        }
+        background: var(--color-surface-hover);
     }
 }
 
 .filter-dropdown-status {
-    @extend .btn-outline-normal;
     display: flex;
     align-items: center;
+    min-height: 2.25rem;
     margin-left: 0;
-    color: $link-color;
-
-    .dark & {
-        color: $dark-font-color;
-    }
+    color: var(--color-interactive);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 0.625rem;
 
     &:focus {
-        background-color: $highlight-white;
-
-        .dark & {
-            background-color: $dark-font-color2;
-        }
+        outline: 2px solid var(--color-focus-ring);
+        outline-offset: 2px;
     }
 
     &.active {
-        border: 1px solid $highlight;
-        background-color: $highlight-white;
-
-        .dark & {
-            background-color: $dark-font-color2;
-        }
+        color: var(--color-text);
+        border-color: var(--color-interactive);
+        background-color: var(--color-interactive-subtle);
     }
 }
 
 .filter-active {
-    color: $highlight;
+    color: var(--color-interactive);
 }
 </style>

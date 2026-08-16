@@ -38,14 +38,3 @@ export default {
     },
 };
 </script>
-
-<style lang="scss" scoped>
-@import "../../assets/vars.scss";
-
-.dark {
-    .list-group-item {
-        background-color: $dark-bg2;
-        color: $dark-font-color;
-    }
-}
-</style>

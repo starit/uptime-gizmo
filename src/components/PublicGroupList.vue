@@ -302,9 +302,9 @@ export default {
          */
         certExpiryColor(monitor) {
             if (monitor?.element?.validCert && monitor.element.certExpiryDaysRemaining > 7) {
-                return "#059669";
+                return "var(--status-up)";
             }
-            return "#DC2626";
+            return "var(--status-down)";
         },
 
         /**
@@ -323,11 +323,12 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "../assets/vars";
 
 .extra-info {
     display: flex;
     margin-bottom: 0.5rem;
+    flex-wrap: wrap;
+    gap: 0.25rem;
 }
 
 .extra-info > div > div:first-child {
@@ -345,20 +346,39 @@ export default {
     min-height: 46px;
 }
 
+.shadow-box.monitor-list {
+    padding: 0.5rem;
+    border: 1px solid var(--color-border);
+}
+
+.item {
+    padding: 0.875rem;
+    border: 1px solid transparent;
+    border-radius: 0.75rem;
+    transition: background-color 160ms ease, border-color 160ms ease;
+
+    &:hover {
+        background: var(--color-surface-hover);
+        border-color: var(--color-border);
+    }
+}
+
 .item-name {
-    padding-left: 5px;
-    padding-right: 5px;
+    padding-left: 0.375rem;
+    padding-right: 0.375rem;
     margin: 0;
     display: inline-block;
+    color: var(--color-text);
+    font-weight: 600;
 }
 
 .btn-link {
-    color: #bbbbbb;
-    margin-left: 5px;
+    color: var(--color-text-subtle);
+    margin-left: 0.375rem;
 }
 
 .link-active {
-    color: $primary;
+    color: var(--color-interactive);
 }
 
 .flip-list-move {
@@ -370,12 +390,12 @@ export default {
 }
 
 .drag {
-    color: #bbb;
+    color: var(--color-text-subtle);
     cursor: grab;
 }
 
 .remove {
-    color: $danger;
+    color: var(--status-down);
 }
 
 .group-title {
@@ -387,13 +407,13 @@ export default {
 
 .collapse-toggle {
     cursor: pointer;
-    padding: 2px;
+    padding: 0.125rem;
 }
 
 .chevron {
     font-size: 0.8em;
-    color: #bbb;
-    transition: all 0.2s $easing-in;
+    color: var(--color-text-subtle);
+    transition: transform 0.2s ease-in;
 
     &.collapsed {
         transform: rotate(-90deg);
@@ -407,6 +427,6 @@ export default {
 }
 
 .bg-maintenance {
-    background-color: $maintenance;
+    background-color: var(--status-maintenance);
 }
 </style>

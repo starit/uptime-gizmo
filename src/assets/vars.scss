@@ -1,20 +1,24 @@
-$primary: #5cdd8b;
-$danger: #dc3545;
-$warning: #f8a306;
-$maintenance: #1747f5;
-$link-color: #111;
-$border-radius: 50rem;
-$secondary-text: #aaa;
+$primary: #ecab24;
+$danger: #ef4444;
+$warning: #f59e0b;
+$maintenance: #8b5cf6;
+$link-color: #1e64e7;
+$border-radius: 0.875rem;
+$secondary-text: #575d64;
 
-$highlight: #7ce8a4;
-$highlight-white: #e7faec;
+$highlight: #f5be4f;
+$highlight-white: #fff5dc;
 
-$dark-font-color: #b1b8c0;
-$dark-font-color2: #020b05;
-$dark-bg: #0d1117;
-$dark-bg2: #070a10;
-$dark-border-color: #1d2634;
-$dark-header-bg: #161b22;
+$dark-font-color: #c6cbd0;
+$dark-font-color2: #0a151e;
+$dark-bg: #101e29;
+$dark-bg2: #0a151e;
+$dark-border-color: #2b3d4b;
+$dark-header-bg: #172937;
+
+$font-family-sans-serif: "IBM Plex Sans", "Noto Sans", sans-serif;
+$body-bg: #fcfcfc;
+$body-color: #0a151e;
 
 $easing-in: cubic-bezier(0.54, 0.78, 0.55, 0.97);
 $easing-out: cubic-bezier(0.25, 0.46, 0.45, 0.94);

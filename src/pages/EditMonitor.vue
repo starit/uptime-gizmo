@@ -1,9 +1,9 @@
 <template>
     <transition name="slide-fade" appear>
-        <div>
-            <h1 class="mb-3">{{ pageName }}</h1>
+        <div class="monitor-editor">
+            <h1 class="monitor-editor-title mb-3">{{ pageName }}</h1>
             <form @submit.prevent="submit">
-                <div class="shadow-box shadow-box-with-fixed-bottom-bar">
+                <div class="shadow-box shadow-box-with-fixed-bottom-bar monitor-editor-surface">
                     <div class="row">
                         <div class="col-md-6">
                             <h2 class="mb-2">{{ $t("General") }}</h2>
@@ -4533,7 +4533,19 @@ message HealthCheckResponse {
 </script>
 
 <style lang="scss" scoped>
-@import "../assets/vars.scss";
+
+.monitor-editor {
+    max-width: 1240px;
+    padding-bottom: 5.5rem;
+}
+
+.monitor-editor-title {
+    letter-spacing: -0.035em;
+}
+
+.monitor-editor-surface {
+    border: 1px solid var(--color-border);
+}
 
 textarea {
     min-height: 200px;

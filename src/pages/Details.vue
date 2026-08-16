@@ -1,10 +1,10 @@
 <template>
     <transition name="slide-fade" appear>
-        <div v-if="monitor">
+        <div v-if="monitor" class="monitor-detail">
             <router-link v-if="group !== ''" :to="monitorURL(monitor.parent)">
                 {{ group }}
             </router-link>
-            <h1>
+            <h1 class="monitor-detail-title">
                 {{ monitor.name }}
                 <div class="monitor-id">
                     <div class="hash">#</div>
@@ -115,7 +115,7 @@
                 </span>
             </p>
 
-            <div class="functions">
+            <div class="functions monitor-detail-actions">
                 <div class="btn-group" role="group">
                     <button v-if="monitor.active" class="btn btn-normal" @click="pauseDialog">
                         <font-awesome-icon icon="pause" />
@@ -145,7 +145,7 @@
                 </div>
             </div>
 
-            <div class="shadow-box">
+            <div class="shadow-box detail-card detail-card-health">
                 <div class="row">
                     <div class="col-md-8">
                         <HeartbeatBar :monitor-id="monitor.id" />
@@ -157,7 +157,7 @@
                     </div>
                     <div class="col-md-4 text-center">
                         <span
-                            class="badge rounded-pill"
+                            class="badge rounded-pill monitor-status"
                             :class="'bg-' + status.color"
                             style="font-size: 30px"
                             data-testid="monitor-status"
@@ -169,7 +169,7 @@
             </div>
 
             <!-- Push Examples -->
-            <div v-if="monitor.type === 'push'" class="shadow-box big-padding">
+            <div v-if="monitor.type === 'push'" class="shadow-box big-padding detail-card">
                 <a href="#" @click="pushMonitor.showPushExamples = !pushMonitor.showPushExamples">
                     {{ $t("pushViewCode") }}
                 </a>
@@ -205,7 +205,7 @@
             </div>
 
             <!-- Stats -->
-            <div class="shadow-box big-padding text-center stats">
+            <div class="shadow-box big-padding text-center stats detail-card">
                 <div class="row">
                     <div
                         v-if="monitor.type !== 'group'"
@@ -292,7 +292,7 @@
 
             <!-- Cert Info Box -->
             <transition name="slide-fade" appear>
-                <div v-if="showCertInfoBox" class="shadow-box big-padding text-center">
+                <div v-if="showCertInfoBox" class="shadow-box big-padding text-center detail-card">
                     <div class="row">
                         <div class="col">
                             <certificate-info :certInfo="tlsInfo.certInfo" :valid="tlsInfo.valid" />
@@ -302,7 +302,7 @@
             </transition>
 
             <!-- Ping Chart -->
-            <div v-if="showPingChartBox" class="shadow-box big-padding text-center ping-chart-wrapper">
+            <div v-if="showPingChartBox" class="shadow-box big-padding text-center ping-chart-wrapper detail-card">
                 <div class="row">
                     <div class="col">
                         <PingChart :monitor-id="monitor.id" />
@@ -311,7 +311,7 @@
             </div>
 
             <!-- Screenshot -->
-            <div v-if="monitor.type === 'real-browser'" class="shadow-box">
+            <div v-if="monitor.type === 'real-browser'" class="shadow-box detail-card">
                 <div class="row">
                     <div class="col-md-6 zoom-cursor">
                         <img
@@ -325,7 +325,7 @@
                 </div>
             </div>
 
-            <div class="shadow-box table-shadow-box">
+            <div class="shadow-box table-shadow-box detail-card">
                 <div class="dropdown dropdown-clear-data">
                     <button
                         class="btn btn-sm btn-outline-danger dropdown-toggle"
@@ -870,7 +870,17 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "../assets/vars.scss";
+.monitor-detail {
+    max-width: 1120px;
+    padding-bottom: 2rem;
+}
+
+.monitor-detail-title {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    letter-spacing: -0.035em;
+}
 
 .form-check {
     margin-top: 16px;
@@ -923,22 +933,31 @@ export default {
 }
 
 .url {
-    color: $primary;
-    margin-bottom: 20px;
+    color: var(--color-interactive);
+    margin-bottom: 1.25rem;
     font-weight: bold;
 
     a {
-        color: $primary;
+        color: var(--color-interactive);
     }
 }
 
-.shadow-box {
-    padding: 20px;
-    margin-top: 25px;
+.detail-card {
+    padding: 1.25rem;
+    margin-top: 1.25rem;
+    border: 1px solid var(--color-border);
+}
+
+.detail-card-health {
+    background: linear-gradient(135deg, var(--color-surface), var(--color-surface-subtle));
+}
+
+.monitor-detail-actions {
+    margin-top: 1rem;
 }
 
 .word {
-    color: $secondary-text;
+    color: var(--color-text-muted);
     font-size: 14px;
 }
 
@@ -952,7 +971,7 @@ table {
 
 .stats p {
     font-size: 13px;
-    color: $secondary-text;
+    color: var(--color-text-muted);
 }
 
 .stats {
@@ -976,7 +995,7 @@ table {
 }
 
 .keyword {
-    color: black;
+    color: var(--color-text);
 }
 
 .dropdown-clear-data {
@@ -986,32 +1005,6 @@ table {
         width: 100%;
         min-width: unset;
         padding-left: 0;
-    }
-}
-
-.dark {
-    .keyword {
-        color: $dark-font-color;
-    }
-
-    .keyword-inverted {
-        color: $dark-font-color;
-    }
-
-    .dropdown-clear-data {
-        ul {
-            background-color: $dark-bg;
-            border-color: $dark-bg2;
-            border-width: 2px;
-
-            li button {
-                color: $dark-font-color;
-            }
-
-            li button:hover {
-                background-color: $dark-bg2;
-            }
-        }
     }
 }
 
@@ -1028,7 +1021,7 @@ table {
     display: inline-flex;
     font-size: 0.7em;
     margin-left: 0.3em;
-    color: $secondary-text;
+    color: var(--color-text-muted);
     flex-direction: row;
     flex-wrap: nowrap;
 
@@ -1036,17 +1029,18 @@ table {
         user-select: none;
     }
 
-    .dark & {
-        opacity: 0.7;
-    }
 }
 
 .cert-info-warn {
     margin-left: 4px;
     opacity: 0.5;
+}
 
-    .dark & {
-        opacity: 0.7;
-    }
+.monitor-status {
+    min-width: 7.5rem;
+    padding: 0.55rem 0.8rem;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.9rem !important;
+    letter-spacing: 0.04em;
 }
 </style>

@@ -276,26 +276,13 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "../../assets/vars.scss";
-
 .btn-rm-expiry {
-    padding-left: 11px;
-    padding-right: 11px;
-}
-
-.dark {
-    .list-group-item {
-        background-color: $dark-bg2;
-        color: $dark-font-color;
-    }
+    padding-left: 0.7rem;
+    padding-right: 0.7rem;
 }
 
 .cert-exp-days .cert-exp-day-row {
-    border-bottom: 1px solid rgba(0, 0, 0, 0.125);
-
-    .dark & {
-        border-bottom: 1px solid $dark-border-color;
-    }
+    border-bottom: 1px solid var(--color-border);
 }
 
 .cert-exp-days .cert-exp-day-row:last-child {
