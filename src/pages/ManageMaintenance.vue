@@ -154,7 +154,7 @@ export default {
          * @returns {string} Correctly formatted path including port numbers
          */
         icon(icon) {
-            if (icon === "/icon.svg") {
+            if (icon === "/icon.svg" || icon === "/icon-512x512.png") {
                 return icon;
             } else {
                 return getResBaseURL() + icon;

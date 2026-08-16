@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="./public/images/logo.png" width="760" alt="Uptime Gizmo — Uptime is money, friend." />
+  <img src="./public/images/uptime-gizmo-logo-horizontal-light.png" width="760" alt="Uptime Gizmo — Uptime is money, friend." />
   <p><strong>Modern monitoring for humans and AI agents.</strong></p>
 </div>
 

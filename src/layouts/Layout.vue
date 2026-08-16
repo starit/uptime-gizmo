@@ -18,7 +18,7 @@
                 to="/dashboard"
                 class="app-brand"
             >
-                <img class="app-brand-logo" src="/images/logo.png" :alt="$root.appName" />
+                <img class="app-brand-logo" src="/images/uptime-gizmo-logo-horizontal-light.png" :alt="$root.appName" />
             </router-link>
 
             <a
@@ -119,7 +119,7 @@
         <!-- Mobile header -->
         <header v-else class="app-header app-header-mobile">
             <router-link to="/dashboard" class="app-brand">
-                <img class="app-brand-logo" src="/images/logo.png" :alt="$root.appName" />
+                <img class="app-brand-logo" src="/images/uptime-gizmo-logo-horizontal-light.png" :alt="$root.appName" />
             </router-link>
         </header>
 

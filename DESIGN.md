@@ -12,9 +12,10 @@ The identity combines a gear, the letter “G,” and goggles to represent monit
 
 ### Brand assets
 
-- Use [`public/images/logo.png`](public/images/logo.png) as the current primary horizontal logo.
-- Prefer the flat logo and mascot treatment in the product UI, documentation, favicons, and small spaces.
-- Reserve the 3D Gizmo character in `public/images/` for hero artwork, campaigns, and other expressive brand surfaces.
+- Use [`public/images/uptime-gizmo-logo-horizontal-light.png`](public/images/uptime-gizmo-logo-horizontal-light.png) as the current primary horizontal logo.
+- Use `uptime-gizmo-mark-light.png` or `uptime-gizmo-mark-dark.png` for icons, favicons, and compact surfaces.
+- Reserve [`public/images/gizmo-mascot-engineer.png`](public/images/gizmo-mascot-engineer.png) and `gizmo-monitoring-workshop-hero.png` for hero artwork, campaigns, and other expressive brand surfaces.
+- Keep `uptime-gizmo-brand-reference.png` as a design reference rather than a runtime product asset.
 - Keep the logo readable at favicon size. Avoid heavy glow, photorealism, or decorative effects in the core mark.
 
 ## Color principles

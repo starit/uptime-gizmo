@@ -3,7 +3,7 @@
         <div class="onboarding-card">
             <form @submit.prevent="submit">
                 <div class="onboarding-brand">
-                    <img src="/images/logo.png" :alt="$root.appName" />
+                    <img src="/images/uptime-gizmo-logo-horizontal-light.png" :alt="$root.appName" />
                 </div>
 
                 <p class="onboarding-card-prompt">

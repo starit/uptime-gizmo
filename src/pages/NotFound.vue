@@ -6,7 +6,7 @@
                 to="/"
                 class="not-found-brand d-flex align-items-center mb-3 mb-md-0 me-md-auto text-decoration-none"
             >
-                <img class="not-found-brand-logo me-2 ms-4" src="/images/logo.png" :alt="$root.appName" />
+                <img class="not-found-brand-logo me-2 ms-4" src="/images/uptime-gizmo-logo-horizontal-light.png" :alt="$root.appName" />
                 <span class="fs-4 title">{{ $root.appName }}</span>
             </router-link>
         </header>
@@ -14,7 +14,7 @@
         <!-- Mobile header -->
         <header v-else class="d-flex flex-wrap justify-content-center pt-2 pb-2 mb-3">
             <router-link to="/dashboard" class="not-found-brand d-flex align-items-center text-decoration-none">
-                <img class="not-found-brand-logo" src="/images/logo.png" :alt="$root.appName" />
+                <img class="not-found-brand-logo" src="/images/uptime-gizmo-logo-horizontal-light.png" :alt="$root.appName" />
                 <span class="fs-4 title ms-2">{{ $root.appName }}</span>
             </router-link>
         </header>

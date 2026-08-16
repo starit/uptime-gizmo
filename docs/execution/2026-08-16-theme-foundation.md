@@ -18,7 +18,7 @@
 ## Decisions
 
 1. Existing page-level `.dark` selectors remain temporarily while their owning pages are migrated. Global primitives now use semantic variables, preventing new code from depending on legacy Sass colors.
-2. The provided horizontal logo is used in the application shell from `/images/logo.png`; product icon replacement for the PWA assets remains a later branding task because no square production icon asset was supplied.
+2. The provided horizontal logo is used in the application shell from `/images/uptime-gizmo-logo-horizontal-light.png`; product icon replacement for the PWA assets remains a later branding task because no square production icon asset was supplied.
 3. `IBM Plex Sans` is the primary interface font declaration with `Noto Sans` as a language-coverage fallback. Self-hosting the font is deferred until an approved font asset/source is selected.
 
 ## Verification

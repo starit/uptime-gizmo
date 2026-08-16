@@ -694,7 +694,7 @@ export default {
             incident: null,
             previousIncident: null,
             showImageCropUpload: false,
-            imgDataUrl: "/icon.svg",
+            imgDataUrl: "/icon-512x512.png",
             loadedTheme: false,
             loadedData: false,
             baseURL: "",
@@ -1260,7 +1260,7 @@ export default {
         },
 
         /**
-         * Reset logo image to default (public/icon.svg)
+         * Reset logo image to the default Uptime Gizmo mark.
          * @returns {void}
          */
         resetToDefaultImage() {
@@ -1268,7 +1268,7 @@ export default {
                 return;
             }
 
-            this.imgDataUrl = "/icon.svg";
+            this.imgDataUrl = "/icon-512x512.png";
             this.config.icon = this.imgDataUrl;
             toast.success(this.$t("imageResetConfirmation"));
         },
