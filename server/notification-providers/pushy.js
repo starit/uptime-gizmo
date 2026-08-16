@@ -17,7 +17,7 @@ class Pushy extends NotificationProvider {
                 {
                     to: notification.pushyToken,
                     data: {
-                        message: "Uptime-Kuma",
+                        message: "Uptime-Gizmo",
                     },
                     notification: {
                         body: msg,

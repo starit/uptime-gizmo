@@ -12,8 +12,8 @@ process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
 let client;
 
-const sslKey = process.env.UPTIME_KUMA_SSL_KEY || process.env.SSL_KEY || undefined;
-const sslCert = process.env.UPTIME_KUMA_SSL_CERT || process.env.SSL_CERT || undefined;
+const sslKey = process.env.UPTIME_GIZMO_SSL_KEY || process.env.SSL_KEY || undefined;
+const sslCert = process.env.UPTIME_GIZMO_SSL_CERT || process.env.SSL_CERT || undefined;
 
 if (sslKey && sslCert) {
     client = require("https");
@@ -23,14 +23,14 @@ if (sslKey && sslCert) {
 
 // If host is omitted, the server will accept connections on the unspecified IPv6 address (::) when IPv6 is available and the unspecified IPv4 address (0.0.0.0) otherwise.
 // Dual-stack support for (::)
-let hostname = process.env.UPTIME_KUMA_HOST;
+let hostname = process.env.UPTIME_GIZMO_HOST;
 
 // Also read HOST if not *BSD, as HOST is a system environment variable in FreeBSD
 if (!hostname && !FBSD) {
     hostname = process.env.HOST;
 }
 
-const port = parseInt(process.env.UPTIME_KUMA_PORT || process.env.PORT || 3001);
+const port = parseInt(process.env.UPTIME_GIZMO_PORT || process.env.PORT || 3001);
 
 let options = {
     host: hostname || "127.0.0.1",

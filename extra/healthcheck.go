@@ -18,9 +18,9 @@ import (
 func main() {
 	isFreeBSD := runtime.GOOS == "freebsd"
 
-	// Is K8S + uptime-kuma as the container name
+	// Is K8S + uptime-gizmo as the container name
 	// See #2083
-	isK8s := strings.HasPrefix(os.Getenv("UPTIME_KUMA_PORT"), "tcp://")
+	isK8s := strings.HasPrefix(os.Getenv("UPTIME_GIZMO_PORT"), "tcp://")
 
 	// process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 	http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{
@@ -31,17 +31,17 @@ func main() {
 		Timeout: 28 * time.Second,
 	}
 
-	sslKey := os.Getenv("UPTIME_KUMA_SSL_KEY")
+	sslKey := os.Getenv("UPTIME_GIZMO_SSL_KEY")
 	if len(sslKey) == 0 {
 		sslKey = os.Getenv("SSL_KEY")
 	}
 
-	sslCert := os.Getenv("UPTIME_KUMA_SSL_CERT")
+	sslCert := os.Getenv("UPTIME_GIZMO_SSL_CERT")
 	if len(sslCert) == 0 {
 		sslCert = os.Getenv("SSL_CERT")
 	}
 
-	hostname := os.Getenv("UPTIME_KUMA_HOST")
+	hostname := os.Getenv("UPTIME_GIZMO_HOST")
 	if len(hostname) == 0 && !isFreeBSD {
 		hostname = os.Getenv("HOST")
 	}
@@ -50,9 +50,9 @@ func main() {
 	}
 
 	port := ""
-	// UPTIME_KUMA_PORT is override by K8S unexpectedly,
+	// UPTIME_GIZMO_PORT is override by K8S unexpectedly,
 	if !isK8s {
-		port = os.Getenv("UPTIME_KUMA_PORT")
+		port = os.Getenv("UPTIME_GIZMO_PORT")
 	}
 	if len(port) == 0 {
 		port = os.Getenv("PORT")

@@ -1,9 +1,9 @@
 /*
- * Uptime Kuma Server
+ * Uptime Gizmo Server
  * node "server/server.js"
  * DO NOT require("./server") in other modules, it likely creates circular dependency!
  */
-console.log("Welcome to Uptime Kuma");
+console.log("Welcome to Uptime Gizmo");
 
 // As the log function need to use dayjs, it should be very top
 const dayjs = require("dayjs");
@@ -28,7 +28,7 @@ const requiredNodeVersionsComma = requiredNodeVersions
     .map((version) => version.trim())
     .join(", ");
 
-// Exit Uptime Kuma immediately if the Node.js version is banned
+// Exit Uptime Gizmo immediately if the Node.js version is banned
 if (semver.satisfies(nodeVersion, bannedNodeVersions)) {
     console.error(
         "\x1b[31m%s\x1b[0m",
@@ -49,7 +49,7 @@ const args = require("args-parser")(process.argv);
 const { sleep, log, getRandomInt, genSecret, isDev } = require("../src/util");
 const config = require("./config");
 
-process.title = "uptime-kuma";
+process.title = "uptime-gizmo";
 
 log.debug("server", "Arguments");
 log.debug("server", args);
@@ -58,25 +58,25 @@ if (!process.env.NODE_ENV) {
     process.env.NODE_ENV = "production";
 }
 
-if (!process.env.UPTIME_KUMA_WS_ORIGIN_CHECK) {
-    process.env.UPTIME_KUMA_WS_ORIGIN_CHECK = "cors-like";
+if (!process.env.UPTIME_GIZMO_WS_ORIGIN_CHECK) {
+    process.env.UPTIME_GIZMO_WS_ORIGIN_CHECK = "cors-like";
 }
 
 log.info("server", "Env: " + process.env.NODE_ENV);
-log.debug("server", "Inside Container: " + (process.env.UPTIME_KUMA_IS_CONTAINER === "1"));
+log.debug("server", "Inside Container: " + (process.env.UPTIME_GIZMO_IS_CONTAINER === "1"));
 
-if (process.env.UPTIME_KUMA_WS_ORIGIN_CHECK === "bypass") {
-    log.warn("server", "WebSocket Origin Check: " + process.env.UPTIME_KUMA_WS_ORIGIN_CHECK);
+if (process.env.UPTIME_GIZMO_WS_ORIGIN_CHECK === "bypass") {
+    log.warn("server", "WebSocket Origin Check: " + process.env.UPTIME_GIZMO_WS_ORIGIN_CHECK);
 }
 
-if (isDev || process.env.UPTIME_KUMA_DEBUG_INSPECTOR === "1") {
+if (isDev || process.env.UPTIME_GIZMO_DEBUG_INSPECTOR === "1") {
     const inspector = require("inspector");
     let inspectorHost = "127.0.0.1";
 
     log.warn("server", "Node.js Inspector is enabled. You can connect to it via Chrome DevTools or VSCode.");
     log.warn("server", "Node.js Inspector is listening on:", inspector.url());
 
-    if (process.env.UPTIME_KUMA_IS_CONTAINER === "1") {
+    if (process.env.UPTIME_GIZMO_IS_CONTAINER === "1") {
         log.warn(
             "server",
             "You need to expose the port 9229:9229 in your docker command or docker compose, and ssh tunneling in order to connect to it."
@@ -88,7 +88,7 @@ if (isDev || process.env.UPTIME_KUMA_DEBUG_INSPECTOR === "1") {
 }
 
 const checkVersion = require("./check-version");
-log.info("server", "Uptime Kuma Version:", checkVersion.version);
+log.info("server", "Uptime Gizmo Version:", checkVersion.version);
 
 log.info("server", "Loading modules");
 
@@ -110,8 +110,8 @@ log.debug("server", "Importing 2FA Modules");
 const notp = require("notp");
 const base32 = require("thirty-two");
 
-const { UptimeKumaServer } = require("./uptime-kuma-server");
-const server = UptimeKumaServer.getInstance();
+const { UptimeGizmoServer } = require("./uptime-gizmo-server");
+const server = UptimeGizmoServer.getInstance();
 const io = (module.exports.io = server.io);
 const app = server.app;
 
@@ -162,8 +162,8 @@ if (hostname) {
 const port = config.port;
 
 const disableFrameSameOrigin =
-    !!process.env.UPTIME_KUMA_DISABLE_FRAME_SAMEORIGIN || args["disable-frame-sameorigin"] || false;
-const cloudflaredToken = args["cloudflared-token"] || process.env.UPTIME_KUMA_CLOUDFLARED_TOKEN || undefined;
+    !!process.env.UPTIME_GIZMO_DISABLE_FRAME_SAMEORIGIN || args["disable-frame-sameorigin"] || false;
+const cloudflaredToken = args["cloudflared-token"] || process.env.UPTIME_GIZMO_CLOUDFLARED_TOKEN || undefined;
 
 // 2FA / notp verification defaults
 const twoFAVerifyOptions = {
@@ -272,14 +272,14 @@ let needSetup = false;
 
         log.debug("entry", `Request Domain: ${hostname}`);
 
-        const uptimeKumaEntryPage = server.entryPage;
+        const uptimeGizmoEntryPage = server.entryPage;
         if (hostname in StatusPage.domainMappingList) {
             log.debug("entry", "This is a status page domain");
 
             let slug = StatusPage.domainMappingList[hostname];
             await StatusPage.handleStatusPageResponse(response, server.indexHTML, slug);
-        } else if (uptimeKumaEntryPage && uptimeKumaEntryPage.startsWith("statusPage-")) {
-            response.redirect("/status/" + uptimeKumaEntryPage.replace("statusPage-", ""));
+        } else if (uptimeGizmoEntryPage && uptimeGizmoEntryPage.startsWith("statusPage-")) {
+            response.redirect("/status/" + uptimeGizmoEntryPage.replace("statusPage-", ""));
         } else {
             response.redirect("/dashboard");
         }
@@ -365,7 +365,7 @@ let needSetup = false;
     app.use("/upload", express.static(Database.uploadDir));
 
     app.get("/.well-known/change-password", async (_, response) => {
-        response.redirect("https://github.com/louislam/uptime-kuma/wiki/Reset-Password-via-CLI");
+        response.redirect("https://github.com/starit/uptime-gizmo/wiki/Reset-Password-via-CLI");
     });
 
     // API Router
@@ -710,7 +710,7 @@ let needSetup = false;
 
                 if ((await R.knex("user").count("id as count").first()).count !== 0) {
                     throw new Error(
-                        "Uptime Kuma has been initialized. If you want to run setup again, please delete the database."
+                        "Uptime Gizmo has been initialized. If you want to run setup again, please delete the database."
                     );
                 }
 
@@ -1883,7 +1883,7 @@ async function initDatabase(testMode = false) {
         log.debug("server", "Load JWT secret from database.");
     }
 
-    // If there is no record in user table, it is a new Uptime Kuma instance, need to setup
+    // If there is no record in user table, it is a new Uptime Gizmo instance, need to setup
     if ((await R.knex("user").count("id as count").first()).count === 0) {
         log.info("server", "No user, need setup");
         needSetup = true;
@@ -2015,8 +2015,8 @@ gracefulShutdown(server.httpServer, {
 // Catch unexpected errors here
 let unexpectedErrorHandler = (error, promise) => {
     console.trace(error);
-    UptimeKumaServer.errorLog(error, false);
-    console.error("If you keep encountering errors, please report to https://github.com/louislam/uptime-kuma/issues");
+    UptimeGizmoServer.errorLog(error, false);
+    console.error("If you keep encountering errors, please report to https://github.com/starit/uptime-gizmo/issues");
 };
 process.addListener("unhandledRejection", unexpectedErrorHandler);
 process.addListener("uncaughtException", unexpectedErrorHandler);

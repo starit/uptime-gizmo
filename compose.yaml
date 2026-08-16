@@ -1,6 +1,6 @@
 services:
-  uptime-kuma:
-    image: louislam/uptime-kuma:2
+  uptime-gizmo:
+    image: starit/uptime-gizmo:2
     restart: unless-stopped
     volumes:
       - ./data:/app/data

@@ -7,7 +7,7 @@ export function parsePrName(prName) {
     let name = "louislam";
     let branch;
 
-    const errorMessage = "Please set a repo to the environment variable 'UPTIME_KUMA_GH_REPO' (e.g. mhkarimi1383:goalert-notification)";
+    const errorMessage = "Please set a repo to the environment variable 'UPTIME_GIZMO_GH_REPO' (e.g. mhkarimi1383:goalert-notification)";
 
     if (!prName) {
         throw new Error(errorMessage);

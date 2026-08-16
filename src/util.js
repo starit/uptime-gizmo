@@ -17,7 +17,7 @@ const jsonata = require("jsonata");
 exports.isDev = process.env.NODE_ENV === "development";
 exports.isNode = typeof process !== "undefined" && ((_a = process === null || process === void 0 ? void 0 : process.versions) === null || _a === void 0 ? void 0 : _a.node);
 const dayjs = exports.isNode ? require("dayjs") : dayjs_1.default;
-exports.appName = "Uptime Kuma";
+exports.appName = "Uptime Gizmo";
 exports.DOWN = 0;
 exports.UP = 1;
 exports.PENDING = 2;
@@ -146,15 +146,15 @@ class Logger {
             error: [],
             debug: [],
         };
-        if (typeof process !== "undefined" && process.env.UPTIME_KUMA_HIDE_LOG) {
-            const list = process.env.UPTIME_KUMA_HIDE_LOG.split(",").map((v) => v.toLowerCase());
+        if (typeof process !== "undefined" && process.env.UPTIME_GIZMO_HIDE_LOG) {
+            const list = process.env.UPTIME_GIZMO_HIDE_LOG.split(",").map((v) => v.toLowerCase());
             for (const pair of list) {
                 const values = pair.split(/_(.*)/s);
                 if (values.length >= 2) {
                     this.hideLog[values[0]].push(values[1]);
                 }
             }
-            this.debug("server", "UPTIME_KUMA_HIDE_LOG is set");
+            this.debug("server", "UPTIME_GIZMO_HIDE_LOG is set");
             this.debug("server", this.hideLog);
         }
     }
@@ -174,7 +174,7 @@ class Logger {
         else {
             now = dayjs().format();
         }
-        if (process.env.UPTIME_KUMA_LOG_FORMAT === "json") {
+        if (process.env.UPTIME_GIZMO_LOG_FORMAT === "json") {
             const msgString = msg
                 .map((m) => {
                 if (typeof m === "string") {

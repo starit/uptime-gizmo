@@ -6,7 +6,7 @@ const ImageDataURI = require("../image-data-uri");
 const Database = require("../database");
 const apicache = require("../modules/apicache");
 const StatusPage = require("../model/status_page");
-const { UptimeKumaServer } = require("../uptime-kuma-server");
+const { UptimeGizmoServer } = require("../uptime-gizmo-server");
 const { Settings } = require("../settings");
 
 /**
@@ -408,7 +408,7 @@ module.exports.statusPageSocketHandler = (socket) => {
                 await R.exec(`DELETE FROM \`group\` WHERE id NOT IN (${slots}) AND status_page_id = ?`, data);
             }
 
-            const server = UptimeKumaServer.getInstance();
+            const server = UptimeGizmoServer.getInstance();
 
             // Also change entry page to new slug if it is the default one, and slug is changed.
             if (server.entryPage === "statusPage-" + slug && statusPage.slug !== slug) {
@@ -480,7 +480,7 @@ module.exports.statusPageSocketHandler = (socket) => {
 
     // Delete a status page
     socket.on("deleteStatusPage", async (slug, callback) => {
-        const server = UptimeKumaServer.getInstance();
+        const server = UptimeGizmoServer.getInstance();
 
         try {
             checkLogin(socket);

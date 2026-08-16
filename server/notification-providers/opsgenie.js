@@ -15,7 +15,7 @@ class Opsgenie extends NotificationProvider {
     async send(notification, msg, monitorJSON = null, heartbeatJSON = null) {
         let opsgenieAlertsUrl;
         let priority = !notification.opsgeniePriority ? 3 : notification.opsgeniePriority;
-        const textMsg = "Uptime Kuma Alert";
+        const textMsg = "Uptime Gizmo Alert";
 
         try {
             switch (notification.opsgenieRegion) {
@@ -30,11 +30,11 @@ class Opsgenie extends NotificationProvider {
             }
 
             if (heartbeatJSON == null) {
-                let notificationTestAlias = "uptime-kuma-notification-test";
+                let notificationTestAlias = "uptime-gizmo-notification-test";
                 let data = {
                     message: msg,
                     alias: notificationTestAlias,
-                    source: "Uptime Kuma",
+                    source: "Uptime Gizmo",
                     priority: "P5",
                 };
 
@@ -46,7 +46,7 @@ class Opsgenie extends NotificationProvider {
                     message: monitorJSON ? textMsg + `: ${monitorJSON.name}` : textMsg,
                     alias: monitorJSON.name,
                     description: msg,
-                    source: "Uptime Kuma",
+                    source: "Uptime Gizmo",
                     priority: `P${priority}`,
                 };
 
@@ -56,7 +56,7 @@ class Opsgenie extends NotificationProvider {
             if (heartbeatJSON.status === UP) {
                 let opsgenieAlertsCloseUrl = `${opsgenieAlertsUrl}/${encodeURIComponent(monitorJSON.name)}/close?identifierType=alias`;
                 let data = {
-                    source: "Uptime Kuma",
+                    source: "Uptime Gizmo",
                 };
 
                 return this.post(notification, opsgenieAlertsCloseUrl, data);

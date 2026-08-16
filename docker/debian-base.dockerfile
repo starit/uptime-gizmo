@@ -68,8 +68,8 @@ RUN curl -fsSL https://letsencrypt.org/certs/gen-y/root-ye.pem -o /usr/local/sha
 # MariaDB, Chromium and fonts
 # Make sure to reuse the slim image here. Uncomment the above line if you want to build it from scratch.
 # FROM base2-slim AS base2
-FROM louislam/uptime-kuma:base2-slim AS base2
-ENV UPTIME_KUMA_ENABLE_EMBEDDED_MARIADB=1
+FROM starit/uptime-gizmo:base2-slim AS base2
+ENV UPTIME_GIZMO_ENABLE_EMBEDDED_MARIADB=1
 RUN apt update && \
     apt --yes --no-install-recommends install chromium fonts-indic fonts-noto fonts-noto-cjk mariadb-server && \
     rm -rf /var/lib/apt/lists/* && \

@@ -9,7 +9,7 @@
 - Rebuilt the private application shell with a sticky token-driven header, Uptime Gizmo horizontal logo, updated repository links, responsive desktop navigation, and a mobile bottom navigation.
 - Updated Dashboard to a responsive asymmetric workspace: a sticky monitor rail on desktop and a flexible workspace canvas for routed content.
 - Rebuilt database setup and admin setup surfaces as responsive onboarding cards using the Uptime Gizmo logo, semantic surfaces, brand accent, and token-based borders and shadows.
-- Replaced direct Uptime Kuma branding in runtime app name, HTML metadata, and PWA manifest with Uptime Gizmo branding.
+- Replaced direct Uptime Gizmo branding in runtime app name, HTML metadata, and PWA manifest with Uptime Gizmo branding.
 
 ## Preserved behavior
 

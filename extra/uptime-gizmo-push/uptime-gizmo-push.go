@@ -9,7 +9,7 @@ import (
 
 func main() {
 	if len(os.Args) < 2 {
-		fmt.Fprintln(os.Stderr, "Usage: uptime-kuma-push <url> [<interval>]")
+		fmt.Fprintln(os.Stderr, "Usage: uptime-gizmo-push <url> [<interval>]")
 		os.Exit(1)
 	}
 

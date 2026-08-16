@@ -30,7 +30,7 @@ class Milky extends NotificationProvider {
                 },
             };
             config = this.getAxiosConfigWithProxy(config);
-            let pushText = "UptimeKuma Alert: " + msg;
+            let pushText = "UptimeGizmo Alert: " + msg;
             let data = {
                 message: [
                     {

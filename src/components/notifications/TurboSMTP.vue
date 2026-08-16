@@ -97,7 +97,7 @@ export default {
             this.$parent.notification.turbosmtpRegion = "us";
         }
         if (typeof this.$parent.notification.turbosmtpSubject === "undefined") {
-            this.$parent.notification.turbosmtpSubject = "Notification from Your Uptime Kuma";
+            this.$parent.notification.turbosmtpSubject = "Notification from Your Uptime Gizmo";
         }
     },
 };

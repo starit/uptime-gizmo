@@ -13,8 +13,8 @@
 
 1. Add your language at https://weblate.kuma.pet/projects/uptime-kuma/uptime-kuma/
 2. Find the language code (You can find it at the end of the URL)
-3. Go to https://github.com/louislam/uptime-kuma/blob/master/src/i18n.js and click `Edit` icon
+3. Go to https://github.com/starit/uptime-gizmo/blob/master/src/i18n.js and click `Edit` icon
 4. Add your language at the end of `languageList`, format: `"zh-TW": "繁體中文 (台灣)",`
 5. Commit and make a pull request for me to approve
 
-If you do not have programming skills, let me know in [the issues section](https://github.com/louislam/uptime-kuma/issues). I will assist you. 😏
+If you do not have programming skills, let us know in [the issues section](https://github.com/starit/uptime-gizmo/issues).

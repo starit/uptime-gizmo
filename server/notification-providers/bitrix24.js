@@ -14,7 +14,7 @@ class Bitrix24 extends NotificationProvider {
         try {
             const params = {
                 user_id: notification.bitrix24UserID,
-                message: "[B]Uptime Kuma[/B]",
+                message: "[B]Uptime Gizmo[/B]",
                 "ATTACH[COLOR]": (heartbeatJSON ?? {})["status"] === UP ? "#b73419" : "#67b518",
                 "ATTACH[BLOCKS][0][MESSAGE]": msg,
             };

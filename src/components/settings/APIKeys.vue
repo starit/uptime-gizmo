@@ -58,7 +58,7 @@
         </div>
 
         <div class="text-center mt-3" style="font-size: 13px">
-            <a href="https://github.com/louislam/uptime-kuma/wiki/Prometheus-API-Keys" target="_blank">
+            <a href="https://github.com/starit/uptime-gizmo/wiki/Prometheus-API-Keys" target="_blank">
                 {{ $t("Learn More") }}
             </a>
         </div>

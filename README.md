@@ -13,7 +13,7 @@
 
 > **Uptime is money, friend!**
 
-Uptime Gizmo is a self-hosted monitoring platform based on [Uptime Kuma](https://github.com/louislam/uptime-kuma). It is being developed with a focus on modern status pages, richer monitoring, automation, and AI-agent integrations.
+Uptime Gizmo is a self-hosted monitoring platform built on a proven open-source monitoring foundation. It is being developed with a focus on modern status pages, richer monitoring, automation, and AI-agent integrations.
 
 The goal is simple: make monitoring easy for people to understand and structured enough for agents to operate.
 
@@ -32,7 +32,7 @@ Status pages should be useful, clear, and worth sharing. Uptime Gizmo is moving 
 
 ### Better monitoring
 
-Uptime Gizmo inherits Uptime Kuma's broad monitoring foundation while working toward richer service-health signals—not just **“Is it up?”**, but **“Is it healthy?”**
+Uptime Gizmo builds on a broad monitoring foundation while working toward richer service-health signals—not just **“Is it up?”**, but **“Is it healthy?”**
 
 Planned improvements include more monitoring types, stronger HTTP/API validation, latency tracking, SSL/TLS and domain checks, infrastructure monitoring, flexible alert conditions, dependency context, and better history and analytics.
 
@@ -66,7 +66,7 @@ These interfaces are part of the development roadmap and should not be considere
 
 ## Current capabilities
 
-Uptime Gizmo currently includes core monitoring capabilities inherited from Uptime Kuma:
+Uptime Gizmo currently includes these core monitoring capabilities:
 
 - HTTP(S), TCP, WebSocket, Ping, DNS, Push, and Docker container monitoring
 - HTTP(S) keyword and JSON query checks
@@ -86,11 +86,11 @@ Development is focused on four connected areas:
 3. **AI-agent native workflows** — Let agents safely create and maintain monitoring infrastructure.
 4. **Smarter operations** — Provide context that helps people and agents understand incidents and decide what to do next.
 
-## Built on Uptime Kuma
+## Upstream acknowledgement
 
-Uptime Gizmo is a fork of the open-source project [Uptime Kuma](https://github.com/louislam/uptime-kuma), created by Louis Lam and its contributors.
+Uptime Gizmo originated from an open-source monitoring project created by Louis Lam and its contributors.
 
-Uptime Kuma provides the foundation for this project. We aim to preserve its strengths—easy self-hosting, broad monitoring support, a friendly UI, and a strong notification ecosystem—while taking the product in a more modern, automated, and AI-friendly direction.
+That project provides the foundation for this work. We aim to preserve its strengths—easy self-hosting, broad monitoring support, a friendly UI, and a strong notification ecosystem—while taking the product in a more modern, automated, and AI-friendly direction.
 
 ## Getting started
 

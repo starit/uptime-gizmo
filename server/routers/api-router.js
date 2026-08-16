@@ -12,7 +12,7 @@ const Monitor = require("../model/monitor");
 const dayjs = require("dayjs");
 const { UP, MAINTENANCE, DOWN, PENDING, flipStatus, log, badgeConstants } = require("../../src/util");
 const StatusPage = require("../model/status_page");
-const { UptimeKumaServer } = require("../uptime-kuma-server");
+const { UptimeGizmoServer } = require("../uptime-gizmo-server");
 const { makeBadge } = require("badge-maker");
 const { Prometheus } = require("../prometheus");
 const Database = require("../database");
@@ -22,7 +22,7 @@ const { Settings } = require("../settings");
 let router = express.Router();
 
 let cache = apicache.middleware;
-const server = UptimeKumaServer.getInstance();
+const server = UptimeGizmoServer.getInstance();
 let io = server.io;
 
 router.get("/api/entry-page", async (request, response) => {

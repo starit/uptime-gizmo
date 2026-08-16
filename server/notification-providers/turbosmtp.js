@@ -25,7 +25,7 @@ class TurboSMTP extends NotificationProvider {
             let data = {
                 from: notification.turbosmtpFromEmail.trim(),
                 to: notification.turbosmtpToEmail,
-                subject: notification.turbosmtpSubject || "Notification from Your Uptime Kuma",
+                subject: notification.turbosmtpSubject || "Notification from Your Uptime Gizmo",
                 content: msg,
             };
 

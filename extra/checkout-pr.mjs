@@ -1,12 +1,12 @@
 import childProcess from "child_process";
 import { parsePrName } from "./kuma-pr/pr-lib.mjs";
 
-let { name, branch } = parsePrName(process.env.UPTIME_KUMA_GH_REPO);
+let { name, branch } = parsePrName(process.env.UPTIME_GIZMO_GH_REPO);
 
 console.log(`Checking out PR from ${name}:${branch}`);
 
 // Checkout the pr
-let result = childProcess.spawnSync("git", [ "remote", "add", name, `https://github.com/${name}/uptime-kuma` ], {
+let result = childProcess.spawnSync("git", [ "remote", "add", name, `https://github.com/${name}/uptime-gizmo` ], {
     stdio: "inherit"
 });
 

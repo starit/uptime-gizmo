@@ -38,13 +38,13 @@ class HaloPSA extends NotificationProvider {
              * @type {object}
              */
             const payload = {
-                title: "Uptime Kuma Alert",
+                title: "Uptime Gizmo Alert",
                 status: status,
                 monitor: monitorJSON?.name || "No Monitor",
                 monitor_id: monitorJSON?.id || null,
                 message: msg,
                 timestamp: new Date().toISOString(),
-                uptime_kuma_version: process.env.npm_package_version || "unknown",
+                uptime_gizmo_version: process.env.npm_package_version || "unknown",
             };
 
             // Send POST request to Halo PSA webhook

@@ -21,11 +21,11 @@ class Pinglet extends NotificationProvider {
                     Authorization: "Bearer " + notification.pingletApiKey,
                 },
                 params: {
-                    rewrite: "uptimekuma",
+                    rewrite: "uptimegizmo",
                 },
             });
 
-            // Pinglet's uptimekuma rewriter accepts Uptime Kuma's webhook payload
+            // Pinglet's uptimegizmo rewriter accepts Uptime Gizmo's webhook payload
             // as-is and maps it to a titled message with level and priority
             // server-side, so this provider just forwards the raw shape.
             await axios.post(

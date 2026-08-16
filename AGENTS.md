@@ -1,6 +1,6 @@
 # Uptime Gizmo Agent Guide
 
-Uptime Gizmo is a self-hosted monitoring project based on Uptime Kuma. Its direction is to provide richer monitoring, modern status pages, and safe integrations for automation and AI agents.
+Uptime Gizmo is a self-hosted monitoring project based on Uptime Gizmo. Its direction is to provide richer monitoring, modern status pages, and safe integrations for automation and AI agents.
 
 ## Working principles
 

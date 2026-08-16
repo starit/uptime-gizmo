@@ -4,7 +4,7 @@ Follow [AGENTS.md](./AGENTS.md) as the primary contribution and code-agent guide
 
 ## Project context
 
-Uptime Gizmo is a fork of Uptime Kuma focused on modern monitoring, status pages, automation, and AI-agent-friendly workflows. The repository contains a Vue frontend and a Node.js backend.
+Uptime Gizmo is a fork of Uptime Gizmo focused on modern monitoring, status pages, automation, and AI-agent-friendly workflows. The repository contains a Vue frontend and a Node.js backend.
 
 ## Additional guidance
 

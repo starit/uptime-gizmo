@@ -21,7 +21,7 @@ The active Node 24 runtime was missing the installed SQLite native binding. `npm
 
 - Light tokens on the runtime body resolved to `--color-bg: #fcfcfc`, `--color-text: #0a151e`, and `--color-brand: #ecab24`.
 - Dark token simulation resolved to `--color-bg: #0a151e`, `--color-text: #fcfcfc`, `--color-surface: #101e29`, and dark operational green `#4ade80`.
-- The public status page no longer carries the upstream Uptime Kuma footer label; it displays the runtime `Uptime Gizmo` product name.
+- The public status page no longer carries the upstream Uptime Gizmo footer label; it displays the runtime `Uptime Gizmo` product name.
 - Replaced the remaining upstream empty-state eye emoji with the established FontAwesome icon, preserving the localized message.
 
 ## Known test boundary

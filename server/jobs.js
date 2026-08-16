@@ -1,4 +1,4 @@
-const { UptimeKumaServer } = require("./uptime-kuma-server");
+const { UptimeGizmoServer } = require("./uptime-gizmo-server");
 const { clearOldData } = require("./jobs/clear-old-data");
 const { incrementalVacuum } = require("./jobs/incremental-vacuum");
 const Cron = require("croner");
@@ -23,7 +23,7 @@ const jobs = [
  * @returns {Promise<void>}
  */
 const initBackgroundJobs = async function () {
-    const timezone = await UptimeKumaServer.getInstance().getTimezone();
+    const timezone = await UptimeGizmoServer.getInstance().getTimezone();
 
     for (const job of jobs) {
         const cornerJob = new Cron(

@@ -18,7 +18,7 @@ class Squadcast extends NotificationProvider {
                 description: "",
                 tags: {},
                 heartbeat: heartbeatJSON,
-                source: "uptime-kuma",
+                source: "uptime-gizmo",
             };
 
             if (heartbeatJSON !== null) {

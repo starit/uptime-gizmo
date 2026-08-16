@@ -96,7 +96,7 @@
 
                     <div v-if="isProvidedMariaDBSocket" class="mt-1 text-start">
                         <i18n-t keypath="mariadbSocketPathDetectedHelptext" tag="div" class="form-text">
-                            <code>UPTIME_KUMA_DB_SOCKET</code>
+                            <code>UPTIME_GIZMO_DB_SOCKET</code>
                         </i18n-t>
                     </div>
 

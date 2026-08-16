@@ -5,7 +5,7 @@ const { OracleDbMonitorType } = require("../../../server/monitor-types/oracledb"
 const { UP, PENDING } = require("../../../src/util");
 
 const ORACLE_IMAGE = "gvenzl/oracle-free:23-slim-faststart";
-const APP_USER = "uptimekuma";
+const APP_USER = "uptimegizmo";
 const APP_USER_PASSWORD = "Oracle123";
 
 /**

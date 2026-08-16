@@ -48,10 +48,10 @@
                     {{ $t("Don't know how to get the token? Please read the guide:") }}
                     <br />
                     <a
-                        href="https://github.com/louislam/uptime-kuma/wiki/Reverse-Proxy-with-Cloudflare-Tunnel"
+                        href="https://github.com/starit/uptime-gizmo/wiki/Reverse-Proxy-with-Cloudflare-Tunnel"
                         target="_blank"
                     >
-                        https://github.com/louislam/uptime-kuma/wiki/Reverse-Proxy-with-Cloudflare-Tunnel
+                        https://github.com/starit/uptime-gizmo/wiki/Reverse-Proxy-with-Cloudflare-Tunnel
                     </a>
                 </div>
             </div>
@@ -101,8 +101,8 @@
             {{ $t("For example: nginx, Apache and Traefik.") }}
             <br />
             {{ $t("Please read") }}
-            <a href="https://github.com/louislam/uptime-kuma/wiki/Reverse-Proxy" target="_blank">
-                https://github.com/louislam/uptime-kuma/wiki/Reverse-Proxy
+            <a href="https://github.com/starit/uptime-gizmo/wiki/Reverse-Proxy" target="_blank">
+                https://github.com/starit/uptime-gizmo/wiki/Reverse-Proxy
             </a>
             .
         </div>

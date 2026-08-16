@@ -13,7 +13,7 @@ class SevenIO extends NotificationProvider {
 
         const data = {
             to: notification.sevenioReceiver,
-            from: notification.sevenioSender || "Uptime Kuma",
+            from: notification.sevenioSender || "Uptime Gizmo",
             text: msg,
         };
 
