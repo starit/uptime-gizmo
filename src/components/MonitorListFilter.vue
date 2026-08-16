@@ -283,29 +283,6 @@ export default {
     cursor: pointer;
 }
 
-.simple-status {
-    min-width: 64px;
-    border: 1px solid var(--color-border);
-    background-color: transparent !important;
-    color: inherit !important;
-}
-
-.clear-filters-btn {
-    font-size: 0.8em;
-    margin-right: 0.375rem;
-    display: flex;
-    align-items: center;
-    padding: 0.125rem 0.625rem;
-    border-radius: 16px;
-    background-color: transparent;
-
-    &.active {
-        color: var(--color-text);
-        border: 1px solid var(--color-brand);
-        background-color: var(--color-interactive-subtle);
-    }
-}
-
 .dropdown-divider {
     margin: 0.5rem 0;
     border-top: 1px solid var(--color-border);

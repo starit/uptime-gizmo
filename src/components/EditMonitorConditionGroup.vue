@@ -161,15 +161,9 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "../assets/vars.scss";
-
 .condition-group-inner {
-    background: rgba(0, 0, 0, 0.05);
+    background: var(--color-surface-subtle);
     padding: 20px;
-}
-
-.dark .condition-group-inner {
-    background: rgba(255, 255, 255, 0.05);
 }
 
 .condition-group-conditions {
@@ -198,8 +192,5 @@ export default {
         margin-top: 0;
     }
 
-    .btn-delete-group {
-        margin-left: auto;
-    }
 }
 </style>

@@ -291,17 +291,38 @@ export default {
         getBarColorForDatapoint(datapoint) {
             if (datapoint.maintenance != null) {
                 // Target is in maintenance
-                return "rgba(23,71,245,0.41)";
+                return this.canvasColor("--status-maintenance", 0.41);
             } else if (datapoint.down === 0) {
                 // Target is up, no need to display a bar
-                return "#000";
+                return "transparent";
             } else if (datapoint.up === 0) {
                 // Target is down
-                return "rgba(220, 53, 69, 0.41)";
+                return this.canvasColor("--status-down", 0.41);
             } else {
-                // Show yellow for mixed status
-                return "rgba(245, 182, 23, 0.41)";
+                // Show degraded status for a mixed period.
+                return this.canvasColor("--status-degraded", 0.41);
             }
+        },
+        /**
+         * Resolve a theme token to a canvas-compatible CSS color.
+         * @param {string} token CSS custom property name
+         * @param {number} opacity Opacity between 0 and 1
+         * @returns {string} CSS color
+         */
+        canvasColor(token, opacity = 1) {
+            const color = getComputedStyle(document.body).getPropertyValue(token).trim();
+
+            if (opacity === 1 || !color.startsWith("#")) {
+                return color;
+            }
+
+            const hex = color.slice(1);
+            const normalized = hex.length === 3 ? hex.split("").map((char) => char + char).join("") : hex;
+            const red = Number.parseInt(normalized.slice(0, 2), 16);
+            const green = Number.parseInt(normalized.slice(2, 4), 16);
+            const blue = Number.parseInt(normalized.slice(4, 6), 16);
+
+            return `rgba(${red}, ${green}, ${blue}, ${opacity})`;
         },
         // push datapoint to chartData
         pushDatapoint(datapoint, avgPingData, minPingData, maxPingData, downData, colorData) {
@@ -383,7 +404,7 @@ export default {
                                 x,
                                 y: null,
                             });
-                            colorData.push("#000");
+                            colorData.push("transparent");
                         }
                     }
                 }
@@ -398,13 +419,13 @@ export default {
                 });
                 switch (beat.status) {
                     case MAINTENANCE:
-                        colorData.push("rgba(23 ,71, 245, 0.41)");
+                        colorData.push(this.canvasColor("--status-maintenance", 0.41));
                         break;
                     case PENDING:
-                        colorData.push("rgba(245, 182, 23, 0.41)");
+                        colorData.push(this.canvasColor("--status-degraded", 0.41));
                         break;
                     default:
-                        colorData.push("rgba(220, 53, 69, 0.41)");
+                        colorData.push(this.canvasColor("--status-down", 0.41));
                 }
 
                 lastHeartbeatTime = beatTime;
@@ -417,8 +438,8 @@ export default {
                         data: pingData,
                         fill: "origin",
                         tension: 0.2,
-                        borderColor: "#4ABF74",
-                        backgroundColor: "#4ABF7438",
+                        borderColor: this.canvasColor("--chart-ping-average"),
+                        backgroundColor: this.canvasColor("--chart-ping-average", 0.22),
                         yAxisID: "y",
                         label: this.$t("avgPing"),
                     },
@@ -426,7 +447,7 @@ export default {
                         // Bar Chart
                         type: "bar",
                         data: downData,
-                        borderColor: "#00000000",
+                        borderColor: "transparent",
                         backgroundColor: colorData,
                         yAxisID: "y1",
                         barThickness: "flex",
@@ -503,7 +524,7 @@ export default {
                                     x,
                                     y: null,
                                 });
-                                colorData.push("#000");
+                                colorData.push("transparent");
                             }
                         }
                     }
@@ -547,8 +568,8 @@ export default {
                         data: minPingData,
                         fill: "origin",
                         tension: 0.2,
-                        borderColor: "#126331",
-                        backgroundColor: "#2F9C5914",
+                        borderColor: this.canvasColor("--chart-ping-min"),
+                        backgroundColor: this.canvasColor("--chart-ping-min", 0.08),
                         yAxisID: "y",
                         label: this.$t("minPing"),
                     },
@@ -557,8 +578,8 @@ export default {
                         data: avgPingData,
                         fill: "origin",
                         tension: 0.2,
-                        borderColor: "#5CDD8B",
-                        backgroundColor: "#5CDD8B06",
+                        borderColor: this.canvasColor("--chart-ping-average"),
+                        backgroundColor: this.canvasColor("--chart-ping-average", 0.03),
                         yAxisID: "y",
                         label: this.$t("avgPing"),
                     },
@@ -567,8 +588,8 @@ export default {
                         data: maxPingData,
                         fill: "origin",
                         tension: 0.2,
-                        borderColor: "#21b55a",
-                        backgroundColor: "#1E7A4214",
+                        borderColor: this.canvasColor("--chart-ping-max"),
+                        backgroundColor: this.canvasColor("--chart-ping-max", 0.08),
                         yAxisID: "y",
                         label: this.$t("maxPing"),
                     },
@@ -576,7 +597,7 @@ export default {
                         // Bar Chart
                         type: "bar",
                         data: downData,
-                        borderColor: "#00000000",
+                        borderColor: "transparent",
                         backgroundColor: colorData,
                         yAxisID: "y1",
                         barThickness: "flex",
@@ -593,8 +614,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "../assets/vars.scss";
-
 .form-select {
     width: unset;
     display: inline-flex;
@@ -612,28 +631,9 @@ export default {
         min-width: 50px;
         font-size: 0.9em;
 
-        .dark & {
-            background: $dark-bg;
-        }
-
         .dropdown-item {
             border-radius: 0.3rem;
             padding: 2px 16px 4px;
-
-            .dark & {
-                background: $dark-bg;
-                color: $dark-font-color;
-            }
-
-            .dark &:hover {
-                background: $dark-font-color;
-                color: $dark-font-color2;
-            }
-        }
-
-        .dark & .dropdown-item.active {
-            background: $primary;
-            color: $dark-font-color2;
         }
     }
 
@@ -641,16 +641,12 @@ export default {
         padding: 2px 15px;
         background: transparent;
         border: 0;
-        color: $link-color;
+        color: var(--color-interactive);
         opacity: 0.7;
         font-size: 0.9em;
 
         &::after {
             vertical-align: 0.155em;
-        }
-
-        .dark & {
-            color: $dark-font-color;
         }
     }
 }

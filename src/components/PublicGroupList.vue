@@ -331,10 +331,6 @@ export default {
     gap: 0.25rem;
 }
 
-.extra-info > div > div:first-child {
-    margin-left: 0 !important;
-}
-
 .no-monitor-msg {
     position: absolute;
     width: 100%;
@@ -381,14 +377,6 @@ export default {
     color: var(--color-interactive);
 }
 
-.flip-list-move {
-    transition: transform 0.5s;
-}
-
-.no-move {
-    transition: transform 0s;
-}
-
 .drag {
     color: var(--color-text-subtle);
     cursor: grab;
@@ -420,13 +408,4 @@ export default {
     }
 }
 
-.mobile {
-    .item {
-        padding: 13px 0 10px;
-    }
-}
-
-.bg-maintenance {
-    background-color: var(--status-maintenance);
-}
 </style>

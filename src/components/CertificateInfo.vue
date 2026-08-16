@@ -34,15 +34,13 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "../assets/vars.scss";
-
 .tag-valid {
     padding: 2px 25px;
-    background-color: $primary;
+    background-color: var(--status-up);
 }
 
 .tag-invalid {
     padding: 2px 25px;
-    background-color: $danger;
+    background-color: var(--status-down);
 }
 </style>

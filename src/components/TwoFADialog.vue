@@ -25,7 +25,6 @@
                                     :value="uri"
                                     type="image/png"
                                     :quality="1"
-                                    :color="{ light: '#ffffffff' }"
                                 />
                                 <button
                                     v-show="!showURI"

@@ -557,14 +557,14 @@ export default {
             const centerY = this.canvasHeight / 2;
 
             // Cache CSS colors once per redraw
-            const rootStyles = getComputedStyle(document.documentElement);
+            const rootStyles = getComputedStyle(document.body);
             const canvasStyles = getComputedStyle(canvas.parentElement);
             const colors = {
-                empty: canvasStyles.getPropertyValue("--beat-empty-color") || "#f4f5f6",
-                down: rootStyles.getPropertyValue("--status-down") || "#ef4444",
-                pending: rootStyles.getPropertyValue("--status-degraded") || "#f59e0b",
-                maintenance: rootStyles.getPropertyValue("--status-maintenance") || "#8b5cf6",
-                up: rootStyles.getPropertyValue("--status-up") || "#22c55e",
+                empty: canvasStyles.getPropertyValue("--beat-empty-color").trim(),
+                down: rootStyles.getPropertyValue("--status-down").trim(),
+                pending: rootStyles.getPropertyValue("--status-degraded").trim(),
+                maintenance: rootStyles.getPropertyValue("--status-maintenance").trim(),
+                up: rootStyles.getPropertyValue("--status-up").trim(),
             };
 
             // Draw each beat

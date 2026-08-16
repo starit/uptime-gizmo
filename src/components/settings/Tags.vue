@@ -165,8 +165,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "../../assets/vars.scss";
-
 .btn-rm-tag {
     padding-left: 9px;
     padding-right: 9px;
@@ -174,18 +172,10 @@ export default {
 
 .tags-list .tags-list-row {
     cursor: pointer;
-    border-top: 1px solid rgba(0, 0, 0, 0.125);
-
-    .dark & {
-        border-top: 1px solid $dark-border-color;
-    }
+    border-top: 1px solid var(--color-border);
 
     &:hover {
-        background-color: $highlight-white;
-    }
-
-    .dark &:hover {
-        background-color: $dark-bg2;
+        background-color: var(--color-surface-hover);
     }
 }
 </style>

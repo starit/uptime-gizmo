@@ -44,7 +44,7 @@ h5::after {
     display: block;
     width: 50%;
     padding-top: 8px;
-    border-bottom: 1px solid $dark-border-color;
+    border-bottom: 1px solid var(--color-border);
 }
 
 .open {

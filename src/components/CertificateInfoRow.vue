@@ -78,8 +78,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "../assets/vars.scss";
-
 table {
     overflow: hidden;
 }
@@ -87,13 +85,8 @@ table {
 .cert-icon {
     position: relative;
     font-size: 70px;
-    color: $link-color;
+    color: var(--color-interactive);
     opacity: 0.5;
-
-    .dark & {
-        color: $dark-font-color;
-        opacity: 0.3;
-    }
 }
 
 .award-icon {
@@ -101,22 +94,13 @@ table {
     font-size: 0.5em;
     bottom: 20%;
     left: 12%;
-    color: white;
-
-    .dark & {
-        color: $dark-bg;
-    }
+    color: var(--color-text-inverse);
 }
 
 .link-icon {
     font-size: 20px;
     margin-left: 50px !important;
-    color: $link-color;
+    color: var(--color-interactive);
     opacity: 0.5;
-
-    .dark & {
-        color: $dark-font-color;
-        opacity: 0.3;
-    }
 }
 </style>

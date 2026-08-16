@@ -405,7 +405,7 @@
                     </div>
 
                     <div v-else>
-                        <font-awesome-icon icon="question-circle" style="color: #efefef" />
+                        <font-awesome-icon icon="question-circle" class="unknown" />
                     </div>
                 </template>
             </div>
@@ -485,8 +485,8 @@
 
             <div class="mb-4">
                 <div v-if="$root.publicGroupList.length === 0 && loadedData" class="text-center">
-                    <!-- 👀 Nothing here, please add a group or a monitor. -->
-                    👀 {{ $t("statusPageNothing") }}
+                    <font-awesome-icon icon="eye" aria-hidden="true" />
+                    {{ $t("statusPageNothing") }}
                 </div>
 
                 <PublicGroupList
@@ -571,9 +571,7 @@
 
                 <p v-if="config.showPoweredBy" data-testid="powered-by">
                     {{ $t("Powered by") }}
-                    <a target="_blank" rel="noopener noreferrer" href="https://github.com/louislam/uptime-kuma">
-                        {{ $t("Uptime Kuma") }}
-                    </a>
+                    {{ $root.appName }}
                 </p>
 
                 <div class="refresh-info mb-2">
@@ -1514,6 +1512,10 @@ export default {
     .danger {
         color: var(--status-down-fg);
     }
+
+    .unknown {
+        color: var(--status-unknown-fg);
+    }
 }
 
 h1 {
@@ -1690,28 +1692,9 @@ footer {
     }
 }
 
-.maintenance-bg-info {
-    color: var(--status-maintenance-fg);
-}
-
-.maintenance-icon {
-    font-size: 35px;
-    vertical-align: middle;
-}
-
 .status-maintenance {
     color: var(--status-maintenance-fg);
     margin-right: 5px;
-}
-
-.mobile {
-    h1 {
-        font-size: 22px;
-    }
-
-    .overall-status {
-        font-size: 20px;
-    }
 }
 
 .domain-name-list {

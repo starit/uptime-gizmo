@@ -121,12 +121,12 @@ export default {
     transform: translateX(-50%);
 
     .tooltip-content {
-        background: rgba(17, 24, 39, 0.95);
+        background: var(--color-surface);
         backdrop-filter: blur(8px);
-        border: 1px solid rgba(75, 85, 99, 0.3);
+        border: 1px solid var(--color-border);
         border-radius: 8px;
         padding: 8px 12px;
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+        box-shadow: var(--shadow-float);
         min-width: 120px;
         text-align: center;
         position: relative;
@@ -138,7 +138,7 @@ export default {
             transform: translateX(-50%);
             width: 14px;
             height: 2px;
-            background: rgba(17, 24, 39, 0.95);
+            background: var(--color-surface);
             top: -1px;
         }
 
@@ -150,38 +150,38 @@ export default {
             letter-spacing: 0.5px;
 
             &.status-up {
-                color: $primary;
+                color: var(--status-up-fg);
             }
 
             &.status-down {
-                color: $danger;
+                color: var(--status-down-fg);
             }
 
             &.status-pending {
-                color: $warning;
+                color: var(--status-degraded-fg);
             }
 
             &.status-maintenance {
-                color: $maintenance;
+                color: var(--status-maintenance-fg);
             }
 
             &.status-empty {
-                color: $secondary-text;
+                color: var(--status-unknown-fg);
             }
         }
 
         .tooltip-time {
-            color: #d1d5db;
+            color: var(--color-text-muted);
             font-size: 13px;
             margin-bottom: 2px;
         }
 
         .tooltip-message {
-            color: #f3f4f6;
+            color: var(--color-text);
             font-size: 12px;
             margin-top: 4px;
             padding-top: 4px;
-            border-top: 1px solid rgba(75, 85, 99, 0.3);
+            border-top: 1px solid var(--color-border);
         }
     }
 
@@ -202,8 +202,8 @@ export default {
             transform: translateX(-50%) translateY(-50%) rotate(45deg);
             width: 8px;
             height: 8px;
-            background: rgba(17, 24, 39, 0.95);
-            border: 1px solid rgba(75, 85, 99, 0.3);
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
             border-bottom: none;
             border-right: none;
         }
@@ -215,7 +215,7 @@ export default {
             &::before {
                 top: 0%;
                 transform: translateX(-50%) translateY(-50%) rotate(225deg);
-                border: 1px solid rgba(75, 85, 99, 0.3);
+                border: 1px solid var(--color-border);
                 border-bottom: none;
                 border-right: none;
             }
@@ -235,24 +235,6 @@ export default {
     }
 }
 
-// Dark theme adjustments
-.dark .tooltip-wrapper {
-    .tooltip-content {
-        background: rgba(31, 41, 55, 0.95);
-        border-color: rgba(107, 114, 128, 0.3);
-
-        &::before {
-            background: rgba(31, 41, 55, 0.95);
-        }
-    }
-
-    .tooltip-arrow {
-        &::before {
-            background: rgba(31, 41, 55, 0.95);
-            border-color: rgba(107, 114, 128, 0.3);
-        }
-    }
-}
 
 @keyframes tooltip-fade-in {
     from {

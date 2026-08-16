@@ -709,24 +709,6 @@ export default {
     color: var(--color-interactive);
 }
 
-.selection-controls {
-    margin-top: 5px;
-    display: flex;
-    align-items: center;
-
-    .d-flex {
-        width: 100%;
-    }
-
-    .gap-2 {
-        gap: 0.5rem;
-    }
-
-    .selected-count {
-        margin-left: auto;
-    }
-}
-
 @media (max-width: 975px) {
     .filter-row {
         flex-direction: column-reverse;
@@ -787,13 +769,4 @@ export default {
     transition: none !important;
 }
 
-@media (max-width: 549px), (min-width: 770px) and (max-width: 1149px), (min-width: 1200px) and (max-width: 1499px) {
-    .selection-controls {
-        .selected-count {
-            margin-left: 0;
-            width: 100%;
-            margin-top: 0.25rem;
-        }
-    }
-}
 </style>

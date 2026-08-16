@@ -431,12 +431,8 @@ export default {
     font-size: 1.2em;
     padding: 9px 15px;
     width: 48px;
-    box-shadow: 2px 2px 30px rgba(0, 0, 0, 0.2);
+    box-shadow: var(--shadow-float);
     z-index: 100;
-
-    .dark & {
-        box-shadow: 2px 2px 30px rgba(10, 21, 30, 0.45);
-    }
 }
 
 @media (max-width: 900px) {

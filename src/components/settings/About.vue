@@ -75,10 +75,6 @@ export default {
 
 .frontend-version {
     font-size: 0.9em;
-    color: #cccccc;
-
-    .dark & {
-        color: #333333;
-    }
+    color: var(--color-text-muted);
 }
 </style>

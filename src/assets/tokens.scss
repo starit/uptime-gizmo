@@ -46,6 +46,11 @@
     --status-unknown-fg: #4b5563;
     --status-unknown-bg: #f3f4f6;
     --status-unknown-border: #d1d5db;
+
+    /* Data visualization */
+    --chart-ping-min: var(--status-up-fg);
+    --chart-ping-average: var(--status-up);
+    --chart-ping-max: #15803d;
     --color-status-down: var(--status-down);
 }
 
@@ -98,5 +103,10 @@
     --status-unknown-fg: #d1d5db;
     --status-unknown-bg: #27313c;
     --status-unknown-border: #4b5563;
+
+    /* Data visualization */
+    --chart-ping-min: var(--status-up-fg);
+    --chart-ping-average: var(--status-up);
+    --chart-ping-max: #22c55e;
     --color-status-down: var(--status-down);
 }
