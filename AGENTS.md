@@ -15,6 +15,7 @@ Uptime Gizmo is a self-hosted monitoring project based on Uptime Kuma. Its direc
 
 - Prefer the smallest clear change that solves the problem.
 - Follow the surrounding JavaScript, Vue, CSS, and project conventions.
+- Treat [DESIGN.md](DESIGN.md) as the source of truth for brand assets, color tokens, themes, status colors, accessibility, and UI implementation rules.
 - Reuse existing components, utilities, APIs, and styles before introducing new abstractions.
 - Use `apply_patch` for hand-written file edits.
 - Do not delete, reset, or overwrite user changes. If work overlaps with existing changes, stop and explain the conflict.
@@ -32,3 +33,4 @@ Uptime Gizmo is a self-hosted monitoring project based on Uptime Kuma. Its direc
 - Keep README and project documentation concise, accurate, and explicit about current versus planned functionality.
 - Use project-specific names and links; remove copied upstream instructions that do not apply to Uptime Gizmo.
 - Explain user-visible behavior and setup requirements without inventing unsupported features.
+- Update [DESIGN.md](DESIGN.md) when a deliberate visual-system, logo, token, or accessibility decision changes.

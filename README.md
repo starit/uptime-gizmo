@@ -1,203 +1,133 @@
-<div align="center" width="100%">
-    <img src="./public/icon.svg" width="128" alt="Uptime Kuma Logo" />
+<div align="center">
+  <img src="./public/images/logo.png" width="760" alt="Uptime Gizmo — Uptime is money, friend." />
+  <p><strong>Modern monitoring for humans and AI agents.</strong></p>
 </div>
 
-# Uptime Kuma
+<p align="center">
+  <a href="https://github.com/starit/uptime-gizmo/stargazers"><img src="https://img.shields.io/github/stars/starit/uptime-gizmo?style=flat&color=ECAB24" alt="GitHub stars" /></a>
+  <a href="https://github.com/starit/uptime-gizmo/blob/master/LICENSE"><img src="https://img.shields.io/badge/license-MIT-0A151E" alt="MIT License" /></a>
+  <a href="https://github.com/starit/uptime-gizmo/issues"><img src="https://img.shields.io/github/issues/starit/uptime-gizmo?color=1E64E7" alt="GitHub issues" /></a>
+</p>
 
-Uptime Kuma is an easy-to-use self-hosted monitoring tool.
+# Uptime Gizmo
 
-<a target="_blank" href="https://github.com/louislam/uptime-kuma"><img src="https://img.shields.io/github/stars/louislam/uptime-kuma?style=flat" /></a> <a target="_blank" href="https://hub.docker.com/r/louislam/uptime-kuma"><img src="https://img.shields.io/docker/pulls/louislam/uptime-kuma" /></a> <a target="_blank" href="https://hub.docker.com/r/louislam/uptime-kuma"><img src="https://img.shields.io/docker/v/louislam/uptime-kuma/2?label=docker%20image%20ver." /></a> <a target="_blank" href="https://github.com/louislam/uptime-kuma"><img src="https://img.shields.io/github/last-commit/louislam/uptime-kuma" /></a> <a target="_blank" href="https://opencollective.com/uptime-kuma"><img src="https://opencollective.com/uptime-kuma/total/badge.svg?label=Open%20Collective%20Backers&color=brightgreen" /></a>
-[![GitHub Sponsors](https://img.shields.io/github/sponsors/louislam?label=GitHub%20Sponsors)](https://github.com/sponsors/louislam) <a href="https://weblate.kuma.pet/projects/uptime-kuma/uptime-kuma/">
-<img src="https://weblate.kuma.pet/widgets/uptime-kuma/-/svg-badge.svg" alt="Translation status" />
-</a>
+> **Uptime is money, friend!**
 
-<img src="https://user-images.githubusercontent.com/1336778/212262296-e6205815-ad62-488c-83ec-a5b0d0689f7c.jpg" width="700" alt="Uptime Kuma Dashboard Screenshot" />
+Uptime Gizmo is a self-hosted monitoring platform based on [Uptime Kuma](https://github.com/louislam/uptime-kuma). It is being developed with a focus on modern status pages, richer monitoring, automation, and AI-agent integrations.
 
-## 🥔 Live Demo
+The goal is simple: make monitoring easy for people to understand and structured enough for agents to operate.
 
-Try it!
+For the product visual system, logo usage, theme tokens, and UI implementation rules, see the [Design System](DESIGN.md).
 
-Demo Server (Location: Frankfurt - Germany): <https://demo.kuma.pet/start-demo>
+## Why Uptime Gizmo?
 
-It is a temporary live demo, all data will be deleted after 10 minutes. Sponsored by [Uptime Kuma Sponsors](https://github.com/louislam/uptime-kuma#%EF%B8%8F-sponsors).
+### Beautiful status pages
 
-## ⭐ Features
+Status pages should be useful, clear, and worth sharing. Uptime Gizmo is moving toward a more polished public status page experience for projects, products, APIs, and infrastructure, including:
 
-- Monitoring uptime for HTTP(s) / TCP / HTTP(s) Keyword / HTTP(s) Json Query / Websocket / Ping / DNS Record / Push / Steam Game Server / Docker Containers
-- Fancy, Reactive, Fast UI/UX
-- Notifications via Telegram, Discord, Gotify, Slack, Pushover, Email (SMTP), and [90+ notification services, click here for the full list](https://github.com/louislam/uptime-kuma/tree/master/src/components/notifications)
-- 20-second intervals
-- [Multi Languages](https://github.com/louislam/uptime-kuma/tree/master/src/lang)
-- Multiple status pages
-- Map status pages to specific domains
-- Ping chart
-- Certificate info
-- Proxy support
-- 2FA support
+- Clearer service grouping and incident presentation
+- Better historical uptime visualization
+- More branding and customization options
+- Improved mobile layouts and custom domains
 
-## 🔧 How to Install
+### Better monitoring
 
-### 🐳 Docker Compose
+Uptime Gizmo inherits Uptime Kuma's broad monitoring foundation while working toward richer service-health signals—not just **“Is it up?”**, but **“Is it healthy?”**
 
-```bash
-mkdir uptime-kuma
-cd uptime-kuma
-curl -o compose.yaml https://raw.githubusercontent.com/louislam/uptime-kuma/master/compose.yaml
-docker compose up -d
+Planned improvements include more monitoring types, stronger HTTP/API validation, latency tracking, SSL/TLS and domain checks, infrastructure monitoring, flexible alert conditions, dependency context, and better history and analytics.
+
+### Built for AI agents
+
+AI integration should not depend on browser automation. Uptime Gizmo is being designed so agents can work with monitoring as a first-class system:
+
+- Create, update, and remove monitors
+- Discover services that should be monitored
+- Inspect health and query incident history
+- Analyze failures and suggest monitoring rules
+- Create temporary monitors during deployments
+- Maintain monitoring configuration as infrastructure changes
+
+For example:
+
+```text
+Monitor api.example.com every 30 seconds and alert me if latency exceeds 500ms.
 ```
 
-Uptime Kuma is now running on all network interfaces (e.g. http://localhost:3001 or http://your-ip:3001).
+## Agent-friendly interfaces
 
-> [!WARNING]
-> File Systems like **NFS** (Network File System) are **NOT** supported. Please map to a local directory or volume.
+The project is preparing structured interfaces for automation and AI agents. Planned capabilities may include:
 
-### 🐳 Docker Command
+- Monitor, status, metrics, and incident APIs
+- Webhooks and structured event streams
+- Agent authentication and permissions
+- MCP and other agent/tool integrations
 
-```bash
-docker run -d --restart=always -p 3001:3001 -v uptime-kuma:/app/data --name uptime-kuma louislam/uptime-kuma:2
-```
+These interfaces are part of the development roadmap and should not be considered generally available yet.
 
-Uptime Kuma is now running on all network interfaces (e.g. http://localhost:3001 or http://your-ip:3001).
+## Current capabilities
 
-If you want to limit exposure to localhost only:
+Uptime Gizmo currently includes core monitoring capabilities inherited from Uptime Kuma:
 
-```bash
-docker run ... -p 127.0.0.1:3001:3001 ...
-```
+- HTTP(S), TCP, WebSocket, Ping, DNS, Push, and Docker container monitoring
+- HTTP(S) keyword and JSON query checks
+- Steam game server monitoring
+- Multiple status pages and custom domains
+- Notifications through many common services
+- Response-time charts and certificate information
+- Proxy and two-factor authentication support
+- Multi-language support
 
-### 💪🏻 Non-Docker
+## Project direction
 
-Requirements:
+Development is focused on four connected areas:
 
-- Platform
-  - ✅ Major Linux distros such as Debian, Ubuntu, Fedora and ArchLinux etc.
-  - ✅ Windows 10 (x64), Windows Server 2012 R2 (x64) or higher
-  - ❌ FreeBSD / OpenBSD / NetBSD
-  - ❌ Replit / Heroku
-- [Node.js](https://nodejs.org/en/download/) >= 20.4
-- [Git](https://git-scm.com/downloads)
-- [pm2](https://pm2.keymetrics.io/) - For running Uptime Kuma in the background
+1. **Beautiful status pages** — Make public uptime and incident information clean and understandable.
+2. **Better monitoring** — Expand availability checks toward richer service-health monitoring.
+3. **AI-agent native workflows** — Let agents safely create and maintain monitoring infrastructure.
+4. **Smarter operations** — Provide context that helps people and agents understand incidents and decide what to do next.
 
-```bash
-git clone https://github.com/louislam/uptime-kuma.git
-cd uptime-kuma
-npm run setup
+## Built on Uptime Kuma
 
-# Option 1. Try it
-node server/server.js
+Uptime Gizmo is a fork of the open-source project [Uptime Kuma](https://github.com/louislam/uptime-kuma), created by Louis Lam and its contributors.
 
-# (Recommended) Option 2. Run in the background using PM2
-# Install PM2 if you don't have it:
-npm install pm2 -g && pm2 install pm2-logrotate
+Uptime Kuma provides the foundation for this project. We aim to preserve its strengths—easy self-hosting, broad monitoring support, a friendly UI, and a strong notification ecosystem—while taking the product in a more modern, automated, and AI-friendly direction.
 
-# Start Server
-pm2 start server/server.js --name uptime-kuma
-```
+## Getting started
 
-Uptime Kuma is now running on all network interfaces (e.g. http://localhost:3001 or http://your-ip:3001).
+### Requirements
 
-More useful PM2 Commands
+- Node.js >= 20.4.0
+- Git
+
+### Development
 
 ```bash
-# If you want to see the current console output
-pm2 monit
-
-# If you want to add it to startup
-pm2 startup && pm2 save
+git clone https://github.com/starit/uptime-gizmo.git
+cd uptime-gizmo
+npm install
+npm run dev
 ```
 
-### Advanced Installation
+The development frontend runs at <http://localhost:3000>. The backend runs at <http://localhost:3001>.
 
-If you need more options or need to browse via a reverse proxy, please read:
+To run only the backend:
 
-<https://github.com/louislam/uptime-kuma/wiki/%F0%9F%94%A7-How-to-Install>
+```bash
+npm start
+```
 
-## 🆙 How to Update
+Uptime Gizmo is under active development. Docker images, migration guidance, and upgrade documentation will be added as release practices are established.
+
+## Contributing
 
 Please read:
 
-<https://github.com/louislam/uptime-kuma/wiki/%F0%9F%86%99-How-to-Update>
+- [Contributing Guide](CONTRIBUTING.md)
+- [Code of Conduct](CODE_OF_CONDUCT.md)
+- [Security Policy](SECURITY.md)
 
-## 🆕 What's Next?
+For larger changes, open an issue first to discuss the proposed direction.
 
-I will assign requests/issues to the next milestone.
+## License
 
-<https://github.com/louislam/uptime-kuma/milestones>
-
-## ❤️ Sponsors
-
-Thank you so much! (GitHub Sponsors will be updated manually. OpenCollective sponsors will be updated automatically, the list will be cached by GitHub though. It may need some time to be updated)
-
-<img src="https://uptime.kuma.pet/sponsors?v=6" alt="Uptime Kuma Sponsors" />
-
-## 🖼 More Screenshots
-
-Light Mode:
-
-<img src="https://uptime.kuma.pet/img/light.jpg" width="512" alt="Uptime Kuma Light Mode Screenshot of how the Dashboard looks" />
-
-Status Page:
-
-<img src="https://user-images.githubusercontent.com/1336778/134628766-a3fe0981-0926-4285-ab46-891a21c3e4cb.png" width="512" alt="Uptime Kuma Status Page Screenshot" />
-
-Settings Page:
-
-<img src="https://louislam.net/uptimekuma/2.jpg" width="400" alt="Uptime Kuma Settings Page Screenshot" />
-
-Telegram Notification Sample:
-
-<img src="https://louislam.net/uptimekuma/3.jpg" width="400" alt="Uptime Kuma Telegram Notification Sample Screenshot" />
-
-## Motivation
-
-- I was looking for a self-hosted monitoring tool like "Uptime Robot", but it is hard to find a suitable one. One of the closest ones is statping. Unfortunately, it is not stable and no longer maintained.
-- Wanted to build a fancy UI.
-- Learn Vue 3 and vite.js.
-- Show the power of Bootstrap 5.
-- Try to use WebSocket with SPA instead of a REST API.
-- Deploy my first Docker image to Docker Hub.
-
-If you love this project, please consider giving it a ⭐.
-
-## 🗣️ Discussion / Ask for Help
-
-⚠️ For any general or technical questions, please don't send me an email, as I am unable to provide support in that manner. I will not respond if you ask questions there.
-
-I recommend using Google, GitHub Issues, or Uptime Kuma's subreddit for finding answers to your question. If you cannot find the information you need, feel free to ask:
-
-- [GitHub Issues](https://github.com/louislam/uptime-kuma/issues)
-- [Subreddit (r/UptimeKuma)](https://www.reddit.com/r/UptimeKuma/)
-
-My Reddit account: [u/louislamlam](https://reddit.com/u/louislamlam)
-You can mention me if you ask a question on the subreddit.
-
-## Contributions
-
-### Create Pull Requests
-
-Pull requests are awesome.
-To keep reviews fast and effective, please make sure you’ve [read our pull request guidelines](https://github.com/louislam/uptime-kuma/blob/master/CONTRIBUTING.md#can-i-create-a-pull-request-for-uptime-kuma).
-
-### Test Pull Requests
-
-There are a lot of pull requests right now, but I don't have time to test them all.
-
-If you want to help, you can check this:
-<https://github.com/louislam/uptime-kuma/wiki/Test-Pull-Requests>
-
-### Test Beta Version
-
-Check out the latest beta release here: <https://github.com/louislam/uptime-kuma/releases>
-
-### Bug Reports / Feature Requests
-
-If you want to report a bug or request a new feature, feel free to open a [new issue](https://github.com/louislam/uptime-kuma/issues).
-
-### Translations
-
-If you want to translate Uptime Kuma into your language, please visit [Weblate Readme](https://github.com/louislam/uptime-kuma/blob/master/src/lang/README.md).
-
-### Spelling & Grammar
-
-Feel free to correct the grammar in the documentation or code.
-My mother language is not English and my grammar is not that great.
+Uptime Gizmo is licensed under the [MIT License](LICENSE).
