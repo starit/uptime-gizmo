@@ -1,47 +1,26 @@
 # Security Policy
 
-> [!CAUTION]
-> Unfortunately, AI slop reports keep wasting my time. It will be closed and you will get banned immediately if you try to do that.
-
 ## Reporting a Vulnerability
 
-1. Please report security issues to
-   <https://github.com/louislam/uptime-kuma/security/advisories/new>.
-2. Please also create an empty security issue to alert me, as GitHub Advisories
-   do not send a notification, I probably will miss it without this.
-   <https://github.com/louislam/uptime-kuma/issues/new?assignees=&labels=help&template=security.md>
+Please report suspected security vulnerabilities privately through [Uptime Gizmo GitHub Security Advisories](https://github.com/starit/uptime-gizmo/security/advisories/new).
 
-- Do not report any upstream dependency issues / scan result by any tools. It will be closed immediately without explanations. Unless you have PoC to prove that the upstream issue affected Uptime Kuma.
-- Do not use the public issue tracker or discuss it in public as it will cause
-  more damage.
-- Do not report any SSRF issues.
+Do not disclose a vulnerability through a public issue, pull request, discussion, or other public channel before it has been reviewed by the maintainers. Please include enough information to reproduce and assess the issue, such as:
 
-## Do you accept other 3rd-party bug bounty platforms?
+- Affected version or commit
+- Reproduction steps or a proof of concept
+- Expected and actual behavior
+- Potential impact
 
-At this moment, I DO NOT accept other bug bounty platforms, because I am not
-familiar with these platforms and someone has tried to send a phishing link to
-me by doing this already. To minimize my own risk, please report through GitHub
-Advisories only. I will ignore all 3rd-party bug bounty platforms emails.
+Reports will be reviewed and handled confidentially. If the advisory form is unavailable, contact the project maintainers through the repository's official communication channels.
+
+## Scope
+
+Reports are welcome for vulnerabilities in Uptime Gizmo, including its server, frontend, API, authentication, monitoring, and deployment configuration.
+
+Issues in third-party dependencies may also be reported when they affect Uptime Gizmo in a practical and demonstrable way.
 
 ## Supported Versions
 
-### Uptime Kuma Versions
+Uptime Gizmo is under active development and does not currently publish a formal supported-version or Docker-tag policy. When reporting an issue, please include the exact commit or version you tested.
 
-You should use or upgrade to the latest version of Uptime Kuma.
-All versions are upgradable to the latest version.
-
-### Upgradable Docker Tags
-
-| Tag             | Supported                                                                             |
-| --------------- | ------------------------------------------------------------------------------------- |
-| 2               | :white_check_mark:                                                                    |
-| 2-slim          | :white_check_mark:                                                                    |
-| next            | :white_check_mark:                                                                    |
-| next-slim       | :white_check_mark:                                                                    |
-| 2-rootless      | :white_check_mark:                                                                    |
-| 2-slim-rootless | :white_check_mark:                                                                    |
-| 1               | [⚠️ Deprecated](https://github.com/louislam/uptime-kuma/wiki/Migration-From-v1-To-v2) |
-| 1-debian        | [⚠️ Deprecated](https://github.com/louislam/uptime-kuma/wiki/Migration-From-v1-To-v2) |
-| latest          | [⚠️ Deprecated](https://github.com/louislam/uptime-kuma/wiki/Migration-From-v1-To-v2) |
-| debian          | [⚠️ Deprecated](https://github.com/louislam/uptime-kuma/wiki/Migration-From-v1-To-v2) |
-| All other tags  | ❌                                                                                    |
+Security fixes and support information will be documented as release practices are established.
