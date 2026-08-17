@@ -5,7 +5,9 @@
         </label>
         <slot :describedby="describedBy" :invalid="Boolean(error)" />
         <p v-if="error" :id="errorId" class="gizmo-field__error" role="alert">{{ error }}</p>
-        <p v-else-if="help" :id="helpId" class="gizmo-field__help">{{ help }}</p>
+        <div v-else-if="help || $slots.help" :id="helpId" class="gizmo-field__help">
+            <slot name="help">{{ help }}</slot>
+        </div>
     </div>
 </template>
 
@@ -38,7 +40,7 @@ export default {
             return this.forId ? `${this.forId}-error` : undefined;
         },
         describedBy() {
-            return this.error ? this.errorId : this.help ? this.helpId : undefined;
+            return this.error ? this.errorId : this.help || this.$slots.help ? this.helpId : undefined;
         },
     },
 };

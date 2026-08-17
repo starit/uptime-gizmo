@@ -6,7 +6,7 @@
             :value="value"
             type="radio"
             class="gizmo-check__input"
-            @change="$emit('update:modelValue', value)"
+            @change="handleChange"
         />
         <span class="gizmo-check__box gizmo-check__box--radio" aria-hidden="true"></span>
         <span class="gizmo-check__label"><slot /></span>
@@ -26,6 +26,12 @@ export default {
             required: true,
         },
     },
-    emits: ["update:modelValue"],
+    emits: ["update:modelValue", "change"],
+    methods: {
+        handleChange(event) {
+            this.$emit("update:modelValue", this.value);
+            this.$emit("change", event);
+        },
+    },
 };
 </script>

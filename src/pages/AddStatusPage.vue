@@ -19,21 +19,23 @@
                         />
                     </GizmoField>
 
-                    <GizmoField v-slot="{ describedby, invalid }" for-id="slug" :label="$t('Slug')" :required="true">
-                        <div class="gizmo-input-prefix">
-                            <span id="basic-addon3" class="gizmo-input-prefix__label">/status/</span>
-                            <GizmoInput
-                                id="slug"
-                                v-model="slug"
-                                type="text"
-                                autocapitalize="none"
-                                required
-                                :aria-describedby="describedby"
-                                :aria-invalid="invalid"
-                                data-testid="slug-input"
-                            />
-                        </div>
-                        <div class="gizmo-field__help">
+                    <GizmoField for-id="slug" :label="$t('Slug')" :required="true">
+                        <template #default="{ describedby, invalid }">
+                            <div class="gizmo-input-prefix">
+                                <span id="basic-addon3" class="gizmo-input-prefix__label">/status/</span>
+                                <GizmoInput
+                                    id="slug"
+                                    v-model="slug"
+                                    type="text"
+                                    autocapitalize="none"
+                                    required
+                                    :aria-describedby="describedby"
+                                    :aria-invalid="invalid"
+                                    data-testid="slug-input"
+                                />
+                            </div>
+                        </template>
+                        <template #help>
                             <ul>
                                 <li>
                                     {{ $t("Accept characters:") }}
@@ -49,7 +51,7 @@
                                     <mark class="inline-mark">default</mark>
                                 </i18n-t>
                             </ul>
-                        </div>
+                        </template>
                     </GizmoField>
 
                     <template #footer>

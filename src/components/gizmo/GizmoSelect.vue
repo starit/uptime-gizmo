@@ -1,9 +1,9 @@
 <template>
     <select
         v-bind="$attrs"
-        :value="modelValue"
+        v-model="model"
         class="gizmo-control gizmo-control--select gizmo-focus-ring"
-        @change="$emit('update:modelValue', selectedValue($event.target))"
+        @change="$emit('change', $event)"
     >
         <slot />
     </select>
@@ -18,11 +18,15 @@ export default {
             default: "",
         },
     },
-    emits: ["update:modelValue"],
-    methods: {
-        selectedValue(select) {
-            const option = select.options[select.selectedIndex];
-            return option && option._value !== undefined ? option._value : select.value;
+    emits: ["update:modelValue", "change"],
+    computed: {
+        model: {
+            get() {
+                return this.modelValue;
+            },
+            set(value) {
+                this.$emit("update:modelValue", value);
+            },
         },
     },
 };

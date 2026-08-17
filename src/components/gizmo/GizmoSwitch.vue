@@ -6,7 +6,7 @@
             type="checkbox"
             role="switch"
             class="gizmo-switch__input"
-            @change="$emit('update:modelValue', $event.target.checked)"
+            @change="handleChange"
         />
         <span class="gizmo-switch__track" aria-hidden="true"><span class="gizmo-switch__thumb"></span></span>
         <span class="gizmo-switch__label"><slot /></span>
@@ -19,6 +19,12 @@ export default {
     props: {
         modelValue: Boolean,
     },
-    emits: ["update:modelValue"],
+    emits: ["update:modelValue", "change"],
+    methods: {
+        handleChange(event) {
+            this.$emit("update:modelValue", event.target.checked);
+            this.$emit("change", event);
+        },
+    },
 };
 </script>

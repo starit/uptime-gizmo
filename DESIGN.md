@@ -69,6 +69,9 @@ Use semantic UI tokens in application code instead of hard-coding primitive colo
     --color-text-muted: #575D64;
     --color-text-subtle: #6B7280;
     --color-text-inverse: #FCFCFC;
+    --color-tag-default: #4B5563;
+    --color-tag-text-light: #FFFFFF;
+    --color-tag-text-dark: #0A151E;
 
     /* Brand and interaction */
     --color-brand: #ECAB24;
@@ -117,6 +120,9 @@ body.dark,
     --color-text-muted: #C6CBD0;
     --color-text-subtle: #9CA7B1;
     --color-text-inverse: #0A151E;
+    --color-tag-default: #4B5563;
+    --color-tag-text-light: #FFFFFF;
+    --color-tag-text-dark: #0A151E;
 
     /* Brand and interaction */
     --color-brand: #F5BE4F;

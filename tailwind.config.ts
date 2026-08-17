@@ -5,9 +5,9 @@ const config = {
         "./index.html",
         "./src/**/*.{vue,js,ts}",
     ],
-    // Keep the foundational token utilities available while Phase 2 introduces
-    // their first component consumers. This is intentionally a tiny set rather
-    // than a broad pattern that would enlarge the production stylesheet.
+    // Keep the foundational token utilities and the finite public variants of
+    // Gizmo primitives. Variant classes are assembled at runtime, so Tailwind's
+    // content scanner cannot discover them without this explicit contract.
     safelist: [
         "tw-bg-canvas",
         "tw-bg-surface",
@@ -27,6 +27,30 @@ const config = {
         "gizmo-status-down",
         "gizmo-status-maintenance",
         "gizmo-status-unknown",
+        "gizmo-button--primary",
+        "gizmo-button--secondary",
+        "gizmo-button--outline",
+        "gizmo-button--ghost",
+        "gizmo-button--danger",
+        "gizmo-button--sm",
+        "gizmo-panel--compact",
+        "gizmo-panel--default",
+        "gizmo-status--up",
+        "gizmo-status--degraded",
+        "gizmo-status--down",
+        "gizmo-status--maintenance",
+        "gizmo-status--unknown",
+        "gizmo-tag--normal",
+        "gizmo-tag--sm",
+        "gizmo-alert--info",
+        "gizmo-alert--success",
+        "gizmo-alert--warning",
+        "gizmo-alert--danger",
+        "gizmo-alert--maintenance",
+        "gizmo-toast--info",
+        "gizmo-toast--success",
+        "gizmo-toast--warning",
+        "gizmo-toast--danger",
     ],
     prefix: "tw-",
     corePlugins: {

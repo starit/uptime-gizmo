@@ -339,12 +339,25 @@
         border: 1px solid var(--color-border-strong);
         border-radius: 0.3125rem;
         background: var(--color-surface);
+
+        &::after {
+            width: 0.3rem;
+            height: 0.55rem;
+            border: solid var(--color-text-inverse);
+            border-width: 0 2px 2px 0;
+            content: "";
+            transform: rotate(45deg) scale(0);
+            transition: transform 100ms var(--easing-out);
+        }
     }
 
     .gizmo-check__input:checked + .gizmo-check__box {
         border-color: var(--color-interactive);
         background: var(--color-interactive);
-        box-shadow: inset 0 0 0 3px var(--color-surface);
+    }
+
+    .gizmo-check__input:checked + .gizmo-check__box::after {
+        transform: rotate(45deg) scale(1);
     }
 
     .gizmo-check__input:disabled + .gizmo-check__box,
@@ -355,6 +368,19 @@
 
     .gizmo-check__box--radio {
         border-radius: 50%;
+
+        &::after {
+            width: 0.5rem;
+            height: 0.5rem;
+            border: 0;
+            border-radius: 50%;
+            background: var(--color-text-inverse);
+            transform: scale(0);
+        }
+    }
+
+    .gizmo-check__input:checked + .gizmo-check__box--radio::after {
+        transform: scale(1);
     }
 
     .gizmo-check__label,
@@ -390,6 +416,16 @@
     .gizmo-switch__input:checked + .gizmo-switch__track .gizmo-switch__thumb {
         background: var(--color-text-inverse);
         transform: translateX(1rem);
+    }
+
+    [dir="rtl"] .gizmo-switch__input:checked + .gizmo-switch__track .gizmo-switch__thumb {
+        transform: translateX(-1rem);
+    }
+
+    .gizmo-check:has(.gizmo-check__input:disabled),
+    .gizmo-switch:has(.gizmo-switch__input:disabled) {
+        color: var(--color-text-muted);
+        cursor: not-allowed;
     }
 
     .gizmo-panel {
@@ -474,10 +510,10 @@
         max-width: 100%;
         align-items: center;
         gap: 0.25rem;
-        border: 1px solid color-mix(in srgb, var(--gizmo-tag-bg) 70%, var(--color-text-inverse));
+        border: 1px solid color-mix(in srgb, var(--gizmo-tag-bg) 82%, var(--gizmo-tag-fg, var(--color-tag-text-light)));
         border-radius: 999px;
         background: var(--gizmo-tag-bg);
-        color: var(--color-text-inverse);
+        color: var(--gizmo-tag-fg, var(--color-tag-text-light));
     }
 
     .gizmo-tag--normal { padding: 0.25rem 0.625rem; font-size: 0.875rem; }
