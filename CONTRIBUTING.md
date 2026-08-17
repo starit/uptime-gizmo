@@ -42,6 +42,7 @@ The development frontend runs at <http://localhost:3000>. The backend runs at <h
 - Reuse existing components, utilities, styles, and APIs where possible.
 - Preserve existing behavior unless the change explicitly requires otherwise.
 - Add or update translations in `src/lang/en.json` when adding user-facing text.
+- Prefer TypeScript for new modules, build configuration, and Vue component logic. Keep JavaScript and TypeScript interoperable; do not convert an unrelated legacy file only for consistency.
 - Do not commit secrets, credentials, local configuration, generated build output, or unrelated assets.
 - For UI changes, consider loading, empty, error, mobile, and accessibility states.
 - For monitoring and notification changes, include tests and explain how the behavior was verified.
@@ -52,6 +53,7 @@ Run the checks relevant to your change:
 
 ```bash
 npm run lint
+npm run tsc
 npm run build
 npm test
 ```
