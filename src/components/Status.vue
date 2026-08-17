@@ -1,12 +1,14 @@
 <template>
-    <span class="gizmo-status" :class="`gizmo-status--${tone}`">
-        <span class="gizmo-status__dot" aria-hidden="true"></span>
-        {{ text }}
-    </span>
+    <GizmoStatusBadge :tone="tone" :text="text" />
 </template>
 
 <script>
+import GizmoStatusBadge from "./gizmo/GizmoStatusBadge.vue";
+
 export default {
+    components: {
+        GizmoStatusBadge,
+    },
     props: {
         /** Current status of monitor */
         status: {

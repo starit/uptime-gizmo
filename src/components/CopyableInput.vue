@@ -1,11 +1,9 @@
 <template>
-    <div class="input-group">
-        <input
+    <div class="gizmo-inline-action">
+        <GizmoInput
             :id="id"
-            ref="input"
             v-model="model"
             :type="type"
-            class="form-control"
             :placeholder="placeholder"
             :autocomplete="autocomplete"
             :required="required"
@@ -16,16 +14,23 @@
         <!-- A hidden textarea for copying text on non-https -->
         <textarea ref="hiddenTextarea" style="position: fixed; left: -999999px; top: -999999px"></textarea>
 
-        <a class="btn btn-outline-primary" @click="copyToClipboard(model)">
+        <GizmoIconButton :label="$t('Copy to Clipboard')" :disabled="Boolean(disabled)" @click="copyToClipboard(model)">
             <font-awesome-icon :icon="icon" />
-        </a>
+        </GizmoIconButton>
     </div>
 </template>
 
 <script>
+import GizmoIconButton from "./gizmo/GizmoIconButton.vue";
+import GizmoInput from "./gizmo/GizmoInput.vue";
+
 let timeout;
 
 export default {
+    components: {
+        GizmoIconButton,
+        GizmoInput,
+    },
     props: {
         /** ID of this input */
         id: {

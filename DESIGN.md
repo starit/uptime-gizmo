@@ -153,6 +153,21 @@ body.dark,
 
 ## Usage rules
 
+### Monitoring density
+
+The private monitoring workspace is an operational tool, not a marketing surface. Operators must be able to scan monitor health, recent changes, and available actions quickly—especially during an incident. Information density is therefore a product requirement, not an aesthetic preference.
+
+- Prefer a compact list, table, inline metric, or grouped row when it communicates operational data more directly than a card. Cards must establish a meaningful boundary; do not use one merely to decorate a single value or action.
+- Keep primary monitor identity, current status, the most useful recent signal, and the relevant action visible together at desktop widths. Do not require opening a detail view for routine triage.
+- Use whitespace to separate semantic groups, not to make routine data look spacious. Avoid oversized page headers, hero areas, repeated card padding, and decorative artwork in authenticated monitoring workflows.
+- Make status the strongest signal, monitor name the next strongest, and secondary metadata intentionally quieter. Preserve a stable scan order across rows, filters, and screen sizes.
+- Use compact controls for dense desktop workflows, but preserve a minimum 2.5rem target for controls that need pointer or touch interaction. Responsive layouts may reflow or reveal secondary data on demand; they must not discard a monitor's state or its accessible name.
+- Keep labels and operational metadata readable: use at least 0.75rem for secondary text, tabular numerals for time, counts, and latency, and avoid wrapping status/action controls where a responsive row layout can prevent it.
+- Prefer CSS transitions and already-loaded icons over decorative animation, large illustrations, or continuous effects in the private workspace. Visual effects must never compete with alert, incident, or recovery signals.
+- Public status pages may use more breathing room and brand expression, but availability, incident history, and affected components must still be immediately scannable.
+
+Density does not excuse inaccessible UI: keyboard focus, labels, contrast, error messages, and touch targets remain mandatory. If density and clarity conflict, preserve clarity first.
+
 ### Brand and interaction
 
 - Use Gold for the logo, mascot details, branded highlights, and selected primary calls to action.
@@ -184,3 +199,4 @@ Before shipping a UI change, confirm that it:
 - Provides sufficient contrast and visible focus states.
 - Uses the flat logo treatment in product UI and reserves 3D artwork for marketing contexts.
 - Handles loading, empty, error, and responsive states when relevant.
+- Keeps authenticated monitoring workflows dense enough for rapid incident triage without reducing readability, accessibility, or status clarity.

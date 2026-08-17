@@ -1,28 +1,29 @@
 <template>
-    <div class="input-group mb-3">
-        <select :id="id" ref="select" v-model="model" class="form-select" :disabled="disabled" :required="required">
+    <div class="gizmo-inline-action">
+        <GizmoSelect :id="id" v-model="model" :disabled="disabled" :required="required">
             <option v-for="option in options" :key="option" :value="option.value" :disabled="option.disabled">
                 {{ option.label }}
             </option>
-        </select>
-        <button
-            type="button"
-            class="btn btn-outline-primary"
-            :class="{ disabled: actionDisabled }"
-            :aria-label="actionAriaLabel"
-            @click="action()"
-        >
+        </GizmoSelect>
+        <GizmoIconButton :label="actionAriaLabel" :disabled="actionDisabled" @click="action()">
             <font-awesome-icon :icon="icon" aria-hidden="true" />
-        </button>
+        </GizmoIconButton>
     </div>
 </template>
 
 <script>
+import GizmoIconButton from "./gizmo/GizmoIconButton.vue";
+import GizmoSelect from "./gizmo/GizmoSelect.vue";
+
 /**
  * Generic select field with a customizable action on the right.
  * Action is passed in as a function.
  */
 export default {
+    components: {
+        GizmoIconButton,
+        GizmoSelect,
+    },
     props: {
         options: {
             type: Array,

@@ -47,6 +47,7 @@ The most common dependencies are form controls, buttons, selects, grid/flex layo
 - Use semantic tokens from `DESIGN.md`; do not introduce arbitrary color literals in Vue templates.
 - Preserve keyboard navigation, focus indication, escape-to-close behavior, focus trapping, and screen-reader labels when replacing Bootstrap interactions.
 - Preserve existing Socket.IO event contracts and server-side behavior. This is a presentation-layer migration.
+- Preserve the dense, scan-first character of authenticated monitoring workflows. Do not replace data rows and inline metrics with decorative cards, oversized headers, or low-signal whitespace; follow the Monitoring density rules in `DESIGN.md`.
 - Delete Bootstrap styles and JavaScript only after their replacements are verified. Do not leave permanent dual implementations.
 - Prefer route-level code splitting and lightweight primitives. A monitoring dashboard should not gain a large UI-library runtime.
 
@@ -76,6 +77,10 @@ The most common dependencies are form controls, buttons, selects, grid/flex layo
 **Exit criteria:** Tailwind utilities compile, work with both themes, and do not create a noticeable production CSS regression.
 
 ### Phase 2 — Establish shared Gizmo primitives
+
+**Status:** Complete on 2026-08-17. See the [Phase 2 implementation record](../execution/2026-08-17-tailwind-phase-2.md) and [primitive usage guide](../gizmo-primitives.md).
+
+**Preparation:** See the [Phase 2 preparation record](../execution/2026-08-17-tailwind-phase-2-preparation.md) for proposed boundaries, initial consumers, and acceptance criteria.
 
 Create and document small shared components or class recipes for:
 

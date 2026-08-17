@@ -1,42 +1,32 @@
 <template>
-    <div class="d-flex justify-content-center align-items-center">
-        <div class="logo d-flex flex-column justify-content-center align-items-center">
-            <img class="my-4" width="200" height="200" src="/icon-512x512.png" :alt="$root.appName" />
-            <div class="fs-4 fw-bold">Uptime Gizmo</div>
+    <div class="about-layout">
+        <div class="logo">
+            <img class="about-logo" width="200" height="200" src="/icon-512x512.png" :alt="$root.appName" />
+            <div class="about-title">Uptime Gizmo</div>
             <div>{{ $t("versionIs", { version: $root.info.version }) }}</div>
             <div class="frontend-version">{{ $t("frontendVersionIs", { version: $root.frontendVersion }) }}</div>
 
-            <div v-if="!$root.isFrontendBackendVersionMatched" class="alert alert-warning mt-4" role="alert">
-                ⚠️ {{ $t("Frontend Version do not match backend version!") }}
-            </div>
+            <GizmoAlert v-if="!$root.isFrontendBackendVersionMatched" class="about-version-alert" tone="warning">
+                <template #icon><font-awesome-icon icon="exclamation-triangle" /></template>
+                {{ $t("Frontend Version do not match backend version!") }}
+            </GizmoAlert>
 
-            <div class="my-3 update-link">
+            <div class="update-link">
                 <a href="https://github.com/starit/uptime-gizmo/releases" target="_blank" rel="noopener">
                     {{ $t("Check Update On GitHub") }}
                 </a>
             </div>
 
-            <div class="mt-1">
-                <div class="form-check">
-                    <label>
-                        <input v-model="settings.checkUpdate" type="checkbox" @change="saveSettings()" />
-                        {{ $t("Show update if available") }}
-                    </label>
-                </div>
+            <div class="about-settings">
+                <GizmoSwitch v-model="settings.checkUpdate" @change="saveSettings()">
+                    {{ $t("Show update if available") }}
+                </GizmoSwitch>
 
-                <div class="form-check">
-                    <label>
-                        <input
-                            v-model="settings.checkBeta"
-                            type="checkbox"
-                            :disabled="!settings.checkUpdate"
-                            @change="saveSettings()"
-                        />
-                        {{ $t("Also check beta release") }}
-                    </label>
-                </div>
+                <GizmoSwitch v-model="settings.checkBeta" :disabled="!settings.checkUpdate" @change="saveSettings()">
+                    {{ $t("Also check beta release") }}
+                </GizmoSwitch>
             </div>
-            <div class="mt-5">
+            <div class="about-license">
                 <p>
                     {{ $t("Font Twemoji by Twitter licensed under") }}
                     <a href="https://creativecommons.org/licenses/by/4.0/">CC-BY 4.0</a>
@@ -47,7 +37,14 @@
 </template>
 
 <script>
+import GizmoAlert from "../gizmo/GizmoAlert.vue";
+import GizmoSwitch from "../gizmo/GizmoSwitch.vue";
+
 export default {
+    components: {
+        GizmoAlert,
+        GizmoSwitch,
+    },
     computed: {
         settings() {
             return this.$parent.$parent.$parent.settings;
@@ -66,7 +63,38 @@ export default {
 
 <style lang="scss" scoped>
 .logo {
+    display: grid;
+    justify-items: center;
+    gap: 0.5rem;
     margin: 4em 1em;
+    text-align: center;
+}
+
+.about-layout {
+    display: flex;
+    justify-content: center;
+}
+
+.about-logo {
+    margin-block: 1.5rem;
+}
+
+.about-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+}
+
+.about-version-alert,
+.update-link,
+.about-license {
+    margin-top: 1rem;
+}
+
+.about-settings {
+    display: grid;
+    justify-items: start;
+    gap: 0.25rem;
+    margin-top: 0.25rem;
 }
 
 .update-link {

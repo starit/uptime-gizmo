@@ -1,39 +1,39 @@
 <template>
     <transition name="slide-fade" appear>
         <div class="status-page-onboarding">
-            <h1 class="status-page-onboarding-title mb-3">
-                {{ $t("Add New Status Page") }}
-            </h1>
+            <header class="gizmo-page-header">
+                <h1 class="gizmo-page-header__title">{{ $t("Add New Status Page") }}</h1>
+            </header>
 
             <form @submit.prevent="submit">
-                <div class="shadow-box status-page-onboarding-surface">
-                    <div class="mb-3">
-                        <label for="name" class="form-label">{{ $t("Name") }}</label>
-                        <input
+                <GizmoPanel density="default" :footer-full-width="true">
+                    <GizmoField v-slot="{ describedby, invalid }" for-id="name" :label="$t('Name')" :required="true">
+                        <GizmoInput
                             id="name"
                             v-model="title"
                             type="text"
-                            class="form-control"
                             required
+                            :aria-describedby="describedby"
+                            :aria-invalid="invalid"
                             data-testid="name-input"
                         />
-                    </div>
+                    </GizmoField>
 
-                    <div class="mb-4">
-                        <label for="slug" class="form-label">{{ $t("Slug") }}</label>
-                        <div class="input-group">
-                            <span id="basic-addon3" class="input-group-text">/status/</span>
-                            <input
+                    <GizmoField v-slot="{ describedby, invalid }" for-id="slug" :label="$t('Slug')" :required="true">
+                        <div class="gizmo-input-prefix">
+                            <span id="basic-addon3" class="gizmo-input-prefix__label">/status/</span>
+                            <GizmoInput
                                 id="slug"
                                 v-model="slug"
                                 type="text"
-                                class="form-control"
                                 autocapitalize="none"
                                 required
+                                :aria-describedby="describedby"
+                                :aria-invalid="invalid"
                                 data-testid="slug-input"
                             />
                         </div>
-                        <div class="form-text">
+                        <div class="gizmo-field__help">
                             <ul>
                                 <li>
                                     {{ $t("Accept characters:") }}
@@ -46,32 +46,41 @@
                                     <mark>--</mark>
                                 </li>
                                 <i18n-t tag="li" keypath="statusPageSpecialSlugDesc">
-                                    <mark class="me-1">default</mark>
+                                    <mark class="inline-mark">default</mark>
                                 </i18n-t>
                             </ul>
                         </div>
-                    </div>
+                    </GizmoField>
 
-                    <div class="mt-2 mb-1">
-                        <button
+                    <template #footer>
+                        <GizmoButton
                             id="monitor-submit-btn"
-                            class="btn btn-primary w-100"
                             type="submit"
-                            :disabled="processing"
+                            :loading="processing"
                             data-testid="submit-button"
                         >
                             {{ $t("Next") }}
-                        </button>
-                    </div>
-                </div>
+                        </GizmoButton>
+                    </template>
+                </GizmoPanel>
             </form>
         </div>
     </transition>
 </template>
 
 <script>
+import GizmoButton from "../components/gizmo/GizmoButton.vue";
+import GizmoField from "../components/gizmo/GizmoField.vue";
+import GizmoInput from "../components/gizmo/GizmoInput.vue";
+import GizmoPanel from "../components/gizmo/GizmoPanel.vue";
+
 export default {
-    components: {},
+    components: {
+        GizmoButton,
+        GizmoField,
+        GizmoInput,
+        GizmoPanel,
+    },
     data() {
         return {
             title: "",
@@ -110,16 +119,11 @@ export default {
     max-width: 640px;
 }
 
-.status-page-onboarding-title {
-    letter-spacing: -0.035em;
-}
-
-.status-page-onboarding-surface {
-    padding: 1.5rem;
-    border: 1px solid var(--color-border);
-}
-
 #slug {
     text-transform: lowercase;
+}
+
+.inline-mark {
+    margin-inline-end: 0.25rem;
 }
 </style>

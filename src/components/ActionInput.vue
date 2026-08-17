@@ -1,25 +1,30 @@
 <template>
-    <div class="input-group mb-3">
-        <input
-            ref="input"
+    <div class="gizmo-inline-action">
+        <GizmoInput
             v-model="model"
-            class="form-control"
             :type="type"
             :placeholder="placeholder"
             :disabled="!enabled"
         />
-        <button type="button" class="btn btn-outline-primary" :aria-label="actionAriaLabel" @click="action()">
+        <GizmoIconButton :label="actionAriaLabel" @click="action()">
             <font-awesome-icon :icon="icon" />
-        </button>
+        </GizmoIconButton>
     </div>
 </template>
 
 <script>
+import GizmoIconButton from "./gizmo/GizmoIconButton.vue";
+import GizmoInput from "./gizmo/GizmoInput.vue";
+
 /**
  * Generic input field with a customizable action on the right.
  * Action is passed in as a function.
  */
 export default {
+    components: {
+        GizmoIconButton,
+        GizmoInput,
+    },
     props: {
         /**
          * The value of the input field.

@@ -28,17 +28,18 @@
                 </div>
             </section>
 
-            <section class="event-panel shadow-box table-shadow-box table-wrapper">
-                <div class="event-panel-header">
-                    <button
-                        class="btn btn-sm btn-outline-danger"
+            <GizmoPanel class="event-panel" density="compact">
+                <template #actions>
+                    <GizmoButton
+                        variant="danger"
+                        size="sm"
                         :disabled="clearingAllEvents"
                         @click="clearAllEventsDialog"
                     >
                         {{ $t("Clear All Events") }}
-                    </button>
-                </div>
-                <table class="table table-borderless table-hover">
+                    </GizmoButton>
+                </template>
+                <GizmoTable>
                     <thead>
                         <tr>
                             <th v-if="showGroupColumn">{{ $t("Group Name") }}</th>
@@ -52,7 +53,7 @@
                         <tr
                             v-for="(beat, index) in displayedRecords"
                             :key="index"
-                            :class="{ 'shadow-box': $root.windowWidth <= 550 }"
+                            :class="{ 'gizmo-mobile-event-row': $root.windowWidth <= 550 }"
                         >
                             <td v-if="showGroupColumn">
                                 <router-link
@@ -61,7 +62,7 @@
                                 >
                                     {{ getGroupName(beat.monitorID) }}
                                 </router-link>
-                                <span v-else class="text-secondary">—</span>
+                                <span v-else class="empty-value">—</span>
                             </td>
                             <td class="name-column">
                                 <router-link :to="`/dashboard/${beat.monitorID}`">
@@ -69,8 +70,8 @@
                                 </router-link>
                             </td>
                             <td><Status :status="beat.status" /></td>
-                            <td :class="{ 'border-0': !beat.msg }"><Datetime :value="beat.time" /></td>
-                            <td class="border-0">{{ beat.msg }}</td>
+                            <td :class="{ 'gizmo-cell-no-border': !beat.msg }"><Datetime :value="beat.time" /></td>
+                            <td class="gizmo-cell-no-border">{{ beat.msg }}</td>
                         </tr>
 
                         <tr v-if="importantHeartBeatListLength === 0">
@@ -79,17 +80,19 @@
                             </td>
                         </tr>
                     </tbody>
-                </table>
+                </GizmoTable>
 
-                <div class="d-flex justify-content-center kuma_pagination">
+                <template #footer>
+                    <div class="gizmo-pagination kuma_pagination">
                     <pagination
                         v-model="page"
                         :records="importantHeartBeatListLength"
                         :per-page="perPage"
                         :options="paginationConfig"
                     />
-                </div>
-            </section>
+                    </div>
+                </template>
+            </GizmoPanel>
         </div>
     </transition>
     <Confirm
@@ -107,12 +110,18 @@
 <script>
 import Status from "../components/Status.vue";
 import Datetime from "../components/Datetime.vue";
+import GizmoButton from "../components/gizmo/GizmoButton.vue";
+import GizmoPanel from "../components/gizmo/GizmoPanel.vue";
+import GizmoTable from "../components/gizmo/GizmoTable.vue";
 import Pagination from "v-pagination-3";
 import Confirm from "../components/Confirm.vue";
 
 export default {
     components: {
         Datetime,
+        GizmoButton,
+        GizmoPanel,
+        GizmoTable,
         Status,
         Pagination,
         Confirm,
@@ -354,26 +363,23 @@ export default {
     opacity: 0.62;
 }
 
-.event-panel {
-    padding: clamp(1rem, 2vw, 1.5rem);
+.empty-value {
+    color: var(--color-text-subtle);
 }
 
-.event-panel-header {
+.gizmo-cell-no-border {
+    border-bottom-color: transparent;
+}
+
+.gizmo-pagination {
     display: flex;
-    justify-content: flex-end;
-    margin-bottom: 1rem;
+    justify-content: center;
 }
 
-table {
-    font-size: 14px;
-
-    tr {
-        transition: all ease-in-out 0.2ms;
-    }
-
-    @media (max-width: 550px) {
-        table-layout: fixed;
-        overflow-wrap: break-word;
+@media (max-width: 550px) {
+    .gizmo-mobile-event-row {
+        background: var(--color-surface);
+        outline: 1px solid var(--color-border);
     }
 }
 
@@ -387,10 +393,6 @@ table {
     .name-column {
         min-width: 200px;
     }
-}
-
-.table-wrapper {
-    overflow-x: auto;
 }
 
 @media (max-width: 1100px) {

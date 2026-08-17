@@ -1,10 +1,8 @@
 <template>
-    <div class="input-group mb-3">
-        <input
-            ref="input"
+    <div class="gizmo-inline-action">
+        <GizmoInput
             v-model="model"
             :type="visibility"
-            class="form-control"
             :placeholder="placeholder"
             :maxlength="maxlength"
             :autocomplete="autocomplete"
@@ -12,17 +10,24 @@
             :readonly="readonly"
         />
 
-        <a v-if="visibility == 'password'" class="btn btn-outline-primary" @click="showInput()">
+        <GizmoIconButton v-if="visibility == 'password'" :label="$t('Reveal')" @click="showInput()">
             <font-awesome-icon icon="eye" />
-        </a>
-        <a v-if="visibility == 'text'" class="btn btn-outline-primary" @click="hideInput()">
+        </GizmoIconButton>
+        <GizmoIconButton v-if="visibility == 'text'" :label="$t('Password')" @click="hideInput()">
             <font-awesome-icon icon="eye-slash" />
-        </a>
+        </GizmoIconButton>
     </div>
 </template>
 
 <script>
+import GizmoIconButton from "./gizmo/GizmoIconButton.vue";
+import GizmoInput from "./gizmo/GizmoInput.vue";
+
 export default {
+    components: {
+        GizmoIconButton,
+        GizmoInput,
+    },
     props: {
         /** The value of the input */
         modelValue: {
