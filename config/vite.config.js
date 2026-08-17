@@ -5,6 +5,8 @@ import viteCompression from "vite-plugin-compression";
 
 const postCssScss = require("postcss-scss");
 const postcssRTLCSS = require("postcss-rtlcss");
+const tailwindcss = require("tailwindcss");
+const autoprefixer = require("autoprefixer");
 
 const viteCompressionFilter = /\.(js|mjs|json|css|html|svg)$/i;
 
@@ -35,7 +37,7 @@ export default defineConfig({
         postcss: {
             parser: postCssScss,
             map: false,
-            plugins: [postcssRTLCSS],
+            plugins: [tailwindcss, postcssRTLCSS, autoprefixer],
         },
     },
     build: {

@@ -1,0 +1,69 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+ * These classes are deliberately small, token-based recipes for the migration.
+ * New UI should prefer `tw-` utilities; use these where a semantic treatment is
+ * clearer than repeating several utilities.
+ */
+@layer utilities {
+    .gizmo-focus-ring:focus-visible {
+        outline: 2px solid var(--color-focus-ring);
+        outline-offset: 2px;
+    }
+
+    .gizmo-surface {
+        border: 1px solid var(--color-border);
+        background-color: var(--color-surface);
+        color: var(--color-text);
+    }
+
+    .gizmo-surface-subtle {
+        background-color: var(--color-surface-subtle);
+        color: var(--color-text);
+    }
+
+    .gizmo-compact-data {
+        font-variant-numeric: tabular-nums;
+        letter-spacing: -0.01em;
+    }
+
+    .gizmo-status-up,
+    .gizmo-status-degraded,
+    .gizmo-status-down,
+    .gizmo-status-maintenance,
+    .gizmo-status-unknown {
+        border: 1px solid;
+    }
+
+    .gizmo-status-up {
+        border-color: var(--status-up-border);
+        background-color: var(--status-up-bg);
+        color: var(--status-up-fg);
+    }
+
+    .gizmo-status-degraded {
+        border-color: var(--status-degraded-border);
+        background-color: var(--status-degraded-bg);
+        color: var(--status-degraded-fg);
+    }
+
+    .gizmo-status-down {
+        border-color: var(--status-down-border);
+        background-color: var(--status-down-bg);
+        color: var(--status-down-fg);
+    }
+
+    .gizmo-status-maintenance {
+        border-color: var(--status-maintenance-border);
+        background-color: var(--status-maintenance-bg);
+        color: var(--status-maintenance-fg);
+    }
+
+    .gizmo-status-unknown {
+        border-color: var(--status-unknown-border);
+        background-color: var(--status-unknown-bg);
+        color: var(--status-unknown-fg);
+    }
+}

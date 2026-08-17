@@ -54,6 +54,8 @@ The most common dependencies are form controls, buttons, selects, grid/flex layo
 
 ### Phase 0 — Baseline and safety net
 
+**Status:** Complete on 2026-08-17. See the [Phase 0 baseline record](../execution/2026-08-17-tailwind-phase-0-baseline.md).
+
 1. Record the current production bundle sizes and key route screenshots.
 2. Inventory Bootstrap classes, direct JavaScript API calls, Sass imports, and dynamic `class` bindings.
 3. Define an acceptance matrix for desktop, mobile, light, dark, auto, long translations, and RTL.
@@ -62,6 +64,8 @@ The most common dependencies are form controls, buttons, selects, grid/flex layo
 **Exit criteria:** the team can compare each migrated route against functional, visual, and performance baselines.
 
 ### Phase 1 — Install Tailwind and map the design system
+
+**Status:** Complete on 2026-08-17. See the [Phase 1 implementation record](../execution/2026-08-17-tailwind-phase-1.md).
 
 1. Add Tailwind, PostCSS integration, content scanning for Vue/JS/TS files, and a single application stylesheet entry.
 2. Map `DESIGN.md` primitives and semantic CSS variables to Tailwind color, typography, radius, shadow, breakpoint, and transition tokens.
