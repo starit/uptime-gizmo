@@ -2,7 +2,7 @@ const { describe, it } = require("node:test");
 const assert = require("node:assert");
 
 const { internals } = require("../../server/routers/v1-router");
-const { MONITOR_FIELDS, monitorToAPI, monitorFromAPI } = internals;
+const { MONITOR_FIELDS, TAG_FIELDS, STATUS_PAGE_FIELDS, monitorToAPI, monitorFromAPI, projectWith } = internals;
 
 /*
  * The field table is what stops a request writing columns it should not, and
@@ -16,6 +16,12 @@ const { MONITOR_FIELDS, monitorToAPI, monitorFromAPI } = internals;
  * would publish it, so the list is kept here deliberately rather than derived —
  * a new secret column should fail this test until someone decides otherwise.
  */
+const FIELD_TABLES = {
+    monitor: internals.MONITOR_FIELDS,
+    tag: internals.TAG_FIELDS,
+    statusPage: internals.STATUS_PAGE_FIELDS,
+};
+
 const SECRET_COLUMNS = [
     "basic_auth_pass",
     "bearer_token",
@@ -29,36 +35,61 @@ const SECRET_COLUMNS = [
     "radius_secret",
     "snmp_v3_username",
     "tls_key",
+    // status_page
+    "password",
 ];
 
-describe("v1 monitor field table", () => {
-    it("never exposes a credential column", () => {
-        const leaked = Object.entries(MONITOR_FIELDS)
-            .filter(([ , field ]) => SECRET_COLUMNS.includes(field.column) && !field.secret)
-            .map(([ name, field ]) => `${name} -> ${field.column}`);
+/*
+ * Applied to every table rather than only to monitors. A resource added later
+ * inherits these guarantees without anyone remembering to extend the test,
+ * which is the failure mode that matters.
+ */
+describe("v1 field tables", () => {
+    for (const [ resource, fields ] of Object.entries(FIELD_TABLES)) {
+        it(`${resource}: never exposes a credential column`, () => {
+            const leaked = Object.entries(fields)
+                .filter(([ , field ]) => SECRET_COLUMNS.includes(field.column) && !field.secret)
+                .map(([ name, field ]) => `${name} -> ${field.column}`);
 
-        assert.deepStrictEqual(leaked, [], "these would be returned in API responses");
-    });
+            assert.deepStrictEqual(leaked, [], "these would be returned in API responses");
+        });
 
-    it("gives every field a column", () => {
-        const broken = Object.entries(MONITOR_FIELDS)
-            .filter(([ , field ]) => typeof field.column !== "string" || field.column === "")
-            .map(([ name ]) => name);
+        it(`${resource}: gives every field a column`, () => {
+            const broken = Object.entries(fields)
+                .filter(([ , field ]) => typeof field.column !== "string" || field.column === "")
+                .map(([ name ]) => name);
 
-        assert.deepStrictEqual(broken, [], "a field with no column silently drops writes");
-    });
+            assert.deepStrictEqual(broken, [], "a field with no column silently drops writes");
+        });
 
-    it("does not map two fields onto one column", () => {
-        const seen = new Map();
-        const clashes = [];
-        for (const [ name, field ] of Object.entries(MONITOR_FIELDS)) {
-            if (seen.has(field.column)) {
-                clashes.push(`${seen.get(field.column)} and ${name} both write ${field.column}`);
+        it(`${resource}: does not map two fields onto one column`, () => {
+            const seen = new Map();
+            const clashes = [];
+            for (const [ name, field ] of Object.entries(fields)) {
+                if (seen.has(field.column)) {
+                    clashes.push(`${seen.get(field.column)} and ${name} both write ${field.column}`);
+                }
+                seen.set(field.column, name);
             }
-            seen.set(field.column, name);
-        }
-        assert.deepStrictEqual(clashes, []);
-    });
+            assert.deepStrictEqual(clashes, []);
+        });
+
+        it(`${resource}: never projects a secret`, () => {
+            const bean = {};
+            for (const field of Object.values(fields)) {
+                bean[field.column] = "value";
+            }
+            const out = projectWith(fields, bean);
+            const leaked = Object.entries(fields)
+                .filter(([ name, field ]) => field.secret && name in out)
+                .map(([ name ]) => name);
+
+            assert.deepStrictEqual(leaked, [], "a field marked secret reached the response");
+        });
+    }
+});
+
+describe("v1 monitor field table", () => {
 
     it("projects only declared fields", () => {
         const bean = { id: 1, name: "x", basic_auth_pass: "secret", user_id: 9 };

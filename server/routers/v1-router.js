@@ -156,13 +156,27 @@ function coerce(value, type, name) {
 }
 
 /**
- * Project a monitor bean onto the API contract.
- * @param {object} bean monitor bean
+ * Build a projection function for a field table.
+ *
+ * Generic on purpose: nothing about the allow-list is monitor-specific, and a
+ * second hand-written copy per resource is exactly how a secret ends up
+ * published in one of them.
+ * @param {object} fields a field table
+ * @returns {Function} bean to API projection
+ */
+function makeProjection(fields) {
+    return (bean) => projectWith(fields, bean);
+}
+
+/**
+ * Project a bean using a field table.
+ * @param {object} fields a field table
+ * @param {object} bean database bean
  * @returns {object} safe projection
  */
-function monitorToAPI(bean) {
+function projectWith(fields, bean) {
     const out = {};
-    for (const [ name, field ] of Object.entries(MONITOR_FIELDS)) {
+    for (const [ name, field ] of Object.entries(fields)) {
         if (field.secret) {
             continue;
         }
@@ -182,6 +196,8 @@ function monitorToAPI(bean) {
     return out;
 }
 
+const monitorToAPI = makeProjection(MONITOR_FIELDS);
+
 /**
  * Turn a request body into the columns it is allowed to set.
  *
@@ -193,14 +209,14 @@ function monitorToAPI(bean) {
  * @returns {object} column/value pairs safe to assign
  * @throws {Error} when a supplied value is unusable or a required one is missing
  */
-function monitorFromAPI(body, partial) {
+function parseWith(fields, body, partial) {
     if (!body || typeof body !== "object") {
         throw new Error("A JSON object body is required");
     }
 
     const columns = {};
 
-    for (const [ name, field ] of Object.entries(MONITOR_FIELDS)) {
+    for (const [ name, field ] of Object.entries(fields)) {
         if (!field.writable) {
             continue;
         }
@@ -219,6 +235,48 @@ function monitorFromAPI(body, partial) {
 
     return columns;
 }
+
+/**
+ * Turn a request body into the columns a monitor may set.
+ * @param {object} body request body
+ * @param {boolean} partial true for PATCH
+ * @returns {object} column/value pairs
+ */
+function monitorFromAPI(body, partial) {
+    return parseWith(MONITOR_FIELDS, body, partial);
+}
+
+/*
+ * Tags. Small enough to need no pagination.
+ */
+const TAG_FIELDS = {
+    id: { column: "id", type: "int" },
+    name: { column: "name", type: "string", writable: true, required: true },
+    color: { column: "color", type: "string", writable: true, required: true },
+    createdDate: { column: "created_date", type: "string" },
+};
+
+/*
+ * Status pages, read-only for now. `password` is a credential and stays out;
+ * custom CSS and analytics identifiers are configuration an operator has
+ * already published on the page itself.
+ */
+const STATUS_PAGE_FIELDS = {
+    id: { column: "id", type: "int" },
+    slug: { column: "slug", type: "string" },
+    title: { column: "title", type: "string" },
+    description: { column: "description", type: "string" },
+    theme: { column: "theme", type: "string" },
+    published: { column: "published", type: "bool" },
+    showTags: { column: "show_tags", type: "bool" },
+    showPoweredBy: { column: "show_powered_by", type: "bool" },
+    autoRefreshInterval: { column: "auto_refresh_interval", type: "int" },
+    password: { column: "password", type: "string", secret: true },
+    createdDate: { column: "created_date", type: "string" },
+};
+
+const tagToAPI = makeProjection(TAG_FIELDS);
+const statusPageToAPI = makeProjection(STATUS_PAGE_FIELDS);
 
 /*
  * Cursor pagination.
@@ -448,8 +506,76 @@ router.get(
     "/api/v1/tags",
     apiAuth,
     route(async (req, res) => {
-        const rows = await R.getAll("SELECT id, name, color FROM tag ORDER BY name");
-        res.json({ ok: true, data: rows });
+        const rows = await R.getAll("SELECT * FROM tag ORDER BY name");
+        res.json({ ok: true, data: rows.map(tagToAPI) });
+    })
+);
+
+router.post(
+    "/api/v1/tags",
+    apiAuth,
+    requireWrite,
+    route(async (req, res) => {
+        let columns;
+        try {
+            columns = parseWith(TAG_FIELDS, req.body, false);
+        } catch (e) {
+            badRequest(res, e);
+            return;
+        }
+
+        const bean = R.dispense("tag");
+        for (const [ column, value ] of Object.entries(columns)) {
+            bean[column] = value;
+        }
+        await R.store(bean);
+
+        const saved = await R.findOne("tag", " id = ? ", [ bean.id ]);
+        res.status(201).json({ ok: true, data: tagToAPI(saved) });
+    })
+);
+
+router.patch(
+    "/api/v1/tags/:id",
+    apiAuth,
+    requireWrite,
+    route(async (req, res) => {
+        const bean = await R.findOne("tag", " id = ? ", [ req.params.id ]);
+
+        if (!bean) {
+            res.status(404).json({ ok: false, error: { code: "not_found", message: "No such tag" } });
+            return;
+        }
+
+        let columns;
+        try {
+            columns = parseWith(TAG_FIELDS, req.body, true);
+        } catch (e) {
+            badRequest(res, e);
+            return;
+        }
+
+        for (const [ column, value ] of Object.entries(columns)) {
+            bean[column] = value;
+        }
+        await R.store(bean);
+
+        const saved = await R.findOne("tag", " id = ? ", [ bean.id ]);
+        res.json({ ok: true, data: tagToAPI(saved) });
+    })
+);
+
+/*
+ * Status pages are instance-wide rather than per-user — the table has no
+ * user_id — so this lists them all. Read-only: editing a public surface through
+ * an API is a larger decision than this release makes.
+ */
+router.get(
+    "/api/v1/status-pages",
+    apiAuth,
+    route(async (req, res) => {
+        const rows = await R.getAll("SELECT * FROM status_page ORDER BY slug");
+        res.json({ ok: true, data: rows.map(statusPageToAPI) });
     })
 );
 
@@ -618,7 +744,33 @@ function fieldSchema(field) {
 }
 
 /**
- * Build the OpenAPI document from the live field table.
+ * Split a field table into readable and writable OpenAPI schemas.
+ * @param {object} fields a field table
+ * @returns {object} read properties, and write properties with their required list
+ */
+function schemaFor(fields) {
+    const read = {};
+    const write = {};
+    const required = [];
+
+    for (const [ name, field ] of Object.entries(fields)) {
+        if (field.secret) {
+            continue;
+        }
+        read[name] = fieldSchema(field);
+        if (field.writable) {
+            write[name] = fieldSchema(field);
+            if (field.required) {
+                required.push(name);
+            }
+        }
+    }
+
+    return { read, write: { required, properties: write } };
+}
+
+/**
+ * Build the OpenAPI document from the live field tables.
  * @returns {object} an OpenAPI 3.1 document
  */
 function buildOpenAPI() {
@@ -665,6 +817,9 @@ function buildOpenAPI() {
             schemas: {
                 Monitor: { type: "object", properties: monitorProperties },
                 MonitorInput: { type: "object", required, properties: writableProperties },
+                Tag: { type: "object", properties: schemaFor(TAG_FIELDS).read },
+                TagInput: { type: "object", ...schemaFor(TAG_FIELDS).write },
+                StatusPage: { type: "object", properties: schemaFor(STATUS_PAGE_FIELDS).read },
             },
         },
         paths: {
@@ -756,6 +911,31 @@ function buildOpenAPI() {
             },
             "/api/v1/tags": {
                 get: { summary: "List tags", security: authed, responses: { 200: { description: "Tags" } } },
+                post: {
+                    summary: "Create a tag",
+                    description: "Requires a key that is not read-only.",
+                    security: authed,
+                    requestBody: { required: true, content: { "application/json": { schema: { $ref: "#/components/schemas/TagInput" } } } },
+                    responses: { 201: { description: "Created" }, 400: { description: "The body was refused" }, 403: { description: "The key is read-only" } },
+                },
+            },
+            "/api/v1/tags/{id}": {
+                patch: {
+                    summary: "Update a tag",
+                    description: "Partial. Requires a key that is not read-only.",
+                    security: authed,
+                    parameters: [ { name: "id", in: "path", required: true, schema: { type: "integer" } } ],
+                    requestBody: { required: true, content: { "application/json": { schema: { $ref: "#/components/schemas/TagInput" } } } },
+                    responses: { 200: { description: "Updated" }, 403: { description: "The key is read-only" }, 404: { description: "No such tag" } },
+                },
+            },
+            "/api/v1/status-pages": {
+                get: {
+                    summary: "List status pages",
+                    description: "Instance-wide. Read-only.",
+                    security: authed,
+                    responses: { 200: { description: "Status pages" } },
+                },
             },
             "/api/v1/maintenances": {
                 get: { summary: "List maintenance windows", security: authed, responses: { 200: { description: "Maintenance windows" } } },
@@ -772,4 +952,13 @@ module.exports = router;
 
 // Exposed for tests. The field table is the support of the write-side security
 // property, so it needs to be assertable without standing up a server.
-module.exports.internals = { MONITOR_FIELDS, monitorToAPI, monitorFromAPI, buildOpenAPI };
+module.exports.internals = {
+    MONITOR_FIELDS,
+    TAG_FIELDS,
+    STATUS_PAGE_FIELDS,
+    monitorToAPI,
+    monitorFromAPI,
+    projectWith,
+    parseWith,
+    buildOpenAPI,
+};
