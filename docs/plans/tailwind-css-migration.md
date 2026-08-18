@@ -145,17 +145,14 @@ template references a Bootstrap class any more.
 
 ### Phase 6 — Remove Bootstrap and optimize
 
-**Status:** Not started; readiness assessed on 2026-08-18. Removing the import
-was tried as an experiment and reverted: it compiles cleanly and production CSS
-drops from 353,648 to 159,040 bytes, a 55% reduction against the 321,400-byte
-Phase 0 baseline. The Sass variables do not block it — `vars.scss` defines them
-itself and is imported first.
+**Status:** Complete on 2026-08-18. See the
+[Phase 6 execution record](../execution/2026-08-18-tailwind-phase-6.md).
+Bootstrap and `@popperjs/core` are gone; production CSS fell from 353,648 to
+157,787 bytes, roughly half the 321,400-byte Phase 0 baseline.
 
-The base layer is the one real risk. Preflight is disabled, so Bootstrap's
-reboot is the only normalize in the build, and Preflight is not an equivalent
-replacement: it strips heading sizes and list styles that reboot preserves. That
-swap changes typography on every screen and must not land without visual
-verification.
+The follow-on visual work — elevation, corner and weight scales, the status
+palette and the public status page — is recorded separately in
+[the visual refresh record](../execution/2026-08-18-visual-refresh.md).
 
 1. Remove remaining Bootstrap class names, Sass imports, `bootstrap` runtime imports, and `@popperjs/core` if no remaining dependency needs it.
 2. Remove obsolete Sass variables, compatibility overrides, and dead DOM structure created solely for Bootstrap.
