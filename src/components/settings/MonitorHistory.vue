@@ -1,7 +1,7 @@
 <template>
     <div>
-        <div class="my-4">
-            <label for="keepDataPeriodDays" class="form-label">
+        <div class="tw-my-4">
+            <label for="keepDataPeriodDays" class="gizmo-field-label">
                 {{ $t("clearDataOlderThan", [settings.keepDataPeriodDays]) }}
                 {{ $t("infiniteRetention") }}
             </label>
@@ -9,26 +9,26 @@
                 id="keepDataPeriodDays"
                 v-model="settings.keepDataPeriodDays"
                 type="number"
-                class="form-control"
+                class="gizmo-native-control"
                 required
                 min="0"
                 step="1"
             />
-            <div v-if="settings.keepDataPeriodDays < 0" class="form-text">
+            <div v-if="settings.keepDataPeriodDays < 0" class="gizmo-field-help">
                 {{ $t("dataRetentionTimeError") }}
             </div>
         </div>
-        <div class="my-4">
-            <button class="btn btn-primary" type="button" @click="saveSettings()">
+        <div class="tw-my-4">
+            <button class="gizmo-native-button gizmo-native-button--primary" type="button" @click="saveSettings()">
                 {{ $t("Save") }}
             </button>
         </div>
-        <div class="my-4">
-            <div v-if="$root.info.dbType === 'sqlite'" class="my-3">
-                <button class="btn btn-outline-info me-2" @click="shrinkDatabase">
+        <div class="tw-my-4">
+            <div v-if="$root.info.dbType === 'sqlite'" class="tw-my-3">
+                <button class="gizmo-native-button gizmo-native-button--outline tw-me-2" @click="shrinkDatabase">
                     {{ $t("Shrink Database") }} ({{ databaseSizeDisplay }})
                 </button>
-                <i18n-t tag="div" keypath="shrinkDatabaseDescriptionSqlite" class="form-text mt-2 mb-4 ms-2">
+                <i18n-t tag="div" keypath="shrinkDatabaseDescriptionSqlite" class="gizmo-field-help tw-mt-2 tw-mb-4 tw-ms-2">
                     <template #vacuum>
                         <code>VACUUM</code>
                     </template>
@@ -37,7 +37,7 @@
                     </template>
                 </i18n-t>
             </div>
-            <button id="clearAllStats-btn" class="btn btn-outline-danger me-2 mb-2" @click="confirmClearStatistics">
+            <button id="clearAllStats-btn" class="gizmo-native-button gizmo-native-button--danger-outline tw-me-2 tw-mb-2" @click="confirmClearStatistics">
                 {{ $t("Clear all statistics") }}
             </button>
         </div>

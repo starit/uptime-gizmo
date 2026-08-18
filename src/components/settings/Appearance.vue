@@ -1,29 +1,29 @@
 <template>
     <div>
-        <div class="my-4">
-            <label for="language" class="form-label">
+        <div class="tw-my-4">
+            <label for="language" class="gizmo-field-label">
                 {{ $t("Language") }}
             </label>
-            <select id="language" v-model="$root.language" class="form-select">
+            <select id="language" v-model="$root.language" class="gizmo-native-control gizmo-native-select">
                 <option v-for="(lang, i) in $i18n.availableLocales" :key="`Lang${i}`" :value="lang">
                     {{ $i18n.messages[lang].languageName }}
                 </option>
             </select>
         </div>
-        <div class="my-4">
-            <label for="timezone" class="form-label">{{ $t("Theme") }}</label>
+        <div class="tw-my-4">
+            <label for="timezone" class="gizmo-field-label">{{ $t("Theme") }}</label>
             <div>
-                <div class="btn-group" role="group" :aria-label="$t('Basic checkbox toggle button group')">
+                <div class="gizmo-action-group" role="group" :aria-label="$t('Basic checkbox toggle button group')">
                     <input
                         id="btncheck1"
                         v-model="$root.userTheme"
                         type="radio"
-                        class="btn-check"
+                        class="gizmo-choice-input"
                         name="theme"
                         autocomplete="off"
                         value="light"
                     />
-                    <label class="btn btn-outline-primary" for="btncheck1">
+                    <label class="gizmo-native-button gizmo-native-button--outline" for="btncheck1">
                         {{ $t("Light") }}
                     </label>
 
@@ -31,12 +31,12 @@
                         id="btncheck2"
                         v-model="$root.userTheme"
                         type="radio"
-                        class="btn-check"
+                        class="gizmo-choice-input"
                         name="theme"
                         autocomplete="off"
                         value="dark"
                     />
-                    <label class="btn btn-outline-primary" for="btncheck2">
+                    <label class="gizmo-native-button gizmo-native-button--outline" for="btncheck2">
                         {{ $t("Dark") }}
                     </label>
 
@@ -44,31 +44,31 @@
                         id="btncheck3"
                         v-model="$root.userTheme"
                         type="radio"
-                        class="btn-check"
+                        class="gizmo-choice-input"
                         name="theme"
                         autocomplete="off"
                         value="auto"
                     />
-                    <label class="btn btn-outline-primary" for="btncheck3">
+                    <label class="gizmo-native-button gizmo-native-button--outline" for="btncheck3">
                         {{ $t("Auto") }}
                     </label>
                 </div>
             </div>
         </div>
-        <div class="my-4">
-            <label class="form-label">{{ $t("Theme - Heartbeat Bar") }}</label>
+        <div class="tw-my-4">
+            <label class="gizmo-field-label">{{ $t("Theme - Heartbeat Bar") }}</label>
             <div>
-                <div class="btn-group" role="group" :aria-label="$t('Basic checkbox toggle button group')">
+                <div class="gizmo-action-group" role="group" :aria-label="$t('Basic checkbox toggle button group')">
                     <input
                         id="btncheck4"
                         v-model="$root.userHeartbeatBar"
                         type="radio"
-                        class="btn-check"
+                        class="gizmo-choice-input"
                         name="heartbeatBarTheme"
                         autocomplete="off"
                         value="normal"
                     />
-                    <label class="btn btn-outline-primary" for="btncheck4">
+                    <label class="gizmo-native-button gizmo-native-button--outline" for="btncheck4">
                         {{ $t("Normal") }}
                     </label>
 
@@ -76,12 +76,12 @@
                         id="btncheck5"
                         v-model="$root.userHeartbeatBar"
                         type="radio"
-                        class="btn-check"
+                        class="gizmo-choice-input"
                         name="heartbeatBarTheme"
                         autocomplete="off"
                         value="bottom"
                     />
-                    <label class="btn btn-outline-primary" for="btncheck5">
+                    <label class="gizmo-native-button gizmo-native-button--outline" for="btncheck5">
                         {{ $t("Bottom") }}
                     </label>
 
@@ -89,12 +89,12 @@
                         id="btncheck6"
                         v-model="$root.userHeartbeatBar"
                         type="radio"
-                        class="btn-check"
+                        class="gizmo-choice-input"
                         name="heartbeatBarTheme"
                         autocomplete="off"
                         value="none"
                     />
-                    <label class="btn btn-outline-primary" for="btncheck6">
+                    <label class="gizmo-native-button gizmo-native-button--outline" for="btncheck6">
                         {{ $t("None") }}
                     </label>
                 </div>
@@ -102,20 +102,20 @@
         </div>
 
         <!-- Timeline -->
-        <div class="my-4">
-            <label class="form-label">{{ $t("styleElapsedTime") }}</label>
+        <div class="tw-my-4">
+            <label class="gizmo-field-label">{{ $t("styleElapsedTime") }}</label>
             <div>
-                <div class="btn-group" role="group">
+                <div class="gizmo-action-group" role="group">
                     <input
                         id="styleElapsedTimeShowNoLine"
                         v-model="$root.styleElapsedTime"
                         type="radio"
-                        class="btn-check"
+                        class="gizmo-choice-input"
                         name="styleElapsedTime"
                         autocomplete="off"
                         value="no-line"
                     />
-                    <label class="btn btn-outline-primary" for="styleElapsedTimeShowNoLine">
+                    <label class="gizmo-native-button gizmo-native-button--outline" for="styleElapsedTimeShowNoLine">
                         {{ $t("styleElapsedTimeShowNoLine") }}
                     </label>
 
@@ -123,12 +123,12 @@
                         id="styleElapsedTimeShowWithLine"
                         v-model="$root.styleElapsedTime"
                         type="radio"
-                        class="btn-check"
+                        class="gizmo-choice-input"
                         name="styleElapsedTime"
                         autocomplete="off"
                         value="with-line"
                     />
-                    <label class="btn btn-outline-primary" for="styleElapsedTimeShowWithLine">
+                    <label class="gizmo-native-button gizmo-native-button--outline" for="styleElapsedTimeShowWithLine">
                         {{ $t("styleElapsedTimeShowWithLine") }}
                     </label>
 
@@ -136,12 +136,12 @@
                         id="styleElapsedTimeNone"
                         v-model="$root.styleElapsedTime"
                         type="radio"
-                        class="btn-check"
+                        class="gizmo-choice-input"
                         name="styleElapsedTime"
                         autocomplete="off"
                         value="none"
                     />
-                    <label class="btn btn-outline-primary" for="styleElapsedTimeNone">
+                    <label class="gizmo-native-button gizmo-native-button--outline" for="styleElapsedTimeNone">
                         {{ $t("None") }}
                     </label>
                 </div>
@@ -155,9 +155,11 @@ export default {};
 </script>
 
 <style lang="scss" scoped>
-.btn-check:active + .btn-outline-primary,
-.btn-check:checked + .btn-outline-primary,
-.btn-check:hover + .btn-outline-primary {
+/* DESIGN.md reserves Gold for selected primary actions, so this overrides the
+   shared .gizmo-choice-input recipe, which fills with the interaction blue. */
+.gizmo-choice-input:active + .gizmo-native-button,
+.gizmo-choice-input:checked + .gizmo-native-button,
+.gizmo-choice-input:hover + .gizmo-native-button {
     color: var(--color-brand-contrast);
     background: var(--color-brand);
     border-color: var(--color-brand);

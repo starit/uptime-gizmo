@@ -1,58 +1,58 @@
 <template>
     <div>
-        <div v-if="settingsLoaded" class="my-4">
+        <div v-if="settingsLoaded" class="tw-my-4">
             <!-- Change Password -->
             <template v-if="!settings.disableAuth">
                 <p>
                     <button
                         v-if="!settings.disableAuth"
                         id="logout-btn"
-                        class="btn btn-danger ms-4 me-2 mb-2"
+                        class="gizmo-native-button gizmo-native-button--danger tw-ms-4 tw-me-2 tw-mb-2"
                         @click="$root.logout"
                     >
                         {{ $t("logoutCurrentUser", { username: $root.username }) }}
                     </button>
                 </p>
 
-                <h5 class="my-4 settings-subheading">{{ $t("Change Password") }}</h5>
-                <form class="mb-3" @submit.prevent="savePassword">
-                    <div class="mb-3">
-                        <label for="current-password" class="form-label">
+                <h5 class="tw-my-4 settings-subheading">{{ $t("Change Password") }}</h5>
+                <form class="tw-mb-3" @submit.prevent="savePassword">
+                    <div class="tw-mb-3">
+                        <label for="current-password" class="gizmo-field-label">
                             {{ $t("Current Password") }}
                         </label>
                         <input
                             id="current-password"
                             v-model="password.currentPassword"
                             type="password"
-                            class="form-control"
+                            class="gizmo-native-control"
                             autocomplete="current-password"
                             required
                         />
                     </div>
 
-                    <div class="mb-3">
-                        <label for="new-password" class="form-label">
+                    <div class="tw-mb-3">
+                        <label for="new-password" class="gizmo-field-label">
                             {{ $t("New Password") }}
                         </label>
                         <input
                             id="new-password"
                             v-model="password.newPassword"
                             type="password"
-                            class="form-control"
+                            class="gizmo-native-control"
                             autocomplete="new-password"
                             required
                         />
                     </div>
 
-                    <div class="mb-3">
-                        <label for="repeat-new-password" class="form-label">
+                    <div class="tw-mb-3">
+                        <label for="repeat-new-password" class="gizmo-field-label">
                             {{ $t("Repeat New Password") }}
                         </label>
                         <input
                             id="repeat-new-password"
                             v-model="password.repeatNewPassword"
                             type="password"
-                            class="form-control"
+                            class="gizmo-native-control"
                             :class="{ 'is-invalid': invalidPassword }"
                             autocomplete="new-password"
                             required
@@ -63,33 +63,33 @@
                     </div>
 
                     <div>
-                        <button class="btn btn-primary" type="submit">
+                        <button class="gizmo-native-button gizmo-native-button--primary" type="submit">
                             {{ $t("Update Password") }}
                         </button>
                     </div>
                 </form>
             </template>
 
-            <div v-if="!settings.disableAuth" class="mt-5 mb-3">
-                <h5 class="my-4 settings-subheading">
+            <div v-if="!settings.disableAuth" class="tw-mt-5 tw-mb-3">
+                <h5 class="tw-my-4 settings-subheading">
                     {{ $t("Two Factor Authentication") }}
                 </h5>
-                <div class="mb-4">
-                    <button class="btn btn-primary me-2" type="button" @click="$refs.TwoFADialog.show()">
+                <div class="tw-mb-4">
+                    <button class="gizmo-native-button gizmo-native-button--primary tw-me-2" type="button" @click="$refs.TwoFADialog.show()">
                         {{ $t("2FA Settings") }}
                     </button>
                 </div>
             </div>
 
-            <div class="my-4">
+            <div class="tw-my-4">
                 <!-- Advanced -->
-                <h5 class="my-4 settings-subheading">{{ $t("Advanced") }}</h5>
+                <h5 class="tw-my-4 settings-subheading">{{ $t("Advanced") }}</h5>
 
-                <div class="mb-4">
+                <div class="tw-mb-4">
                     <button
                         v-if="settings.disableAuth"
                         id="enableAuth-btn"
-                        class="btn btn-outline-primary me-2 mb-2"
+                        class="gizmo-native-button gizmo-native-button--outline tw-me-2 tw-mb-2"
                         @click="enableAuth"
                     >
                         {{ $t("Enable Auth") }}
@@ -97,7 +97,7 @@
                     <button
                         v-if="!settings.disableAuth"
                         id="disableAuth-btn"
-                        class="btn btn-primary me-2 mb-2"
+                        class="gizmo-native-button gizmo-native-button--primary tw-me-2 tw-mb-2"
                         @click="confirmDisableAuth"
                     >
                         {{ $t("Disable Auth") }}
@@ -127,15 +127,15 @@
             </i18n-t>
             <p>{{ $t("Please use this option carefully!") }}</p>
 
-            <div class="mb-3">
-                <label for="current-password2" class="form-label">
+            <div class="tw-mb-3">
+                <label for="current-password2" class="gizmo-field-label">
                     {{ $t("Current Password") }}
                 </label>
                 <input
                     id="current-password2"
                     v-model="password.currentPassword"
                     type="password"
-                    class="form-control"
+                    class="gizmo-native-control"
                     required
                 />
             </div>

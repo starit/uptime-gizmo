@@ -1,33 +1,33 @@
 <template>
-    <div class="my-4">
-        <div class="mx-0 mx-lg-4 pt-1 mb-4">
-            <button class="btn btn-primary" @click.stop="addTag">
+    <div class="tw-my-4">
+        <div class="tw-mx-0 mx-lg-4 tw-pt-1 tw-mb-4">
+            <button class="gizmo-native-button gizmo-native-button--primary" @click.stop="addTag">
                 <font-awesome-icon icon="plus" />
                 {{ $t("Add New Tag") }}
             </button>
         </div>
 
-        <div class="tags-list my-3">
+        <div class="tags-list tw-my-3">
             <div
                 v-for="(tag, index) in tagsList"
                 :key="tag.id"
-                class="d-flex align-items-center mx-0 mx-lg-4 py-1 tags-list-row"
+                class="tw-flex tw-items-center tw-mx-0 mx-lg-4 tw-py-1 tags-list-row"
                 :disabled="processing"
                 @click="editTag(index)"
             >
-                <div class="flex-grow-1 overflow-hidden pe-3">
+                <div class="tw-grow overflow-hidden tw-pe-3">
                     <Tag :item="tag" :title="tag.name" :scrollable="true" :constrained="true" />
                 </div>
 
-                <div class="flex-shrink-0 px-1">
-                    <span class="d-none d-lg-inline">{{ $t("Monitors", monitorsByTag(tag.id).length) }}</span>
-                    <span class="d-lg-none">{{ monitorsByTag(tag.id).length }} M</span>
+                <div class="flex-shrink-0 tw-px-1">
+                    <span class="tw-hidden lg:tw-inline">{{ $t("Monitors", monitorsByTag(tag.id).length) }}</span>
+                    <span class="lg:tw-hidden">{{ monitorsByTag(tag.id).length }} M</span>
                 </div>
 
-                <div class="flex-shrink-0 pe-2 pe-lg-3">
+                <div class="flex-shrink-0 tw-pe-2 pe-lg-3">
                     <button
                         type="button"
-                        class="btn-rm-tag btn btn-outline-danger ms-2 py-1"
+                        class="btn-rm-tag gizmo-native-button gizmo-native-button--danger-outline tw-ms-2 tw-py-1"
                         :disabled="processing"
                         @click.stop="deleteConfirm(index)"
                     >

@@ -1,8 +1,8 @@
 <template>
     <div>
-        <h4 class="mt-4">Cloudflare Tunnel</h4>
+        <h4 class="tw-mt-4">Cloudflare Tunnel</h4>
 
-        <div class="my-3">
+        <div class="tw-my-3">
             <div>
                 cloudflared:
                 <span v-if="installed === true" class="text-primary">{{ $t("Installed") }}</span>
@@ -15,9 +15,9 @@
                 <span v-else-if="!running" class="text-danger">{{ $t("Not running") }}</span>
             </div>
 
-            <div v-if="errorMessage" class="mt-3">
+            <div v-if="errorMessage" class="tw-mt-3">
                 {{ $t("Message:") }}
-                <textarea v-model="errorMessage" class="form-control" readonly></textarea>
+                <textarea v-model="errorMessage" class="gizmo-native-control" readonly></textarea>
             </div>
 
             <i18n-t v-if="installed === false" tag="p" keypath="wayToGetCloudflaredURL">
@@ -31,17 +31,17 @@
         </div>
 
         <!-- If installed show token input -->
-        <div v-if="installed" class="mb-2">
-            <div class="mb-4">
-                <label class="form-label" for="cloudflareTunnelToken">Cloudflare Tunnel {{ $t("Token") }}</label>
+        <div v-if="installed" class="tw-mb-2">
+            <div class="tw-mb-4">
+                <label class="gizmo-field-label" for="cloudflareTunnelToken">Cloudflare Tunnel {{ $t("Token") }}</label>
                 <HiddenInput
                     id="cloudflareTunnelToken"
                     v-model="cloudflareTunnelToken"
                     autocomplete="new-password"
                     :readonly="running"
                 />
-                <div class="form-text">
-                    <div v-if="cloudflareTunnelToken" class="mb-3">
+                <div class="gizmo-field-help">
+                    <div v-if="cloudflareTunnelToken" class="tw-mb-3">
                         <span v-if="!running" class="remove-token" @click="removeToken">{{ $t("Remove Token") }}</span>
                     </div>
 
@@ -57,11 +57,11 @@
             </div>
 
             <div>
-                <button v-if="!running" class="btn btn-primary" type="submit" @click="start">
+                <button v-if="!running" class="gizmo-native-button gizmo-native-button--primary" type="submit" @click="start">
                     {{ $t("Start") }} cloudflared
                 </button>
 
-                <button v-if="running" class="btn btn-danger" type="submit" @click="$refs.confirmStop.show()">
+                <button v-if="running" class="gizmo-native-button gizmo-native-button--danger" type="submit" @click="$refs.confirmStop.show()">
                     {{ $t("Stop") }} cloudflared
                 </button>
 
@@ -78,17 +78,17 @@
                         )
                     }}
 
-                    <p class="mt-2">{{ $t("disableCloudflaredNoAuthMsg") }}</p>
+                    <p class="tw-mt-2">{{ $t("disableCloudflaredNoAuthMsg") }}</p>
 
-                    <div v-if="!settings.disableAuth" class="mt-3">
-                        <label for="current-password2" class="form-label">
+                    <div v-if="!settings.disableAuth" class="tw-mt-3">
+                        <label for="current-password2" class="gizmo-field-label">
                             {{ $t("Current Password") }}
                         </label>
                         <input
                             id="current-password2"
                             v-model="currentPassword"
                             type="password"
-                            class="form-control"
+                            class="gizmo-native-control"
                             required
                         />
                     </div>
@@ -96,7 +96,7 @@
             </div>
         </div>
 
-        <h4 class="mt-4">{{ $t("Other Software") }}</h4>
+        <h4 class="tw-mt-4">{{ $t("Other Software") }}</h4>
         <div>
             {{ $t("For example: nginx, Apache and Traefik.") }}
             <br />
@@ -107,47 +107,47 @@
             .
         </div>
 
-        <h4 class="my-4">{{ $t("HTTP Headers") }}</h4>
-        <div class="my-3">
-            <label class="form-label">
+        <h4 class="tw-my-4">{{ $t("HTTP Headers") }}</h4>
+        <div class="tw-my-3">
+            <label class="gizmo-field-label">
                 {{ $t("Trust Proxy") }}
             </label>
-            <div class="form-check">
+            <div class="gizmo-native-check">
                 <input
                     id="trustProxyYes"
                     v-model="settings.trustProxy"
-                    class="form-check-input"
+                    class="gizmo-native-check__input"
                     type="radio"
                     name="trustProxyYes"
                     :value="true"
                     required
                 />
-                <label class="form-check-label" for="trustProxyYes">
+                <label class="gizmo-native-check__label" for="trustProxyYes">
                     {{ $t("Yes") }}
                 </label>
             </div>
-            <div class="form-check">
+            <div class="gizmo-native-check">
                 <input
                     id="trustProxyNo"
                     v-model="settings.trustProxy"
-                    class="form-check-input"
+                    class="gizmo-native-check__input"
                     type="radio"
                     name="flexRadioDefault"
                     :value="false"
                     required
                 />
-                <label class="form-check-label" for="trustProxyNo">
+                <label class="gizmo-native-check__label" for="trustProxyNo">
                     {{ $t("No") }}
                 </label>
             </div>
 
-            <div class="form-text">
+            <div class="gizmo-field-help">
                 {{ $t("trustProxyDescription") }}
             </div>
         </div>
 
         <div>
-            <button class="btn btn-primary" type="submit" @click="saveSettings()">
+            <button class="gizmo-native-button gizmo-native-button--primary" type="submit" @click="saveSettings()">
                 {{ $t("Save") }}
             </button>
         </div>

@@ -331,7 +331,7 @@
                         {{ $t("Heartbeats") }}
                     </GizmoMenuItem>
                 </GizmoMenu>
-                <table class="gizmo-data-table gizmo-data-table--borderless gizmo-data-table--hover">
+                <table class="gizmo-data-table">
                     <thead>
                         <tr>
                             <th>{{ $t("Status") }}</th>

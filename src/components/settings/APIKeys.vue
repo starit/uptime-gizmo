@@ -1,11 +1,11 @@
 <template>
     <div>
-        <div v-if="settings.disableAuth" class="mt-5 d-flex align-items-center justify-content-center my-3">
+        <div v-if="settings.disableAuth" class="tw-mt-5 tw-flex tw-items-center tw-justify-center tw-my-3">
             {{ $t("apiKeysDisabledMsg") }}
         </div>
         <div v-else>
             <div class="add-btn">
-                <button class="btn btn-primary me-2" type="button" @click="$refs.apiKeyDialog.show()">
+                <button class="gizmo-native-button gizmo-native-button--primary tw-me-2" type="button" @click="$refs.apiKeyDialog.show()">
                     <font-awesome-icon icon="plus" />
                     {{ $t("Add API Key") }}
                 </button>
@@ -14,7 +14,7 @@
             <div>
                 <span
                     v-if="Object.keys(keyList).length === 0"
-                    class="d-flex align-items-center justify-content-center my-3"
+                    class="tw-flex tw-items-center tw-justify-center tw-my-3"
                 >
                     {{ $t("No API Keys") }}
                 </span>
@@ -36,18 +36,18 @@
                     </div>
 
                     <div class="buttons">
-                        <div class="btn-group" role="group">
-                            <button v-if="item.active" class="btn btn-normal" @click="disableDialog(item.id)">
+                        <div class="gizmo-action-group" role="group">
+                            <button v-if="item.active" class="gizmo-native-button btn-normal" @click="disableDialog(item.id)">
                                 <font-awesome-icon icon="pause" />
                                 {{ $t("Disable") }}
                             </button>
 
-                            <button v-if="!item.active" class="btn btn-primary" @click="enableKey(item.id)">
+                            <button v-if="!item.active" class="gizmo-native-button gizmo-native-button--primary" @click="enableKey(item.id)">
                                 <font-awesome-icon icon="play" />
                                 {{ $t("Enable") }}
                             </button>
 
-                            <button class="btn btn-danger" @click="deleteDialog(item.id)">
+                            <button class="gizmo-native-button gizmo-native-button--danger" @click="deleteDialog(item.id)">
                                 <font-awesome-icon icon="trash" />
                                 {{ $t("Delete") }}
                             </button>
@@ -57,7 +57,7 @@
             </div>
         </div>
 
-        <div class="text-center mt-3" style="font-size: 13px">
+        <div class="tw-text-center tw-mt-3" style="font-size: 13px">
             <a href="https://github.com/starit/uptime-gizmo/wiki/Prometheus-API-Keys" target="_blank">
                 {{ $t("Learn More") }}
             </a>
@@ -237,7 +237,7 @@ export default {
         gap: 0.5rem;
         flex-direction: row-reverse;
 
-        .btn-group {
+        .gizmo-action-group {
             width: 310px;
         }
     }
