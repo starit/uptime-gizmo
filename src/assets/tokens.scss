@@ -61,31 +61,31 @@
     --easing-in-out: cubic-bezier(0.79, 0.14, 0.15, 0.86);
 
     /* Status */
-    --status-up: #22c55e;
-    --status-up-fg: #166534;
-    --status-up-bg: #dcfce7;
-    --status-up-border: #86efac;
-    --status-degraded: #f59e0b;
-    --status-degraded-fg: #92400e;
-    --status-degraded-bg: #fef3c7;
-    --status-degraded-border: #fcd34d;
-    --status-down: #ef4444;
-    --status-down-fg: #b91c1c;
-    --status-down-bg: #fee2e2;
-    --status-down-border: #fca5a5;
-    --status-maintenance: #8b5cf6;
-    --status-maintenance-fg: #6d28d9;
-    --status-maintenance-bg: #ede9fe;
-    --status-maintenance-border: #c4b5fd;
-    --status-unknown: #6b7280;
-    --status-unknown-fg: #4b5563;
-    --status-unknown-bg: #f3f4f6;
-    --status-unknown-border: #d1d5db;
+    --status-up: #2f9e68;
+    --status-up-fg: #146c45;
+    --status-up-bg: #e8f8ee;
+    --status-up-border: #8fcaa8;
+    --status-degraded: #bd5804;
+    --status-degraded-fg: #94400a;
+    --status-degraded-bg: #fdefda;
+    --status-degraded-border: #f0b782;
+    --status-down: #d94048;
+    --status-down-fg: #bc262d;
+    --status-down-bg: #fde9ea;
+    --status-down-border: #efa9ac;
+    --status-maintenance: #6a54c4;
+    --status-maintenance-fg: #523f9f;
+    --status-maintenance-bg: #efedfc;
+    --status-maintenance-border: #c0b2ef;
+    --status-unknown: #7c828c;
+    --status-unknown-fg: #5b6068;
+    --status-unknown-bg: #f1f2f4;
+    --status-unknown-border: #ccced3;
 
     /* Data visualization */
     --chart-ping-min: var(--status-up-fg);
     --chart-ping-average: var(--status-up);
-    --chart-ping-max: #15803d;
+    --chart-ping-max: #0f5c3c;
     --color-status-down: var(--status-down);
 }
 
@@ -136,30 +136,30 @@
         0 24px 48px -12px rgb(0 0 0 / 60%);
 
     /* Status */
-    --status-up: #4ade80;
-    --status-up-fg: #86efac;
-    --status-up-bg: #143d27;
-    --status-up-border: #237a45;
-    --status-degraded: #fbbf24;
-    --status-degraded-fg: #fcd34d;
-    --status-degraded-bg: #4a2c05;
-    --status-degraded-border: #9a670e;
-    --status-down: #f87171;
-    --status-down-fg: #fca5a5;
-    --status-down-bg: #4a1111;
-    --status-down-border: #9f2d2d;
-    --status-maintenance: #a78bfa;
-    --status-maintenance-fg: #c4b5fd;
-    --status-maintenance-bg: #2e1065;
-    --status-maintenance-border: #6d4cc5;
-    --status-unknown: #9ca3af;
-    --status-unknown-fg: #d1d5db;
-    --status-unknown-bg: #27313c;
-    --status-unknown-border: #4b5563;
+    --status-up: #3dd68c;
+    --status-up-fg: #8ff0bb;
+    --status-up-bg: #0f2e21;
+    --status-up-border: #1f6b49;
+    --status-degraded: #f2a13c;
+    --status-degraded-fg: #ffcb8a;
+    --status-degraded-bg: #3a2205;
+    --status-degraded-border: #8a5a12;
+    --status-down: #ff6369;
+    --status-down-fg: #ffb3b6;
+    --status-down-bg: #3d1315;
+    --status-down-border: #9b3237;
+    --status-maintenance: #9d84f0;
+    --status-maintenance-fg: #c9b9ff;
+    --status-maintenance-bg: #241a4d;
+    --status-maintenance-border: #5d47a8;
+    --status-unknown: #9ba1ab;
+    --status-unknown-fg: #d3d8de;
+    --status-unknown-bg: #232c36;
+    --status-unknown-border: #4a5561;
 
     /* Data visualization */
     --chart-ping-min: var(--status-up-fg);
     --chart-ping-average: var(--status-up);
-    --chart-ping-max: #22c55e;
+    --chart-ping-max: #6ee7a8;
     --color-status-down: var(--status-down);
 }

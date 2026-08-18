@@ -44,11 +44,11 @@ For product and marketing surfaces, target a restrained balance of roughly 60% N
 
 | State | Base token | Hex | Meaning |
 | --- | --- | --- | --- |
-| Operational | `--status-up` | `#22C55E` | Healthy, online, passed |
-| Degraded | `--status-degraded` | `#F59E0B` | Warning, degraded performance |
-| Incident | `--status-down` | `#EF4444` | Down, failed, incident |
-| Maintenance | `--status-maintenance` | `#8B5CF6` | Scheduled maintenance, paused |
-| Unknown | `--status-unknown` | `#6B7280` | Unknown, no data, disabled |
+| Operational | `--status-up` | `#2F9E68` | Healthy, online, passed |
+| Degraded | `--status-degraded` | `#BD5804` | Warning, degraded performance |
+| Incident | `--status-down` | `#D94048` | Down, failed, incident |
+| Maintenance | `--status-maintenance` | `#6A54C4` | Scheduled maintenance, paused |
+| Unknown | `--status-unknown` | `#7C828C` | Unknown, no data, disabled |
 
 ## Theme tokens
 
@@ -84,26 +84,26 @@ Use semantic UI tokens in application code instead of hard-coding primitive colo
     --color-overlay: rgb(10 21 30 / 68%);
 
     /* Status: light mode */
-    --status-up: #22C55E;
-    --status-up-fg: #166534;
-    --status-up-bg: #DCFCE7;
-    --status-up-border: #86EFAC;
-    --status-degraded: #F59E0B;
-    --status-degraded-fg: #92400E;
-    --status-degraded-bg: #FEF3C7;
-    --status-degraded-border: #FCD34D;
-    --status-down: #EF4444;
-    --status-down-fg: #B91C1C;
-    --status-down-bg: #FEE2E2;
-    --status-down-border: #FCA5A5;
-    --status-maintenance: #8B5CF6;
-    --status-maintenance-fg: #6D28D9;
-    --status-maintenance-bg: #EDE9FE;
-    --status-maintenance-border: #C4B5FD;
-    --status-unknown: #6B7280;
-    --status-unknown-fg: #4B5563;
-    --status-unknown-bg: #F3F4F6;
-    --status-unknown-border: #D1D5DB;
+    --status-up: #2F9E68;
+    --status-up-fg: #146C45;
+    --status-up-bg: #E8F8EE;
+    --status-up-border: #8FCAA8;
+    --status-degraded: #BD5804;
+    --status-degraded-fg: #94400A;
+    --status-degraded-bg: #FDEFDA;
+    --status-degraded-border: #F0B782;
+    --status-down: #D94048;
+    --status-down-fg: #BC262D;
+    --status-down-bg: #FDE9EA;
+    --status-down-border: #EFA9AC;
+    --status-maintenance: #6A54C4;
+    --status-maintenance-fg: #523F9F;
+    --status-maintenance-bg: #EFEDFC;
+    --status-maintenance-border: #C0B2EF;
+    --status-unknown: #7C828C;
+    --status-unknown-fg: #5B6068;
+    --status-unknown-bg: #F1F2F4;
+    --status-unknown-border: #CCCED3;
 }
 
 body.dark,
@@ -136,26 +136,26 @@ body.dark,
     --color-overlay: rgb(2 8 13 / 78%);
 
     /* Status: dark mode */
-    --status-up: #4ADE80;
-    --status-up-fg: #86EFAC;
-    --status-up-bg: #143D27;
-    --status-up-border: #237A45;
-    --status-degraded: #FBBF24;
-    --status-degraded-fg: #FCD34D;
-    --status-degraded-bg: #4A2C05;
-    --status-degraded-border: #9A670E;
-    --status-down: #F87171;
-    --status-down-fg: #FCA5A5;
-    --status-down-bg: #4A1111;
-    --status-down-border: #9F2D2D;
-    --status-maintenance: #A78BFA;
-    --status-maintenance-fg: #C4B5FD;
-    --status-maintenance-bg: #2E1065;
-    --status-maintenance-border: #6D4CC5;
-    --status-unknown: #9CA3AF;
-    --status-unknown-fg: #D1D5DB;
-    --status-unknown-bg: #27313C;
-    --status-unknown-border: #4B5563;
+    --status-up: #3DD68C;
+    --status-up-fg: #8FF0BB;
+    --status-up-bg: #0F2E21;
+    --status-up-border: #1F6B49;
+    --status-degraded: #F2A13C;
+    --status-degraded-fg: #FFCB8A;
+    --status-degraded-bg: #3A2205;
+    --status-degraded-border: #8A5A12;
+    --status-down: #FF6369;
+    --status-down-fg: #FFB3B6;
+    --status-down-bg: #3D1315;
+    --status-down-border: #9B3237;
+    --status-maintenance: #9D84F0;
+    --status-maintenance-fg: #C9B9FF;
+    --status-maintenance-bg: #241A4D;
+    --status-maintenance-border: #5D47A8;
+    --status-unknown: #9BA1AB;
+    --status-unknown-fg: #D3D8DE;
+    --status-unknown-bg: #232C36;
+    --status-unknown-border: #4A5561;
 }
 ```
 
