@@ -1,236 +1,164 @@
 <template>
-    <div ref="BadgeGeneratorModal" class="modal fade" tabindex="-1" data-bs-backdrop="static">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">
-                        {{ $t("Badge Link Generator", [monitor.name]) }}
-                    </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" :aria-label="$t('Close')" />
-                </div>
-                <div class="modal-body">
-                    <i18n-t keypath="Badge Link Generator Helptext" tag="p" class="form-text mb-3">
-                        <template #documentation>
-                            <a
-                                href="https://github.com/starit/uptime-gizmo/wiki/Badge"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                            >
-                                {{ $t("documentation") }}
-                            </a>
-                        </template>
-                    </i18n-t>
-                    <div class="mb-3">
-                        <label for="type" class="form-label">{{ $t("Badge Type") }}</label>
-                        <select id="type" v-model="badge.type" class="form-select">
-                            <option value="status">status</option>
-                            <option value="uptime">uptime</option>
-                            <option value="ping">ping</option>
-                            <option value="avg-response">avg-response</option>
-                            <option value="cert-exp">cert-exp</option>
-                            <option value="response">response</option>
-                        </select>
-                    </div>
+    <GizmoDialog
+        :open="open"
+        size="md"
+        :title="$t('Badge Link Generator', [monitor.name])"
+        :close-label="$t('Close')"
+        @update:open="setOpen"
+    >
+        <div class="gizmo-form-stack">
+            <i18n-t keypath="Badge Link Generator Helptext" tag="p" class="gizmo-dialog-copy">
+                <template #documentation>
+                    <a
+                        href="https://github.com/starit/uptime-gizmo/wiki/Badge"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        {{ $t("documentation") }}
+                    </a>
+                </template>
+            </i18n-t>
 
-                    <div v-if="(parameters[badge.type || 'null'] || []).includes('duration')" class="mb-3">
-                        <label for="duration" class="form-label">{{ $t("Badge Duration (in hours)") }}</label>
-                        <input
-                            id="duration"
-                            v-model="badge.duration"
-                            type="number"
-                            min="0"
-                            placeholder="24"
-                            class="form-control"
-                        />
-                    </div>
+            <div>
+                <label for="badge-type" class="form-label">{{ $t("Badge Type") }}</label>
+                <select id="badge-type" v-model="badge.type" class="form-select" autofocus>
+                    <option value="status">status</option>
+                    <option value="uptime">uptime</option>
+                    <option value="ping">ping</option>
+                    <option value="avg-response">avg-response</option>
+                    <option value="cert-exp">cert-exp</option>
+                    <option value="response">response</option>
+                </select>
+            </div>
 
-                    <div v-if="(parameters[badge.type || 'null'] || []).includes('label')" class="mb-3">
-                        <label for="label" class="form-label">{{ $t("Badge Label") }}</label>
-                        <input id="label" v-model="badge.label" type="text" class="form-control" />
-                    </div>
+            <div v-for="field in visibleFields" :key="field.key">
+                <label :for="`badge-${field.key}`" class="form-label">{{ $t(field.label) }}</label>
+                <input
+                    :id="`badge-${field.key}`"
+                    v-model="badge[field.key]"
+                    :type="field.type"
+                    :min="field.min"
+                    :placeholder="field.placeholder"
+                    class="form-control"
+                />
+            </div>
 
-                    <div v-if="(parameters[badge.type || 'null'] || []).includes('prefix')" class="mb-3">
-                        <label for="prefix" class="form-label">{{ $t("Badge Prefix") }}</label>
-                        <input id="prefix" v-model="badge.prefix" type="text" class="form-control" />
-                    </div>
+            <div>
+                <label for="badge-style" class="form-label">{{ $t("Badge Style") }}</label>
+                <select id="badge-style" v-model="badge.style" class="form-select">
+                    <option value="plastic">plastic</option>
+                    <option value="flat">flat</option>
+                    <option value="flat-square">flat-square</option>
+                    <option value="for-the-badge">for-the-badge</option>
+                    <option value="social">social</option>
+                </select>
+            </div>
 
-                    <div v-if="(parameters[badge.type || 'null'] || []).includes('suffix')" class="mb-3">
-                        <label for="suffix" class="form-label">{{ $t("Badge Suffix") }}</label>
-                        <input id="suffix" v-model="badge.suffix" type="text" placeholder="%" class="form-control" />
-                    </div>
+            <div>
+                <label for="badge-value" class="form-label">{{ $t("Badge value (For Testing only.)") }}</label>
+                <input id="badge-value" v-model="badge.value" type="text" class="form-control" />
+            </div>
 
-                    <div v-if="(parameters[badge.type || 'null'] || []).includes('labelColor')" class="mb-3">
-                        <label for="labelColor" class="form-label">{{ $t("Badge Label Color") }}</label>
-                        <input
-                            id="labelColor"
-                            v-model="badge.labelColor"
-                            type="text"
-                            placeholder="#555"
-                            class="form-control"
-                        />
-                    </div>
+            <div class="gizmo-dialog-badge-preview">
+                <img :src="badgeURL" :alt="$t('Badge Preview')" />
+            </div>
 
-                    <div v-if="(parameters[badge.type || 'null'] || []).includes('color')" class="mb-3">
-                        <label for="color" class="form-label">{{ $t("Badge Color") }}</label>
-                        <input
-                            id="color"
-                            v-model="badge.color"
-                            type="text"
-                            :placeholder="badgeConstants.defaultUpColor"
-                            class="form-control"
-                        />
-                    </div>
-
-                    <div v-if="(parameters[badge.type || 'null'] || []).includes('labelPrefix')" class="mb-3">
-                        <label for="labelPrefix" class="form-label">{{ $t("Badge Label Prefix") }}</label>
-                        <input id="labelPrefix" v-model="badge.labelPrefix" type="text" class="form-control" />
-                    </div>
-
-                    <div v-if="(parameters[badge.type || 'null'] || []).includes('labelSuffix')" class="mb-3">
-                        <label for="labelSuffix" class="form-label">{{ $t("Badge Label Suffix") }}</label>
-                        <input
-                            id="labelSuffix"
-                            v-model="badge.labelSuffix"
-                            type="text"
-                            placeholder="h"
-                            class="form-control"
-                        />
-                    </div>
-
-                    <div v-if="(parameters[badge.type || 'null'] || []).includes('upColor')" class="mb-3">
-                        <label for="upColor" class="form-label">{{ $t("Badge Up Color") }}</label>
-                        <input
-                            id="upColor"
-                            v-model="badge.upColor"
-                            type="text"
-                            class="form-control"
-                            :placeholder="badgeConstants.defaultUpColor"
-                        />
-                    </div>
-
-                    <div v-if="(parameters[badge.type || 'null'] || []).includes('downColor')" class="mb-3">
-                        <label for="downColor" class="form-label">{{ $t("Badge Down Color") }}</label>
-                        <input
-                            id="downColor"
-                            v-model="badge.downColor"
-                            type="text"
-                            class="form-control"
-                            :placeholder="badgeConstants.defaultDownColor"
-                        />
-                    </div>
-
-                    <div v-if="(parameters[badge.type || 'null'] || []).includes('pendingColor')" class="mb-3">
-                        <label for="pendingColor" class="form-label">{{ $t("Badge Pending Color") }}</label>
-                        <input
-                            id="pendingColor"
-                            v-model="badge.pendingColor"
-                            type="text"
-                            class="form-control"
-                            :placeholder="badgeConstants.defaultPendingColor"
-                        />
-                    </div>
-
-                    <div v-if="(parameters[badge.type || 'null'] || []).includes('maintenanceColor')" class="mb-3">
-                        <label for="maintenanceColor" class="form-label">{{ $t("Badge Maintenance Color") }}</label>
-                        <input
-                            id="maintenanceColor"
-                            v-model="badge.maintenanceColor"
-                            type="text"
-                            class="form-control"
-                            :placeholder="badgeConstants.defaultMaintenanceColor"
-                        />
-                    </div>
-
-                    <div v-if="(parameters[badge.type || 'null'] || []).includes('warnColor')" class="mb-3">
-                        <label for="warnColor" class="form-label">{{ $t("Badge Warn Color") }}</label>
-                        <input
-                            id="warnColor"
-                            v-model="badge.warnColor"
-                            type="text"
-                            class="form-control"
-                            :placeholder="badgeConstants.defaultMaintenanceColor"
-                        />
-                    </div>
-
-                    <div v-if="(parameters[badge.type || 'null'] || []).includes('warnDays')" class="mb-3">
-                        <label for="warnDays" class="form-label">{{ $t("Badge Warn Days") }}</label>
-                        <input
-                            id="warnDays"
-                            v-model="badge.warnDays"
-                            type="number"
-                            min="0"
-                            class="form-control"
-                            :placeholder="badgeConstants.defaultCertExpireWarnDays"
-                        />
-                    </div>
-
-                    <div v-if="(parameters[badge.type || 'null'] || []).includes('downDays')" class="mb-3">
-                        <label for="downDays" class="form-label">{{ $t("Badge Down Days") }}</label>
-                        <input
-                            id="downDays"
-                            v-model="badge.downDays"
-                            type="number"
-                            min="0"
-                            class="form-control"
-                            :placeholder="badgeConstants.defaultCertExpireDownDays"
-                        />
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="style" class="form-label">{{ $t("Badge Style") }}</label>
-                        <select id="style" v-model="badge.style" class="form-select">
-                            <option value="plastic">plastic</option>
-                            <option value="flat">flat</option>
-                            <option value="flat-square">flat-square</option>
-                            <option value="for-the-badge">for-the-badge</option>
-                            <option value="social">social</option>
-                        </select>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="value" class="form-label">{{ $t("Badge value (For Testing only.)") }}</label>
-                        <input id="value" v-model="badge.value" type="text" class="form-control" />
-                    </div>
-
-                    <div class="mb-3 pt-3 d-flex justify-content-center">
-                        <img :src="badgeURL" :alt="$t('Badge Preview')" />
-                    </div>
-
-                    <div class="my-3">
-                        <label for="badge-url" class="form-label">{{ $t("Badge URL") }}</label>
-                        <CopyableInput id="badge-url" v-model="badgeURL" type="url" disabled="disabled" />
-                    </div>
-                </div>
-
-                <div class="modal-footer">
-                    <button type="submit" class="btn btn-danger" data-bs-dismiss="modal">
-                        {{ $t("Close") }}
-                    </button>
-                </div>
+            <div>
+                <label for="badge-url" class="form-label">{{ $t("Badge URL") }}</label>
+                <CopyableInput id="badge-url" v-model="badgeURL" type="url" disabled="disabled" />
             </div>
         </div>
-    </div>
+
+        <template #footer>
+            <GizmoButton variant="secondary" @click="setOpen(false)">
+                {{ $t("Close") }}
+            </GizmoButton>
+        </template>
+    </GizmoDialog>
 </template>
 
 <script lang="ts">
-import { Modal } from "bootstrap";
 import CopyableInput from "./CopyableInput.vue";
-import { badgeConstants } from "../util.ts";
+import GizmoButton from "./gizmo/GizmoButton.vue";
+import GizmoDialog from "./gizmo/GizmoDialog.vue";
+import { badgeConstants } from "../badge-constants";
+
+type BadgeType = "status" | "uptime" | "ping" | "avg-response" | "cert-exp" | "response";
+type BadgeParameter =
+    | "duration"
+    | "label"
+    | "prefix"
+    | "suffix"
+    | "labelColor"
+    | "color"
+    | "labelPrefix"
+    | "labelSuffix"
+    | "upColor"
+    | "downColor"
+    | "pendingColor"
+    | "maintenanceColor"
+    | "warnColor"
+    | "warnDays"
+    | "downDays";
+
+interface BadgeFieldDefinition {
+    label: string;
+    min?: string;
+    placeholder?: string;
+    type: "number" | "text";
+}
+
+interface BadgeDraft extends Record<BadgeParameter, string | null> {
+    style: string;
+    type: BadgeType;
+    value: string | null;
+}
+
+interface BadgeRoot {
+    baseURL: string;
+}
+
+const FIELD_DEFINITIONS: Record<BadgeParameter, BadgeFieldDefinition> = {
+    duration: { label: "Badge Duration (in hours)", type: "number", min: "0", placeholder: "24" },
+    label: { label: "Badge Label", type: "text" },
+    prefix: { label: "Badge Prefix", type: "text" },
+    suffix: { label: "Badge Suffix", type: "text", placeholder: "%" },
+    labelColor: { label: "Badge Label Color", type: "text", placeholder: "#555" },
+    color: { label: "Badge Color", type: "text", placeholder: badgeConstants.defaultUpColor },
+    labelPrefix: { label: "Badge Label Prefix", type: "text" },
+    labelSuffix: { label: "Badge Label Suffix", type: "text", placeholder: "h" },
+    upColor: { label: "Badge Up Color", type: "text", placeholder: badgeConstants.defaultUpColor },
+    downColor: { label: "Badge Down Color", type: "text", placeholder: badgeConstants.defaultDownColor },
+    pendingColor: { label: "Badge Pending Color", type: "text", placeholder: badgeConstants.defaultPendingColor },
+    maintenanceColor: {
+        label: "Badge Maintenance Color",
+        type: "text",
+        placeholder: badgeConstants.defaultMaintenanceColor,
+    },
+    warnColor: { label: "Badge Warn Color", type: "text", placeholder: badgeConstants.defaultMaintenanceColor },
+    warnDays: { label: "Badge Warn Days", type: "number", min: "0", placeholder: badgeConstants.defaultCertExpireWarnDays },
+    downDays: { label: "Badge Down Days", type: "number", min: "0", placeholder: badgeConstants.defaultCertExpireDownDays },
+};
+
+const PARAMETERS: Record<BadgeType, BadgeParameter[]> = {
+    status: ["upColor", "downColor", "pendingColor", "maintenanceColor"],
+    uptime: ["duration", "labelPrefix", "labelSuffix", "prefix", "suffix", "color", "labelColor"],
+    ping: ["duration", "labelPrefix", "labelSuffix", "prefix", "suffix", "color", "labelColor"],
+    "avg-response": ["duration", "labelPrefix", "labelSuffix", "prefix", "suffix", "color", "labelColor"],
+    "cert-exp": ["labelPrefix", "labelSuffix", "prefix", "suffix", "upColor", "warnColor", "downColor", "warnDays", "downDays", "labelColor"],
+    response: ["labelPrefix", "labelSuffix", "prefix", "suffix", "color", "labelColor"],
+};
 
 export default {
     components: {
         CopyableInput,
+        GizmoButton,
+        GizmoDialog,
     },
-    props: {},
-    emits: [],
     data() {
         return {
-            model: null,
-            processing: false,
-            monitor: {
-                id: null,
-                name: null,
-            },
+            open: false,
+            monitor: { id: null as number | null, name: null as string | null },
             badge: {
                 type: "status",
                 duration: null,
@@ -250,95 +178,47 @@ export default {
                 downDays: null,
                 style: "flat",
                 value: null,
-            },
-            parameters: {
-                status: [
-                    "upLabel",
-                    "downLabel",
-                    "pendingLabel",
-                    "maintenanceLabel",
-                    "upColor",
-                    "downColor",
-                    "pendingColor",
-                    "maintenanceColor",
-                ],
-                uptime: ["duration", "labelPrefix", "labelSuffix", "prefix", "suffix", "color", "labelColor"],
-                ping: ["duration", "labelPrefix", "labelSuffix", "prefix", "suffix", "color", "labelColor"],
-                "avg-response": ["duration", "labelPrefix", "labelSuffix", "prefix", "suffix", "color", "labelColor"],
-                "cert-exp": [
-                    "labelPrefix",
-                    "labelSuffix",
-                    "prefix",
-                    "suffix",
-                    "upColor",
-                    "warnColor",
-                    "downColor",
-                    "warnDays",
-                    "downDays",
-                    "labelColor",
-                ],
-                response: ["labelPrefix", "labelSuffix", "prefix", "suffix", "color", "labelColor"],
-            },
-            badgeConstants,
+            } as BadgeDraft,
+            parameters: PARAMETERS,
         };
     },
-
     computed: {
+        visibleFields() {
+            return this.parameters[this.badge.type].map((key) => ({ key, ...FIELD_DEFINITIONS[key] }));
+        },
         badgeURL() {
             if (!this.monitor.id || !this.badge.type) {
-                return;
+                return "";
             }
-            let badgeURL = new URL(this.$root.baseURL).origin + "/api/badge/" + this.monitor.id + "/" + this.badge.type;
-
-            let parameterList = {};
-
-            for (let parameter of this.parameters[this.badge.type] || []) {
+            const root = this.$root as unknown as BadgeRoot;
+            let url = new URL(root.baseURL).origin + "/api/badge/" + this.monitor.id + "/" + this.badge.type;
+            const query: Record<string, string> = {};
+            for (const parameter of this.parameters[this.badge.type]) {
                 if (parameter === "duration" && this.badge.duration) {
-                    badgeURL += "/" + this.badge.duration;
-                    continue;
-                }
-
-                if (this.badge[parameter]) {
-                    parameterList[parameter] = this.badge[parameter];
+                    url += "/" + this.badge.duration;
+                } else if (this.badge[parameter]) {
+                    query[parameter] = this.badge[parameter] as string;
                 }
             }
-
-            for (let parameter of ["label", "style", "value"]) {
+            for (const parameter of ["label", "style", "value"] as const) {
                 if (parameter === "style" && this.badge.style === "flat") {
                     continue;
                 }
-
                 if (this.badge[parameter]) {
-                    parameterList[parameter] = this.badge[parameter];
+                    query[parameter] = this.badge[parameter] as string;
                 }
             }
-
-            if (Object.keys(parameterList).length > 0) {
-                return badgeURL + "?" + new URLSearchParams(parameterList);
-            }
-
-            return badgeURL;
+            const search = new URLSearchParams(query).toString();
+            return search ? `${url}?${search}` : url;
         },
     },
-
-    mounted() {
-        this.BadgeGeneratorModal = new Modal(this.$refs.BadgeGeneratorModal);
-    },
-
     methods: {
-        /**
-         * Setting monitor
-         * @param {number} monitorId ID of monitor
-         * @param {string} monitorName Name of monitor
-         * @returns {void}
-         */
-        show(monitorId, monitorName) {
-            this.monitor = {
-                id: monitorId,
-                name: monitorName,
-            };
-
-            this.BadgeGeneratorModal.show();
+        setOpen(open: boolean) {
+            this.open = open;
+        },
+        show(monitorId: number, monitorName: string) {
+            this.monitor = { id: monitorId, name: monitorName };
+            this.open = true;
         },
     },
 };

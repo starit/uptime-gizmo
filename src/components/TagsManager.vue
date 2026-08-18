@@ -1,7 +1,7 @@
 <template>
     <div>
-        <h4 class="mt-5 mb-3">{{ $t("Tags") }}</h4>
-        <div v-if="selectedTags.length > 0" class="mb-2 p-1">
+        <h4 class="tw-mt-5 tw-mb-3">{{ $t("Tags") }}</h4>
+        <div v-if="selectedTags.length > 0" class="tw-mb-2 tw-p-1">
             <tag
                 v-for="item in selectedTags"
                 :key="`${item.tag_id || item.id}-${item.value || ''}`"
@@ -12,27 +12,32 @@
                 :constrained="true"
             />
         </div>
-        <div class="p-1">
+        <div class="tw-p-1">
             <button
                 type="button"
-                class="btn btn-outline-secondary btn-add"
+                class="gizmo-native-button gizmo-native-button--secondary btn-add"
                 :disabled="processing"
                 data-testid="add-tag-button"
                 @click.stop="showAddDialog"
             >
-                <font-awesome-icon class="me-1" icon="plus" />
+                <font-awesome-icon class="tw-me-1" icon="plus" />
                 {{ $t("Add") }}
             </button>
         </div>
-        <div ref="modal" class="modal fade" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content">
-                    <div class="modal-body">
-                        <h4 v-if="stagedForBatchAdd.length > 0">{{ $t("Add Tags") }}</h4>
+        <GizmoDialog
+            :open="open"
+            size="md"
+            :title="$t('Add Tags')"
+            :close-label="$t('Close')"
+            :show-close="false"
+            :close-on-backdrop="false"
+            :close-on-escape="false"
+            @update:open="setOpen"
+        >
+            <div class="gizmo-form-stack">
                         <div
                             v-if="stagedForBatchAdd.length > 0"
-                            class="mb-3 staging-area"
-                            style="max-height: 150px; overflow-y: auto"
+                            class="staging-area gizmo-tag-staging"
                         >
                             <Tag
                                 v-for="stagedTag in stagedForBatchAdd"
@@ -44,7 +49,7 @@
 
                         <vue-multiselect
                             v-model="newDraftTag.select"
-                            class="mb-2"
+                            class="tw-mb-2"
                             :options="tagOptions"
                             :multiple="false"
                             :searchable="true"
@@ -53,33 +58,19 @@
                             label="name"
                         >
                             <template #option="{ option }">
-                                <div
-                                    class="mx-2 py-1 px-3 rounded d-inline-flex"
-                                    style="margin-top: -5px; margin-bottom: -5px; height: 24px"
-                                    :style="{ color: textColor(option), backgroundColor: option.color + ' !important' }"
-                                >
-                                    <span>
-                                        {{ option.name }}
-                                    </span>
-                                </div>
+                                <Tag :item="option" size="sm" />
                             </template>
                             <template #singleLabel="{ option }">
-                                <div
-                                    class="py-1 px-3 rounded d-inline-flex"
-                                    style="height: 24px"
-                                    :style="{ color: textColor(option), backgroundColor: option.color + ' !important' }"
-                                >
-                                    <span>{{ option.name }}</span>
-                                </div>
+                                <Tag :item="option" size="sm" />
                             </template>
                         </vue-multiselect>
-                        <div v-if="newDraftTag.select?.name == null" class="d-flex mb-2">
-                            <div class="w-50 pe-2">
+                        <div v-if="newDraftTag.select?.name == null" class="tw-flex tw-mb-2">
+                            <div class="tw-w-1/2 tw-pe-2">
                                 <input
                                     v-model="newDraftTag.name"
-                                    class="form-control"
+                                    class="gizmo-native-control"
                                     :class="{
-                                        'is-invalid':
+                                        'gizmo-native-control--invalid':
                                             validateDraftTag.invalid &&
                                             (validateDraftTag.messageKey === 'tagNameColorRequired' ||
                                                 validateDraftTag.messageKey === 'tagNameExists'),
@@ -89,7 +80,7 @@
                                     @keydown.enter.prevent="onEnter"
                                 />
                             </div>
-                            <div class="w-50 ps-2">
+                            <div class="tw-w-1/2 tw-ps-2">
                                 <vue-multiselect
                                     v-model="newDraftTag.color"
                                     :options="colorOptions"
@@ -103,32 +94,20 @@
                                     data-testid="tag-color-select"
                                 >
                                     <template #option="{ option }">
-                                        <div
-                                            class="mx-2 py-1 px-3 rounded d-inline-flex"
-                                            style="height: 24px; color: white"
-                                            :style="{ backgroundColor: option.color + ' !important' }"
-                                        >
-                                            <span>{{ option.name }}</span>
-                                        </div>
+                                        <Tag :item="option" size="sm" />
                                     </template>
                                     <template #singleLabel="{ option }">
-                                        <div
-                                            class="py-1 px-3 rounded d-inline-flex"
-                                            style="height: 24px; color: white"
-                                            :style="{ backgroundColor: option.color + ' !important' }"
-                                        >
-                                            <span>{{ option.name }}</span>
-                                        </div>
+                                        <Tag :item="option" size="sm" />
                                     </template>
                                 </vue-multiselect>
                             </div>
                         </div>
-                        <div class="mb-2">
+                        <div class="tw-mb-2">
                             <input
                                 v-model="newDraftTag.value"
-                                class="form-control"
+                                class="gizmo-native-control"
                                 :class="{
-                                    'is-invalid':
+                                    'gizmo-native-control--invalid':
                                         validateDraftTag.invalid &&
                                         validateDraftTag.messageKey === 'tagAlreadyOnMonitor',
                                 }"
@@ -140,44 +119,41 @@
 
                         <div
                             v-if="validateDraftTag.invalid && validateDraftTag.messageKey"
-                            class="form-text text-danger mb-2"
+                            class="gizmo-field-help tw-text-status-down-fg tw-mb-2"
                         >
                             {{ $t(validateDraftTag.messageKey, validateDraftTag.messageParams) }}
                         </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" @click.stop="clearStagingAndCloseModal">
-                            {{ $t("Cancel") }}
-                        </button>
-                        <button
-                            type="button"
-                            class="btn btn-outline-primary me-2"
-                            :disabled="processing || validateDraftTag.invalid"
-                            @click.stop="stageCurrentTag"
-                        >
-                            {{ $t("Add Another Tag") }}
-                        </button>
-                        <button
-                            type="button"
-                            class="btn btn-primary"
-                            :disabled="processing || (stagedForBatchAdd.length === 0 && validateDraftTag.invalid)"
-                            data-testid="add-tags-final-button"
-                            @click.stop="confirmAndCommitStagedTags"
-                        >
-                            {{ $t("Done") }}
-                        </button>
-                    </div>
-                </div>
             </div>
-        </div>
+
+            <template #footer>
+                <GizmoButton variant="secondary" @click="clearStagingAndCloseDialog">
+                    {{ $t("Cancel") }}
+                </GizmoButton>
+                <GizmoButton
+                    variant="outline"
+                    :disabled="processing || validateDraftTag.invalid"
+                    @click="stageCurrentTag"
+                >
+                    {{ $t("Add Another Tag") }}
+                </GizmoButton>
+                <GizmoButton
+                    :disabled="processing || (stagedForBatchAdd.length === 0 && validateDraftTag.invalid)"
+                    data-testid="add-tags-final-button"
+                    @click="confirmAndCommitStagedTags"
+                >
+                    {{ $t("Done") }}
+                </GizmoButton>
+            </template>
+        </GizmoDialog>
     </div>
 </template>
 
 <script>
-import { Modal } from "bootstrap";
 import VueMultiselect from "vue-multiselect";
 import { colorOptions } from "../util-frontend";
 import Tag from "../components/Tag.vue";
+import GizmoButton from "./gizmo/GizmoButton.vue";
+import GizmoDialog from "./gizmo/GizmoDialog.vue";
 
 /**
  * @typedef Tag
@@ -196,6 +172,8 @@ export default {
     components: {
         Tag,
         VueMultiselect,
+        GizmoButton,
+        GizmoDialog,
     },
     props: {
         /**
@@ -209,8 +187,7 @@ export default {
     },
     data() {
         return {
-            /** @type {Modal | null} */
-            modal: null,
+            open: false,
             /** @type {Tag[]} */
             existingTags: [],
             processing: false,
@@ -371,13 +348,12 @@ export default {
         },
     },
     mounted() {
-        this.modal = new Modal(this.$refs.modal);
         this.getExistingTags();
     },
-    beforeUnmount() {
-        this.cleanupModal();
-    },
     methods: {
+        setOpen(open) {
+            this.open = open;
+        },
         /**
          * Show the add tag dialog
          * @returns {void}
@@ -386,7 +362,7 @@ export default {
             this.stagedForBatchAdd = [];
             this.clearDraftTag();
             this.getExistingTags();
-            this.modal.show();
+            this.open = true;
         },
         /**
          * Get all existing tags
@@ -413,20 +389,6 @@ export default {
             } else {
                 // Remove an Existing Tag
                 this.deleteTags.push(item);
-            }
-        },
-        /**
-         * Get colour of text inside the tag
-         * @param {object} option The tag that needs to be displayed.
-         * Defaults to "white" unless the tag has no color, which will
-         * then return the body color (based on application theme)
-         * @returns {string} Text color
-         */
-        textColor(option) {
-            if (option.color) {
-                return "white";
-            } else {
-                return this.$root.theme === "light" ? "var(--bs-body-color)" : "inherit";
             }
         },
         /**
@@ -477,7 +439,7 @@ export default {
             });
         },
         /**
-         * Handle pressing Enter key when inside the modal
+         * Handle pressing Enter inside the tag dialog.
          * @returns {void}
          */
         onEnter() {
@@ -491,7 +453,6 @@ export default {
          * @returns {Promise<void>}
          */
         async submit(monitorId) {
-            console.log(`Submitting tag changes for monitor ${monitorId}...`);
             this.processing = true;
 
             for (const newTag of this.newTags) {
@@ -562,20 +523,6 @@ export default {
             this.processing = false;
         },
         /**
-         * Clean up modal and restore scroll behavior
-         * @returns {void}
-         */
-        cleanupModal() {
-            if (this.modal) {
-                try {
-                    this.modal.hide();
-                } catch (e) {
-                    console.warn("Modal hide failed:", e);
-                }
-            }
-            this.stagedForBatchAdd = [];
-        },
-        /**
          * Stages the current draft tag for batch addition.
          * @returns {void}
          */
@@ -623,16 +570,16 @@ export default {
             };
         },
         /**
-         * Clears the staging list, draft inputs, and closes the modal.
+         * Clear the staging list and draft inputs, then close the dialog.
          * @returns {void}
          */
-        clearStagingAndCloseModal() {
+        clearStagingAndCloseDialog() {
             this.stagedForBatchAdd = [];
             this.clearDraftTag(); // Clears input fields
-            this.modal.hide();
+            this.open = false;
         },
         /**
-         * Processes all staged tags, adds them to the monitor, and closes the modal.
+         * Process all staged tags, add them to the monitor draft, and close the dialog.
          * @returns {void}
          */
         confirmAndCommitStagedTags() {
@@ -650,7 +597,7 @@ export default {
             // Phase 2: Process everything that is now in stagedForBatchAdd.
             if (this.stagedForBatchAdd.length === 0) {
                 this.clearDraftTag(); // Ensure draft is clear even if nothing was committed
-                this.modal.hide();
+                this.open = false;
                 return;
             }
 
@@ -685,7 +632,7 @@ export default {
             // newDraftTag should have been cleared if stageCurrentTag ran in Phase 1, or earlier.
             // Call clearDraftTag again to be certain the form is reset before closing.
             this.clearDraftTag();
-            this.modal.hide();
+            this.open = false;
         },
     },
 };
@@ -696,7 +643,8 @@ export default {
     width: 100%;
 }
 
-.modal-body {
-    padding: 1.5rem;
+.gizmo-tag-staging {
+    max-height: 9.375rem;
+    overflow-y: auto;
 }
 </style>

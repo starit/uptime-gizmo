@@ -1,24 +1,22 @@
 <template>
-    <div ref="modal" class="modal fade" tabindex="-1">
-        <div class="modal-dialog modal-xl modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">
-                        {{ $t("Browser Screenshot") }}
-                    </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" :aria-label="$t('Close')" />
-                </div>
-                <div class="modal-body"></div>
-                <img :src="imageURL" :alt="$t('screenshot of the website')" />
-            </div>
-        </div>
-    </div>
+    <GizmoDialog
+        :open="open"
+        size="lg"
+        :title="$t('Browser Screenshot')"
+        :close-label="$t('Close')"
+        @update:open="setOpen"
+    >
+        <img class="gizmo-dialog-screenshot" :src="imageURL" :alt="$t('screenshot of the website')" />
+    </GizmoDialog>
 </template>
 
 <script lang="ts">
-import { Modal } from "bootstrap";
+import GizmoDialog from "./gizmo/GizmoDialog.vue";
 
 export default {
+    components: {
+        GizmoDialog,
+    },
     props: {
         imageURL: {
             type: String,
@@ -27,15 +25,15 @@ export default {
     },
     data() {
         return {
-            modal: null,
+            open: false,
         };
-    },
-    mounted() {
-        this.modal = new Modal(this.$refs.modal);
     },
     methods: {
         show() {
-            this.modal.show();
+            this.open = true;
+        },
+        setOpen(open: boolean) {
+            this.open = open;
         },
     },
 };

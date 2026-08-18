@@ -1,77 +1,73 @@
 <template>
-    <form @submit.prevent="submit">
-        <div ref="modal" class="modal fade" tabindex="-1" data-bs-backdrop="static">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 id="exampleModalLabel" class="modal-title">
-                            {{ $t("Setup Docker Host") }}
-                        </h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" :aria-label="$t('Close')" />
-                    </div>
-                    <div class="modal-body">
-                        <div class="mb-3">
-                            <label for="docker-name" class="form-label">{{ $t("Friendly Name") }}</label>
-                            <input
-                                id="docker-name"
-                                v-model="dockerHost.name"
-                                type="text"
-                                class="form-control"
-                                required
-                            />
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="docker-type" class="form-label">{{ $t("Connection Type") }}</label>
-                            <select id="docker-type" v-model="dockerHost.dockerType" class="form-select">
-                                <option v-for="type in connectionTypes" :key="type" :value="type">
-                                    {{ $t(type) }}
-                                </option>
-                            </select>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="docker-daemon" class="form-label">{{ $t("Docker Daemon") }}</label>
-                            <input
-                                id="docker-daemon"
-                                v-model="dockerHost.dockerDaemon"
-                                type="text"
-                                class="form-control"
-                                required
-                            />
-
-                            <i18n-t tag="div" keypath="Examples:" class="form-text">
-                                <ul>
-                                    <li><code>/var/run/docker.sock</code></li>
-                                    <li><code>http://localhost:2375</code></li>
-                                    <li><code>https://localhost:2376 (TLS)</code></li>
-                                </ul>
-                            </i18n-t>
-                        </div>
-                    </div>
-
-                    <div class="modal-footer">
-                        <button
-                            v-if="id"
-                            type="button"
-                            class="btn btn-danger"
-                            :disabled="processing"
-                            @click="deleteConfirm"
-                        >
-                            {{ $t("Delete") }}
-                        </button>
-                        <button type="button" class="btn btn-warning" :disabled="processing" @click="test">
-                            {{ $t("Test") }}
-                        </button>
-                        <button type="submit" class="btn btn-primary" :disabled="processing">
-                            <div v-if="processing" class="spinner-border spinner-border-sm me-1"></div>
-                            {{ $t("Save") }}
-                        </button>
-                    </div>
-                </div>
+    <GizmoDialog
+        :open="open"
+        size="md"
+        :title="$t('Setup Docker Host')"
+        :close-label="$t('Close')"
+        :close-disabled="processing"
+        :close-on-backdrop="false"
+        :close-on-escape="!processing"
+        @update:open="setOpen"
+    >
+        <form id="docker-host-form" class="gizmo-form-stack" @submit.prevent="submit">
+            <div>
+                <label for="docker-name" class="form-label">{{ $t("Friendly Name") }}</label>
+                <input
+                    id="docker-name"
+                    v-model="dockerHost.name"
+                    type="text"
+                    class="form-control"
+                    required
+                    autofocus
+                />
             </div>
-        </div>
-    </form>
+
+            <div>
+                <label for="docker-type" class="form-label">{{ $t("Connection Type") }}</label>
+                <select id="docker-type" v-model="dockerHost.dockerType" class="form-select">
+                    <option v-for="type in connectionTypes" :key="type" :value="type">
+                        {{ $t(type) }}
+                    </option>
+                </select>
+            </div>
+
+            <div>
+                <label for="docker-daemon" class="form-label">{{ $t("Docker Daemon") }}</label>
+                <input
+                    id="docker-daemon"
+                    v-model="dockerHost.dockerDaemon"
+                    type="text"
+                    class="form-control"
+                    required
+                />
+                <i18n-t tag="div" keypath="Examples:" class="form-text">
+                    <ul>
+                        <li><code>/var/run/docker.sock</code></li>
+                        <li><code>http://localhost:2375</code></li>
+                        <li><code>https://localhost:2376 (TLS)</code></li>
+                    </ul>
+                </i18n-t>
+            </div>
+        </form>
+
+        <template #footer>
+            <GizmoButton
+                v-if="id"
+                class="gizmo-dialog__leading-action"
+                variant="danger"
+                :disabled="processing"
+                @click="deleteConfirm"
+            >
+                {{ $t("Delete") }}
+            </GizmoButton>
+            <GizmoButton variant="secondary" :disabled="processing" @click="test">
+                {{ $t("Test") }}
+            </GizmoButton>
+            <GizmoButton form="docker-host-form" type="submit" :loading="processing">
+                {{ $t("Save") }}
+            </GizmoButton>
+        </template>
+    </GizmoDialog>
 
     <Confirm
         ref="confirmDelete"
@@ -85,65 +81,76 @@
 </template>
 
 <script lang="ts">
-import { Modal } from "bootstrap";
 import Confirm from "./Confirm.vue";
+import GizmoButton from "./gizmo/GizmoButton.vue";
+import GizmoDialog from "./gizmo/GizmoDialog.vue";
+
+interface DockerHostDraft {
+    dockerDaemon: string;
+    dockerType: string;
+    id?: number;
+    name: string;
+}
+
+interface SocketResult {
+    id?: number;
+    msg: string;
+    ok: boolean;
+}
+
+interface DockerHostRoot {
+    dockerHostList: DockerHostDraft[];
+    getSocket: () => {
+        emit: (event: string, ...args: unknown[]) => void;
+    };
+    toastError: (message: string) => void;
+    toastRes: (result: SocketResult) => void;
+}
+
+interface ConfirmDialogRef {
+    show: () => void;
+}
 
 export default {
     components: {
         Confirm,
+        GizmoButton,
+        GizmoDialog,
     },
-    props: {},
     emits: ["added", "deleted"],
     data() {
         return {
-            modal: null,
+            open: false,
             processing: false,
-            id: null,
+            id: null as number | null,
             connectionTypes: ["socket", "tcp"],
             dockerHost: {
                 name: "",
                 dockerDaemon: "",
                 dockerType: "",
-                // Do not set default value here, please scroll to show()
-            },
+            } as DockerHostDraft,
         };
     },
-
-    mounted() {
-        this.modal = new Modal(this.$refs.modal);
-    },
     methods: {
-        /**
-         * Confirm deletion of docker host
-         * @returns {void}
-         */
-        deleteConfirm() {
-            this.modal.hide();
-            this.$refs.confirmDelete.show();
+        setOpen(open: boolean) {
+            this.open = open;
         },
-
-        /**
-         * Show specified docker host
-         * @param {number} dockerHostID ID of host to show
-         * @returns {void}
-         */
-        show(dockerHostID) {
+        deleteConfirm() {
+            (this.$refs.confirmDelete as ConfirmDialogRef).show();
+        },
+        show(dockerHostID?: number) {
+            if (this.processing) {
+                return;
+            }
             if (dockerHostID) {
-                let found = false;
-
+                const root = this.$root as unknown as DockerHostRoot;
+                const dockerHost = root.dockerHostList.find((item) => item.id === dockerHostID);
+                if (!dockerHost) {
+                    root.toastError("Docker Host not found!");
+                    return;
+                }
                 this.id = dockerHostID;
-
-                for (let n of this.$root.dockerHostList) {
-                    if (n.id === dockerHostID) {
-                        this.dockerHost = n;
-                        found = true;
-                        break;
-                    }
-                }
-
-                if (!found) {
-                    this.$root.toastError("Docker Host not found!");
-                }
+                this.dockerHost = { ...dockerHost };
             } else {
                 this.id = null;
                 this.dockerHost = {
@@ -152,56 +159,48 @@ export default {
                     dockerDaemon: "/var/run/docker.sock",
                 };
             }
-
-            this.modal.show();
+            this.open = true;
         },
-
-        /**
-         * Add docker host
-         * @returns {void}
-         */
         submit() {
+            if (this.processing) {
+                return;
+            }
             this.processing = true;
-            this.$root.getSocket().emit("addDockerHost", this.dockerHost, this.id, (res) => {
-                this.$root.toastRes(res);
+            const root = this.$root as unknown as DockerHostRoot;
+            root.getSocket().emit("addDockerHost", this.dockerHost, this.id, (res: SocketResult) => {
+                root.toastRes(res);
                 this.processing = false;
-
                 if (res.ok) {
-                    this.modal.hide();
-
-                    // Emit added event, doesn't emit edit.
+                    this.open = false;
                     if (!this.id) {
                         this.$emit("added", res.id);
                     }
                 }
             });
         },
-
-        /**
-         * Test the docker host
-         * @returns {void}
-         */
         test() {
+            if (this.processing) {
+                return;
+            }
             this.processing = true;
-            this.$root.getSocket().emit("testDockerHost", this.dockerHost, (res) => {
-                this.$root.toastRes(res);
+            const root = this.$root as unknown as DockerHostRoot;
+            root.getSocket().emit("testDockerHost", this.dockerHost, (res: SocketResult) => {
+                root.toastRes(res);
                 this.processing = false;
             });
         },
-
-        /**
-         * Delete this docker host
-         * @returns {void}
-         */
         deleteDockerHost() {
+            if (this.processing) {
+                return;
+            }
             this.processing = true;
-            this.$root.getSocket().emit("deleteDockerHost", this.id, (res) => {
-                this.$root.toastRes(res);
+            const root = this.$root as unknown as DockerHostRoot;
+            root.getSocket().emit("deleteDockerHost", this.id, (res: SocketResult) => {
+                root.toastRes(res);
                 this.processing = false;
-
                 if (res.ok) {
                     this.$emit("deleted", this.id);
-                    this.modal.hide();
+                    this.open = false;
                 }
             });
         },

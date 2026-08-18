@@ -1,162 +1,186 @@
 <template>
-    <form @submit.prevent="submit">
-        <div ref="keyaddmodal" class="modal fade" tabindex="-1" data-bs-backdrop="static">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">
-                            {{ $t("Add API Key") }}
-                        </h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" :aria-label="$t('Close')" />
-                    </div>
-                    <div class="modal-body">
-                        <!-- Name -->
-                        <div class="mb-3">
-                            <label for="name" class="form-label">{{ $t("Name") }}</label>
-                            <input id="name" v-model="key.name" type="text" class="form-control" required />
-                        </div>
+    <GizmoDialog
+        :open="addOpen"
+        size="md"
+        :title="$t('Add API Key')"
+        :close-label="$t('Close')"
+        :close-disabled="processing"
+        :close-on-backdrop="false"
+        :close-on-escape="!processing"
+        @update:open="setAddOpen"
+    >
+        <form id="api-key-create-form" class="gizmo-form-stack" @submit.prevent="submit">
+            <div>
+                <label for="api-key-name" class="form-label">{{ $t("Name") }}</label>
+                <input id="api-key-name" v-model="key.name" type="text" class="form-control" required autofocus />
+            </div>
 
-                        <!-- Expiry -->
-                        <div class="my-3">
-                            <label class="form-label">{{ $t("Expiry date") }}</label>
-                            <div class="d-flex flex-row align-items-center">
-                                <div class="col-6">
-                                    <Datepicker
-                                        v-model="key.expires"
-                                        :dark="$root.isDark"
-                                        :monthChangeOnScroll="false"
-                                        :minDate="minDate"
-                                        format="yyyy-MM-dd HH:mm"
-                                        modelType="yyyy-MM-dd HH:mm:ss"
-                                        :required="!noExpire"
-                                        :disabled="noExpire"
-                                    />
-                                </div>
-                                <div class="col-6 ms-3">
-                                    <div class="form-check mb-0">
-                                        <input
-                                            id="no-expire"
-                                            v-model="noExpire"
-                                            class="form-check-input"
-                                            type="checkbox"
-                                        />
-                                        <label class="form-check-label" for="no-expire">{{ $t("Don't expire") }}</label>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button id="monitor-submit-btn" class="btn btn-primary" type="submit" :disabled="processing">
-                            {{ $t("Generate") }}
-                        </button>
+            <div>
+                <label class="form-label">{{ $t("Expiry date") }}</label>
+                <div class="gizmo-dialog-field-row">
+                    <Datepicker
+                        v-model="key.expires"
+                        class="gizmo-dialog-field-row__primary"
+                        :dark="isDark"
+                        :month-change-on-scroll="false"
+                        :min-date="minDate"
+                        format="yyyy-MM-dd HH:mm"
+                        model-type="yyyy-MM-dd HH:mm:ss"
+                        :required="!noExpire"
+                        :disabled="noExpire"
+                    />
+                    <div class="form-check mb-0">
+                        <input id="api-key-no-expire" v-model="noExpire" class="form-check-input" type="checkbox" />
+                        <label class="form-check-label" for="api-key-no-expire">{{ $t("Don't expire") }}</label>
                     </div>
                 </div>
             </div>
-        </div>
-        <div ref="keymodal" class="modal fade" tabindex="-1" data-bs-backdrop="static">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">
-                            {{ $t("Key Added") }}
-                        </h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" :aria-label="$t('Close')" />
-                    </div>
+        </form>
+        <template #footer>
+            <GizmoButton
+                id="api-key-submit-btn"
+                form="api-key-create-form"
+                type="submit"
+                :loading="processing"
+            >
+                {{ $t("Generate") }}
+            </GizmoButton>
+        </template>
+    </GizmoDialog>
 
-                    <div class="modal-body">
-                        <div class="mb-3">
-                            {{ $t("apiKeyAddedMsg") }}
-                        </div>
-                        <div class="mb-3">
-                            <CopyableInput v-model="clearKey" disabled="disabled" />
-                        </div>
-                    </div>
-
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">
-                            {{ $t("Continue") }}
-                        </button>
-                    </div>
-                </div>
-            </div>
+    <GizmoDialog
+        :open="keyOpen"
+        size="md"
+        :title="$t('Key Added')"
+        :close-label="$t('Close')"
+        :close-on-backdrop="false"
+        @update:open="setKeyOpen"
+    >
+        <div class="gizmo-form-stack">
+            <p class="gizmo-dialog-copy">
+                {{ $t("apiKeyAddedMsg") }}
+            </p>
+            <CopyableInput v-model="clearKey" disabled="disabled" />
         </div>
-    </form>
+        <template #footer>
+            <GizmoButton autofocus @click="setKeyOpen(false)">
+                {{ $t("Continue") }}
+            </GizmoButton>
+        </template>
+    </GizmoDialog>
 </template>
 
 <script lang="ts">
-import { Modal } from "bootstrap";
 import dayjs from "dayjs";
 import Datepicker from "@vuepic/vue-datepicker";
 import CopyableInput from "./CopyableInput.vue";
+import GizmoButton from "./gizmo/GizmoButton.vue";
+import GizmoDialog from "./gizmo/GizmoDialog.vue";
+
+interface ApiKeyDraft {
+    active: number;
+    expires: string | null;
+    name: string;
+}
+
+interface ApiKeyResult {
+    key: string;
+    msg: string;
+    ok: boolean;
+}
+
+interface ApiKeyRoot {
+    addAPIKey: (key: ApiKeyDraft, callback: (result: ApiKeyResult) => void) => void;
+    date: (value: unknown) => string;
+    isDark: boolean;
+    toastError: (message: string) => void;
+}
 
 export default {
     components: {
         CopyableInput,
         Datepicker,
+        GizmoButton,
+        GizmoDialog,
     },
-    props: {},
-    // emits: [ "added" ],
     data() {
+        const root = this.$root as unknown as ApiKeyRoot;
         return {
-            keyaddmodal: null,
-            keymodal: null,
+            addOpen: false,
+            keyOpen: false,
             processing: false,
-            key: {},
-            dark: this.$root.theme === "dark",
-            minDate: this.$root.date(dayjs()) + " 00:00",
-            clearKey: null,
+            key: {} as ApiKeyDraft,
+            minDate: root.date(dayjs()) + " 00:00",
+            clearKey: "",
             noExpire: false,
         };
     },
-
-    mounted() {
-        this.keyaddmodal = new Modal(this.$refs.keyaddmodal);
-        this.keymodal = new Modal(this.$refs.keymodal);
+    computed: {
+        isDark() {
+            return (this.$root as unknown as ApiKeyRoot).isDark;
+        },
     },
-
     methods: {
         /**
-         * Show modal
+         * Show the API key creation dialog.
          * @returns {void}
          */
         show() {
-            this.id = null;
-            this.key = {
-                name: "",
-                expires: this.minDate,
-                active: 1,
-            };
-
-            this.keyaddmodal.show();
+            if (this.processing) {
+                return;
+            }
+            this.clearForm();
+            this.addOpen = true;
         },
 
         /**
-         * Submit data to server
-         * @returns {Promise<void>}
+         * Synchronize the create dialog's controlled state.
+         * @param {boolean} open Next open state
+         * @returns {void}
          */
-        async submit() {
-            this.processing = true;
+        setAddOpen(open: boolean) {
+            this.addOpen = open;
+        },
 
+        /**
+         * Synchronize the generated-key dialog's controlled state.
+         * @param {boolean} open Next open state
+         * @returns {void}
+         */
+        setKeyOpen(open: boolean) {
+            this.keyOpen = open;
+        },
+
+        /**
+         * Submit data to the server.
+         * @returns {void}
+         */
+        submit() {
+            if (this.processing) {
+                return;
+            }
+
+            this.processing = true;
             if (this.noExpire) {
                 this.key.expires = null;
             }
 
-            this.$root.addAPIKey(this.key, async (res) => {
-                this.keyaddmodal.hide();
+            const root = this.$root as unknown as ApiKeyRoot;
+            root.addAPIKey(this.key, (res: ApiKeyResult) => {
                 this.processing = false;
                 if (res.ok) {
+                    this.addOpen = false;
                     this.clearKey = res.key;
-                    this.keymodal.show();
+                    this.keyOpen = true;
                     this.clearForm();
                 } else {
-                    this.$root.toastError(res.msg);
+                    root.toastError(res.msg);
                 }
             });
         },
 
         /**
-         * Clear Form inputs
+         * Reset form inputs.
          * @returns {void}
          */
         clearForm() {

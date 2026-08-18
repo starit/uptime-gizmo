@@ -1,158 +1,97 @@
 <template>
-    <form @submit.prevent="submit">
-        <div ref="modal" class="modal fade" tabindex="-1" data-bs-backdrop="static">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 id="exampleModalLabel" class="modal-title">
-                            {{ $t("Setup Notification") }}
-                        </h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" :aria-label="$t('Close')" />
+    <GizmoDialog
+        :open="open"
+        size="lg"
+        :title="$t('Setup Notification')"
+        :close-label="$t('Close')"
+        :close-disabled="processing"
+        :close-on-backdrop="false"
+        :close-on-escape="!processing"
+        @update:open="setOpen"
+    >
+        <form id="notification-settings-form" class="gizmo-form-stack" @submit.prevent="submit">
+            <div>
+                <label for="notification-type" class="gizmo-field-label">{{ $t("Notification Type") }}</label>
+                <select id="notification-type" v-model="notification.type" class="gizmo-native-control gizmo-native-select" autofocus>
+                    <optgroup
+                        v-for="category in notificationCategories"
+                        :key="category.key"
+                        :label="$t(category.label)"
+                    >
+                        <option v-for="(name, type) in category.options" :key="type" :value="type">
+                            {{ name }}
+                        </option>
+                    </optgroup>
+                </select>
+            </div>
+
+            <div>
+                <label for="notification-name" class="gizmo-field-label">{{ $t("Friendly Name") }}</label>
+                <input
+                    id="notification-name"
+                    v-model="notification.name"
+                    type="text"
+                    class="gizmo-native-control"
+                    required
+                />
+            </div>
+
+            <NotificationFormHost :form="currentForm" :notification="notification" />
+
+            <div class="gizmo-form-stack gizmo-dialog-section">
+                <div>
+                    <div class="gizmo-native-check gizmo-native-switch">
+                        <input
+                            id="notification-default-enabled"
+                            v-model="notification.isDefault"
+                            class="gizmo-native-check__input"
+                            type="checkbox"
+                        />
+                        <label class="gizmo-native-check__label" for="notification-default-enabled">
+                            {{ $t("Default enabled") }}
+                        </label>
                     </div>
-                    <div class="modal-body">
-                        <div class="mb-3">
-                            <label for="notification-type" class="form-label">{{ $t("Notification Type") }}</label>
-                            <select id="notification-type" v-model="notification.type" class="form-select">
-                                <optgroup :label="$t('notificationUniversal')">
-                                    <option
-                                        v-for="(name, type) in notificationNameList.universal"
-                                        :key="type"
-                                        :value="type"
-                                    >
-                                        {{ name }}
-                                    </option>
-                                </optgroup>
-                                <optgroup :label="$t('notificationChatPlatforms')">
-                                    <option
-                                        v-for="(name, type) in notificationNameList.chatPlatforms"
-                                        :key="type"
-                                        :value="type"
-                                    >
-                                        {{ name }}
-                                    </option>
-                                </optgroup>
-                                <optgroup :label="$t('notificationPushServices')">
-                                    <option
-                                        v-for="(name, type) in notificationNameList.pushServices"
-                                        :key="type"
-                                        :value="type"
-                                    >
-                                        {{ name }}
-                                    </option>
-                                </optgroup>
-                                <optgroup :label="$t('notificationSmsServices')">
-                                    <option
-                                        v-for="(name, type) in notificationNameList.smsServices"
-                                        :key="type"
-                                        :value="type"
-                                    >
-                                        {{ name }}
-                                    </option>
-                                </optgroup>
-                                <optgroup :label="$t('notificationEmail')">
-                                    <option
-                                        v-for="(name, type) in notificationNameList.email"
-                                        :key="type"
-                                        :value="type"
-                                    >
-                                        {{ name }}
-                                    </option>
-                                </optgroup>
-                                <optgroup :label="$t('notificationIncidentManagement')">
-                                    <option
-                                        v-for="(name, type) in notificationNameList.incidentManagement"
-                                        :key="type"
-                                        :value="type"
-                                    >
-                                        {{ name }}
-                                    </option>
-                                </optgroup>
-                                <optgroup :label="$t('notificationHomeAutomation')">
-                                    <option
-                                        v-for="(name, type) in notificationNameList.homeAutomation"
-                                        :key="type"
-                                        :value="type"
-                                    >
-                                        {{ name }}
-                                    </option>
-                                </optgroup>
-                                <optgroup :label="$t('notificationOther')">
-                                    <option
-                                        v-for="(name, type) in notificationNameList.other"
-                                        :key="type"
-                                        :value="type"
-                                    >
-                                        {{ name }}
-                                    </option>
-                                </optgroup>
-                                <optgroup :label="$t('notificationRegional')">
-                                    <option
-                                        v-for="(name, type) in notificationNameList.regional"
-                                        :key="type"
-                                        :value="type"
-                                    >
-                                        {{ name }}
-                                    </option>
-                                </optgroup>
-                            </select>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="notification-name" class="form-label">{{ $t("Friendly Name") }}</label>
-                            <input
-                                id="notification-name"
-                                v-model="notification.name"
-                                type="text"
-                                class="form-control"
-                                required
-                            />
-                        </div>
-
-                        <!-- form body -->
-                        <component :is="currentForm" />
-
-                        <div class="mb-3 mt-4">
-                            <hr class="dropdown-divider mb-4" />
-
-                            <div class="form-check form-switch">
-                                <input v-model="notification.isDefault" class="form-check-input" type="checkbox" />
-                                <label class="form-check-label">{{ $t("Default enabled") }}</label>
-                            </div>
-                            <div class="form-text">
-                                {{ $t("enableDefaultNotificationDescription") }}
-                            </div>
-
-                            <br />
-
-                            <div class="form-check form-switch">
-                                <input v-model="notification.applyExisting" class="form-check-input" type="checkbox" />
-                                <label class="form-check-label">{{ $t("Apply on all existing monitors") }}</label>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="modal-footer">
-                        <button
-                            v-if="id"
-                            type="button"
-                            class="btn btn-danger"
-                            :disabled="processing"
-                            @click="deleteConfirm"
-                        >
-                            {{ $t("Delete") }}
-                        </button>
-                        <button type="button" class="btn btn-warning" :disabled="processing" @click="test">
-                            {{ $t("Test") }}
-                        </button>
-                        <button type="submit" class="btn btn-primary" :disabled="processing">
-                            <div v-if="processing" class="spinner-border spinner-border-sm me-1"></div>
-                            {{ $t("Save") }}
-                        </button>
+                    <div class="gizmo-field-help">
+                        {{ $t("enableDefaultNotificationDescription") }}
                     </div>
                 </div>
+
+                <div class="gizmo-native-check gizmo-native-switch">
+                    <input
+                        id="notification-apply-existing"
+                        v-model="notification.applyExisting"
+                        class="gizmo-native-check__input"
+                        type="checkbox"
+                    />
+                    <label class="gizmo-native-check__label" for="notification-apply-existing">
+                        {{ $t("Apply on all existing monitors") }}
+                    </label>
+                </div>
             </div>
-        </div>
-    </form>
+        </form>
+
+        <template #footer>
+            <GizmoButton
+                v-if="id"
+                class="gizmo-dialog__leading-action"
+                variant="danger"
+                :disabled="processing"
+                @click="deleteConfirm"
+            >
+                {{ $t("Delete") }}
+            </GizmoButton>
+            <GizmoButton variant="secondary" :disabled="processing" @click="test">
+                {{ $t("Test") }}
+            </GizmoButton>
+            <GizmoButton
+                form="notification-settings-form"
+                type="submit"
+                :loading="processing"
+            >
+                {{ $t("Save") }}
+            </GizmoButton>
+        </template>
+    </GizmoDialog>
 
     <Confirm
         ref="confirmDelete"
@@ -166,25 +105,25 @@
 </template>
 
 <script>
-import { Modal } from "bootstrap";
-
 import Confirm from "./Confirm.vue";
 import NotificationFormList from "./notifications";
+import NotificationFormHost from "./NotificationFormHost.vue";
+import GizmoButton from "./gizmo/GizmoButton.vue";
+import GizmoDialog from "./gizmo/GizmoDialog.vue";
 
 export default {
     components: {
         Confirm,
+        GizmoButton,
+        GizmoDialog,
+        NotificationFormHost,
     },
-    props: {},
     emits: ["added"],
     data() {
         return {
-            model: null,
+            open: false,
             processing: false,
             id: null,
-            notificationTypes: Object.keys(NotificationFormList).sort((a, b) => {
-                return a.toLowerCase().localeCompare(b.toLowerCase());
-            }),
             notification: {
                 name: "",
                 /** @type { null | keyof NotificationFormList } */
@@ -377,6 +316,40 @@ export default {
             };
         },
 
+        notificationCategories() {
+            return [
+                { key: "universal", label: "notificationUniversal", options: this.notificationNameList.universal },
+                {
+                    key: "chat-platforms",
+                    label: "notificationChatPlatforms",
+                    options: this.notificationNameList.chatPlatforms,
+                },
+                {
+                    key: "push-services",
+                    label: "notificationPushServices",
+                    options: this.notificationNameList.pushServices,
+                },
+                {
+                    key: "sms-services",
+                    label: "notificationSmsServices",
+                    options: this.notificationNameList.smsServices,
+                },
+                { key: "email", label: "notificationEmail", options: this.notificationNameList.email },
+                {
+                    key: "incident-management",
+                    label: "notificationIncidentManagement",
+                    options: this.notificationNameList.incidentManagement,
+                },
+                {
+                    key: "home-automation",
+                    label: "notificationHomeAutomation",
+                    options: this.notificationNameList.homeAutomation,
+                },
+                { key: "other", label: "notificationOther", options: this.notificationNameList.other },
+                { key: "regional", label: "notificationRegional", options: this.notificationNameList.regional },
+            ];
+        },
+
         notificationFullNameList() {
             let list = {};
             // Combine all categories into a single list
@@ -403,19 +376,21 @@ export default {
             }
         },
     },
-    mounted() {
-        this.modal = new Modal(this.$refs.modal);
-    },
-    beforeUnmount() {
-        this.cleanupModal();
-    },
     methods: {
+        /**
+         * Synchronize the controlled dialog state.
+         * @param {boolean} open Next open state
+         * @returns {void}
+         */
+        setOpen(open) {
+            this.open = open;
+        },
+
         /**
          * Show dialog to confirm deletion
          * @returns {void}
          */
         deleteConfirm() {
-            this.modal.hide();
             this.$refs.confirmDelete.show();
         },
 
@@ -425,6 +400,9 @@ export default {
          * @returns {void}
          */
         show(notificationID) {
+            if (this.processing) {
+                return;
+            }
             if (notificationID) {
                 this.id = notificationID;
 
@@ -447,7 +425,7 @@ export default {
                 };
             }
 
-            this.modal.show();
+            this.open = true;
         },
 
         /**
@@ -455,13 +433,16 @@ export default {
          * @returns {void}
          */
         submit() {
+            if (this.processing) {
+                return;
+            }
             this.processing = true;
             this.$root.getSocket().emit("addNotification", this.notification, this.id, (res) => {
                 this.$root.toastRes(res);
                 this.processing = false;
 
                 if (res.ok) {
-                    this.modal.hide();
+                    this.open = false;
 
                     // Emit added event, doesn't emit edit.
                     if (!this.id) {
@@ -476,6 +457,9 @@ export default {
          * @returns {void}
          */
         test() {
+            if (this.processing) {
+                return;
+            }
             this.processing = true;
             this.$root.getSocket().emit("testNotification", this.notification, (res) => {
                 this.$root.toastRes(res);
@@ -488,13 +472,16 @@ export default {
          * @returns {void}
          */
         deleteNotification() {
+            if (this.processing) {
+                return;
+            }
             this.processing = true;
             this.$root.getSocket().emit("deleteNotification", this.id, (res) => {
                 this.$root.toastRes(res);
                 this.processing = false;
 
                 if (res.ok) {
-                    this.modal.hide();
+                    this.open = false;
                 }
             });
         },
@@ -514,20 +501,6 @@ export default {
                 });
             } while (this.$root.notificationList.find((it) => it.name === name));
             return name;
-        },
-
-        /**
-         * Clean up modal and restore scroll behavior
-         * @returns {void}
-         */
-        cleanupModal() {
-            if (this.modal) {
-                try {
-                    this.modal.hide();
-                } catch (e) {
-                    console.warn("Modal hide failed:", e);
-                }
-            }
         },
     },
 };

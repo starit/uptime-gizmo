@@ -1,4 +1,3 @@
-import "bootstrap";
 import { createApp, h } from "vue";
 import contenteditable from "vue-contenteditable";
 import Toast from "vue-toastification";

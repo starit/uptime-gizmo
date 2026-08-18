@@ -1,84 +1,69 @@
 <template>
-    <div ref="modal" class="modal fade" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">
-                        {{ $t("New Group") }}
-                    </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" :aria-label="$t('Close')" />
-                </div>
-                <div class="modal-body">
-                    <form @submit.prevent="confirm">
-                        <div>
-                            <label for="draftGroupName" class="form-label">{{ $t("Group Name") }}</label>
-                            <input id="draftGroupName" v-model="groupName" type="text" class="form-control" />
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                        {{ $t("Cancel") }}
-                    </button>
-                    <button
-                        type="button"
-                        class="btn btn-primary"
-                        data-bs-dismiss="modal"
-                        :disabled="groupName == '' || groupName == null"
-                        @click="confirm"
-                    >
-                        {{ $t("Confirm") }}
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
+    <GizmoDialog
+        :open="open"
+        size="sm"
+        :title="$t('New Group')"
+        :close-label="$t('Close')"
+        :close-on-backdrop="false"
+        @update:open="setOpen"
+    >
+        <form id="create-monitor-group-form" @submit.prevent="confirm">
+            <label for="draftGroupName" class="form-label">{{ $t("Group Name") }}</label>
+            <input
+                id="draftGroupName"
+                v-model.trim="groupName"
+                type="text"
+                class="form-control"
+                required
+                autofocus
+            />
+        </form>
+
+        <template #footer>
+            <GizmoButton variant="secondary" @click="setOpen(false)">
+                {{ $t("Cancel") }}
+            </GizmoButton>
+            <GizmoButton
+                form="create-monitor-group-form"
+                type="submit"
+                :disabled="!groupName"
+            >
+                {{ $t("Confirm") }}
+            </GizmoButton>
+        </template>
+    </GizmoDialog>
 </template>
 
-<script>
-import { Modal } from "bootstrap";
+<script lang="ts">
+import GizmoButton from "./gizmo/GizmoButton.vue";
+import GizmoDialog from "./gizmo/GizmoDialog.vue";
 
 export default {
-    props: {},
-    emits: ["added"],
-    data: () => ({
-        modal: null,
-        groupName: null,
-    }),
-    mounted() {
-        this.modal = new Modal(this.$refs.modal);
+    components: {
+        GizmoButton,
+        GizmoDialog,
     },
-    beforeUnmount() {
-        this.cleanupModal();
+    emits: ["added"],
+    data() {
+        return {
+            open: false,
+            groupName: "",
+        };
     },
     methods: {
-        /**
-         * Show the confirm dialog
-         * @returns {void}
-         */
         show() {
-            this.modal.show();
+            this.groupName = "";
+            this.open = true;
         },
-        /**
-         * Dialog confirmed
-         * @returns {void}
-         */
+        setOpen(open: boolean) {
+            this.open = open;
+        },
         confirm() {
-            this.$emit("added", this.groupName);
-            this.modal.hide();
-        },
-        /**
-         * Clean up modal and restore scroll behavior
-         * @returns {void}
-         */
-        cleanupModal() {
-            if (this.modal) {
-                try {
-                    this.modal.hide();
-                } catch (e) {
-                    console.warn("Modal hide failed:", e);
-                }
+            if (!this.groupName) {
+                return;
             }
+            this.$emit("added", this.groupName);
+            this.open = false;
         },
     },
 };

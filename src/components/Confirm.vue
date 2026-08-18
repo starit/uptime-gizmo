@@ -1,84 +1,100 @@
 <template>
-    <div ref="modal" class="modal fade" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 id="exampleModalLabel" class="modal-title">
-                        {{ title || $t("Confirm") }}
-                    </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" :aria-label="$t('Close')" />
-                </div>
-                <div class="modal-body">
-                    <slot />
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn" :class="btnStyle" data-bs-dismiss="modal" @click="yes">
-                        {{ yesText || $t("Yes") }}
-                    </button>
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" @click="no">
-                        {{ noText || $t("No") }}
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
+    <GizmoDialog
+        :open="open"
+        size="sm"
+        :title="dialogTitle"
+        :close-label="t('Close')"
+        @update:open="setOpen"
+    >
+        <template #description>
+            <slot />
+        </template>
+        <template #footer>
+            <GizmoButton variant="secondary" autofocus @click="no">
+                {{ noText || t("No") }}
+            </GizmoButton>
+            <GizmoButton :variant="confirmVariant" @click="yes">
+                {{ yesText || t("Yes") }}
+            </GizmoButton>
+        </template>
+    </GizmoDialog>
 </template>
 
-<script>
-import { Modal } from "bootstrap";
+<script setup lang="ts">
+/* eslint-disable vue/require-explicit-emits -- The installed Vue ESLint plugin does not understand typed defineEmits. */
+import { computed, ref } from "vue";
+import { useI18n } from "vue-i18n";
+import GizmoButton from "./gizmo/GizmoButton.vue";
+import GizmoDialog from "./gizmo/GizmoDialog.vue";
 
-export default {
-    props: {
-        /** Style of button */
-        btnStyle: {
-            type: String,
-            default: "btn-primary",
-        },
-        /** Text to use as yes */
-        yesText: {
-            type: String,
-            default: null,
-        },
-        /** Text to use as no */
-        noText: {
-            type: String,
-            default: null,
-        },
-        /** Title to show on modal. Defaults to translated version of "Config" */
-        title: {
-            type: String,
-            default: null,
-        },
+const props = withDefaults(
+    defineProps<{
+        btnStyle?: string;
+        noText?: string | null;
+        title?: string | null;
+        yesText?: string | null;
+    }>(),
+    {
+        btnStyle: "btn-primary",
+        noText: null,
+        title: null,
+        yesText: null,
     },
-    emits: ["yes", "no"],
-    data: () => ({
-        modal: null,
-    }),
-    mounted() {
-        this.modal = new Modal(this.$refs.modal);
-    },
-    methods: {
-        /**
-         * Show the confirm dialog
-         * @returns {void}
-         */
-        show() {
-            this.modal.show();
-        },
-        /**
-         * @fires string "yes" Notify the parent when Yes is pressed
-         * @returns {void}
-         */
-        yes() {
-            this.$emit("yes");
-        },
-        /**
-         * @fires string "no" Notify the parent when No is pressed
-         * @returns {void}
-         */
-        no() {
-            this.$emit("no");
-        },
-    },
-};
+);
+
+const emit = defineEmits<{
+    no: [];
+    yes: [];
+}>();
+
+const { t } = useI18n();
+const open = ref(false);
+
+const confirmVariant = computed(() => (props.btnStyle === "btn-danger" ? "danger" : "primary"));
+const dialogTitle = computed(() => props.title || t("Confirm"));
+
+/**
+ * Synchronize the controlled dialog state.
+ * @param {boolean} value Next open state
+ * @returns {void}
+ */
+function setOpen(value: boolean) {
+    open.value = value;
+}
+
+/**
+ * Show the confirmation dialog through its legacy public API.
+ * @returns {void}
+ */
+function show() {
+    open.value = true;
+}
+
+/**
+ * Hide the confirmation dialog.
+ * @returns {void}
+ */
+function hide() {
+    open.value = false;
+}
+
+/**
+ * Confirm the action and close the dialog.
+ * @returns {void}
+ */
+function yes() {
+    emit("yes");
+    hide();
+}
+
+/**
+ * Cancel the action and close the dialog.
+ * @returns {void}
+ */
+function no() {
+    emit("no");
+    hide();
+}
+
+defineExpose({ hide, show });
 </script>

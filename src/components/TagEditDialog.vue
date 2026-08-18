@@ -1,15 +1,15 @@
 <template>
-    <form @submit.prevent="submit">
-        <div ref="modal" class="modal fade" tabindex="-1" data-bs-backdrop="static">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 id="exampleModalLabel" class="modal-title">
-                            {{ $t("Edit Tag") }}
-                        </h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" :aria-label="$t('Close')" />
-                    </div>
-                    <div class="modal-body">
+    <GizmoDialog
+        :open="open"
+        size="lg"
+        :title="$t('Edit Tag')"
+        :close-label="$t('Close')"
+        :close-disabled="processing"
+        :close-on-backdrop="false"
+        :close-on-escape="!processing"
+        @update:open="setOpen"
+    >
+        <form id="tag-edit-form" class="gizmo-form-stack" @submit.prevent="submit">
                         <div class="mb-3">
                             <label for="tag-name" class="form-label">{{ $t("Name") }}</label>
                             <input
@@ -19,6 +19,7 @@
                                 class="form-control"
                                 :class="{ 'is-invalid': nameInvalid }"
                                 required
+                                autofocus
                             />
                             <div class="invalid-feedback">
                                 {{ $t("Tag with this name already exist.") }}
@@ -41,22 +42,10 @@
                                         deselect-label=""
                                     >
                                         <template #option="{ option }">
-                                            <div
-                                                class="mx-2 py-1 px-3 rounded d-inline-flex"
-                                                style="height: 24px; color: white"
-                                                :style="{ backgroundColor: option.color + ' !important' }"
-                                            >
-                                                <span>{{ option.name }}</span>
-                                            </div>
+                                            <Tag :item="option" size="sm" />
                                         </template>
                                         <template #singleLabel="{ option }">
-                                            <div
-                                                class="py-1 px-3 rounded d-inline-flex"
-                                                style="height: 24px; color: white"
-                                                :style="{ backgroundColor: option.color + ' !important' }"
-                                            >
-                                                <span>{{ option.name }}</span>
-                                            </div>
+                                            <Tag :item="option" size="sm" />
                                         </template>
                                     </vue-multiselect>
                                 </div>
@@ -76,7 +65,7 @@
                                     :key="monitor.id"
                                     class="d-flex align-items-center justify-content-between text-decoration-none tag-monitors-list-row py-2 px-3"
                                     :to="monitorURL(monitor.id)"
-                                    @click="modal.hide()"
+                                    @click="setOpen(false)"
                                 >
                                     <span>{{ monitor.name }}</span>
                                     <button
@@ -116,27 +105,23 @@
                                 </VueMultiselect>
                             </div>
                         </div>
-                    </div>
+        </form>
 
-                    <div class="modal-footer">
-                        <button
-                            v-if="tag && tag.id !== null"
-                            type="button"
-                            class="btn btn-danger"
-                            :disabled="processing"
-                            @click="deleteConfirm"
-                        >
-                            {{ $t("Delete") }}
-                        </button>
-                        <button type="submit" class="btn btn-primary" :disabled="processing">
-                            <div v-if="processing" class="spinner-border spinner-border-sm me-1"></div>
-                            {{ $t("Save") }}
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </form>
+        <template #footer>
+            <GizmoButton
+                v-if="tag && tag.id !== null"
+                class="gizmo-dialog__leading-action"
+                variant="danger"
+                :disabled="processing"
+                @click="deleteConfirm"
+            >
+                {{ $t("Delete") }}
+            </GizmoButton>
+            <GizmoButton form="tag-edit-form" type="submit" :loading="processing">
+                {{ $t("Save") }}
+            </GizmoButton>
+        </template>
+    </GizmoDialog>
 
     <Confirm ref="confirmDelete" btn-style="btn-danger" :yes-text="$t('Yes')" :no-text="$t('No')" @yes="deleteTag">
         {{ $t("confirmDeleteTagMsg") }}
@@ -144,8 +129,9 @@
 </template>
 
 <script>
-import { Modal } from "bootstrap";
 import Confirm from "./Confirm.vue";
+import GizmoButton from "./gizmo/GizmoButton.vue";
+import GizmoDialog from "./gizmo/GizmoDialog.vue";
 import Tag from "./Tag.vue";
 import VueMultiselect from "vue-multiselect";
 import { colorOptions } from "../util-frontend";
@@ -155,6 +141,8 @@ export default {
     components: {
         VueMultiselect,
         Confirm,
+        GizmoButton,
+        GizmoDialog,
         Tag,
     },
     props: {
@@ -169,7 +157,7 @@ export default {
     },
     data() {
         return {
-            modal: null,
+            open: false,
             processing: false,
             selectedColor: {
                 name: null,
@@ -247,11 +235,10 @@ export default {
         },
     },
 
-    mounted() {
-        this.modal = new Modal(this.$refs.modal);
-    },
-
     methods: {
+        setOpen(open) {
+            this.open = open;
+        },
         /**
          * Show confirmation for deleting a tag
          * @returns {void}
@@ -296,6 +283,9 @@ export default {
          * @returns {void}
          */
         show(tag) {
+            if (this.processing) {
+                return;
+            }
             if (tag) {
                 this.selectedColor = this.colorOptions.find((x) => x.color === tag.color) ?? {
                     name: this.$t("Custom"),
@@ -310,7 +300,7 @@ export default {
                 this.selectedAddMonitor = null;
             }
 
-            this.modal.show();
+            this.open = true;
         },
 
         /**
@@ -318,6 +308,9 @@ export default {
          * @returns {Promise<void>}
          */
         async submit() {
+            if (this.processing) {
+                return;
+            }
             this.processing = true;
             let editResult = true;
 
@@ -370,7 +363,7 @@ export default {
 
                 if (res.ok && editResult) {
                     this.updated();
-                    this.modal.hide();
+                    this.open = false;
                 }
             });
         },
@@ -380,6 +373,9 @@ export default {
          * @returns {Promise<void>}
          */
         async deleteTag() {
+            if (this.processing) {
+                return;
+            }
             this.processing = true;
             await this.deleteTagAsync(this.tag.id).then((res) => {
                 this.$root.toastRes(res);
@@ -387,7 +383,7 @@ export default {
 
                 if (res.ok) {
                     this.updated();
-                    this.modal.hide();
+                    this.open = false;
                 }
             });
         },

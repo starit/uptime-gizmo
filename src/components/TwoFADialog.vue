@@ -1,114 +1,96 @@
 <template>
-    <form @submit.prevent="submit">
-        <div ref="modal" class="modal fade" tabindex="-1" data-bs-backdrop="static">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">
-                            {{ $t("Setup 2FA") }}
-                            <span v-if="twoFAStatus == true" class="badge bg-primary">{{ $t("Active") }}</span>
-                            <span v-if="twoFAStatus == false" class="badge bg-primary">{{ $t("Inactive") }}</span>
-                        </h5>
-                        <button
-                            :disabled="processing"
-                            type="button"
-                            class="btn-close"
-                            data-bs-dismiss="modal"
-                            :aria-label="$t('Close')"
-                        />
-                    </div>
-                    <div class="modal-body">
-                        <div class="mb-3">
-                            <div v-if="uri && twoFAStatus == false" class="mx-auto text-center" style="width: 210px">
-                                <vue-qrcode
-                                    :key="uri"
-                                    :value="uri"
-                                    type="image/png"
-                                    :quality="1"
-                                />
-                                <button
-                                    v-show="!showURI"
-                                    type="button"
-                                    class="btn btn-outline-primary btn-sm mt-2"
-                                    @click="showURI = true"
-                                >
-                                    {{ $t("Show URI") }}
-                                </button>
-                            </div>
-                            <p v-if="showURI && twoFAStatus == false" class="text-break mt-2">{{ uri }}</p>
-
-                            <div v-if="!(uri && twoFAStatus == false)" class="mb-3">
-                                <label for="current-password" class="form-label">
-                                    {{ $t("Current Password") }}
-                                </label>
-                                <input
-                                    id="current-password"
-                                    v-model="currentPassword"
-                                    type="password"
-                                    class="form-control"
-                                    autocomplete="current-password"
-                                    required
-                                />
-                            </div>
-
-                            <button
-                                v-if="uri == null && twoFAStatus == false"
-                                class="btn btn-primary"
-                                type="button"
-                                @click="prepare2FA()"
-                            >
-                                {{ $t("Enable 2FA") }}
-                            </button>
-
-                            <button
-                                v-if="twoFAStatus == true"
-                                class="btn btn-danger"
-                                type="button"
-                                :disabled="processing"
-                                @click="confirmDisableTwoFA()"
-                            >
-                                {{ $t("Disable 2FA") }}
-                            </button>
-
-                            <div v-if="uri && twoFAStatus == false" class="mt-3">
-                                <label for="basic-url" class="form-label">{{ $t("twoFAVerifyLabel") }}</label>
-                                <div class="input-group">
-                                    <input
-                                        v-model="token"
-                                        type="text"
-                                        maxlength="6"
-                                        class="form-control"
-                                        autocomplete="one-time-code"
-                                        required
-                                    />
-                                    <button class="btn btn-outline-primary" type="button" @click="verifyToken()">
-                                        {{ $t("Verify Token") }}
-                                    </button>
-                                </div>
-                                <p v-show="tokenValid" class="mt-2" style="color: green">
-                                    {{ $t("tokenValidSettingsMsg") }}
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div v-if="uri && twoFAStatus == false" class="modal-footer">
-                        <button
-                            type="submit"
-                            class="btn btn-primary"
-                            :disabled="processing || tokenValid == false"
-                            @click="confirmEnableTwoFA()"
-                        >
-                            <div v-if="processing" class="spinner-border spinner-border-sm me-1"></div>
-                            {{ $t("Save") }}
-                        </button>
-                    </div>
-                </div>
+    <GizmoDialog
+        :open="open"
+        size="md"
+        :title="dialogTitle"
+        :close-label="$t('Close')"
+        :close-disabled="processing"
+        :close-on-backdrop="false"
+        :close-on-escape="!processing"
+        @update:open="setOpen"
+    >
+        <form id="two-factor-form" class="gizmo-form-stack" @submit.prevent="confirmEnableTwoFA">
+            <div v-if="uri && !twoFAStatus" class="gizmo-two-factor-setup">
+                <vue-qrcode :key="uri" :value="uri" type="image/png" :quality="1" />
+                <GizmoButton
+                    v-if="!showURI"
+                    variant="outline"
+                    size="sm"
+                    @click="showURI = true"
+                >
+                    {{ $t("Show URI") }}
+                </GizmoButton>
             </div>
-        </div>
-    </form>
 
-    <Confirm ref="confirmEnableTwoFA" btn-style="btn-danger" :yes-text="$t('Yes')" :no-text="$t('No')" @yes="save2FA">
+            <p v-if="showURI && !twoFAStatus" class="gizmo-dialog-break-text">{{ uri }}</p>
+
+            <div v-if="!(uri && !twoFAStatus)">
+                <label for="current-password" class="form-label">{{ $t("Current Password") }}</label>
+                <input
+                    id="current-password"
+                    v-model="currentPassword"
+                    type="password"
+                    class="form-control"
+                    autocomplete="current-password"
+                    required
+                    autofocus
+                />
+            </div>
+
+            <div v-if="uri && !twoFAStatus">
+                <label for="two-factor-token" class="form-label">{{ $t("twoFAVerifyLabel") }}</label>
+                <div class="gizmo-dialog-field-row">
+                    <input
+                        id="two-factor-token"
+                        v-model.trim="token"
+                        type="text"
+                        inputmode="numeric"
+                        maxlength="6"
+                        class="form-control gizmo-dialog-field-row__primary"
+                        autocomplete="one-time-code"
+                        required
+                    />
+                    <GizmoButton variant="outline" :disabled="processing || token.length !== 6" @click="verifyToken">
+                        {{ $t("Verify Token") }}
+                    </GizmoButton>
+                </div>
+                <p v-if="tokenValid" class="gizmo-dialog-success-copy">
+                    {{ $t("tokenValidSettingsMsg") }}
+                </p>
+            </div>
+
+            <div v-if="!uri && twoFAStatus === false">
+                <GizmoButton :loading="processing" @click="prepare2FA">
+                    {{ $t("Enable 2FA") }}
+                </GizmoButton>
+            </div>
+
+            <div v-if="twoFAStatus === true">
+                <GizmoButton variant="danger" :disabled="processing" @click="confirmDisableTwoFA">
+                    {{ $t("Disable 2FA") }}
+                </GizmoButton>
+            </div>
+        </form>
+
+        <template v-if="uri && !twoFAStatus" #footer>
+            <GizmoButton
+                form="two-factor-form"
+                type="submit"
+                :loading="processing"
+                :disabled="!tokenValid"
+            >
+                {{ $t("Save") }}
+            </GizmoButton>
+        </template>
+    </GizmoDialog>
+
+    <Confirm
+        ref="confirmEnableTwoFA"
+        btn-style="btn-danger"
+        :yes-text="$t('Yes')"
+        :no-text="$t('No')"
+        @yes="save2FA"
+    >
         {{ $t("confirmEnableTwoFAMsg") }}
     </Confirm>
 
@@ -124,140 +106,158 @@
 </template>
 
 <script lang="ts">
-import { Modal } from "bootstrap";
 import Confirm from "./Confirm.vue";
+import GizmoButton from "./gizmo/GizmoButton.vue";
+import GizmoDialog from "./gizmo/GizmoDialog.vue";
 import VueQrcode from "vue-qrcode";
+
+interface SocketResult {
+    msg: string;
+    ok: boolean;
+    status?: boolean;
+    uri?: string;
+    valid?: boolean;
+}
+
+interface TwoFARoot {
+    getSocket: () => { emit: (event: string, ...args: unknown[]) => void };
+    toastError: (message: string) => void;
+    toastRes: (result: SocketResult) => void;
+}
+
+interface ConfirmDialogRef {
+    show: () => void;
+}
 
 export default {
     components: {
         Confirm,
+        GizmoButton,
+        GizmoDialog,
         VueQrcode,
     },
-    props: {},
     data() {
         return {
+            open: false,
             currentPassword: "",
             processing: false,
-            uri: null,
+            uri: null as string | null,
             tokenValid: false,
-            twoFAStatus: null,
-            token: null,
+            twoFAStatus: null as boolean | null,
+            token: "",
             showURI: false,
         };
     },
+    computed: {
+        dialogTitle() {
+            const status = this.twoFAStatus === true ? this.$t("Active") : this.$t("Inactive");
+            return `${this.$t("Setup 2FA")} · ${status}`;
+        },
+    },
     mounted() {
-        this.modal = new Modal(this.$refs.modal);
         this.getStatus();
     },
     methods: {
-        /**
-         * Show the dialog
-         * @returns {void}
-         */
+        setOpen(open: boolean) {
+            this.open = open;
+        },
         show() {
-            this.modal.show();
+            this.currentPassword = "";
+            this.uri = null;
+            this.token = "";
+            this.tokenValid = false;
+            this.showURI = false;
+            this.processing = false;
+            this.getStatus();
+            this.open = true;
         },
-
-        /**
-         * Show dialog to confirm enabling 2FA
-         * @returns {void}
-         */
         confirmEnableTwoFA() {
-            this.$refs.confirmEnableTwoFA.show();
+            if (this.tokenValid && !this.processing) {
+                (this.$refs.confirmEnableTwoFA as ConfirmDialogRef).show();
+            }
         },
-
-        /**
-         * Show dialog to confirm disabling 2FA
-         * @returns {void}
-         */
         confirmDisableTwoFA() {
-            this.$refs.confirmDisableTwoFA.show();
+            if (!this.processing) {
+                (this.$refs.confirmDisableTwoFA as ConfirmDialogRef).show();
+            }
         },
-
-        /**
-         * Prepare 2FA configuration
-         * @returns {void}
-         */
         prepare2FA() {
+            if (this.processing) {
+                return;
+            }
             this.processing = true;
-
-            this.$root.getSocket().emit("prepare2FA", this.currentPassword, (res) => {
+            const root = this.$root as unknown as TwoFARoot;
+            root.getSocket().emit("prepare2FA", this.currentPassword, (res: SocketResult) => {
                 this.processing = false;
-
                 if (res.ok) {
-                    this.uri = res.uri;
+                    this.uri = res.uri ?? null;
+                    this.token = "";
+                    this.tokenValid = false;
                 } else {
-                    this.$root.toastError(res.msg);
+                    root.toastError(res.msg);
                 }
             });
         },
-
-        /**
-         * Save the current 2FA configuration
-         * @returns {void}
-         */
         save2FA() {
+            if (this.processing) {
+                return;
+            }
             this.processing = true;
-
-            this.$root.getSocket().emit("save2FA", this.currentPassword, (res) => {
+            const root = this.$root as unknown as TwoFARoot;
+            root.getSocket().emit("save2FA", this.currentPassword, (res: SocketResult) => {
                 this.processing = false;
-
                 if (res.ok) {
-                    this.$root.toastRes(res);
-                    this.getStatus();
+                    root.toastRes(res);
                     this.currentPassword = "";
-                    this.modal.hide();
+                    this.uri = null;
+                    this.getStatus();
+                    this.open = false;
                 } else {
-                    this.$root.toastError(res.msg);
+                    root.toastError(res.msg);
                 }
             });
         },
-
-        /**
-         * Disable 2FA for this user
-         * @returns {void}
-         */
         disable2FA() {
+            if (this.processing) {
+                return;
+            }
             this.processing = true;
-
-            this.$root.getSocket().emit("disable2FA", this.currentPassword, (res) => {
+            const root = this.$root as unknown as TwoFARoot;
+            root.getSocket().emit("disable2FA", this.currentPassword, (res: SocketResult) => {
                 this.processing = false;
-
                 if (res.ok) {
-                    this.$root.toastRes(res);
-                    this.getStatus();
+                    root.toastRes(res);
                     this.currentPassword = "";
-                    this.modal.hide();
+                    this.uri = null;
+                    this.getStatus();
+                    this.open = false;
                 } else {
-                    this.$root.toastError(res.msg);
+                    root.toastError(res.msg);
                 }
             });
         },
-
-        /**
-         * Verify the token generated by the user
-         * @returns {void}
-         */
         verifyToken() {
-            this.$root.getSocket().emit("verifyToken", this.token, this.currentPassword, (res) => {
+            if (this.processing || this.token.length !== 6) {
+                return;
+            }
+            this.processing = true;
+            const root = this.$root as unknown as TwoFARoot;
+            root.getSocket().emit("verifyToken", this.token, this.currentPassword, (res: SocketResult) => {
+                this.processing = false;
                 if (res.ok) {
-                    this.tokenValid = res.valid;
+                    this.tokenValid = Boolean(res.valid);
                 } else {
-                    this.$root.toastError(res.msg);
+                    root.toastError(res.msg);
                 }
             });
         },
-
-        /**
-         * Get current status of 2FA
-         * @returns {void}
-         */
         getStatus() {
-            this.$root.getSocket().emit("twoFAStatus", (res) => {
+            const root = this.$root as unknown as TwoFARoot;
+            root.getSocket().emit("twoFAStatus", (res: SocketResult) => {
                 if (res.ok) {
-                    this.twoFAStatus = res.status;
+                    this.twoFAStatus = Boolean(res.status);
                 } else {
-                    this.$root.toastError(res.msg);
+                    root.toastError(res.msg);
                 }
             });
         },
