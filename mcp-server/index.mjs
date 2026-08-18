@@ -165,7 +165,7 @@ const READ_TOOLS = [
     {
         name: "list_proxies",
         description:
-            "List proxies by protocol, host and port, and whether each authenticates. Credentials are never returned. Side effects: none.",
+            "List proxies by protocol, host, port and username. Proxy passwords are never returned. Side effects: none.",
         inputSchema: { type: "object", properties: {} },
         run: () => api("/api/v1/proxies"),
     },

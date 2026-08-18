@@ -60,7 +60,7 @@ const SECRET_COLUMNS = {
      * "sensitive sometimes", so they are treated as always sensitive.
      */
     notification: [ "config" ],
-    proxy: [ "username", "password" ],
+    proxy: [ "password" ],
     dockerHost: [ "docker_daemon" ],
     remoteBrowser: [ "url" ],
 };
@@ -71,8 +71,36 @@ const SECRET_COLUMNS = {
  * inherits these guarantees without anyone remembering to extend the test,
  * which is the failure mode that matters.
  */
+/*
+ * Derived fields, per table. Each one reads a column the projection never
+ * returns whole, so each is a deliberate decision recorded here.
+ * notification.type lifts a single named key out of the config blob; the blob
+ * is the credential for most providers and is never returned.
+ */
+const DERIVED_FIELDS = {
+    notification: [ "type" ],
+};
+
 describe("v1 field tables", () => {
     for (const [ resource, fields ] of Object.entries(FIELD_TABLES)) {
+        /*
+         * Derived fields read a column directly, so the check below — which
+         * walks field.column — cannot see what they touch. Naming them here
+         * means adding one is a deliberate edit to this file rather than
+         * something that lands unreviewed.
+         */
+        it(`${resource}: declares every derived field`, () => {
+            const derived = Object.entries(fields)
+                .filter(([ , field ]) => field.derive)
+                .map(([ name ]) => name);
+
+            assert.deepStrictEqual(
+                derived,
+                DERIVED_FIELDS[resource] ?? [],
+                "a derived field was added or removed without review"
+            );
+        });
+
         it(`${resource}: never exposes a credential column`, () => {
             const sensitive = SECRET_COLUMNS[resource] ?? [];
             const leaked = Object.entries(fields)
@@ -82,18 +110,32 @@ describe("v1 field tables", () => {
             assert.deepStrictEqual(leaked, [], "these would be returned in API responses");
         });
 
-        it(`${resource}: gives every field a column`, () => {
+        it(`${resource}: gives every stored field a column`, () => {
             const broken = Object.entries(fields)
+                .filter(([ , field ]) => !field.derive)
                 .filter(([ , field ]) => typeof field.column !== "string" || field.column === "")
                 .map(([ name ]) => name);
 
             assert.deepStrictEqual(broken, [], "a field with no column silently drops writes");
         });
 
+        // Which is why a derived field must never be writable: there is no
+        // column to write it back to, so accepting one would drop it in silence.
+        it(`${resource}: keeps derived fields read-only`, () => {
+            const writable = Object.entries(fields)
+                .filter(([ , field ]) => field.derive && field.writable)
+                .map(([ name ]) => name);
+
+            assert.deepStrictEqual(writable, [], "a write to these would be accepted and discarded");
+        });
+
         it(`${resource}: does not map two fields onto one column`, () => {
             const seen = new Map();
             const clashes = [];
             for (const [ name, field ] of Object.entries(fields)) {
+                if (field.derive) {
+                    continue;
+                }
                 if (seen.has(field.column)) {
                     clashes.push(`${seen.get(field.column)} and ${name} both write ${field.column}`);
                 }

@@ -180,7 +180,16 @@ function projectWith(fields, bean) {
         if (field.secret) {
             continue;
         }
-        let value = bean[field.column];
+        let value;
+        if (field.derive) {
+            try {
+                value = field.derive(bean);
+            } catch (e) {
+                value = null;
+            }
+        } else {
+            value = bean[field.column];
+        }
         if (field.type === "bool") {
             value = Boolean(value);
         }
@@ -298,6 +307,26 @@ const STATUS_PAGE_FIELDS = {
 const NOTIFICATION_FIELDS = {
     id: { column: "id", type: "int" },
     name: { column: "name", type: "string" },
+    /*
+     * Which provider this channel uses, lifted out of the config blob.
+     *
+     * The blob itself stays secret because for most providers it *is* the
+     * credential — a Slack webhook URL is enough to post as that bot, a Telegram
+     * config carries the bot token. Which provider it is carries none of that,
+     * and it is the part an agent actually needs: "this monitor alerts to a
+     * pager" and "this monitor alerts to an inbox" are different answers.
+     *
+     * Reading one named key rather than passing the object through is the whole
+     * point; a redaction list over an object of unknown shape, across a hundred
+     * providers, would be wrong the first time a provider added a field.
+     */
+    type: {
+        derive: (bean) => {
+            const parsed = JSON.parse(bean.config);
+            return typeof parsed?.type === "string" ? parsed.type : null;
+        },
+        type: "string",
+    },
     active: { column: "active", type: "bool" },
     isDefault: { column: "is_default", type: "bool" },
     config: { column: "config", type: "string", secret: true },
@@ -309,9 +338,11 @@ const PROXY_FIELDS = {
     host: { column: "host", type: "string" },
     port: { column: "port", type: "int" },
     active: { column: "active", type: "bool" },
-    // Whether the proxy authenticates, not how. Useful and not a credential.
     auth: { column: "auth", type: "bool" },
-    username: { column: "username", type: "string", secret: true },
+    // The username is returned, the password is not: the password is the secret
+    // half of the pair. The settings UI already receives both over the socket,
+    // so withholding the username here bought nothing.
+    username: { column: "username", type: "string" },
     password: { column: "password", type: "string", secret: true },
 };
 
@@ -1039,7 +1070,7 @@ function buildOpenAPI() {
                 get: {
                     summary: "List notification channels",
                     description:
-                        "Name and state only. The channel configuration holds credentials for most providers and is never returned.",
+                        "Name, provider type and state. The rest of the channel configuration is the credential for most providers — a webhook URL or bot token — and is never returned.",
                     security: authed,
                     responses: { 200: { description: "Notification channels" } },
                 },
@@ -1047,7 +1078,7 @@ function buildOpenAPI() {
             "/api/v1/proxies": {
                 get: {
                     summary: "List proxies",
-                    description: "Whether a proxy authenticates is reported; its username and password are not.",
+                    description: "Includes the username where a proxy authenticates. The password is never returned.",
                     security: authed,
                     responses: { 200: { description: "Proxies" } },
                 },
