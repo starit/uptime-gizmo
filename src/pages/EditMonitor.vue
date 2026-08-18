@@ -4548,8 +4548,14 @@ message HealthCheckResponse {
 }
 
 .monitor-editor-panel { padding: 1.25rem 1.25rem 0; }
-.monitor-editor-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(20rem, 0.78fr); gap: 1.5rem; }
+
+.monitor-editor-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(20rem, 0.78fr);
+    gap: 1.5rem;
+}
 .monitor-editor-column { min-width: 0; }
+
 .monitor-editor-actions {
     position: sticky;
     z-index: 10;
@@ -4563,7 +4569,10 @@ message HealthCheckResponse {
 }
 
 @media (max-width: 900px) {
-    .monitor-editor-grid { grid-template-columns: 1fr; gap: 0; }
+    .monitor-editor-grid {
+        grid-template-columns: 1fr;
+        gap: 0;
+    }
 }
 
 textarea {

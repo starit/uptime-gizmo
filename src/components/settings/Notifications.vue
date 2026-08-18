@@ -277,6 +277,7 @@ export default {
 
 <style lang="scss" scoped>
 .notification-setting-column { width: min(100%, 40rem); }
+
 .btn-rm-expiry {
     padding-left: 0.7rem;
     padding-right: 0.7rem;

@@ -946,8 +946,15 @@ export default {
 }
 
 .detail-card--spacious { padding: 1.25rem; }
-.monitor-health-grid { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 1rem; }
+
+.monitor-health-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 1rem;
+}
 .monitor-health-grid__timeline { min-width: 0; }
+
 .monitor-status {
     display: inline-flex;
     min-width: 7rem;
@@ -962,19 +969,57 @@ export default {
     font-weight: 750;
     letter-spacing: 0.04em;
 }
-.monitor-stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr)); }
-.monitor-stat { display: grid; align-content: center; gap: 0.15rem; min-height: 6.5rem; padding: 0.75rem; border-inline-end: 1px solid var(--color-border); }
+
+.monitor-stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
+}
+
+.monitor-stat {
+    display: grid;
+    align-content: center;
+    gap: 0.15rem;
+    min-height: 6.5rem;
+    padding: 0.75rem;
+    border-inline-end: 1px solid var(--color-border);
+}
 .monitor-stat:last-child { border-inline-end: 0; }
-.monitor-stat h4 { margin: 0; font-size: 0.875rem; color: var(--color-text-muted); }
-.monitor-stat .num { font-size: clamp(1.1rem, 2vw, 1.5rem); font-weight: 750; font-variant-numeric: tabular-nums; }
-.monitor-screenshot-grid { display: grid; grid-template-columns: minmax(0, 36rem); justify-content: center; }
+
+.monitor-stat h4 {
+    margin: 0;
+    font-size: 0.875rem;
+    color: var(--color-text-muted);
+}
+
+.monitor-stat .num {
+    font-size: clamp(1.1rem, 2vw, 1.5rem);
+    font-weight: 750;
+    font-variant-numeric: tabular-nums;
+}
+
+.monitor-screenshot-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 36rem);
+    justify-content: center;
+}
 .detail-table-panel { overflow-x: auto; }
 
 @media (max-width: 640px) {
     .monitor-health-grid { grid-template-columns: 1fr; }
     .monitor-health-grid__status { text-align: start; }
-    .monitor-stat-grid { grid-template-columns: 1fr; text-align: start; }
-    .monitor-stat { grid-template-columns: minmax(0, 1fr) auto auto; min-height: 0; align-items: baseline; border-inline-end: 0; border-bottom: 1px solid var(--color-border); }
+
+    .monitor-stat-grid {
+        grid-template-columns: 1fr;
+        text-align: start;
+    }
+
+    .monitor-stat {
+        grid-template-columns: minmax(0, 1fr) auto auto;
+        min-height: 0;
+        align-items: baseline;
+        border-inline-end: 0;
+        border-bottom: 1px solid var(--color-border);
+    }
     .monitor-stat:last-child { border-bottom: 0; }
 }
 

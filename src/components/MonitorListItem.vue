@@ -334,8 +334,14 @@ export default {
     padding-right: 0.5rem !important;
 }
 
-.monitor-row { display: grid; grid-template-columns: minmax(0, 1fr); align-items: center; gap: 0.75rem; }
+.monitor-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    align-items: center;
+    gap: 0.75rem;
+}
 .monitor-row--split { grid-template-columns: minmax(0, 1fr) minmax(8rem, 1fr); }
+
 .monitor-row__identity,
 .monitor-row__heartbeat { min-width: 0; }
 .monitor-row--bottom { margin-top: 0.375rem; }
