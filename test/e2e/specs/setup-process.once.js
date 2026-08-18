@@ -44,7 +44,9 @@ test.describe("Uptime Gizmo Setup", () => {
         await page.goto("./dashboard");
         await login(page);
         await page.getByText("A", { exact: true }).click();
-        await page.getByRole("button", { name: "Log out" }).click();
+        // The profile menu is a real ARIA menu now, so its entries are
+        // menuitems rather than the plain buttons the Bootstrap markup used.
+        await page.getByRole("menuitem", { name: "Log out" }).click();
     });
 
     test("take sqlite snapshot", async ({ page }) => {
