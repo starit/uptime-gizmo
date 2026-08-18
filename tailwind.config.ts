@@ -56,7 +56,7 @@ const config = {
     corePlugins: {
         // Bootstrap remains active through the incremental migration. Disabling
         // Preflight prevents Tailwind's global reset from changing legacy routes.
-        preflight: false,
+        preflight: true,
     },
     theme: {
         screens: {

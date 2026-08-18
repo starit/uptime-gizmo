@@ -1,26 +1,117 @@
 @import "tokens.scss";
 
+/*
+ * Base element layer.
+ *
+ * Tailwind's Preflight is enabled, which strips heading sizes, block margins,
+ * and list markers down to nothing. This file puts back the small set of
+ * element defaults the product actually wants, expressed in Gizmo tokens rather
+ * than inherited from Bootstrap's reboot.
+ *
+ * Deliberate departures from the old reboot:
+ *   - Lists stay unstyled. Nearly every <ul> here is structural (navigation,
+ *     menus, monitor lists); a content list opts back in with .gizmo-prose-list.
+ *   - Buttons keep Preflight's transparent, borderless reset. Every button in
+ *     the product carries .gizmo-native-button or a Gizmo component.
+ */
+
+html {
+    font-family: "IBM Plex Sans", "Noto Sans", sans-serif;
+    line-height: 1.5;
+    -webkit-text-size-adjust: 100%;
+}
+
 body {
     background: var(--color-bg);
     color: var(--color-text);
-    font-family: "IBM Plex Sans", "Noto Sans", sans-serif;
+    font-size: 1rem;
     text-rendering: optimizeLegibility;
-}
-
-:root {
-    --bs-body-bg: var(--color-bg);
-    --bs-body-color: var(--color-text);
-    --bs-primary: var(--color-brand);
-    --bs-link-color: var(--color-interactive);
-    --bs-link-hover-color: var(--color-interactive-hover);
-    --bs-border-color: var(--color-border);
 }
 
 #app {
     min-height: 100vh;
 }
 
-a:not(.btn) {
+/* Type scale. Operational density: headings stay close to body size below h2. */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    margin-bottom: 0.5rem;
+    color: var(--color-text);
+    font-weight: 700;
+    line-height: 1.25;
+}
+
+h1 {
+    font-size: clamp(1.75rem, 3vw, 2rem);
+    letter-spacing: -0.02em;
+}
+
+h2 {
+    font-size: clamp(1.375rem, 2.5vw, 1.625rem);
+    letter-spacing: -0.015em;
+}
+
+h3 {
+    font-size: 1.25rem;
+}
+
+h4 {
+    font-size: 1.0625rem;
+}
+
+h5 {
+    font-size: 0.9375rem;
+}
+
+h6 {
+    font-size: 0.875rem;
+}
+
+p {
+    margin-bottom: 1rem;
+}
+
+p:last-child {
+    margin-bottom: 0;
+}
+
+hr {
+    margin-block: 1rem;
+    border-top: 1px solid var(--color-border);
+    opacity: 1;
+}
+
+/* Opt-in for genuine prose lists, since the global default stays unstyled. */
+.gizmo-prose-list {
+    margin-bottom: 1rem;
+    padding-left: 1.5rem;
+    list-style: disc;
+}
+
+ol.gizmo-prose-list {
+    list-style: decimal;
+}
+
+code,
+kbd,
+samp {
+    border-radius: 0.3125rem;
+    background: var(--color-surface-subtle);
+    padding-inline: 0.25em;
+    color: var(--color-text);
+    font-size: 0.9em;
+}
+
+pre code {
+    padding: 0;
+    background: none;
+}
+
+a {
     color: var(--color-interactive);
     text-decoration-color: color-mix(in srgb, currentColor 35%, transparent);
     text-underline-offset: 0.15em;
@@ -35,34 +126,10 @@ a:not(.btn) {
     outline-offset: 3px;
 }
 
-.form-control,
-.form-select,
-.input-group-text {
-    border-color: var(--color-border);
-    color: var(--color-text);
-}
-
-.form-control,
-.form-select {
-    background-color: var(--color-surface);
-
-    &:focus {
-        background-color: var(--color-surface);
-        border-color: var(--color-interactive);
-        box-shadow: 0 0 0 0.2rem color-mix(in srgb, var(--color-focus-ring) 22%, transparent);
-    }
-
-    &:disabled,
-    &[readonly] {
-        background-color: var(--color-surface-subtle);
-        color: var(--color-text-muted);
-    }
-}
-
-.input-group-text {
-    background-color: var(--color-surface-subtle);
-}
-
+/*
+ * Product surfaces that predate the Gizmo recipes and are still applied by
+ * templates. These are ours, not Bootstrap's, despite the familiar names.
+ */
 .shadow-box {
     background-color: var(--color-surface);
     border: 1px solid var(--color-border);
@@ -70,78 +137,9 @@ a:not(.btn) {
     box-shadow: 0 18px 50px rgb(10 21 30 / 8%);
 }
 
-.btn {
-    border-radius: 0.75rem;
-    font-weight: 650;
-    letter-spacing: 0.01em;
-}
-
-.btn-primary {
-    background-color: var(--color-brand);
-    border-color: var(--color-brand);
-    color: var(--color-brand-contrast);
-
-    &:hover,
-    &:active,
-    &:focus,
-    &.active {
-        background-color: var(--color-brand-hover);
-        border-color: var(--color-brand-hover);
-        color: var(--color-brand-contrast);
-    }
-}
-
-.dark {
-    .shadow-box,
-    .modal-content,
-    .dropdown-menu,
-    .list-group-item {
-        background-color: var(--color-surface);
-        border-color: var(--color-border);
-        color: var(--color-text);
-    }
-
-    .form-control,
-    .form-control:focus,
-    .form-select,
-    .form-select:focus {
-        background-color: var(--color-surface);
-        border-color: var(--color-border);
-        color: var(--color-text);
-    }
-
-    .input-group-text {
-        background-color: var(--color-surface-subtle);
-        border-color: var(--color-border);
-        color: var(--color-text);
-    }
-
-    .btn-primary,
-    .btn-primary:hover,
-    .btn-primary:active,
-    .btn-primary:focus,
-    .btn-primary.active {
-        color: var(--color-brand-contrast);
-    }
-}
-
-.btn-outline-primary {
-    border-color: var(--color-interactive);
-    color: var(--color-interactive);
-
-    &:hover,
-    &:active,
-    &:focus,
-    &.active {
-        background-color: var(--color-interactive);
-        border-color: var(--color-interactive);
-        color: var(--color-text-inverse);
-    }
-}
-
 .btn-normal {
     background-color: var(--color-surface-subtle);
-    border-color: var(--color-border);
+    border: 1px solid var(--color-border);
     color: var(--color-text);
 
     &:hover {
@@ -151,31 +149,7 @@ a:not(.btn) {
     }
 }
 
-.table {
-    --bs-table-bg: transparent;
-    --bs-table-color: var(--color-text);
-    --bs-table-border-color: var(--color-border);
-    --bs-table-hover-bg: var(--color-surface-hover);
-    --bs-table-hover-color: var(--color-text);
-}
-
-.modal-content,
-.dropdown-menu,
-.list-group-item {
-    background-color: var(--color-surface);
-    border-color: var(--color-border);
-    color: var(--color-text);
-}
-
-.modal-content {
-    box-shadow: 0 24px 70px rgb(10 21 30 / 22%);
-}
-
 .bg-maintenance {
     background-color: var(--status-maintenance) !important;
     color: var(--color-text-inverse) !important;
-}
-
-.text-maintenance {
-    color: var(--status-maintenance) !important;
 }
