@@ -1,10 +1,10 @@
 <template>
     <div tabindex="-1" class="dropdown" @focusin="openMenu" @focusout="handleFocusOut">
         <button type="button" class="filter-dropdown-status" :class="{ active: filterActive }" tabindex="0">
-            <div class="px-1 d-flex align-items-center">
+            <div class="tw-px-1 tw-flex tw-items-center">
                 <slot name="status"></slot>
             </div>
-            <span class="px-1">
+            <span class="tw-px-1">
                 <font-awesome-icon icon="angle-down" />
             </span>
         </button>

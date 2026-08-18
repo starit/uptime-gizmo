@@ -5,25 +5,25 @@
                 <img src="/images/uptime-gizmo-logo-horizontal-light.png" :alt="$root.appName" />
             </div>
 
-            <div v-if="info.runningSetup" class="mt-5">
-                <div class="alert alert-success mx-3 px-4" role="alert">
-                    <div class="d-flex align-items-center">
+            <div v-if="info.runningSetup" class="tw-mt-5">
+                <div class="gizmo-native-alert gizmo-native-alert--success tw-mx-3 tw-px-4" role="alert">
+                    <div class="tw-flex tw-items-center">
                         <strong>{{ $t("settingUpDatabaseMSG") }}</strong>
-                        <div class="ms-3 pt-1">
-                            <div class="spinner-border" role="status" aria-hidden="true"></div>
+                        <div class="tw-ms-3 tw-pt-1">
+                            <div class="gizmo-spinner-inline" role="status" aria-hidden="true"></div>
                         </div>
                     </div>
                 </div>
             </div>
 
             <template v-if="!info.runningSetup">
-                <div class="form-floating mt-4">
-                    <select id="language" v-model="$root.language" class="form-select">
+                <div class="gizmo-floating-field tw-mt-4">
+                    <select id="language" v-model="$root.language" class="gizmo-native-control gizmo-native-select">
                         <option v-for="(lang, i) in $i18n.availableLocales" :key="`Lang${i}`" :value="lang">
                             {{ $i18n.messages[lang].languageName }}
                         </option>
                     </select>
-                    <label for="language" class="form-label">{{ $t("Language") }}</label>
+                    <label for="language" class="gizmo-field-label">{{ $t("Language") }}</label>
                 </div>
 
                 <p class="onboarding-card-prompt">
@@ -36,137 +36,137 @@
                             id="btnradio3"
                             v-model="dbConfig.type"
                             type="radio"
-                            class="btn-check"
+                            class="gizmo-choice-input"
                             autocomplete="off"
                             value="embedded-mariadb"
                         />
 
-                        <label class="btn btn-outline-primary" for="btnradio3">Embedded MariaDB</label>
+                        <label class="gizmo-native-button gizmo-native-button--outline" for="btnradio3">Embedded MariaDB</label>
                     </template>
 
                     <input
                         id="btnradio2"
                         v-model="dbConfig.type"
                         type="radio"
-                        class="btn-check"
+                        class="gizmo-choice-input"
                         autocomplete="off"
                         value="mariadb"
                     />
-                    <label class="btn btn-outline-primary" for="btnradio2">MariaDB/MySQL</label>
+                    <label class="gizmo-native-button gizmo-native-button--outline" for="btnradio2">MariaDB/MySQL</label>
 
                     <input
                         id="btnradio1"
                         v-model="dbConfig.type"
                         type="radio"
-                        class="btn-check"
+                        class="gizmo-choice-input"
                         autocomplete="off"
                         value="sqlite"
                     />
-                    <label class="btn btn-outline-primary" for="btnradio1">SQLite</label>
+                    <label class="gizmo-native-button gizmo-native-button--outline" for="btnradio1">SQLite</label>
                 </div>
 
-                <div v-if="dbConfig.type === 'embedded-mariadb'" class="form-text mt-3 text-start">
+                <div v-if="dbConfig.type === 'embedded-mariadb'" class="gizmo-field-help tw-mt-3 tw-text-start">
                     {{ $t("setupDatabaseEmbeddedMariaDB") }}
                 </div>
 
-                <div v-if="dbConfig.type === 'mariadb'" class="form-text mt-3 text-start">
+                <div v-if="dbConfig.type === 'mariadb'" class="gizmo-field-help tw-mt-3 tw-text-start">
                     {{ $t("setupDatabaseMariaDB") }}
                 </div>
 
-                <div v-if="dbConfig.type === 'sqlite'" class="form-text mt-3 text-start">
+                <div v-if="dbConfig.type === 'sqlite'" class="gizmo-field-help tw-mt-3 tw-text-start">
                     {{ $t("setupDatabaseSQLite") }}
                 </div>
 
                 <template v-if="dbConfig.type === 'mariadb'">
-                    <div v-if="!isProvidedMariaDBSocket" class="form-floating mt-3">
+                    <div v-if="!isProvidedMariaDBSocket" class="gizmo-floating-field tw-mt-3">
                         <input
                             id="floatingInput"
                             v-model="dbConfig.hostname"
                             type="text"
-                            class="form-control"
+                            class="gizmo-native-control"
                             required
                         />
                         <label for="floatingInput">{{ $t("Hostname") }}</label>
                     </div>
 
-                    <div v-if="!isProvidedMariaDBSocket" class="form-floating mt-3">
-                        <input id="floatingInput" v-model="dbConfig.port" type="text" class="form-control" required />
+                    <div v-if="!isProvidedMariaDBSocket" class="gizmo-floating-field tw-mt-3">
+                        <input id="floatingInput" v-model="dbConfig.port" type="text" class="gizmo-native-control" required />
                         <label for="floatingInput">{{ $t("Port") }}</label>
                     </div>
 
-                    <div v-if="isProvidedMariaDBSocket" class="mt-1 text-start">
-                        <i18n-t keypath="mariadbSocketPathDetectedHelptext" tag="div" class="form-text">
+                    <div v-if="isProvidedMariaDBSocket" class="tw-mt-1 tw-text-start">
+                        <i18n-t keypath="mariadbSocketPathDetectedHelptext" tag="div" class="gizmo-field-help">
                             <code>UPTIME_GIZMO_DB_SOCKET</code>
                         </i18n-t>
                     </div>
 
-                    <hr v-if="isProvidedMariaDBSocket" class="mt-3 mb-2" />
+                    <hr v-if="isProvidedMariaDBSocket" class="tw-mt-3 tw-mb-2" />
 
-                    <div class="form-floating mt-3">
+                    <div class="gizmo-floating-field tw-mt-3">
                         <input
                             id="floatingInput"
                             v-model="dbConfig.username"
                             type="text"
-                            class="form-control"
+                            class="gizmo-native-control"
                             required
                         />
                         <label for="floatingInput">{{ $t("Username") }}</label>
                     </div>
 
-                    <div class="form-floating mt-3">
+                    <div class="gizmo-floating-field tw-mt-3">
                         <input
                             id="floatingInput"
                             v-model="dbConfig.password"
                             type="password"
-                            class="form-control"
+                            class="gizmo-native-control"
                             required
                         />
                         <label for="floatingInput">{{ $t("Password") }}</label>
                     </div>
 
-                    <div class="form-floating mt-3">
-                        <input id="floatingInput" v-model="dbConfig.dbName" type="text" class="form-control" required />
+                    <div class="gizmo-floating-field tw-mt-3">
+                        <input id="floatingInput" v-model="dbConfig.dbName" type="text" class="gizmo-native-control" required />
                         <label for="floatingInput">{{ $t("dbName") }}</label>
                     </div>
 
-                    <div class="mt-3 text-start">
-                        <div class="form-check form-switch ps-0" style="height: auto; display: block; padding: 0">
-                            <div class="d-flex align-items-center">
+                    <div class="tw-mt-3 tw-text-start">
+                        <div class="gizmo-native-check gizmo-native-switch tw-ps-0" style="height: auto; display: block; padding: 0">
+                            <div class="tw-flex tw-items-center">
                                 <input
                                     id="sslCheck"
                                     v-model="dbConfig.ssl"
                                     type="checkbox"
                                     role="switch"
-                                    class="form-check-input ms-0 me-2"
+                                    class="gizmo-native-check__input tw-ms-0 tw-me-2"
                                     style="float: none"
                                 />
-                                <label class="form-check-label fw-bold" for="sslCheck">
+                                <label class="gizmo-native-check__label tw-font-bold" for="sslCheck">
                                     {{ $t("enableSSL") }}
-                                    <span class="fw-normal text-muted" style="font-size: 0.9em">
+                                    <span class="tw-font-normal tw-text-content-muted" style="font-size: 0.9em">
                                         ({{ $t("Optional") }})
                                     </span>
                                 </label>
                             </div>
-                            <div class="form-text mt-1">
+                            <div class="gizmo-field-help tw-mt-1">
                                 {{ $t("mariadbUseSSLHelptext") }}
                             </div>
                         </div>
                     </div>
 
-                    <div v-if="dbConfig.ssl" class="form-floating mt-3">
+                    <div v-if="dbConfig.ssl" class="gizmo-floating-field tw-mt-3">
                         <textarea
                             id="caInput"
                             v-model="dbConfig.ca"
-                            class="form-control"
+                            class="gizmo-native-control"
                             placeholder="-----BEGIN CERTIFICATE-----"
                             style="height: 120px"
                         ></textarea>
                         <label for="caInput">{{ $t("mariadbCaCertificateLabel") }}</label>
-                        <div class="form-text">{{ $t("mariadbCaCertificateHelptext") }}</div>
+                        <div class="gizmo-field-help">{{ $t("mariadbCaCertificateHelptext") }}</div>
                     </div>
                 </template>
 
-                <button class="btn btn-primary mt-4 w-100" type="submit" :disabled="disabledButton">
+                <button class="gizmo-native-button gizmo-native-button--primary tw-mt-4 tw-w-full" type="submit" :disabled="disabledButton">
                     {{ $t("Next") }}
                 </button>
             </template>

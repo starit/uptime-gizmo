@@ -10,21 +10,21 @@
                     {{ $t("Create your admin account") }}
                 </p>
 
-                <div class="form-floating">
-                    <select id="language" v-model="$root.language" class="form-select">
+                <div class="gizmo-floating-field">
+                    <select id="language" v-model="$root.language" class="gizmo-native-control gizmo-native-select">
                         <option v-for="(lang, i) in $i18n.availableLocales" :key="`Lang${i}`" :value="lang">
                             {{ $i18n.messages[lang].languageName }}
                         </option>
                     </select>
-                    <label for="language" class="form-label">{{ $t("Language") }}</label>
+                    <label for="language" class="gizmo-field-label">{{ $t("Language") }}</label>
                 </div>
 
-                <div class="form-floating mt-3">
+                <div class="gizmo-floating-field tw-mt-3">
                     <input
                         id="floatingInput"
                         v-model="username"
                         type="text"
-                        class="form-control"
+                        class="gizmo-native-control"
                         :placeholder="$t('Username')"
                         required
                         data-cy="username-input"
@@ -32,12 +32,12 @@
                     <label for="floatingInput">{{ $t("Username") }}</label>
                 </div>
 
-                <div class="form-floating mt-3">
+                <div class="gizmo-floating-field tw-mt-3">
                     <input
                         id="floatingPassword"
                         v-model="password"
                         type="password"
-                        class="form-control"
+                        class="gizmo-native-control"
                         :placeholder="$t('Password')"
                         required
                         data-cy="password-input"
@@ -45,12 +45,12 @@
                     <label for="floatingPassword">{{ $t("Password") }}</label>
                 </div>
 
-                <div class="form-floating mt-3">
+                <div class="gizmo-floating-field tw-mt-3">
                     <input
                         id="repeat"
                         v-model="repeatPassword"
                         type="password"
-                        class="form-control"
+                        class="gizmo-native-control"
                         :placeholder="$t('Repeat Password')"
                         required
                         data-cy="password-repeat-input"
@@ -59,7 +59,7 @@
                 </div>
 
                 <button
-                    class="w-100 btn btn-primary mt-3"
+                    class="tw-w-full gizmo-native-button gizmo-native-button--primary tw-mt-3"
                     type="submit"
                     :disabled="processing"
                     data-cy="submit-setup-form"

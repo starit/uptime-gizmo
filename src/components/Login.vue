@@ -1,13 +1,13 @@
 <template>
     <div class="form-container">
         <div class="form">
-            <form aria-label="Login Form" class="pt-3" @submit.prevent="submit">
-                <div v-if="!tokenRequired" class="form-floating">
+            <form aria-label="Login Form" class="tw-pt-3" @submit.prevent="submit">
+                <div v-if="!tokenRequired" class="gizmo-floating-field">
                     <input
                         id="floatingInput"
                         v-model="username"
                         type="text"
-                        class="form-control"
+                        class="gizmo-native-control"
                         placeholder="Username"
                         autocomplete="username"
                         required
@@ -15,12 +15,12 @@
                     <label for="floatingInput">{{ $t("Username") }}</label>
                 </div>
 
-                <div v-if="!tokenRequired" class="form-floating mt-3">
+                <div v-if="!tokenRequired" class="gizmo-floating-field tw-mt-3">
                     <input
                         id="floatingPassword"
                         v-model="password"
                         type="password"
-                        class="form-control"
+                        class="gizmo-native-control"
                         placeholder="Password"
                         autocomplete="current-password"
                         required
@@ -29,14 +29,14 @@
                 </div>
 
                 <div v-if="tokenRequired">
-                    <div class="form-floating mt-3">
+                    <div class="gizmo-floating-field tw-mt-3">
                         <input
                             id="otp"
                             ref="otpInput"
                             v-model="token"
                             type="text"
                             maxlength="6"
-                            class="form-control"
+                            class="gizmo-native-control"
                             placeholder="123456"
                             autocomplete="one-time-code"
                             required
@@ -45,26 +45,26 @@
                     </div>
                 </div>
 
-                <div class="form-check mb-3 mt-3 d-flex justify-content-center pe-4">
-                    <div class="form-check">
+                <div class="gizmo-native-check tw-mb-3 tw-mt-3 tw-flex tw-justify-center tw-pe-4">
+                    <div class="gizmo-native-check">
                         <input
                             id="remember"
                             v-model="$root.remember"
                             type="checkbox"
                             value="remember-me"
-                            class="form-check-input"
+                            class="gizmo-native-check__input"
                         />
 
-                        <label class="form-check-label" for="remember">
+                        <label class="gizmo-native-check__label" for="remember">
                             {{ $t("Remember me") }}
                         </label>
                     </div>
                 </div>
-                <button class="w-100 btn btn-primary" type="submit" :disabled="processing">
+                <button class="tw-w-full gizmo-native-button gizmo-native-button--primary" type="submit" :disabled="processing">
                     {{ $t("Login") }}
                 </button>
 
-                <div v-if="res && !res.ok" class="alert alert-danger mt-3" role="alert">
+                <div v-if="res && !res.ok" class="gizmo-native-alert gizmo-native-alert--danger tw-mt-3" role="alert">
                     {{ $t(res.msg) }}
                 </div>
             </form>

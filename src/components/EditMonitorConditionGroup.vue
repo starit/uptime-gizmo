@@ -1,10 +1,10 @@
 <template>
-    <div class="condition-group mb-3" data-testid="condition-group">
-        <div class="d-flex">
+    <div class="condition-group tw-mb-3" data-testid="condition-group">
+        <div class="tw-flex">
             <select
                 v-if="!isFirst"
                 v-model="model.andOr"
-                class="form-select"
+                class="gizmo-native-control gizmo-native-select"
                 style="width: auto"
                 data-testid="condition-group-and-or"
             >
@@ -13,7 +13,7 @@
             </select>
         </div>
 
-        <div class="condition-group-inner mt-2 pa-2">
+        <div class="condition-group-inner tw-mt-2 pa-2">
             <div class="condition-group-conditions">
                 <template v-for="(child, childIndex) in model.children" :key="childIndex">
                     <EditMonitorConditionGroup
@@ -37,9 +37,9 @@
                 </template>
             </div>
 
-            <div class="condition-group-actions mt-3">
+            <div class="condition-group-actions tw-mt-3">
                 <button
-                    class="btn btn-outline-secondary me-2"
+                    class="gizmo-native-button gizmo-native-button--secondary tw-me-2"
                     type="button"
                     data-testid="add-condition-button"
                     @click="addCondition"
@@ -47,7 +47,7 @@
                     {{ $t("conditionAdd") }}
                 </button>
                 <button
-                    class="btn btn-outline-secondary me-2"
+                    class="gizmo-native-button gizmo-native-button--secondary tw-me-2"
                     type="button"
                     data-testid="add-group-button"
                     @click="addGroup"
@@ -55,7 +55,7 @@
                     {{ $t("conditionAddGroup") }}
                 </button>
                 <button
-                    class="btn btn-outline-danger"
+                    class="gizmo-native-button gizmo-native-button--danger-outline"
                     type="button"
                     :aria-label="$t('conditionDeleteGroup')"
                     data-testid="remove-condition-group"

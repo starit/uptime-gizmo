@@ -7,7 +7,7 @@
             />
             <span
                 v-else-if="!filterState.status?.length && filterState.active?.length === 1"
-                class="badge status-pill"
+                class="gizmo-inline-badge status-pill"
                 :class="filterState.active[0] ? 'running' : 'paused'"
             >
                 <font-awesome-icon :icon="filterState.active[0] ? 'play' : 'pause'" class="icon-small" />
@@ -20,11 +20,11 @@
         <template #dropdown>
             <li>
                 <div class="dropdown-item" tabindex="0" @click.stop="toggleStatusFilter(1)">
-                    <div class="d-flex align-items-center justify-content-between">
+                    <div class="tw-flex tw-items-center tw-justify-between">
                         <Status :status="1" />
-                        <span class="ps-3">
+                        <span class="tw-ps-3">
                             {{ $root.stats.up }}
-                            <span v-if="filterState.status?.includes(1)" class="px-1 filter-active">
+                            <span v-if="filterState.status?.includes(1)" class="tw-px-1 filter-active">
                                 <font-awesome-icon icon="check" />
                             </span>
                         </span>
@@ -33,11 +33,11 @@
             </li>
             <li>
                 <div class="dropdown-item" tabindex="0" @click.stop="toggleStatusFilter(0)">
-                    <div class="d-flex align-items-center justify-content-between">
+                    <div class="tw-flex tw-items-center tw-justify-between">
                         <Status :status="0" />
-                        <span class="ps-3">
+                        <span class="tw-ps-3">
                             {{ $root.stats.down }}
-                            <span v-if="filterState.status?.includes(0)" class="px-1 filter-active">
+                            <span v-if="filterState.status?.includes(0)" class="tw-px-1 filter-active">
                                 <font-awesome-icon icon="check" />
                             </span>
                         </span>
@@ -46,11 +46,11 @@
             </li>
             <li>
                 <div class="dropdown-item" tabindex="0" @click.stop="toggleStatusFilter(2)">
-                    <div class="d-flex align-items-center justify-content-between">
+                    <div class="tw-flex tw-items-center tw-justify-between">
                         <Status :status="2" />
-                        <span class="ps-3">
+                        <span class="tw-ps-3">
                             {{ $root.stats.pending }}
-                            <span v-if="filterState.status?.includes(2)" class="px-1 filter-active">
+                            <span v-if="filterState.status?.includes(2)" class="tw-px-1 filter-active">
                                 <font-awesome-icon icon="check" />
                             </span>
                         </span>
@@ -59,11 +59,11 @@
             </li>
             <li>
                 <div class="dropdown-item" tabindex="0" @click.stop="toggleStatusFilter(3)">
-                    <div class="d-flex align-items-center justify-content-between">
+                    <div class="tw-flex tw-items-center tw-justify-between">
                         <Status :status="3" />
-                        <span class="ps-3">
+                        <span class="tw-ps-3">
                             {{ $root.stats.maintenance }}
-                            <span v-if="filterState.status?.includes(3)" class="px-1 filter-active">
+                            <span v-if="filterState.status?.includes(3)" class="tw-px-1 filter-active">
                                 <font-awesome-icon icon="check" />
                             </span>
                         </span>
@@ -75,14 +75,14 @@
             </li>
             <li>
                 <div class="dropdown-item" tabindex="0" @click.stop="toggleActiveFilter(true)">
-                    <div class="d-flex align-items-center justify-content-between">
-                        <span class="badge status-pill running">
+                    <div class="tw-flex tw-items-center tw-justify-between">
+                        <span class="gizmo-inline-badge status-pill running">
                             <font-awesome-icon icon="play" class="icon-small" />
                             {{ $t("Running") }}
                         </span>
-                        <span class="ps-3">
+                        <span class="tw-ps-3">
                             {{ $root.stats.active }}
-                            <span v-if="filterState.active?.includes(true)" class="px-1 filter-active">
+                            <span v-if="filterState.active?.includes(true)" class="tw-px-1 filter-active">
                                 <font-awesome-icon icon="check" />
                             </span>
                         </span>
@@ -91,14 +91,14 @@
             </li>
             <li>
                 <div class="dropdown-item" tabindex="0" @click.stop="toggleActiveFilter(false)">
-                    <div class="d-flex align-items-center justify-content-between">
-                        <span class="badge status-pill paused">
+                    <div class="tw-flex tw-items-center tw-justify-between">
+                        <span class="gizmo-inline-badge status-pill paused">
                             <font-awesome-icon icon="pause" class="icon-small" />
                             {{ $t("filterActivePaused") }}
                         </span>
-                        <span class="ps-3">
+                        <span class="tw-ps-3">
                             {{ $root.stats.pause }}
-                            <span v-if="filterState.active?.includes(false)" class="px-1 filter-active">
+                            <span v-if="filterState.active?.includes(false)" class="tw-px-1 filter-active">
                                 <font-awesome-icon icon="check" />
                             </span>
                         </span>
@@ -121,18 +121,18 @@
             </span>
         </template>
         <template #dropdown>
-            <li class="list-unstyled m-0 p-0">
+            <li class="list-unstyled tw-m-0 tw-p-0">
                 <div class="tags-dropdown-scroll">
-                    <ul class="list-unstyled m-0 p-0">
+                    <ul class="list-unstyled tw-m-0 tw-p-0">
                         <li v-for="tag in tagsList" :key="tag.id">
                             <div class="dropdown-item" tabindex="0" @click.stop="toggleTagFilter(tag)">
-                                <div class="d-flex align-items-center justify-content-between">
+                                <div class="tw-flex tw-items-center tw-justify-between">
                                     <span class="tag-name-wrapper" :title="tag.name">
                                         <Tag :item="tag" :size="'sm'" :scrollable="true" :constrained="true" />
                                     </span>
-                                    <span class="ps-3">
+                                    <span class="tw-ps-3">
                                         {{ getTaggedMonitorCount(tag) }}
-                                        <span v-if="filterState.tags?.includes(tag.id)" class="px-1 filter-active">
+                                        <span v-if="filterState.tags?.includes(tag.id)" class="tw-px-1 filter-active">
                                             <font-awesome-icon icon="check" />
                                         </span>
                                     </span>
@@ -140,7 +140,7 @@
                             </div>
                         </li>
                         <li v-if="tagsList.length === 0">
-                            <div class="dropdown-item disabled px-3">
+                            <div class="dropdown-item disabled tw-px-3">
                                 {{ $t("No tags found.") }}
                             </div>
                         </li>
@@ -152,7 +152,7 @@
     <button
         v-if="hasGroups"
         type="button"
-        class="btn btn-outline-normal btn-collapse-all"
+        class="gizmo-native-button gizmo-native-button--secondary btn-collapse-all"
         :title="allCollapsed ? $t('Expand All Groups') : $t('Collapse All Groups')"
         @click="$emit('toggle-collapse-all')"
     >

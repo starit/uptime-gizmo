@@ -1,18 +1,18 @@
 <template>
     <transition name="slide-fade" appear>
         <div class="monitor-editor">
-            <h1 class="monitor-editor-title mb-3">{{ pageName }}</h1>
+            <h1 class="monitor-editor-title tw-mb-3">{{ pageName }}</h1>
             <form @submit.prevent="submit">
-                <div class="shadow-box shadow-box-with-fixed-bottom-bar monitor-editor-surface">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <h2 class="mb-2">{{ $t("General") }}</h2>
+                <div class="gizmo-workspace-panel monitor-editor-panel monitor-editor-surface">
+                    <div class="monitor-editor-grid">
+                        <div class="monitor-editor-column">
+                            <h2 class="tw-mb-2">{{ $t("General") }}</h2>
 
                             <i18n-t
                                 v-if="monitor.type === 'globalping'"
                                 keypath="GlobalpingMonitorDescription"
                                 tag="p"
-                                class="form-text"
+                                class="gizmo-field-help"
                             >
                                 <template #accountSettings>
                                     <router-link to="/settings/general">{{ $t("account settings") }}</router-link>
@@ -27,12 +27,12 @@
                                 </template>
                             </i18n-t>
 
-                            <div class="my-3">
-                                <label for="type" class="form-label">{{ $t("Monitor Type") }}</label>
+                            <div class="tw-my-3">
+                                <label for="type" class="gizmo-field-label">{{ $t("Monitor Type") }}</label>
                                 <select
                                     id="type"
                                     v-model="monitor.type"
-                                    class="form-select"
+                                    class="gizmo-native-control gizmo-native-select"
                                     data-testid="monitor-type-select"
                                 >
                                     <!-- Unsorted, since HTTP is commonly used -->
@@ -120,7 +120,7 @@
                                     v-if="monitor.type === 'rabbitmq'"
                                     keypath="rabbitmqHelpText"
                                     tag="div"
-                                    class="form-text"
+                                    class="gizmo-field-help"
                                 >
                                     <template #rabitmq_documentation>
                                         <a
@@ -134,16 +134,16 @@
                                 </i18n-t>
                             </div>
 
-                            <div v-if="monitor.type === 'tailscale-ping'" class="alert alert-warning" role="alert">
+                            <div v-if="monitor.type === 'tailscale-ping'" class="gizmo-native-alert gizmo-native-alert--warning" role="alert">
                                 {{ $t("tailscalePingWarning") }}
                             </div>
 
-                            <div v-if="monitor.type === 'globalping'" class="my-3">
-                                <label for="subtype" class="form-label">{{ $t("Monitor Subtype") }}</label>
+                            <div v-if="monitor.type === 'globalping'" class="tw-my-3">
+                                <label for="subtype" class="gizmo-field-label">{{ $t("Monitor Subtype") }}</label>
                                 <select
                                     id="subtype"
                                     v-model="monitor.subtype"
-                                    class="form-select"
+                                    class="gizmo-native-control gizmo-native-select"
                                     data-testid="monitor-subtype-select"
                                 >
                                     <option value="ping">Ping</option>
@@ -152,31 +152,31 @@
                                 </select>
                             </div>
 
-                            <div v-if="monitor.type === 'sip-options'" class="alert alert-warning" role="alert">
+                            <div v-if="monitor.type === 'sip-options'" class="gizmo-native-alert gizmo-native-alert--warning" role="alert">
                                 {{ $t("sipsakPingWarning") }}
                             </div>
 
                             <!-- Friendly Name -->
-                            <div class="my-3">
-                                <label for="name" class="form-label">{{ $t("Friendly Name") }}</label>
+                            <div class="tw-my-3">
+                                <label for="name" class="gizmo-field-label">{{ $t("Friendly Name") }}</label>
                                 <input
                                     id="name"
                                     v-model="monitor.name"
                                     type="text"
-                                    class="form-control"
+                                    class="gizmo-native-control"
                                     data-testid="friendly-name-input"
                                     :placeholder="defaultFriendlyName"
                                 />
                             </div>
 
                             <!-- Manual Status switcher -->
-                            <div v-if="monitor.type === 'manual'" class="mb-3">
-                                <div class="btn-group w-100 mb-3">
-                                    <button class="btn btn-success" @click="monitor.manual_status = 1">
+                            <div v-if="monitor.type === 'manual'" class="tw-mb-3">
+                                <div class="gizmo-action-group tw-w-full tw-mb-3">
+                                    <button class="gizmo-native-button gizmo-native-button--success" @click="monitor.manual_status = 1">
                                         <i class="fas fa-check"></i>
                                         {{ $t("Up") }}
                                     </button>
-                                    <button class="btn btn-danger" @click="monitor.manual_status = 0">
+                                    <button class="gizmo-native-button gizmo-native-button--danger" @click="monitor.manual_status = 0">
                                         <i class="fas fa-times"></i>
                                         {{ $t("Down") }}
                                     </button>
@@ -192,14 +192,14 @@
                                     monitor.type === 'json-query' ||
                                     monitor.type === 'real-browser'
                                 "
-                                class="my-3"
+                                class="tw-my-3"
                             >
-                                <label for="url" class="form-label">{{ $t("URL") }}</label>
+                                <label for="url" class="gizmo-field-label">{{ $t("URL") }}</label>
                                 <input
                                     id="url"
                                     v-model="monitor.url"
                                     type="url"
-                                    class="form-control"
+                                    class="gizmo-native-control"
                                     :pattern="monitor.type !== 'websocket-upgrade' ? 'https?://.+' : 'wss?://.+'"
                                     required
                                     data-testid="url-input"
@@ -207,19 +207,19 @@
                             </div>
 
                             <template v-if="monitor.type === 'websocket-upgrade'">
-                                <h2 class="mt-5 mb-2">{{ $t("WebSocket Options") }}</h2>
+                                <h2 class="tw-mt-5 tw-mb-2">{{ $t("WebSocket Options") }}</h2>
 
                                 <!-- Websocket Subprotocol Docs: https://www.iana.org/assignments/websocket/websocket.xml#subprotocol-name -->
-                                <div class="my-3">
-                                    <label for="ws_subprotocol" class="form-label">{{ $t("Subprotocol(s)") }}</label>
+                                <div class="tw-my-3">
+                                    <label for="ws_subprotocol" class="gizmo-field-label">{{ $t("Subprotocol(s)") }}</label>
                                     <input
                                         id="ws_subprotocol"
                                         v-model="monitor.wsSubprotocol"
                                         type="text"
-                                        class="form-control"
+                                        class="gizmo-native-control"
                                         placeholder="mielecloudconnect,soap"
                                     />
-                                    <i18n-t tag="div" class="form-text" keypath="wsSubprotocolDescription">
+                                    <i18n-t tag="div" class="gizmo-field-help" keypath="wsSubprotocolDescription">
                                         <template #documentation>
                                             <a
                                                 href="https://www.iana.org/assignments/websocket/websocket.xml#subprotocol-name"
@@ -233,54 +233,54 @@
                                 </div>
 
                                 <!-- Custom Headers -->
-                                <div class="my-3">
-                                    <label for="ws-headers" class="form-label">{{ $t("Headers") }}</label>
+                                <div class="tw-my-3">
+                                    <label for="ws-headers" class="gizmo-field-label">{{ $t("Headers") }}</label>
                                     <textarea
                                         id="ws-headers"
                                         v-model="monitor.headers"
-                                        class="form-control"
+                                        class="gizmo-native-control"
                                         :placeholder="headersPlaceholder"
                                     ></textarea>
                                 </div>
                             </template>
 
                             <!-- gRPC URL -->
-                            <div v-if="monitor.type === 'grpc-keyword'" class="my-3">
-                                <label for="grpc-url" class="form-label">{{ $t("URL") }}</label>
+                            <div v-if="monitor.type === 'grpc-keyword'" class="tw-my-3">
+                                <label for="grpc-url" class="gizmo-field-label">{{ $t("URL") }}</label>
                                 <input
                                     id="grpc-url"
                                     v-model="monitor.grpcUrl"
                                     type="text"
-                                    class="form-control"
+                                    class="gizmo-native-control"
                                     required
                                 />
                             </div>
 
                             <!-- Push URL -->
-                            <div v-if="monitor.type === 'push'" class="my-3">
-                                <label for="push-url" class="form-label">{{ $t("PushUrl") }}</label>
+                            <div v-if="monitor.type === 'push'" class="tw-my-3">
+                                <label for="push-url" class="gizmo-field-label">{{ $t("PushUrl") }}</label>
                                 <CopyableInput id="push-url" v-model="pushURL" type="url" disabled="disabled" />
-                                <div class="form-text">
+                                <div class="gizmo-field-help">
                                     {{ $t("needPushEvery", [monitor.interval]) }}
                                     <br />
                                     {{ $t("pushOptionalParams", ["status, msg, ping"]) }}
                                 </div>
-                                <button class="btn btn-primary" type="button" @click="resetToken">
+                                <button class="gizmo-native-button gizmo-native-button--primary" type="button" @click="resetToken">
                                     {{ $t("Reset Token") }}
                                 </button>
                             </div>
 
                             <!-- Keyword -->
-                            <div v-if="monitor.type === 'keyword' || monitor.type === 'grpc-keyword'" class="my-3">
-                                <label for="keyword" class="form-label">{{ $t("Keyword") }}</label>
+                            <div v-if="monitor.type === 'keyword' || monitor.type === 'grpc-keyword'" class="tw-my-3">
+                                <label for="keyword" class="gizmo-field-label">{{ $t("Keyword") }}</label>
                                 <input
                                     id="keyword"
                                     v-model="monitor.keyword"
                                     type="text"
-                                    class="form-control"
+                                    class="gizmo-native-control"
                                     required
                                 />
-                                <div class="form-text">
+                                <div class="gizmo-field-help">
                                     {{ $t("keywordDescription") }}
                                 </div>
                             </div>
@@ -288,42 +288,42 @@
                             <!-- Invert keyword -->
                             <div
                                 v-if="monitor.type === 'keyword' || monitor.type === 'grpc-keyword'"
-                                class="my-3 form-check"
+                                class="tw-my-3 gizmo-native-check"
                             >
                                 <input
                                     id="invert-keyword"
                                     v-model="monitor.invertKeyword"
-                                    class="form-check-input"
+                                    class="gizmo-native-check__input"
                                     type="checkbox"
                                 />
-                                <label class="form-check-label" for="invert-keyword">
+                                <label class="gizmo-native-check__label" for="invert-keyword">
                                     {{ $t("Invert Keyword") }}
                                 </label>
-                                <div class="form-text">
+                                <div class="gizmo-field-help">
                                     {{ $t("invertKeywordDescription") }}
                                 </div>
                             </div>
 
                             <!-- Remote Browser -->
-                            <div v-if="monitor.type === 'real-browser'" class="my-3">
+                            <div v-if="monitor.type === 'real-browser'" class="tw-my-3">
                                 <!-- Toggle -->
-                                <div class="my-3 form-check">
+                                <div class="tw-my-3 gizmo-native-check">
                                     <input
                                         id="toggle"
                                         v-model="remoteBrowsersToggle"
-                                        class="form-check-input"
+                                        class="gizmo-native-check__input"
                                         type="checkbox"
                                     />
-                                    <label class="form-check-label" for="toggle">
+                                    <label class="gizmo-native-check__label" for="toggle">
                                         {{ $t("useRemoteBrowser") }}
                                     </label>
-                                    <div class="form-text">
+                                    <div class="gizmo-field-help">
                                         {{ $t("remoteBrowserToggle") }}
                                     </div>
                                 </div>
 
                                 <div v-if="remoteBrowsersToggle">
-                                    <label for="remote-browser" class="form-label">{{ $t("Remote Browser") }}</label>
+                                    <label for="remote-browser" class="gizmo-field-label">{{ $t("Remote Browser") }}</label>
                                     <ActionSelect
                                         v-model="monitor.remote_browser"
                                         :options="remoteBrowsersOptions"
@@ -335,9 +335,9 @@
 
                             <!-- Game -->
                             <!-- GameDig only -->
-                            <div v-if="monitor.type === 'gamedig'" class="my-3">
-                                <label for="game" class="form-label">{{ $t("Game") }}</label>
-                                <select id="game" v-model="monitor.game" class="form-select" required>
+                            <div v-if="monitor.type === 'gamedig'" class="tw-my-3">
+                                <label for="game" class="gizmo-field-label">{{ $t("Game") }}</label>
+                                <select id="game" v-model="monitor.game" class="gizmo-native-control gizmo-native-select" required>
                                     <option v-for="game in gameList" :key="game.keys[0]" :value="game.keys[0]">
                                         {{ game.pretty }}
                                     </option>
@@ -346,8 +346,8 @@
 
                             <template v-if="monitor.type === 'kafka-producer'">
                                 <!-- Kafka Brokers List -->
-                                <div class="my-3">
-                                    <label for="kafkaProducerBrokers" class="form-label">
+                                <div class="tw-my-3">
+                                    <label for="kafkaProducerBrokers" class="gizmo-field-label">
                                         {{ $t("Kafka Brokers") }}
                                     </label>
                                     <VueMultiselect
@@ -369,55 +369,55 @@
                                 </div>
 
                                 <!-- Kafka Topic Name -->
-                                <div class="my-3">
-                                    <label for="kafkaProducerTopic" class="form-label">
+                                <div class="tw-my-3">
+                                    <label for="kafkaProducerTopic" class="gizmo-field-label">
                                         {{ $t("Kafka Topic Name") }}
                                     </label>
                                     <input
                                         id="kafkaProducerTopic"
                                         v-model="monitor.kafkaProducerTopic"
                                         type="text"
-                                        class="form-control"
+                                        class="gizmo-native-control"
                                         required
                                     />
                                 </div>
 
                                 <!-- Kafka Producer Message -->
-                                <div class="my-3">
-                                    <label for="kafkaProducerMessage" class="form-label">
+                                <div class="tw-my-3">
+                                    <label for="kafkaProducerMessage" class="gizmo-field-label">
                                         {{ $t("Kafka Producer Message") }}
                                     </label>
                                     <input
                                         id="kafkaProducerMessage"
                                         v-model="monitor.kafkaProducerMessage"
                                         type="text"
-                                        class="form-control"
+                                        class="gizmo-native-control"
                                         required
                                     />
                                 </div>
 
                                 <!-- Kafka SSL -->
-                                <div class="my-3 form-check">
+                                <div class="tw-my-3 gizmo-native-check">
                                     <input
                                         id="kafkaProducerSsl"
                                         v-model="monitor.kafkaProducerSsl"
-                                        class="form-check-input"
+                                        class="gizmo-native-check__input"
                                         type="checkbox"
                                     />
-                                    <label class="form-check-label" for="kafkaProducerSsl">
+                                    <label class="gizmo-native-check__label" for="kafkaProducerSsl">
                                         {{ $t("Enable Kafka SSL") }}
                                     </label>
                                 </div>
 
                                 <!-- Kafka SSL -->
-                                <div class="my-3 form-check">
+                                <div class="tw-my-3 gizmo-native-check">
                                     <input
                                         id="kafkaProducerAllowAutoTopicCreation"
                                         v-model="monitor.kafkaProducerAllowAutoTopicCreation"
-                                        class="form-check-input"
+                                        class="gizmo-native-check__input"
                                         type="checkbox"
                                     />
-                                    <label class="form-check-label" for="kafkaProducerAllowAutoTopicCreation">
+                                    <label class="gizmo-native-check__label" for="kafkaProducerAllowAutoTopicCreation">
                                         {{ $t("Enable Kafka Producer Auto Topic Creation") }}
                                     </label>
                                 </div>
@@ -425,8 +425,8 @@
 
                             <template v-if="monitor.type === 'rabbitmq'">
                                 <!-- RabbitMQ Nodes List -->
-                                <div class="my-3">
-                                    <label for="rabbitmqNodes" class="form-label">{{ $t("RabbitMQ Nodes") }}</label>
+                                <div class="tw-my-3">
+                                    <label for="rabbitmqNodes" class="gizmo-field-label">{{ $t("RabbitMQ Nodes") }}</label>
                                     <VueMultiselect
                                         id="rabbitmqNodes"
                                         v-model="monitor.rabbitmqNodes"
@@ -444,13 +444,13 @@
                                         :preselect-first="false"
                                         @tag="addRabbitmqNode"
                                     ></VueMultiselect>
-                                    <div class="form-text">
+                                    <div class="gizmo-field-help">
                                         {{ $t("rabbitmqNodesDescription", ["https://node1.rabbitmq.com:15672"]) }}
                                     </div>
                                 </div>
 
-                                <div class="my-3">
-                                    <label for="rabbitmqUsername" class="form-label">
+                                <div class="tw-my-3">
+                                    <label for="rabbitmqUsername" class="gizmo-field-label">
                                         RabbitMQ {{ $t("RabbitMQ Username") }}
                                     </label>
                                     <input
@@ -458,12 +458,12 @@
                                         v-model="monitor.rabbitmqUsername"
                                         type="text"
                                         required
-                                        class="form-control"
+                                        class="gizmo-native-control"
                                     />
                                 </div>
 
-                                <div class="my-3">
-                                    <label for="rabbitmqPassword" class="form-label">
+                                <div class="tw-my-3">
+                                    <label for="rabbitmqPassword" class="gizmo-field-label">
                                         {{ $t("RabbitMQ Password") }}
                                     </label>
                                     <HiddenInput
@@ -492,18 +492,18 @@
                                     monitor.type === 'sip-options' ||
                                     monitor.type === 'ntp'
                                 "
-                                class="my-3"
+                                class="tw-my-3"
                             >
-                                <label for="hostname" class="form-label">{{ $t("Hostname") }}</label>
+                                <label for="hostname" class="gizmo-field-label">{{ $t("Hostname") }}</label>
                                 <input
                                     id="hostname"
                                     v-model="monitor.hostname"
                                     type="text"
-                                    class="form-control"
+                                    class="gizmo-native-control"
                                     required
                                     data-testid="hostname-input"
                                 />
-                                <div v-if="monitor.type === 'mqtt'" class="form-text">
+                                <div v-if="monitor.type === 'mqtt'" class="gizmo-field-help">
                                     <i18n-t tag="p" keypath="mqttHostnameTip">
                                         <template #hostnameFormat>
                                             <code>[mqtt,mqtts,ws,wss]://hostname</code>
@@ -515,49 +515,49 @@
                             <!-- Globalping -->
                             <template v-if="monitor.type === 'globalping'">
                                 <!-- Hostname -->
-                                <div v-if="monitor.subtype === 'ping' || monitor.subtype === 'dns'" class="my-3">
-                                    <label for="hostname" class="form-label">{{ $t("Hostname") }}</label>
+                                <div v-if="monitor.subtype === 'ping' || monitor.subtype === 'dns'" class="tw-my-3">
+                                    <label for="hostname" class="gizmo-field-label">{{ $t("Hostname") }}</label>
                                     <input
                                         id="hostname"
                                         v-model="monitor.hostname"
                                         type="text"
-                                        class="form-control"
+                                        class="gizmo-native-control"
                                         :pattern="ipOrHostnameRegexPattern"
                                         required
                                         data-testid="hostname-input"
                                     />
-                                    <div class="form-text">
+                                    <div class="gizmo-field-help">
                                         {{ $t("GlobalpingHostname") }}
                                     </div>
                                 </div>
 
-                                <div v-if="monitor.subtype === 'http'" class="my-3">
-                                    <label for="url" class="form-label">{{ $t("URL") }}</label>
+                                <div v-if="monitor.subtype === 'http'" class="tw-my-3">
+                                    <label for="url" class="gizmo-field-label">{{ $t("URL") }}</label>
                                     <input
                                         id="url"
                                         v-model="monitor.url"
                                         type="url"
-                                        class="form-control"
+                                        class="gizmo-native-control"
                                         pattern="https?://.+"
                                         required
                                         data-testid="url-input"
                                     />
-                                    <div class="form-text">
+                                    <div class="gizmo-field-help">
                                         {{ $t("GlobalpingHostname") }}
                                     </div>
                                 </div>
 
                                 <!-- Location -->
-                                <div class="my-3">
-                                    <label for="location" class="form-label">{{ $t("Location") }}</label>
+                                <div class="tw-my-3">
+                                    <label for="location" class="gizmo-field-label">{{ $t("Location") }}</label>
                                     <input
                                         id="location"
                                         v-model="monitor.location"
                                         type="text"
-                                        class="form-control"
+                                        class="gizmo-native-control"
                                         required
                                     />
-                                    <i18n-t keypath="GlobalpingLocationDescription" tag="div" class="form-text">
+                                    <i18n-t keypath="GlobalpingLocationDescription" tag="div" class="gizmo-field-help">
                                         <template #plus>
                                             <code>+</code>
                                         </template>
@@ -582,29 +582,29 @@
                                 </div>
 
                                 <!-- IP Family -->
-                                <div class="my-3">
-                                    <label for="ipFamily" class="form-label">{{ $t("Ip Family") }}</label>
-                                    <select id="ipFamily" v-model="monitor.ipFamily" class="form-select">
+                                <div class="tw-my-3">
+                                    <label for="ipFamily" class="gizmo-field-label">{{ $t("Ip Family") }}</label>
+                                    <select id="ipFamily" v-model="monitor.ipFamily" class="gizmo-native-control gizmo-native-select">
                                         <option :value="null">{{ $t("auto-select") }}</option>
                                         <option value="ipv4">IPv4</option>
                                         <option value="ipv6">IPv6</option>
                                     </select>
-                                    <div class="form-text">
+                                    <div class="gizmo-field-help">
                                         {{ $t("GlobalpingIpFamilyInfo") }}
                                     </div>
                                 </div>
 
-                                <div v-if="monitor.subtype === 'http' || monitor.subtype === 'dns'" class="my-3">
-                                    <label for="dns_resolve_server" class="form-label">
+                                <div v-if="monitor.subtype === 'http' || monitor.subtype === 'dns'" class="tw-my-3">
+                                    <label for="dns_resolve_server" class="gizmo-field-label">
                                         {{ $t("Resolver Server") }}
                                     </label>
                                     <input
                                         id="dns_resolve_server"
                                         v-model="monitor.dns_resolve_server"
                                         type="text"
-                                        class="form-control"
+                                        class="gizmo-native-control"
                                     />
-                                    <div class="form-text">
+                                    <div class="gizmo-field-help">
                                         {{ $t("GlobalpingResolverInfo") }}
                                     </div>
                                 </div>
@@ -612,26 +612,26 @@
                                 <!-- DNS -->
                                 <template v-if="monitor.subtype === 'dns'">
                                     <!-- Port -->
-                                    <div class="my-3">
-                                        <label for="port" class="form-label">{{ $t("Port") }}</label>
+                                    <div class="tw-my-3">
+                                        <label for="port" class="gizmo-field-label">{{ $t("Port") }}</label>
                                         <input
                                             id="port"
                                             v-model="monitor.port"
                                             type="number"
-                                            class="form-control"
+                                            class="gizmo-native-control"
                                             required
                                             min="0"
                                             max="65535"
                                             step="1"
                                             value="53"
                                         />
-                                        <div class="form-text">
+                                        <div class="gizmo-field-help">
                                             {{ $t("dnsPortDescription") }}
                                         </div>
                                     </div>
 
-                                    <div class="my-3">
-                                        <label for="dns_resolve_type" class="form-label">
+                                    <div class="tw-my-3">
+                                        <label for="dns_resolve_type" class="gizmo-field-label">
                                             {{ $t("Resource Record Type") }}
                                         </label>
 
@@ -651,29 +651,29 @@
                                             data-testid="resolve-type-select"
                                         ></VueMultiselect>
 
-                                        <div class="form-text">
+                                        <div class="gizmo-field-help">
                                             {{ $t("rrtypeDescription") }}
                                         </div>
                                     </div>
 
-                                    <div class="my-3">
-                                        <label for="keyword" class="form-label">{{ $t("RecordMatch") }}</label>
+                                    <div class="tw-my-3">
+                                        <label for="keyword" class="gizmo-field-label">{{ $t("RecordMatch") }}</label>
                                         <input
                                             id="keyword"
                                             v-model="monitor.keyword"
                                             type="text"
-                                            class="form-control"
+                                            class="gizmo-native-control"
                                         />
-                                        <div class="form-text">
+                                        <div class="gizmo-field-help">
                                             {{ $t("RegexMatch") }}
                                         </div>
                                     </div>
                                 </template>
 
                                 <!-- Protocol -->
-                                <div class="my-3">
-                                    <label for="protocol" class="form-label">{{ $t("Protocol") }}</label>
-                                    <select id="protocol" v-model="monitor.protocol" class="form-select" required>
+                                <div class="tw-my-3">
+                                    <label for="protocol" class="gizmo-field-label">{{ $t("Protocol") }}</label>
+                                    <select id="protocol" v-model="monitor.protocol" class="gizmo-native-control gizmo-native-select" required>
                                         <template v-if="monitor.subtype === 'ping'">
                                             <option value="ICMP">ICMP</option>
                                             <option value="TCP">TCP</option>
@@ -707,14 +707,14 @@
                                         monitor.subtype === 'ping' &&
                                         monitor.protocol === 'TCP')
                                 "
-                                class="my-3"
+                                class="tw-my-3"
                             >
-                                <label for="port" class="form-label">{{ $t("Port") }}</label>
+                                <label for="port" class="gizmo-field-label">{{ $t("Port") }}</label>
                                 <input
                                     id="port"
                                     v-model="monitor.port"
                                     type="number"
-                                    class="form-control"
+                                    class="gizmo-native-control"
                                     required
                                     min="0"
                                     max="65535"
@@ -723,23 +723,23 @@
                             </div>
 
                             <!-- Gamedig Token -->
-                            <div v-if="monitor.type === 'gamedig'" class="my-3">
-                                <label for="gamedig-token" class="form-label">{{ $t("gamedigToken") }}</label>
+                            <div v-if="monitor.type === 'gamedig'" class="tw-my-3">
+                                <label for="gamedig-token" class="gizmo-field-label">{{ $t("gamedigToken") }}</label>
                                 <input
                                     id="gamedig-token"
                                     v-model="monitor.gamedigToken"
                                     type="password"
-                                    class="form-control"
+                                    class="gizmo-native-control"
                                     :placeholder="$t('gamedigToken')"
                                 />
-                                <div class="form-text">
+                                <div class="gizmo-field-help">
                                     {{ $t("gamedigTokenDescription") }}
                                 </div>
                             </div>
 
                             <!-- SNMP Monitor Type -->
-                            <div v-if="monitor.type === 'snmp'" class="my-3">
-                                <label for="snmp_community_string" class="form-label">
+                            <div v-if="monitor.type === 'snmp'" class="tw-my-3">
+                                <label for="snmp_community_string" class="gizmo-field-label">
                                     {{ $t("Community String") }}
                                 </label>
                                 <!-- TODO: Rename monitor.radiusPassword to monitor.password for general use -->
@@ -751,11 +751,11 @@
                                     placeholder="public"
                                 ></HiddenInput>
 
-                                <div class="form-text">{{ $t("snmpCommunityStringHelptext") }}</div>
+                                <div class="gizmo-field-help">{{ $t("snmpCommunityStringHelptext") }}</div>
                             </div>
 
-                            <div v-if="monitor.type === 'snmp'" class="my-3">
-                                <label for="snmp_oid" class="form-label">{{ $t("OID (Object Identifier)") }}</label>
+                            <div v-if="monitor.type === 'snmp'" class="tw-my-3">
+                                <label for="snmp_oid" class="gizmo-field-label">{{ $t("OID (Object Identifier)") }}</label>
                                 <input
                                     id="snmp_oid"
                                     v-model="monitor.snmpOid"
@@ -765,24 +765,24 @@
                                         $t('Example:', ['1.3.6.1.4.1.9.6.1.101'])
                                     "
                                     type="text"
-                                    class="form-control"
+                                    class="gizmo-native-control"
                                     pattern="^([0-2])((\.0)|(\.[1-9][0-9]*))*$"
                                     placeholder="1.3.6.1.4.1.9.6.1.101"
                                     required
                                 />
-                                <div class="form-text">{{ $t("snmpOIDHelptext") }}</div>
+                                <div class="gizmo-field-help">{{ $t("snmpOIDHelptext") }}</div>
                             </div>
 
-                            <div v-if="monitor.type === 'snmp'" class="my-3">
-                                <label for="snmp_version" class="form-label">{{ $t("SNMP Version") }}</label>
-                                <select id="snmp_version" v-model="monitor.snmpVersion" class="form-select">
+                            <div v-if="monitor.type === 'snmp'" class="tw-my-3">
+                                <label for="snmp_version" class="gizmo-field-label">{{ $t("SNMP Version") }}</label>
+                                <select id="snmp_version" v-model="monitor.snmpVersion" class="gizmo-native-control gizmo-native-select">
                                     <option value="1">SNMPv1</option>
                                     <option value="2c">SNMPv2c</option>
                                     <option value="3">SNMPv3</option>
                                 </select>
                             </div>
-                            <div v-if="monitor.type === 'snmp' && monitor.snmpVersion === '3'" class="my-3">
-                                <label for="snmp_v3_username" class="form-label">
+                            <div v-if="monitor.type === 'snmp' && monitor.snmpVersion === '3'" class="tw-my-3">
+                                <label for="snmp_v3_username" class="gizmo-field-label">
                                     {{ $t("snmpV3Username") }}
                                 </label>
 
@@ -790,27 +790,27 @@
                                     id="snmp_v3_username"
                                     v-model="monitor.snmpV3Username"
                                     type="text"
-                                    class="form-control"
+                                    class="gizmo-native-control"
                                     placeholder="SNMPv3 username"
                                     required
                                 />
                             </div>
 
-                            <div v-if="monitor.type === 'smtp'" class="my-3">
-                                <label for="smtp_security" class="form-label">{{ $t("SMTP Security") }}</label>
-                                <select id="smtp_security" v-model="monitor.smtpSecurity" class="form-select">
+                            <div v-if="monitor.type === 'smtp'" class="tw-my-3">
+                                <label for="smtp_security" class="gizmo-field-label">{{ $t("SMTP Security") }}</label>
+                                <select id="smtp_security" v-model="monitor.smtpSecurity" class="gizmo-native-control gizmo-native-select">
                                     <option value="secure">SMTPS</option>
                                     <option value="nostarttls">{{ $t("Ignore STARTTLS") }}</option>
                                     <option value="starttls">{{ $t("Use STARTTLS") }}</option>
                                 </select>
-                                <div class="form-text">
+                                <div class="gizmo-field-help">
                                     {{ $t("smtpHelpText") }}
                                 </div>
                             </div>
 
-                            <div v-if="monitor.type === 'port'" class="my-3">
-                                <label for="port_security" class="form-label">{{ $t("SSL/TLS") }}</label>
-                                <select id="port_security" v-model="monitor.smtpSecurity" class="form-select">
+                            <div v-if="monitor.type === 'port'" class="tw-my-3">
+                                <label for="port_security" class="gizmo-field-label">{{ $t("SSL/TLS") }}</label>
+                                <select id="port_security" v-model="monitor.smtpSecurity" class="gizmo-native-control gizmo-native-select">
                                     <option value="nostarttls">{{ $t("None") }}</option>
                                     <option value="secure">SSL</option>
                                     <option value="starttls">STARTTLS</option>
@@ -819,14 +819,14 @@
 
                             <!-- Expected TLS Alert (for TCP monitor mTLS verification) -->
                             <template v-if="monitor.type === 'port'">
-                                <div class="my-3">
-                                    <label for="expected_tls_alert" class="form-label">
+                                <div class="tw-my-3">
+                                    <label for="expected_tls_alert" class="gizmo-field-label">
                                         {{ $t("Expected TLS Alert") }}
                                     </label>
                                     <select
                                         id="expected_tls_alert"
                                         v-model="monitor.expectedTlsAlert"
-                                        class="form-select"
+                                        class="gizmo-native-control gizmo-native-select"
                                     >
                                         <option value="none">{{ $t("None (Successful Connection)") }}</option>
                                         <!-- TLS alert names are from RFC 8446 spec and should NOT be translated -->
@@ -841,7 +841,7 @@
                                             <option value="certificate_revoked">certificate_revoked (44)</option>
                                         </optgroup>
                                     </select>
-                                    <i18n-t tag="div" class="form-text" keypath="expectedTlsAlertDescription">
+                                    <i18n-t tag="div" class="gizmo-field-help" keypath="expectedTlsAlertDescription">
                                         <template #code>
                                             <code>certificate_required</code>
                                         </template>
@@ -860,56 +860,56 @@
 
                             <!-- NTP Configuration -->
                             <template v-if="monitor.type === 'ntp'">
-                                <h4 class="mt-4">{{ $t("ntpThresholdsTitle") }}</h4>
+                                <h4 class="tw-mt-4">{{ $t("ntpThresholdsTitle") }}</h4>
 
-                                <div class="my-3">
-                                    <label for="ntp-stratum-threshold" class="form-label">
+                                <div class="tw-my-3">
+                                    <label for="ntp-stratum-threshold" class="gizmo-field-label">
                                         {{ $t("ntpStratumThreshold") }}
                                     </label>
                                     <input
                                         id="ntp-stratum-threshold"
                                         v-model.number="monitor.ntpStratumThreshold"
                                         type="number"
-                                        class="form-control"
+                                        class="gizmo-native-control"
                                         min="1"
                                         max="15"
                                         placeholder="5"
                                     />
-                                    <div class="form-text">
+                                    <div class="gizmo-field-help">
                                         {{ $t("ntpStratumThresholdHelp") }}
                                     </div>
                                 </div>
 
-                                <div class="my-3">
-                                    <label for="ntp-offset-threshold" class="form-label">
+                                <div class="tw-my-3">
+                                    <label for="ntp-offset-threshold" class="gizmo-field-label">
                                         {{ $t("ntpOffsetThreshold") }}
                                     </label>
                                     <input
                                         id="ntp-offset-threshold"
                                         v-model.number="monitor.ntpTimeOffsetThreshold"
                                         type="number"
-                                        class="form-control"
+                                        class="gizmo-native-control"
                                         min="1"
                                         placeholder="1000"
                                     />
-                                    <div class="form-text">
+                                    <div class="gizmo-field-help">
                                         {{ $t("ntpOffsetThresholdHelp") }}
                                     </div>
                                 </div>
 
-                                <div class="my-3">
-                                    <label for="ntp-dispersion-threshold" class="form-label">
+                                <div class="tw-my-3">
+                                    <label for="ntp-dispersion-threshold" class="gizmo-field-label">
                                         {{ $t("ntpDispersionThreshold") }}
                                     </label>
                                     <input
                                         id="ntp-dispersion-threshold"
                                         v-model.number="monitor.ntpRootDispersionThreshold"
                                         type="number"
-                                        class="form-control"
+                                        class="gizmo-native-control"
                                         min="1"
                                         placeholder="500"
                                     />
-                                    <div class="form-text">
+                                    <div class="gizmo-field-help">
                                         {{ $t("ntpDispersionThresholdHelp") }}
                                     </div>
                                 </div>
@@ -917,12 +917,12 @@
 
                             <!-- Json Query -->
                             <!-- For Json Query / SNMP -->
-                            <div v-if="monitor.type === 'json-query' || monitor.type === 'snmp'" class="my-3">
-                                <div class="my-2">
-                                    <label for="jsonPath" class="form-label mb-0">
+                            <div v-if="monitor.type === 'json-query' || monitor.type === 'snmp'" class="tw-my-3">
+                                <div class="tw-my-2">
+                                    <label for="jsonPath" class="gizmo-field-label tw-mb-0">
                                         {{ $t("Json Query Expression") }}
                                     </label>
-                                    <i18n-t tag="div" class="form-text mb-2" keypath="jsonQueryDescription">
+                                    <i18n-t tag="div" class="gizmo-field-help tw-mb-2" keypath="jsonQueryDescription">
                                         <a href="https://jsonata.org/" target="_blank" rel="noopener noreferrer">
                                             jsonata.org
                                         </a>
@@ -934,19 +934,19 @@
                                         id="jsonPath"
                                         v-model="monitor.jsonPath"
                                         type="text"
-                                        class="form-control"
+                                        class="gizmo-native-control"
                                         placeholder="$"
                                         required
                                     />
                                 </div>
 
-                                <div class="d-flex align-items-start">
-                                    <div class="me-2">
-                                        <label for="json_path_operator" class="form-label">{{ $t("Condition") }}</label>
+                                <div class="tw-flex tw-items-start">
+                                    <div class="tw-me-2">
+                                        <label for="json_path_operator" class="gizmo-field-label">{{ $t("Condition") }}</label>
                                         <select
                                             id="json_path_operator"
                                             v-model="monitor.jsonPathOperator"
-                                            class="form-select me-3"
+                                            class="gizmo-native-control gizmo-native-select tw-me-3"
                                             required
                                         >
                                             <option value=">">&gt;</option>
@@ -958,8 +958,8 @@
                                             <option value="contains">contains</option>
                                         </select>
                                     </div>
-                                    <div class="flex-grow-1">
-                                        <label for="expectedValue" class="form-label">{{ $t("Expected Value") }}</label>
+                                    <div class="tw-flex-1">
+                                        <label for="expectedValue" class="gizmo-field-label">{{ $t("Expected Value") }}</label>
                                         <input
                                             v-if="
                                                 monitor.jsonPathOperator !== 'contains' &&
@@ -969,7 +969,7 @@
                                             id="expectedValue"
                                             v-model="monitor.expectedValue"
                                             type="number"
-                                            class="form-control"
+                                            class="gizmo-native-control"
                                             required
                                             step=".01"
                                         />
@@ -978,7 +978,7 @@
                                             id="expectedValue"
                                             v-model="monitor.expectedValue"
                                             type="text"
-                                            class="form-control"
+                                            class="gizmo-native-control"
                                             required
                                         />
                                     </div>
@@ -988,42 +988,42 @@
                             <!-- DNS Resolver Server -->
                             <!-- For DNS Type -->
                             <template v-if="monitor.type === 'dns'">
-                                <div class="my-3">
-                                    <label for="dns_resolve_server" class="form-label">
+                                <div class="tw-my-3">
+                                    <label for="dns_resolve_server" class="gizmo-field-label">
                                         {{ $t("Resolver Server(s)") }}
                                     </label>
                                     <input
                                         id="dns_resolve_server"
                                         v-model="monitor.dns_resolve_server"
                                         type="text"
-                                        class="form-control"
+                                        class="gizmo-native-control"
                                         required
                                     />
-                                    <div class="form-text">
+                                    <div class="gizmo-field-help">
                                         {{ $t("resolverserverDescription") }}
                                     </div>
                                 </div>
 
                                 <!-- Port -->
-                                <div class="my-3">
-                                    <label for="port" class="form-label">{{ $t("Port") }}</label>
+                                <div class="tw-my-3">
+                                    <label for="port" class="gizmo-field-label">{{ $t("Port") }}</label>
                                     <input
                                         id="port"
                                         v-model="monitor.port"
                                         type="number"
-                                        class="form-control"
+                                        class="gizmo-native-control"
                                         required
                                         min="0"
                                         max="65535"
                                         step="1"
                                     />
-                                    <div class="form-text">
+                                    <div class="gizmo-field-help">
                                         {{ $t("dnsPortDescription") }}
                                     </div>
                                 </div>
 
-                                <div class="my-3">
-                                    <label for="dns_resolve_type" class="form-label">
+                                <div class="tw-my-3">
+                                    <label for="dns_resolve_type" class="gizmo-field-label">
                                         {{ $t("Resource Record Type") }}
                                     </label>
 
@@ -1043,7 +1043,7 @@
                                         data-testid="resolve-type-select"
                                     ></VueMultiselect>
 
-                                    <div class="form-text">
+                                    <div class="gizmo-field-help">
                                         {{ $t("rrtypeDescription") }}
                                     </div>
                                 </div>
@@ -1051,22 +1051,22 @@
 
                             <!-- Docker Container Name / ID -->
                             <!-- For Docker Type -->
-                            <div v-if="monitor.type === 'docker'" class="my-3">
-                                <label for="docker_container" class="form-label">{{ $t("Container Name / ID") }}</label>
+                            <div v-if="monitor.type === 'docker'" class="tw-my-3">
+                                <label for="docker_container" class="gizmo-field-label">{{ $t("Container Name / ID") }}</label>
                                 <input
                                     id="docker_container"
                                     v-model="monitor.docker_container"
                                     type="text"
-                                    class="form-control"
+                                    class="gizmo-native-control"
                                     required
                                 />
                             </div>
 
                             <!-- Docker Host -->
                             <!-- For Docker Type -->
-                            <div v-if="monitor.type === 'docker'" class="my-3">
-                                <div class="mb-3">
-                                    <label for="docker-host" class="form-label">{{ $t("Docker Host") }}</label>
+                            <div v-if="monitor.type === 'docker'" class="tw-my-3">
+                                <div class="tw-mb-3">
+                                    <label for="docker-host" class="gizmo-field-label">{{ $t("Docker Host") }}</label>
                                     <ActionSelect
                                         id="docker-host"
                                         v-model="monitor.docker_host"
@@ -1083,18 +1083,18 @@
                             <!-- MQTT -->
                             <!-- For MQTT Type -->
                             <template v-if="monitor.type === 'mqtt'">
-                                <div class="my-3">
-                                    <label for="mqttUsername" class="form-label">MQTT {{ $t("Username") }}</label>
+                                <div class="tw-my-3">
+                                    <label for="mqttUsername" class="gizmo-field-label">MQTT {{ $t("Username") }}</label>
                                     <input
                                         id="mqttUsername"
                                         v-model="monitor.mqttUsername"
                                         type="text"
-                                        class="form-control"
+                                        class="gizmo-native-control"
                                     />
                                 </div>
 
-                                <div class="my-3">
-                                    <label for="mqttPassword" class="form-label">MQTT {{ $t("Password") }}</label>
+                                <div class="tw-my-3">
+                                    <label for="mqttPassword" class="gizmo-field-label">MQTT {{ $t("Password") }}</label>
                                     <HiddenInput
                                         id="mqttPassword"
                                         v-model="monitor.mqttPassword"
@@ -1102,22 +1102,22 @@
                                     />
                                 </div>
 
-                                <div class="my-3">
-                                    <label for="mqttTopic" class="form-label">MQTT {{ $t("Topic") }}</label>
+                                <div class="tw-my-3">
+                                    <label for="mqttTopic" class="gizmo-field-label">MQTT {{ $t("Topic") }}</label>
                                     <input
                                         id="mqttTopic"
                                         v-model="monitor.mqttTopic"
                                         type="text"
-                                        class="form-control"
+                                        class="gizmo-native-control"
                                         required
                                     />
-                                    <div class="form-text">
+                                    <div class="gizmo-field-help">
                                         {{ $t("topicExplanation") }}
                                     </div>
                                 </div>
 
-                                <div class="my-3">
-                                    <label for="mqttWebsocketPath" class="form-label">
+                                <div class="tw-my-3">
+                                    <label for="mqttWebsocketPath" class="gizmo-field-label">
                                         {{ $t("mqttWebSocketPath") }}
                                     </label>
                                     <input
@@ -1125,20 +1125,20 @@
                                         id="mqttWebsocketPath"
                                         v-model="monitor.mqttWebsocketPath"
                                         type="text"
-                                        class="form-control"
+                                        class="gizmo-native-control"
                                     />
-                                    <input v-else type="text" class="form-control" disabled />
-                                    <div class="form-text">
+                                    <input v-else type="text" class="gizmo-native-control" disabled />
+                                    <div class="gizmo-field-help">
                                         {{ $t("mqttWebsocketPathExplanation") }}
                                     </div>
                                 </div>
 
-                                <div class="my-3">
-                                    <label for="mqttCheckType" class="form-label">MQTT {{ $t("Check Type") }}</label>
+                                <div class="tw-my-3">
+                                    <label for="mqttCheckType" class="gizmo-field-label">MQTT {{ $t("Check Type") }}</label>
                                     <select
                                         id="mqttCheckType"
                                         v-model="monitor.mqttCheckType"
-                                        class="form-select"
+                                        class="gizmo-native-control gizmo-native-select"
                                         required
                                     >
                                         <option value="keyword">{{ $t("Keyword") }}</option>
@@ -1146,33 +1146,33 @@
                                     </select>
                                 </div>
 
-                                <div v-if="monitor.mqttCheckType === 'keyword'" class="my-3">
-                                    <label for="mqttSuccessKeyword" class="form-label">
+                                <div v-if="monitor.mqttCheckType === 'keyword'" class="tw-my-3">
+                                    <label for="mqttSuccessKeyword" class="gizmo-field-label">
                                         MQTT {{ $t("successKeyword") }}
                                     </label>
                                     <input
                                         id="mqttSuccessKeyword"
                                         v-model="monitor.mqttSuccessMessage"
                                         type="text"
-                                        class="form-control"
+                                        class="gizmo-native-control"
                                     />
-                                    <div class="form-text">
+                                    <div class="gizmo-field-help">
                                         {{ $t("successKeywordExplanation") }}
                                     </div>
                                 </div>
 
                                 <!-- Json Query -->
-                                <div v-if="monitor.mqttCheckType === 'json-query'" class="my-3">
-                                    <label for="jsonPath" class="form-label">{{ $t("Json Query") }}</label>
+                                <div v-if="monitor.mqttCheckType === 'json-query'" class="tw-my-3">
+                                    <label for="jsonPath" class="gizmo-field-label">{{ $t("Json Query") }}</label>
                                     <input
                                         id="jsonPath"
                                         v-model="monitor.jsonPath"
                                         type="text"
-                                        class="form-control"
+                                        class="gizmo-native-control"
                                         required
                                     />
 
-                                    <i18n-t tag="div" class="form-text" keypath="jsonQueryDescription">
+                                    <i18n-t tag="div" class="gizmo-field-help" keypath="jsonQueryDescription">
                                         <a href="https://jsonata.org/" target="_blank" rel="noopener noreferrer">
                                             jsonata.org
                                         </a>
@@ -1182,31 +1182,31 @@
                                     </i18n-t>
                                     <br />
 
-                                    <label for="expectedValue" class="form-label">{{ $t("Expected Value") }}</label>
+                                    <label for="expectedValue" class="gizmo-field-label">{{ $t("Expected Value") }}</label>
                                     <input
                                         id="expectedValue"
                                         v-model="monitor.expectedValue"
                                         type="text"
-                                        class="form-control"
+                                        class="gizmo-native-control"
                                         required
                                     />
                                 </div>
                             </template>
 
                             <template v-if="monitor.type === 'radius'">
-                                <div class="my-3">
-                                    <label for="radius_username" class="form-label">Radius {{ $t("Username") }}</label>
+                                <div class="tw-my-3">
+                                    <label for="radius_username" class="gizmo-field-label">Radius {{ $t("Username") }}</label>
                                     <input
                                         id="radius_username"
                                         v-model="monitor.radiusUsername"
                                         type="text"
-                                        class="form-control"
+                                        class="gizmo-native-control"
                                         required
                                     />
                                 </div>
 
-                                <div class="my-3">
-                                    <label for="radius_password" class="form-label">Radius {{ $t("Password") }}</label>
+                                <div class="tw-my-3">
+                                    <label for="radius_password" class="gizmo-field-label">Radius {{ $t("Password") }}</label>
                                     <HiddenInput
                                         id="radius_password"
                                         v-model="monitor.radiusPassword"
@@ -1215,43 +1215,43 @@
                                     />
                                 </div>
 
-                                <div class="my-3">
-                                    <label for="radius_secret" class="form-label">{{ $t("RadiusSecret") }}</label>
+                                <div class="tw-my-3">
+                                    <label for="radius_secret" class="gizmo-field-label">{{ $t("RadiusSecret") }}</label>
                                     <HiddenInput
                                         id="radius_secret"
                                         v-model="monitor.radiusSecret"
                                         autocomplete="new-password"
                                         :required="true"
                                     />
-                                    <div class="form-text">{{ $t("RadiusSecretDescription") }}</div>
+                                    <div class="gizmo-field-help">{{ $t("RadiusSecretDescription") }}</div>
                                 </div>
 
-                                <div class="my-3">
-                                    <label for="radius_called_station_id" class="form-label">
+                                <div class="tw-my-3">
+                                    <label for="radius_called_station_id" class="gizmo-field-label">
                                         {{ $t("RadiusCalledStationId") }}
                                     </label>
                                     <input
                                         id="radius_called_station_id"
                                         v-model="monitor.radiusCalledStationId"
                                         type="text"
-                                        class="form-control"
+                                        class="gizmo-native-control"
                                         required
                                     />
-                                    <div class="form-text">{{ $t("RadiusCalledStationIdDescription") }}</div>
+                                    <div class="gizmo-field-help">{{ $t("RadiusCalledStationIdDescription") }}</div>
                                 </div>
 
-                                <div class="my-3">
-                                    <label for="radius_calling_station_id" class="form-label">
+                                <div class="tw-my-3">
+                                    <label for="radius_calling_station_id" class="gizmo-field-label">
                                         {{ $t("RadiusCallingStationId") }}
                                     </label>
                                     <input
                                         id="radius_calling_station_id"
                                         v-model="monitor.radiusCallingStationId"
                                         type="text"
-                                        class="form-control"
+                                        class="gizmo-native-control"
                                         required
                                     />
-                                    <div class="form-text">{{ $t("RadiusCallingStationIdDescription") }}</div>
+                                    <div class="gizmo-field-help">{{ $t("RadiusCallingStationIdDescription") }}</div>
                                 </div>
                             </template>
 
@@ -1266,34 +1266,34 @@
                                     monitor.type === 'mongodb'
                                 "
                             >
-                                <div class="my-3">
-                                    <label for="connectionString" class="form-label">
+                                <div class="tw-my-3">
+                                    <label for="connectionString" class="gizmo-field-label">
                                         {{ $t("Connection String") }}
                                     </label>
                                     <input
                                         id="connectionString"
                                         v-model="monitor.databaseConnectionString"
                                         type="text"
-                                        class="form-control"
+                                        class="gizmo-native-control"
                                         required
                                     />
                                 </div>
                             </template>
 
                             <template v-if="monitor.type === 'oracledb'">
-                                <div class="my-3">
-                                    <label for="oracledb-user" class="form-label">{{ $t("Username") }}</label>
+                                <div class="tw-my-3">
+                                    <label for="oracledb-user" class="gizmo-field-label">{{ $t("Username") }}</label>
                                     <input
                                         id="oracledb-user"
                                         v-model="monitor.basic_auth_user"
                                         type="text"
-                                        class="form-control"
+                                        class="gizmo-native-control"
                                         required
                                     />
                                 </div>
 
-                                <div class="my-3">
-                                    <label for="oracledb-pass" class="form-label">{{ $t("Password") }}</label>
+                                <div class="tw-my-3">
+                                    <label for="oracledb-pass" class="gizmo-field-label">{{ $t("Password") }}</label>
                                     <HiddenInput
                                         id="oracledb-pass"
                                         v-model="monitor.basic_auth_pass"
@@ -1304,20 +1304,20 @@
                             </template>
 
                             <template v-if="monitor.type === 'system-service'">
-                                <div class="my-3">
-                                    <label for="system-service-name" class="form-label">
+                                <div class="tw-my-3">
+                                    <label for="system-service-name" class="gizmo-field-label">
                                         {{ $t("systemServiceName") }}
                                     </label>
                                     <input
                                         id="system-service-name"
                                         v-model="monitor.system_service_name"
                                         type="text"
-                                        class="form-control"
+                                        class="gizmo-native-control"
                                         required
                                         :placeholder="$root.info.runtime.platform === 'win32' ? 'Dnscache' : 'nginx'"
                                     />
 
-                                    <div class="form-text">
+                                    <div class="gizmo-field-help">
                                         <template v-if="$root.info.runtime.platform === 'linux'">
                                             {{
                                                 $t("systemServiceDescriptionLinux", {
@@ -1346,7 +1346,7 @@
                                                 /^[a-zA-Z0-9_\-\.\@\ ]+$/.test(monitor.system_service_name)
                                             "
                                         >
-                                            <div v-if="$root.info.runtime.platform === 'linux'" class="mt-2">
+                                            <div v-if="$root.info.runtime.platform === 'linux'" class="tw-mt-2">
                                                 <div>
                                                     <i18n-t keypath="systemServiceCommandHint" tag="span">
                                                         <template #command>
@@ -1357,11 +1357,11 @@
                                                         </template>
                                                     </i18n-t>
                                                 </div>
-                                                <div class="text-secondary small">
+                                                <div class="tw-text-content-muted tw-text-sm">
                                                     {{ $t("systemServiceExpectedOutput", ["active"]) }}
                                                 </div>
                                             </div>
-                                            <div v-else-if="$root.info.runtime.platform === 'win32'" class="mt-2">
+                                            <div v-else-if="$root.info.runtime.platform === 'win32'" class="tw-mt-2">
                                                 <div>
                                                     <i18n-t keypath="systemServiceCommandHint" tag="span">
                                                         <template #command>
@@ -1375,7 +1375,7 @@
                                                         </template>
                                                     </i18n-t>
                                                 </div>
-                                                <div class="text-secondary small">
+                                                <div class="tw-text-content-muted tw-text-sm">
                                                     {{ $t("systemServiceExpectedOutput", ["Running"]) }}
                                                 </div>
                                             </div>
@@ -1385,13 +1385,13 @@
                             </template>
 
                             <template v-if="monitor.type === 'pm2'">
-                                <div class="my-3">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <label for="pm2-process-name" class="form-label mb-0">
+                                <div class="tw-my-3">
+                                    <div class="tw-flex tw-justify-between tw-items-center">
+                                        <label for="pm2-process-name" class="gizmo-field-label tw-mb-0">
                                             {{ $t("PM2 Process") }}
                                         </label>
                                         <button
-                                            class="btn btn-outline-secondary btn-sm"
+                                            class="gizmo-native-button gizmo-native-button--secondary gizmo-native-button--sm"
                                             type="button"
                                             :disabled="pm2ProcessLoading"
                                             @click="loadPM2ProcessList"
@@ -1403,7 +1403,7 @@
                                         v-if="pm2ProcessOptions.length > 0"
                                         id="pm2-process-name"
                                         v-model="monitor.system_service_name"
-                                        class="form-select mt-2"
+                                        class="gizmo-native-control gizmo-native-select tw-mt-2"
                                         required
                                     >
                                         <option disabled value="">{{ $t("Select PM2 process") }}</option>
@@ -1421,28 +1421,28 @@
                                         id="pm2-process-name"
                                         v-model="monitor.system_service_name"
                                         type="text"
-                                        class="form-control mt-2"
+                                        class="gizmo-native-control tw-mt-2"
                                         placeholder="api"
                                         required
                                     />
-                                    <div v-if="pm2ProcessError" class="text-danger small mt-2">
+                                    <div v-if="pm2ProcessError" class="tw-text-status-down-fg tw-text-sm tw-mt-2">
                                         {{ pm2ProcessError }}
                                     </div>
 
-                                    <div class="form-text">
+                                    <div class="gizmo-field-help">
                                         {{
                                             $t("pm2Description", {
                                                 service_name: monitor.system_service_name || "api",
                                             })
                                         }}
-                                        <div class="mt-2">
+                                        <div class="tw-mt-2">
                                             <i18n-t keypath="systemServiceCommandHint" tag="span">
                                                 <template #command>
                                                     <code>pm2 jlist</code>
                                                 </template>
                                             </i18n-t>
                                         </div>
-                                        <div class="text-secondary small">
+                                        <div class="tw-text-content-muted tw-text-sm">
                                             {{ $t("pm2ExpectedStates") }}
                                         </div>
                                     </div>
@@ -1450,8 +1450,8 @@
                             </template>
 
                             <template v-if="monitor.type === 'mysql'">
-                                <div class="my-3">
-                                    <label for="mysql-password" class="form-label">{{ $t("Password") }}</label>
+                                <div class="tw-my-3">
+                                    <label for="mysql-password" class="gizmo-field-label">{{ $t("Password") }}</label>
                                     <!-- TODO: Rename monitor.radiusPassword to monitor.password for general use -->
                                     <HiddenInput
                                         id="mysql-password"
@@ -1470,12 +1470,12 @@
                                     monitor.type === 'oracledb'
                                 "
                             >
-                                <div class="my-3">
-                                    <label for="sqlQuery" class="form-label">{{ $t("Query") }}</label>
+                                <div class="tw-my-3">
+                                    <label for="sqlQuery" class="gizmo-field-label">{{ $t("Query") }}</label>
                                     <textarea
                                         id="sqlQuery"
                                         v-model="monitor.databaseQuery"
-                                        class="form-control"
+                                        class="gizmo-native-control"
                                         :placeholder="
                                             $t('Example:', [
                                                 monitor.type === 'oracledb' ? 'SELECT 1 FROM DUAL' : 'SELECT 1',
@@ -1487,15 +1487,15 @@
 
                             <!-- MongoDB -->
                             <template v-if="monitor.type === 'mongodb'">
-                                <div class="my-3">
-                                    <label for="mongodbCommand" class="form-label">{{ $t("Command") }}</label>
+                                <div class="tw-my-3">
+                                    <label for="mongodbCommand" class="gizmo-field-label">{{ $t("Command") }}</label>
                                     <textarea
                                         id="mongodbCommand"
                                         v-model="monitor.databaseQuery"
-                                        class="form-control"
+                                        class="gizmo-native-control"
                                         :placeholder="$t('Example:', ['{ &quot;ping&quot;: 1 }'])"
                                     ></textarea>
-                                    <i18n-t tag="div" class="form-text" keypath="mongodbCommandDescription">
+                                    <i18n-t tag="div" class="gizmo-field-help" keypath="mongodbCommandDescription">
                                         <template #documentation>
                                             <a
                                                 href="https://www.mongodb.com/docs/manual/reference/command/"
@@ -1507,11 +1507,11 @@
                                         </template>
                                     </i18n-t>
                                 </div>
-                                <div class="my-3">
-                                    <label for="jsonPath" class="form-label">{{ $t("Json Query") }}</label>
-                                    <input id="jsonPath" v-model="monitor.jsonPath" type="text" class="form-control" />
+                                <div class="tw-my-3">
+                                    <label for="jsonPath" class="gizmo-field-label">{{ $t("Json Query") }}</label>
+                                    <input id="jsonPath" v-model="monitor.jsonPath" type="text" class="gizmo-native-control" />
 
-                                    <i18n-t tag="div" class="form-text" keypath="jsonQueryDescription">
+                                    <i18n-t tag="div" class="gizmo-field-help" keypath="jsonQueryDescription">
                                         <a href="https://jsonata.org/" target="_blank" rel="noopener noreferrer">
                                             jsonata.org
                                         </a>
@@ -1520,13 +1520,13 @@
                                         </a>
                                     </i18n-t>
                                 </div>
-                                <div class="my-3">
-                                    <label for="expectedValue" class="form-label">{{ $t("Expected Value") }}</label>
+                                <div class="tw-my-3">
+                                    <label for="expectedValue" class="gizmo-field-label">{{ $t("Expected Value") }}</label>
                                     <input
                                         id="expectedValue"
                                         v-model="monitor.expectedValue"
                                         type="text"
-                                        class="form-control"
+                                        class="gizmo-native-control"
                                     />
                                 </div>
                             </template>
@@ -1536,19 +1536,19 @@
                                 v-if="supportsConditions && conditionVariables.length > 0"
                                 v-model="monitor.conditions"
                                 :condition-variables="conditionVariables"
-                                class="my-3"
+                                class="tw-my-3"
                             />
 
                             <!-- Interval -->
-                            <div class="my-3">
-                                <label for="interval" class="form-label">
+                            <div class="tw-my-3">
+                                <label for="interval" class="gizmo-field-label">
                                     {{ $t("Heartbeat Interval") }} ({{ $t("checkEverySecond", [monitor.interval]) }})
                                 </label>
                                 <input
                                     id="interval"
                                     v-model="monitor.interval"
                                     type="number"
-                                    class="form-control"
+                                    class="gizmo-native-control"
                                     required
                                     :min="minInterval"
                                     step="1"
@@ -1556,33 +1556,33 @@
                                     @blur="finishUpdateInterval"
                                 />
 
-                                <div class="form-text">
+                                <div class="gizmo-field-help">
                                     {{ monitor.humanReadableInterval }}
                                 </div>
 
-                                <div v-if="monitor.interval < 20" class="form-text">
+                                <div v-if="monitor.interval < 20" class="gizmo-field-help">
                                     {{ $t("minimumIntervalWarning") }}
                                 </div>
                             </div>
 
-                            <div class="my-3">
-                                <label for="maxRetries" class="form-label">{{ $t("Retries") }}</label>
+                            <div class="tw-my-3">
+                                <label for="maxRetries" class="gizmo-field-label">{{ $t("Retries") }}</label>
                                 <input
                                     id="maxRetries"
                                     v-model="monitor.maxretries"
                                     type="number"
-                                    class="form-control"
+                                    class="gizmo-native-control"
                                     required
                                     min="0"
                                     step="1"
                                 />
-                                <div class="form-text">
+                                <div class="gizmo-field-help">
                                     {{ $t("retriesDescription") }}
                                 </div>
                             </div>
 
-                            <div v-if="monitor.maxretries" class="my-3">
-                                <label for="retry-interval" class="form-label">
+                            <div v-if="monitor.maxretries" class="tw-my-3">
+                                <label for="retry-interval" class="gizmo-field-label">
                                     {{ $t("Heartbeat Retry Interval") }}
                                     <span>({{ $t("retryCheckEverySecond", [monitor.retryInterval]) }})</span>
                                 </label>
@@ -1590,31 +1590,31 @@
                                     id="retry-interval"
                                     v-model="monitor.retryInterval"
                                     type="number"
-                                    class="form-control"
+                                    class="gizmo-native-control"
                                     required
                                     :min="minInterval"
                                     step="1"
                                     @focus="lowIntervalConfirmation.editedValue = true"
                                 />
-                                <div v-if="monitor.retryInterval < 20" class="form-text">
+                                <div v-if="monitor.retryInterval < 20" class="gizmo-field-help">
                                     {{ $t("minimumIntervalWarning") }}
                                 </div>
                             </div>
 
                             <!-- Retry only on status code failure: JSON Query only -->
-                            <div v-if="monitor.type === 'json-query' && monitor.maxretries > 0" class="my-3">
-                                <div class="form-check">
+                            <div v-if="monitor.type === 'json-query' && monitor.maxretries > 0" class="tw-my-3">
+                                <div class="gizmo-native-check">
                                     <input
                                         id="retry-only-on-status-code-failure"
                                         v-model="monitor.retryOnlyOnStatusCodeFailure"
                                         type="checkbox"
-                                        class="form-check-input"
+                                        class="gizmo-native-check__input"
                                     />
-                                    <label for="retry-only-on-status-code-failure" class="form-check-label">
+                                    <label for="retry-only-on-status-code-failure" class="gizmo-native-check__label">
                                         {{ $t("Only retry if status code check fails") }}
                                     </label>
                                 </div>
-                                <div class="form-text">
+                                <div class="gizmo-field-help">
                                     {{ $t("retryOnlyOnStatusCodeFailureDescription") }}
                                 </div>
                             </div>
@@ -1631,9 +1631,9 @@
                                     monitor.type === 'websocket-upgrade' ||
                                     monitor.type === 'kafka-producer'
                                 "
-                                class="my-3"
+                                class="tw-my-3"
                             >
-                                <label for="timeout" class="form-label">
+                                <label for="timeout" class="gizmo-field-label">
                                     {{
                                         monitor.type === "ping"
                                             ? $t("pingGlobalTimeoutLabel")
@@ -1649,19 +1649,19 @@
                                     id="timeout"
                                     v-model="monitor.timeout"
                                     type="number"
-                                    class="form-control"
+                                    class="gizmo-native-control"
                                     :min="timeoutMin"
                                     :max="timeoutMax"
                                     :step="timeoutStep"
                                     required
                                 />
-                                <div v-if="monitor.type === 'ping'" class="form-text">
+                                <div v-if="monitor.type === 'ping'" class="gizmo-field-help">
                                     {{ $t("pingGlobalTimeoutDescription") }}
                                 </div>
                             </div>
 
-                            <div class="my-3">
-                                <label for="resend-interval" class="form-label">
+                            <div class="tw-my-3">
+                                <label for="resend-interval" class="gizmo-field-label">
                                     {{ $t("Resend Notification if Down X times consecutively") }}
                                     <span v-if="monitor.resendInterval > 0">
                                         ({{ $t("resendEveryXTimes", [monitor.resendInterval]) }})
@@ -1672,14 +1672,14 @@
                                     id="resend-interval"
                                     v-model="monitor.resendInterval"
                                     type="number"
-                                    class="form-control"
+                                    class="gizmo-native-control"
                                     required
                                     min="0"
                                     step="1"
                                 />
                             </div>
 
-                            <h2 v-if="monitor.type !== 'push'" class="mt-5 mb-2">{{ $t("Advanced") }}</h2>
+                            <h2 v-if="monitor.type !== 'push'" class="tw-mt-5 tw-mb-2">{{ $t("Advanced") }}</h2>
 
                             <div
                                 v-if="
@@ -1690,27 +1690,27 @@
                                         ['starttls', 'secure'].includes(monitor.smtpSecurity)) ||
                                     (monitor.type === 'globalping' && monitor.subtype === 'http')
                                 "
-                                class="my-3 form-check"
+                                class="tw-my-3 gizmo-native-check"
                                 :title="monitor.ignoreTls ? $t('ignoredTLSError') : ''"
                             >
                                 <input
                                     id="expiry-notification"
                                     v-model="monitor.expiryNotification"
-                                    class="form-check-input"
+                                    class="gizmo-native-check__input"
                                     type="checkbox"
                                     :disabled="monitor.ignoreTls"
                                 />
-                                <label class="form-check-label" for="expiry-notification">
+                                <label class="gizmo-native-check__label" for="expiry-notification">
                                     {{ $t("Certificate Expiry Notification") }}
                                 </label>
-                                <div class="form-text">
+                                <div class="gizmo-field-help">
                                     {{ $t("certificateExpiryNotificationHelp") }}
                                 </div>
                             </div>
 
                             <!-- Screenshot Delay - Real Browser only -->
-                            <div v-if="monitor.type === 'real-browser'" class="my-3">
-                                <label for="screenshot-delay" class="form-label">
+                            <div v-if="monitor.type === 'real-browser'" class="tw-my-3">
+                                <label for="screenshot-delay" class="gizmo-field-label">
                                     {{
                                         $t("Screenshot Delay", {
                                             milliseconds: $t("milliseconds", monitor.screenshot_delay),
@@ -1721,59 +1721,59 @@
                                     id="screenshot-delay"
                                     v-model="monitor.screenshot_delay"
                                     type="number"
-                                    class="form-control"
+                                    class="gizmo-native-control"
                                     min="0"
                                     :max="Math.floor(monitor.interval * 1000 * 0.5)"
                                     step="100"
                                 />
-                                <div class="form-text">
+                                <div class="gizmo-field-help">
                                     {{
                                         $t("screenshotDelayDescription", {
                                             maxValueMs: Math.floor(monitor.interval * 1000 * 0.5),
                                         })
                                     }}
                                 </div>
-                                <div v-if="monitor.screenshot_delay" class="form-text text-warning">
+                                <div v-if="monitor.screenshot_delay" class="gizmo-field-help tw-text-status-degraded-fg">
                                     {{ $t("screenshotDelayWarning") }}
                                 </div>
                             </div>
 
-                            <div v-if="showDomainExpiryNotification" class="my-3 form-check">
+                            <div v-if="showDomainExpiryNotification" class="tw-my-3 gizmo-native-check">
                                 <input
                                     id="domain-expiry-notification"
                                     v-model="monitor.domainExpiryNotification"
-                                    class="form-check-input"
+                                    class="gizmo-native-check__input"
                                     type="checkbox"
                                 />
-                                <label class="form-check-label" for="domain-expiry-notification">
+                                <label class="gizmo-native-check__label" for="domain-expiry-notification">
                                     {{ $t("labelDomainNameExpiryNotification") }}
                                 </label>
-                                <div class="form-text">
+                                <div class="gizmo-field-help">
                                     {{ $t("domainExpiryNotificationHelp") }}
                                 </div>
                                 <div
                                     v-if="monitor.domainExpiryNotification && domainExpiryUnsupportedReason"
-                                    class="form-text"
+                                    class="gizmo-field-help"
                                 >
                                     {{ domainExpiryUnsupportedReason }}
                                 </div>
                             </div>
-                            <div v-if="monitor.type === 'websocket-upgrade'" class="my-3 form-check">
+                            <div v-if="monitor.type === 'websocket-upgrade'" class="tw-my-3 gizmo-native-check">
                                 <input
                                     id="wsIgnoreSecWebsocketAcceptHeader"
                                     v-model="monitor.wsIgnoreSecWebsocketAcceptHeader"
-                                    class="form-check-input"
+                                    class="gizmo-native-check__input"
                                     type="checkbox"
                                 />
                                 <i18n-t
                                     tag="label"
                                     keypath="Ignore Sec-WebSocket-Accept header"
-                                    class="form-check-label"
+                                    class="gizmo-native-check__label"
                                     for="wsIgnoreSecWebsocketAcceptHeader"
                                 >
                                     <code>Sec-Websocket-Accept</code>
                                 </i18n-t>
-                                <div class="form-text">
+                                <div class="gizmo-field-help">
                                     {{ $t("ignoreSecWebsocketAcceptHeaderDescription") }}
                                 </div>
                             </div>
@@ -1786,16 +1786,16 @@
                                     monitor.type === 'redis' ||
                                     (monitor.type === 'globalping' && monitor.subtype === 'http')
                                 "
-                                class="my-3 form-check"
+                                class="tw-my-3 gizmo-native-check"
                             >
                                 <input
                                     id="ignore-tls"
                                     v-model="monitor.ignoreTls"
-                                    class="form-check-input"
+                                    class="gizmo-native-check__input"
                                     type="checkbox"
                                     value=""
                                 />
-                                <label class="form-check-label" for="ignore-tls">
+                                <label class="gizmo-native-check__label" for="ignore-tls">
                                     {{ monitor.type === "redis" ? $t("ignoreTLSErrorGeneral") : $t("ignoreTLSError") }}
                                 </label>
                             </div>
@@ -1807,58 +1807,58 @@
                                     monitor.type === 'json-query' ||
                                     (monitor.type === 'globalping' && monitor.subtype === 'http')
                                 "
-                                class="my-3 form-check"
+                                class="tw-my-3 gizmo-native-check"
                             >
                                 <input
                                     id="cache-bust"
                                     v-model="monitor.cacheBust"
-                                    class="form-check-input"
+                                    class="gizmo-native-check__input"
                                     type="checkbox"
                                     value=""
                                 />
-                                <label class="form-check-label" for="cache-bust">
+                                <label class="gizmo-native-check__label" for="cache-bust">
                                     <i18n-t
                                         tag="label"
                                         keypath="cacheBusterParam"
-                                        class="form-check-label"
+                                        class="gizmo-native-check__label"
                                         for="cache-bust"
                                     >
                                         <code>uptime_gizmo_cachebuster</code>
                                     </i18n-t>
                                 </label>
-                                <div class="form-text">
+                                <div class="gizmo-field-help">
                                     {{ $t("cacheBusterParamDescription") }}
                                 </div>
                             </div>
 
-                            <div class="my-3 form-check">
+                            <div class="tw-my-3 gizmo-native-check">
                                 <input
                                     id="upside-down"
                                     v-model="monitor.upsideDown"
-                                    class="form-check-input"
+                                    class="gizmo-native-check__input"
                                     type="checkbox"
                                 />
-                                <label class="form-check-label" for="upside-down">
+                                <label class="gizmo-native-check__label" for="upside-down">
                                     {{ $t("Upside Down Mode") }}
                                 </label>
-                                <div class="form-text">
+                                <div class="gizmo-field-help">
                                     {{ $t("upsideDownModeDescription") }}
                                 </div>
                             </div>
 
-                            <div v-if="monitor.type === 'gamedig'" class="my-3 form-check">
+                            <div v-if="monitor.type === 'gamedig'" class="tw-my-3 gizmo-native-check">
                                 <input
                                     id="gamedig-guess-port"
                                     v-model="monitor.gamedigGivenPortOnly"
                                     :true-value="false"
                                     :false-value="true"
-                                    class="form-check-input"
+                                    class="gizmo-native-check__input"
                                     type="checkbox"
                                 />
-                                <label class="form-check-label" for="gamedig-guess-port">
+                                <label class="gizmo-native-check__label" for="gamedig-guess-port">
                                     {{ $t("gamedigGuessPort") }}
                                 </label>
-                                <div class="form-text">
+                                <div class="gizmo-field-help">
                                     {{ $t("gamedigGuessPortDescription") }}
                                 </div>
                             </div>
@@ -1869,49 +1869,49 @@
                                     monitor.type === 'ping' ||
                                     (monitor.type === 'globalping' && monitor.subtype === 'ping')
                                 "
-                                class="my-3"
+                                class="tw-my-3"
                             >
-                                <label for="ping-count" class="form-label">{{ $t("pingCountLabel") }}</label>
+                                <label for="ping-count" class="gizmo-field-label">{{ $t("pingCountLabel") }}</label>
                                 <input
                                     id="ping-count"
                                     v-model="monitor.ping_count"
                                     type="number"
-                                    class="form-control"
+                                    class="gizmo-native-control"
                                     required
                                     min="1"
                                     max="100"
                                     step="1"
                                 />
-                                <div class="form-text">
+                                <div class="gizmo-field-help">
                                     {{ $t("pingCountDescription") }}
                                 </div>
                             </div>
 
                             <!-- Numeric Output -->
-                            <div v-if="monitor.type === 'ping'" class="my-3 form-check">
+                            <div v-if="monitor.type === 'ping'" class="tw-my-3 gizmo-native-check">
                                 <input
                                     id="ping_numeric"
                                     v-model="monitor.ping_numeric"
                                     type="checkbox"
-                                    class="form-check-input"
+                                    class="gizmo-native-check__input"
                                     :checked="monitor.ping_numeric"
                                 />
-                                <label class="form-check-label" for="ping_numeric">
+                                <label class="gizmo-native-check__label" for="ping_numeric">
                                     {{ $t("pingNumericLabel") }}
                                 </label>
-                                <div class="form-text">
+                                <div class="gizmo-field-help">
                                     {{ $t("pingNumericDescription") }}
                                 </div>
                             </div>
 
                             <!-- Packet size -->
-                            <div v-if="monitor.type === 'ping'" class="my-3">
-                                <label for="packet-size" class="form-label">{{ $t("Packet Size") }}</label>
+                            <div v-if="monitor.type === 'ping'" class="tw-my-3">
+                                <label for="packet-size" class="gizmo-field-label">{{ $t("Packet Size") }}</label>
                                 <input
                                     id="packet-size"
                                     v-model="monitor.packetSize"
                                     type="number"
-                                    class="form-control"
+                                    class="gizmo-native-control"
                                     required
                                     min="1"
                                     :max="65500"
@@ -1919,36 +1919,36 @@
                                 />
                                 <div
                                     v-if="$root.info.runtime.platform === 'linux' && monitor.packetSize < 16"
-                                    class="form-text text-warning"
+                                    class="gizmo-field-help tw-text-status-degraded-fg"
                                 >
                                     {{ $t("pingPacketSizeWarning") }}
                                 </div>
                             </div>
 
                             <!-- per-request timeout -->
-                            <div v-if="monitor.type === 'ping'" class="my-3">
-                                <label for="ping_per_request_timeout" class="form-label">
+                            <div v-if="monitor.type === 'ping'" class="tw-my-3">
+                                <label for="ping_per_request_timeout" class="gizmo-field-label">
                                     {{ $t("pingPerRequestTimeoutLabel") }}
                                 </label>
                                 <input
                                     id="ping_per_request_timeout"
                                     v-model="monitor.ping_per_request_timeout"
                                     type="number"
-                                    class="form-control"
+                                    class="gizmo-native-control"
                                     required
                                     min="0"
                                     max="300"
                                     step="1"
                                 />
-                                <div class="form-text">
+                                <div class="gizmo-field-help">
                                     {{ $t("pingPerRequestTimeoutDescription") }}
                                 </div>
                             </div>
 
                             <!-- Websocket Upgrade only -->
                             <template v-if="monitor.type === 'websocket-upgrade'">
-                                <div class="my-3">
-                                    <label for="acceptedStatusCodes" class="form-label">
+                                <div class="tw-my-3">
+                                    <label for="acceptedStatusCodes" class="gizmo-field-label">
                                         {{ $t("Accepted Status Codes") }}
                                     </label>
 
@@ -1966,10 +1966,10 @@
                                         :taggable="true"
                                     ></VueMultiselect>
 
-                                    <div class="form-text">
+                                    <div class="gizmo-field-help">
                                         {{ $t("acceptedStatusCodesDescription") }}
                                     </div>
-                                    <i18n-t tag="div" class="form-text" keypath="wsCodeDescription">
+                                    <i18n-t tag="div" class="gizmo-field-help" keypath="wsCodeDescription">
                                         <template #rfc6455>
                                             <a
                                                 href="https://datatracker.ietf.org/doc/html/rfc6455#section-7.4"
@@ -1992,18 +1992,18 @@
                                     monitor.type === 'grpc-keyword'
                                 "
                             >
-                                <div class="my-3">
-                                    <label for="maxRedirects" class="form-label">{{ $t("Max. Redirects") }}</label>
+                                <div class="tw-my-3">
+                                    <label for="maxRedirects" class="gizmo-field-label">{{ $t("Max. Redirects") }}</label>
                                     <input
                                         id="maxRedirects"
                                         v-model="monitor.maxredirects"
                                         type="number"
-                                        class="form-control"
+                                        class="gizmo-native-control"
                                         required
                                         min="0"
                                         step="1"
                                     />
-                                    <div class="form-text">
+                                    <div class="gizmo-field-help">
                                         {{ $t("maxRedirectDescription") }}
                                     </div>
                                 </div>
@@ -2014,21 +2014,21 @@
                                         monitor.type === 'keyword' ||
                                         monitor.type === 'json-query'
                                     "
-                                    class="my-3"
+                                    class="tw-my-3"
                                 >
-                                    <div class="form-check">
+                                    <div class="gizmo-native-check">
                                         <input
                                             id="saveErrorResponse"
                                             v-model="monitor.saveErrorResponse"
-                                            class="form-check-input"
+                                            class="gizmo-native-check__input"
                                             type="checkbox"
                                         />
-                                        <label class="form-check-label" for="saveErrorResponse">
+                                        <label class="gizmo-native-check__label" for="saveErrorResponse">
                                             {{ $t("saveErrorResponseForNotifications") }}
                                         </label>
                                     </div>
-                                    <div class="form-text">
-                                        <i18n-t keypath="saveResponseDescription" tag="div" class="form-text">
+                                    <div class="gizmo-field-help">
+                                        <i18n-t keypath="saveResponseDescription" tag="div" class="gizmo-field-help">
                                             <template #templateVariable>
                                                 <code>heartbeatJSON.response</code>
                                             </template>
@@ -2043,21 +2043,21 @@
                                             monitor.type === 'json-query') &&
                                         monitor.saveErrorResponse
                                     "
-                                    class="my-3"
+                                    class="tw-my-3"
                                 >
-                                    <div class="form-check">
+                                    <div class="gizmo-native-check">
                                         <input
                                             id="saveResponse"
                                             v-model="monitor.saveResponse"
-                                            class="form-check-input"
+                                            class="gizmo-native-check__input"
                                             type="checkbox"
                                         />
-                                        <label class="form-check-label" for="saveResponse">
+                                        <label class="gizmo-native-check__label" for="saveResponse">
                                             {{ $t("saveResponseForNotifications") }}
                                         </label>
                                     </div>
-                                    <div class="form-text">
-                                        <i18n-t keypath="saveResponseDescription" tag="div" class="form-text">
+                                    <div class="gizmo-field-help">
+                                        <i18n-t keypath="saveResponseDescription" tag="div" class="gizmo-field-help">
                                             <template #templateVariable>
                                                 <code>heartbeatJSON.response</code>
                                             </template>
@@ -2072,27 +2072,27 @@
                                             monitor.type === 'json-query') &&
                                         (monitor.saveResponse || monitor.saveErrorResponse)
                                     "
-                                    class="my-3"
+                                    class="tw-my-3"
                                 >
-                                    <label for="responseMaxLength" class="form-label">
+                                    <label for="responseMaxLength" class="gizmo-field-label">
                                         {{ $t("responseMaxLength") }}
                                     </label>
                                     <input
                                         id="responseMaxLength"
                                         v-model="monitor.responseMaxLength"
                                         type="number"
-                                        class="form-control"
+                                        class="gizmo-native-control"
                                         required
                                         min="0"
                                         step="1"
                                     />
-                                    <div class="form-text">
+                                    <div class="gizmo-field-help">
                                         {{ $t("responseMaxLengthDescription") }}
                                     </div>
                                 </div>
 
-                                <div class="my-3">
-                                    <label for="acceptedStatusCodes" class="form-label">
+                                <div class="tw-my-3">
+                                    <label for="acceptedStatusCodes" class="gizmo-field-label">
                                         {{ $t("Accepted Status Codes") }}
                                     </label>
 
@@ -2110,14 +2110,14 @@
                                         :taggable="true"
                                     ></VueMultiselect>
 
-                                    <div class="form-text">
+                                    <div class="gizmo-field-help">
                                         {{ $t("acceptedStatusCodesDescription") }}
                                     </div>
                                 </div>
 
-                                <div class="my-3">
-                                    <label for="ipFamily" class="form-label">{{ $t("Ip Family") }}</label>
-                                    <select id="ipFamily" v-model="monitor.ipFamily" class="form-select">
+                                <div class="tw-my-3">
+                                    <label for="ipFamily" class="gizmo-field-label">{{ $t("Ip Family") }}</label>
+                                    <select id="ipFamily" v-model="monitor.ipFamily" class="gizmo-native-control gizmo-native-select">
                                         <option :value="null">{{ $t("auto-select") }}</option>
                                         <option value="ipv4">IPv4</option>
                                         <option value="ipv6">IPv6</option>
@@ -2126,7 +2126,7 @@
                                         v-if="monitor.ipFamily == null"
                                         keypath="ipFamilyDescriptionAutoSelect"
                                         tag="div"
-                                        class="form-text"
+                                        class="gizmo-field-help"
                                     >
                                         <template #happyEyeballs>
                                             <a href="https://en.wikipedia.org/wiki/Happy_Eyeballs" target="_blank">
@@ -2138,8 +2138,8 @@
                             </template>
 
                             <!-- Globalping Accepted Status Codes -->
-                            <div v-if="monitor.type === 'globalping' && monitor.subtype === 'http'" class="my-3">
-                                <label for="acceptedStatusCodes" class="form-label">
+                            <div v-if="monitor.type === 'globalping' && monitor.subtype === 'http'" class="tw-my-3">
+                                <label for="acceptedStatusCodes" class="gizmo-field-label">
                                     {{ $t("Accepted Status Codes") }}
                                 </label>
 
@@ -2157,14 +2157,14 @@
                                     :taggable="true"
                                 ></VueMultiselect>
 
-                                <div class="form-text">
+                                <div class="gizmo-field-help">
                                     {{ $t("acceptedStatusCodesDescription") }}
                                 </div>
                             </div>
 
                             <!-- Parent Monitor -->
-                            <div class="my-3">
-                                <label for="monitorGroupSelector" class="form-label">{{ $t("Monitor Group") }}</label>
+                            <div class="tw-my-3">
+                                <label for="monitorGroupSelector" class="gizmo-field-label">{{ $t("Monitor Group") }}</label>
                                 <ActionSelect
                                     id="monitorGroupSelector"
                                     v-model="monitor.parent"
@@ -2177,27 +2177,27 @@
                             </div>
 
                             <!-- Description -->
-                            <div class="my-3">
-                                <label for="description" class="form-label">{{ $t("Description") }}</label>
+                            <div class="tw-my-3">
+                                <label for="description" class="gizmo-field-label">{{ $t("Description") }}</label>
                                 <input
                                     id="description"
                                     v-model="monitor.description"
                                     type="text"
-                                    class="form-control"
+                                    class="gizmo-native-control"
                                 />
-                                <div class="form-text">{{ $t("descriptionHelpText") }}</div>
+                                <div class="gizmo-field-help">{{ $t("descriptionHelpText") }}</div>
                             </div>
 
-                            <div class="my-3">
+                            <div class="tw-my-3">
                                 <tags-manager ref="tagsManager" :pre-selected-tags="monitor.tags"></tags-manager>
                             </div>
                         </div>
 
-                        <div class="col-md-6">
-                            <div v-if="$root.isMobile" class="mt-3" />
+                        <div class="monitor-editor-column">
+                            <div v-if="$root.isMobile" class="tw-mt-3" />
 
                             <!-- Notifications -->
-                            <h2 class="mb-2">{{ $t("Notifications") }}</h2>
+                            <h2 class="tw-mb-2">{{ $t("Notifications") }}</h2>
                             <p v-if="$root.notificationList.length === 0">
                                 {{ $t("Not available, please setup.") }}
                             </p>
@@ -2205,39 +2205,39 @@
                             <div
                                 v-for="notification in $root.notificationList"
                                 :key="notification.id"
-                                class="form-check form-switch my-3"
+                                class="gizmo-native-check gizmo-native-switch tw-my-3"
                             >
                                 <input
                                     :id="'notification' + notification.id"
                                     v-model="monitor.notificationIDList[notification.id]"
-                                    class="form-check-input"
+                                    class="gizmo-native-check__input"
                                     type="checkbox"
                                 />
 
-                                <label class="form-check-label" :for="'notification' + notification.id">
+                                <label class="gizmo-native-check__label" :for="'notification' + notification.id">
                                     {{ notification.name }}
                                     <a href="#" @click="$refs.notificationDialog.show(notification.id)">
                                         {{ $t("Edit") }}
                                     </a>
                                 </label>
 
-                                <span v-if="notification.isDefault == true" class="badge bg-primary ms-2">
+                                <span v-if="notification.isDefault == true" class="gizmo-inline-badge tw-ms-2">
                                     {{ $t("Default") }}
                                 </span>
                             </div>
 
-                            <button class="btn btn-primary me-2" type="button" @click="$refs.notificationDialog.show()">
+                            <button class="gizmo-native-button gizmo-native-button--primary tw-me-2" type="button" @click="$refs.notificationDialog.show()">
                                 {{ $t("Setup Notification") }}
                             </button>
 
                             <!-- WebSocket Authentication -->
                             <template v-if="monitor.type === 'websocket-upgrade'">
-                                <h2 class="mt-5 mb-2">{{ $t("Authentication") }}</h2>
+                                <h2 class="tw-mt-5 tw-mb-2">{{ $t("Authentication") }}</h2>
 
                                 <!-- Auth Method -->
-                                <div class="my-3">
-                                    <label for="ws-auth-method" class="form-label">{{ $t("Method") }}</label>
-                                    <select id="ws-auth-method" v-model="monitor.authMethod" class="form-select">
+                                <div class="tw-my-3">
+                                    <label for="ws-auth-method" class="gizmo-field-label">{{ $t("Method") }}</label>
+                                    <select id="ws-auth-method" v-model="monitor.authMethod" class="gizmo-native-control gizmo-native-select">
                                         <option :value="null">
                                             {{ $t("None") }}
                                         </option>
@@ -2255,18 +2255,18 @@
                                 </div>
 
                                 <template v-if="monitor.authMethod === 'basic'">
-                                    <div class="my-3">
-                                        <label for="ws-basicauth-user" class="form-label">{{ $t("Username") }}</label>
+                                    <div class="tw-my-3">
+                                        <label for="ws-basicauth-user" class="gizmo-field-label">{{ $t("Username") }}</label>
                                         <input
                                             id="ws-basicauth-user"
                                             v-model="monitor.basic_auth_user"
                                             type="text"
-                                            class="form-control"
+                                            class="gizmo-native-control"
                                             :placeholder="$t('Username')"
                                         />
                                     </div>
-                                    <div class="my-3">
-                                        <label for="ws-basicauth-pass" class="form-label">{{ $t("Password") }}</label>
+                                    <div class="tw-my-3">
+                                        <label for="ws-basicauth-pass" class="gizmo-field-label">{{ $t("Password") }}</label>
                                         <HiddenInput
                                             id="ws-basicauth-pass"
                                             v-model="monitor.basic_auth_pass"
@@ -2277,8 +2277,8 @@
                                 </template>
 
                                 <template v-else-if="monitor.authMethod === 'bearer'">
-                                    <div class="my-3">
-                                        <label for="ws-bearer-token" class="form-label">{{ $t("Token") }}</label>
+                                    <div class="tw-my-3">
+                                        <label for="ws-bearer-token" class="gizmo-field-label">{{ $t("Token") }}</label>
                                         <HiddenInput
                                             id="ws-bearer-token"
                                             v-model="monitor.bearer_token"
@@ -2289,14 +2289,14 @@
                                 </template>
 
                                 <template v-else-if="monitor.authMethod === 'oauth2-cc'">
-                                    <div class="my-3">
-                                        <label for="ws-oauth-auth-method" class="form-label">
+                                    <div class="tw-my-3">
+                                        <label for="ws-oauth-auth-method" class="gizmo-field-label">
                                             {{ $t("Authentication Method") }}
                                         </label>
                                         <select
                                             id="ws-oauth-auth-method"
                                             v-model="monitor.oauth_auth_method"
-                                            class="form-select"
+                                            class="gizmo-native-control gizmo-native-select"
                                         >
                                             <option value="client_secret_basic">
                                                 {{ $t("Authorization Header") }}
@@ -2306,28 +2306,28 @@
                                             </option>
                                         </select>
                                     </div>
-                                    <div class="my-3">
-                                        <label for="ws-oauth-token-url" class="form-label">
+                                    <div class="tw-my-3">
+                                        <label for="ws-oauth-token-url" class="gizmo-field-label">
                                             {{ $t("OAuth Token URL") }}
                                         </label>
                                         <input
                                             id="ws-oauth-token-url"
                                             v-model="monitor.oauth_token_url"
                                             type="text"
-                                            class="form-control"
+                                            class="gizmo-native-control"
                                             :placeholder="$t('OAuth Token URL')"
                                             required
                                         />
                                     </div>
-                                    <div class="my-3">
-                                        <label for="ws-oauth-client-id" class="form-label">
+                                    <div class="tw-my-3">
+                                        <label for="ws-oauth-client-id" class="gizmo-field-label">
                                             {{ $t("Client ID") }}
                                         </label>
                                         <input
                                             id="ws-oauth-client-id"
                                             v-model="monitor.oauth_client_id"
                                             type="text"
-                                            class="form-control"
+                                            class="gizmo-native-control"
                                             :placeholder="$t('Client ID')"
                                             required
                                         />
@@ -2338,8 +2338,8 @@
                                             monitor.oauth_auth_method === 'client_secret_basic'
                                         "
                                     >
-                                        <div class="my-3">
-                                            <label for="ws-oauth-client-secret" class="form-label">
+                                        <div class="tw-my-3">
+                                            <label for="ws-oauth-client-secret" class="gizmo-field-label">
                                                 {{ $t("Client Secret") }}
                                             </label>
                                             <HiddenInput
@@ -2349,27 +2349,27 @@
                                                 :required="true"
                                             />
                                         </div>
-                                        <div class="my-3">
-                                            <label for="ws-oauth-scopes" class="form-label">
+                                        <div class="tw-my-3">
+                                            <label for="ws-oauth-scopes" class="gizmo-field-label">
                                                 {{ $t("OAuth Scope") }}
                                             </label>
                                             <input
                                                 id="ws-oauth-scopes"
                                                 v-model="monitor.oauth_scopes"
                                                 type="text"
-                                                class="form-control"
+                                                class="gizmo-native-control"
                                                 :placeholder="$t('Optional: Space separated list of scopes')"
                                             />
                                         </div>
-                                        <div class="my-3">
-                                            <label for="ws-oauth-audience" class="form-label">
+                                        <div class="tw-my-3">
+                                            <label for="ws-oauth-audience" class="gizmo-field-label">
                                                 {{ $t("OAuth Audience") }}
                                             </label>
                                             <input
                                                 id="ws-oauth-audience"
                                                 v-model="monitor.oauth_audience"
                                                 type="text"
-                                                class="form-control"
+                                                class="gizmo-native-control"
                                                 :placeholder="$t('Optional: The audience to request the JWT for')"
                                             />
                                         </div>
@@ -2377,38 +2377,38 @@
                                 </template>
 
                                 <template v-else-if="monitor.authMethod === 'mtls'">
-                                    <div class="my-3">
-                                        <label for="ws-tls-cert" class="form-label">
+                                    <div class="tw-my-3">
+                                        <label for="ws-tls-cert" class="gizmo-field-label">
                                             {{ $t("mtls-auth-server-cert-label") }}
                                         </label>
                                         <textarea
                                             id="ws-tls-cert"
                                             v-model="monitor.tlsCert"
-                                            class="form-control"
+                                            class="gizmo-native-control"
                                             :placeholder="$t('mtls-auth-server-cert-placeholder')"
                                             required
                                         ></textarea>
                                     </div>
-                                    <div class="my-3">
-                                        <label for="ws-tls-key" class="form-label">
+                                    <div class="tw-my-3">
+                                        <label for="ws-tls-key" class="gizmo-field-label">
                                             {{ $t("mtls-auth-server-key-label") }}
                                         </label>
                                         <textarea
                                             id="ws-tls-key"
                                             v-model="monitor.tlsKey"
-                                            class="form-control"
+                                            class="gizmo-native-control"
                                             :placeholder="$t('mtls-auth-server-key-placeholder')"
                                             required
                                         ></textarea>
                                     </div>
-                                    <div class="my-3">
-                                        <label for="ws-tls-ca" class="form-label">
+                                    <div class="tw-my-3">
+                                        <label for="ws-tls-ca" class="gizmo-field-label">
                                             {{ $t("mtls-auth-server-ca-label") }}
                                         </label>
                                         <textarea
                                             id="ws-tls-ca"
                                             v-model="monitor.tlsCa"
-                                            class="form-control"
+                                            class="gizmo-native-control"
                                             :placeholder="$t('mtls-auth-server-ca-placeholder')"
                                         ></textarea>
                                     </div>
@@ -2423,44 +2423,44 @@
                                     monitor.type === 'json-query'
                                 "
                             >
-                                <h2 class="mt-5 mb-2">{{ $t("Proxy") }}</h2>
+                                <h2 class="tw-mt-5 tw-mb-2">{{ $t("Proxy") }}</h2>
                                 <p v-if="$root.proxyList.length === 0">
                                     {{ $t("Not available, please setup.") }}
                                 </p>
 
-                                <div v-if="$root.proxyList.length > 0" class="form-check my-3">
+                                <div v-if="$root.proxyList.length > 0" class="gizmo-native-check tw-my-3">
                                     <input
                                         id="proxy-disable"
                                         v-model="monitor.proxyId"
                                         :value="null"
                                         name="proxy"
-                                        class="form-check-input"
+                                        class="gizmo-native-check__input"
                                         type="radio"
                                     />
-                                    <label class="form-check-label" for="proxy-disable">{{ $t("No Proxy") }}</label>
+                                    <label class="gizmo-native-check__label" for="proxy-disable">{{ $t("No Proxy") }}</label>
                                 </div>
 
-                                <div v-for="proxy in $root.proxyList" :key="proxy.id" class="form-check my-3">
+                                <div v-for="proxy in $root.proxyList" :key="proxy.id" class="gizmo-native-check tw-my-3">
                                     <input
                                         :id="`proxy-${proxy.id}`"
                                         v-model="monitor.proxyId"
                                         :value="proxy.id"
                                         name="proxy"
-                                        class="form-check-input"
+                                        class="gizmo-native-check__input"
                                         type="radio"
                                     />
 
-                                    <label class="form-check-label" :for="`proxy-${proxy.id}`">
+                                    <label class="gizmo-native-check__label" :for="`proxy-${proxy.id}`">
                                         {{ proxy.host }}:{{ proxy.port }} ({{ proxy.protocol }})
                                         <a href="#" @click="$refs.proxyDialog.show(proxy.id)">{{ $t("Edit") }}</a>
                                     </label>
 
-                                    <span v-if="proxy.default === true" class="badge bg-primary ms-2">
+                                    <span v-if="proxy.default === true" class="gizmo-inline-badge tw-ms-2">
                                         {{ $t("default") }}
                                     </span>
                                 </div>
 
-                                <button class="btn btn-primary me-2" type="button" @click="$refs.proxyDialog.show()">
+                                <button class="gizmo-native-button gizmo-native-button--primary tw-me-2" type="button" @click="$refs.proxyDialog.show()">
                                     {{ $t("Setup Proxy") }}
                                 </button>
                             </div>
@@ -2468,9 +2468,9 @@
                             <!-- Kafka SASL Options -->
                             <!-- Kafka Producer only -->
                             <template v-if="monitor.type === 'kafka-producer'">
-                                <h2 class="mt-5 mb-2">{{ $t("Kafka SASL Options") }}</h2>
-                                <div class="my-3">
-                                    <label class="form-label" for="kafkaProducerSaslMechanism">
+                                <h2 class="tw-mt-5 tw-mb-2">{{ $t("Kafka SASL Options") }}</h2>
+                                <div class="tw-my-3">
+                                    <label class="gizmo-field-label" for="kafkaProducerSaslMechanism">
                                         {{ $t("Mechanism") }}
                                     </label>
                                     <VueMultiselect
@@ -2488,8 +2488,8 @@
                                     ></VueMultiselect>
                                 </div>
                                 <div v-if="monitor.kafkaProducerSaslOptions.mechanism !== 'None'">
-                                    <div v-if="monitor.kafkaProducerSaslOptions.mechanism !== 'aws'" class="my-3">
-                                        <label for="kafkaProducerSaslUsername" class="form-label">
+                                    <div v-if="monitor.kafkaProducerSaslOptions.mechanism !== 'aws'" class="tw-my-3">
+                                        <label for="kafkaProducerSaslUsername" class="gizmo-field-label">
                                             {{ $t("Username") }}
                                         </label>
                                         <input
@@ -2497,11 +2497,11 @@
                                             v-model="monitor.kafkaProducerSaslOptions.username"
                                             type="text"
                                             autocomplete="kafkaProducerSaslUsername"
-                                            class="form-control"
+                                            class="gizmo-native-control"
                                         />
                                     </div>
-                                    <div v-if="monitor.kafkaProducerSaslOptions.mechanism !== 'aws'" class="my-3">
-                                        <label for="kafkaProducerSaslPassword" class="form-label">
+                                    <div v-if="monitor.kafkaProducerSaslOptions.mechanism !== 'aws'" class="tw-my-3">
+                                        <label for="kafkaProducerSaslPassword" class="gizmo-field-label">
                                             {{ $t("Password") }}
                                         </label>
                                         <HiddenInput
@@ -2510,8 +2510,8 @@
                                             autocomplete="kafkaProducerSaslPassword"
                                         />
                                     </div>
-                                    <div v-if="monitor.kafkaProducerSaslOptions.mechanism === 'aws'" class="my-3">
-                                        <label for="kafkaProducerSaslAuthorizationIdentity" class="form-label">
+                                    <div v-if="monitor.kafkaProducerSaslOptions.mechanism === 'aws'" class="tw-my-3">
+                                        <label for="kafkaProducerSaslAuthorizationIdentity" class="gizmo-field-label">
                                             {{ $t("Authorization Identity") }}
                                         </label>
                                         <input
@@ -2519,12 +2519,12 @@
                                             v-model="monitor.kafkaProducerSaslOptions.authorizationIdentity"
                                             type="text"
                                             autocomplete="kafkaProducerSaslAuthorizationIdentity"
-                                            class="form-control"
+                                            class="gizmo-native-control"
                                             required
                                         />
                                     </div>
-                                    <div v-if="monitor.kafkaProducerSaslOptions.mechanism === 'aws'" class="my-3">
-                                        <label for="kafkaProducerSaslAccessKeyId" class="form-label">
+                                    <div v-if="monitor.kafkaProducerSaslOptions.mechanism === 'aws'" class="tw-my-3">
+                                        <label for="kafkaProducerSaslAccessKeyId" class="gizmo-field-label">
                                             {{ $t("AccessKey Id") }}
                                         </label>
                                         <input
@@ -2532,12 +2532,12 @@
                                             v-model="monitor.kafkaProducerSaslOptions.accessKeyId"
                                             type="text"
                                             autocomplete="kafkaProducerSaslAccessKeyId"
-                                            class="form-control"
+                                            class="gizmo-native-control"
                                             required
                                         />
                                     </div>
-                                    <div v-if="monitor.kafkaProducerSaslOptions.mechanism === 'aws'" class="my-3">
-                                        <label for="kafkaProducerSaslSecretAccessKey" class="form-label">
+                                    <div v-if="monitor.kafkaProducerSaslOptions.mechanism === 'aws'" class="tw-my-3">
+                                        <label for="kafkaProducerSaslSecretAccessKey" class="gizmo-field-label">
                                             {{ $t("Secret AccessKey") }}
                                         </label>
                                         <HiddenInput
@@ -2547,8 +2547,8 @@
                                             :required="true"
                                         />
                                     </div>
-                                    <div v-if="monitor.kafkaProducerSaslOptions.mechanism === 'aws'" class="my-3">
-                                        <label for="kafkaProducerSaslSessionToken" class="form-label">
+                                    <div v-if="monitor.kafkaProducerSaslOptions.mechanism === 'aws'" class="tw-my-3">
+                                        <label for="kafkaProducerSaslSessionToken" class="gizmo-field-label">
                                             {{ $t("Session Token") }}
                                         </label>
                                         <HiddenInput
@@ -2568,12 +2568,12 @@
                                     monitor.type === 'json-query'
                                 "
                             >
-                                <h2 class="mt-5 mb-2">{{ $t("HTTP Options") }}</h2>
+                                <h2 class="tw-mt-5 tw-mb-2">{{ $t("HTTP Options") }}</h2>
 
                                 <!-- Method -->
-                                <div class="my-3">
-                                    <label for="method" class="form-label">{{ $t("Method") }}</label>
-                                    <select id="method" v-model="monitor.method" class="form-select">
+                                <div class="tw-my-3">
+                                    <label for="method" class="gizmo-field-label">{{ $t("Method") }}</label>
+                                    <select id="method" v-model="monitor.method" class="gizmo-native-control gizmo-native-select">
                                         <option value="GET">GET</option>
                                         <option value="POST">POST</option>
                                         <option value="PUT">PUT</option>
@@ -2585,12 +2585,12 @@
                                 </div>
 
                                 <!-- Encoding -->
-                                <div class="my-3">
-                                    <label for="httpBodyEncoding" class="form-label">{{ $t("Body Encoding") }}</label>
+                                <div class="tw-my-3">
+                                    <label for="httpBodyEncoding" class="gizmo-field-label">{{ $t("Body Encoding") }}</label>
                                     <select
                                         id="httpBodyEncoding"
                                         v-model="monitor.httpBodyEncoding"
-                                        class="form-select"
+                                        class="gizmo-native-control gizmo-native-select"
                                     >
                                         <option value="json">JSON</option>
                                         <option value="form">x-www-form-urlencoded</option>
@@ -2599,34 +2599,34 @@
                                 </div>
 
                                 <!-- Body -->
-                                <div class="my-3">
-                                    <label for="body" class="form-label">{{ $t("Body") }}</label>
+                                <div class="tw-my-3">
+                                    <label for="body" class="gizmo-field-label">{{ $t("Body") }}</label>
                                     <textarea
                                         id="body"
                                         v-model="monitor.body"
-                                        class="form-control"
+                                        class="gizmo-native-control"
                                         :placeholder="bodyPlaceholder"
                                     ></textarea>
                                 </div>
 
                                 <!-- Headers -->
-                                <div class="my-3">
-                                    <label for="headers" class="form-label">{{ $t("Headers") }}</label>
+                                <div class="tw-my-3">
+                                    <label for="headers" class="gizmo-field-label">{{ $t("Headers") }}</label>
                                     <textarea
                                         id="headers"
                                         v-model="monitor.headers"
-                                        class="form-control"
+                                        class="gizmo-native-control"
                                         :placeholder="headersPlaceholder"
                                     ></textarea>
                                 </div>
 
                                 <!-- HTTP Auth -->
-                                <h4 class="mt-5 mb-2">{{ $t("Authentication") }}</h4>
+                                <h4 class="tw-mt-5 tw-mb-2">{{ $t("Authentication") }}</h4>
 
                                 <!-- Method -->
-                                <div class="my-3">
-                                    <label for="method" class="form-label">{{ $t("Method") }}</label>
-                                    <select id="method" v-model="monitor.authMethod" class="form-select">
+                                <div class="tw-my-3">
+                                    <label for="method" class="gizmo-field-label">{{ $t("Method") }}</label>
+                                    <select id="method" v-model="monitor.authMethod" class="gizmo-native-control gizmo-native-select">
                                         <option :value="null">
                                             {{ $t("None") }}
                                         </option>
@@ -2645,45 +2645,45 @@
                                 </div>
                                 <template v-if="monitor.authMethod && monitor.authMethod !== null">
                                     <template v-if="monitor.authMethod === 'mtls'">
-                                        <div class="my-3">
-                                            <label for="tls-cert" class="form-label">
+                                        <div class="tw-my-3">
+                                            <label for="tls-cert" class="gizmo-field-label">
                                                 {{ $t("mtls-auth-server-cert-label") }}
                                             </label>
                                             <textarea
                                                 id="tls-cert"
                                                 v-model="monitor.tlsCert"
-                                                class="form-control"
+                                                class="gizmo-native-control"
                                                 :placeholder="$t('mtls-auth-server-cert-placeholder')"
                                                 required
                                             ></textarea>
                                         </div>
-                                        <div class="my-3">
-                                            <label for="tls-key" class="form-label">
+                                        <div class="tw-my-3">
+                                            <label for="tls-key" class="gizmo-field-label">
                                                 {{ $t("mtls-auth-server-key-label") }}
                                             </label>
                                             <textarea
                                                 id="tls-key"
                                                 v-model="monitor.tlsKey"
-                                                class="form-control"
+                                                class="gizmo-native-control"
                                                 :placeholder="$t('mtls-auth-server-key-placeholder')"
                                                 required
                                             ></textarea>
                                         </div>
-                                        <div class="my-3">
-                                            <label for="tls-ca" class="form-label">
+                                        <div class="tw-my-3">
+                                            <label for="tls-ca" class="gizmo-field-label">
                                                 {{ $t("mtls-auth-server-ca-label") }}
                                             </label>
                                             <textarea
                                                 id="tls-ca"
                                                 v-model="monitor.tlsCa"
-                                                class="form-control"
+                                                class="gizmo-native-control"
                                                 :placeholder="$t('mtls-auth-server-ca-placeholder')"
                                             ></textarea>
                                         </div>
                                     </template>
                                     <template v-else-if="monitor.authMethod === 'bearer'">
-                                        <div class="my-3">
-                                            <label for="bearer-token" class="form-label">{{ $t("Token") }}</label>
+                                        <div class="tw-my-3">
+                                            <label for="bearer-token" class="gizmo-field-label">{{ $t("Token") }}</label>
                                             <HiddenInput
                                                 id="bearer-token"
                                                 v-model="monitor.bearer_token"
@@ -2693,14 +2693,14 @@
                                         </div>
                                     </template>
                                     <template v-else-if="monitor.authMethod === 'oauth2-cc'">
-                                        <div class="my-3">
-                                            <label for="oauth_auth_method" class="form-label">
+                                        <div class="tw-my-3">
+                                            <label for="oauth_auth_method" class="gizmo-field-label">
                                                 {{ $t("Authentication Method") }}
                                             </label>
                                             <select
                                                 id="oauth_auth_method"
                                                 v-model="monitor.oauth_auth_method"
-                                                class="form-select"
+                                                class="gizmo-native-control gizmo-native-select"
                                             >
                                                 <option value="client_secret_basic">
                                                     {{ $t("Authorization Header") }}
@@ -2710,28 +2710,28 @@
                                                 </option>
                                             </select>
                                         </div>
-                                        <div class="my-3">
-                                            <label for="oauth_token_url" class="form-label">
+                                        <div class="tw-my-3">
+                                            <label for="oauth_token_url" class="gizmo-field-label">
                                                 {{ $t("OAuth Token URL") }}
                                             </label>
                                             <input
                                                 id="oauth_token_url"
                                                 v-model="monitor.oauth_token_url"
                                                 type="text"
-                                                class="form-control"
+                                                class="gizmo-native-control"
                                                 :placeholder="$t('OAuth Token URL')"
                                                 required
                                             />
                                         </div>
-                                        <div class="my-3">
-                                            <label for="oauth_client_id" class="form-label">
+                                        <div class="tw-my-3">
+                                            <label for="oauth_client_id" class="gizmo-field-label">
                                                 {{ $t("Client ID") }}
                                             </label>
                                             <input
                                                 id="oauth_client_id"
                                                 v-model="monitor.oauth_client_id"
                                                 type="text"
-                                                class="form-control"
+                                                class="gizmo-native-control"
                                                 :placeholder="$t('Client ID')"
                                                 required
                                             />
@@ -2742,8 +2742,8 @@
                                                 monitor.oauth_auth_method === 'client_secret_basic'
                                             "
                                         >
-                                            <div class="my-3">
-                                                <label for="oauth_client_secret" class="form-label">
+                                            <div class="tw-my-3">
+                                                <label for="oauth_client_secret" class="gizmo-field-label">
                                                     {{ $t("Client Secret") }}
                                                 </label>
                                                 <HiddenInput
@@ -2753,46 +2753,46 @@
                                                     :required="true"
                                                 />
                                             </div>
-                                            <div class="my-3">
-                                                <label for="oauth_scopes" class="form-label">
+                                            <div class="tw-my-3">
+                                                <label for="oauth_scopes" class="gizmo-field-label">
                                                     {{ $t("OAuth Scope") }}
                                                 </label>
                                                 <input
                                                     id="oauth_scopes"
                                                     v-model="monitor.oauth_scopes"
                                                     type="text"
-                                                    class="form-control"
+                                                    class="gizmo-native-control"
                                                     :placeholder="$t('Optional: Space separated list of scopes')"
                                                 />
                                             </div>
-                                            <div class="my-3">
-                                                <label for="oauth_audience" class="form-label">
+                                            <div class="tw-my-3">
+                                                <label for="oauth_audience" class="gizmo-field-label">
                                                     {{ $t("OAuth Audience") }}
                                                 </label>
                                                 <input
                                                     id="oauth_audience"
                                                     v-model="monitor.oauth_audience"
                                                     type="text"
-                                                    class="form-control"
+                                                    class="gizmo-native-control"
                                                     :placeholder="$t('Optional: The audience to request the JWT for')"
                                                 />
                                             </div>
                                         </template>
                                     </template>
                                     <template v-else>
-                                        <div class="my-3">
-                                            <label for="basicauth-user" class="form-label">{{ $t("Username") }}</label>
+                                        <div class="tw-my-3">
+                                            <label for="basicauth-user" class="gizmo-field-label">{{ $t("Username") }}</label>
                                             <input
                                                 id="basicauth-user"
                                                 v-model="monitor.basic_auth_user"
                                                 type="text"
-                                                class="form-control"
+                                                class="gizmo-native-control"
                                                 :placeholder="$t('Username')"
                                             />
                                         </div>
 
-                                        <div class="my-3">
-                                            <label for="basicauth-pass" class="form-label">{{ $t("Password") }}</label>
+                                        <div class="tw-my-3">
+                                            <label for="basicauth-pass" class="gizmo-field-label">{{ $t("Password") }}</label>
                                             <HiddenInput
                                                 id="basicauth-pass"
                                                 v-model="monitor.basic_auth_pass"
@@ -2801,26 +2801,26 @@
                                             />
                                         </div>
                                         <template v-if="monitor.authMethod === 'ntlm'">
-                                            <div class="my-3">
-                                                <label for="ntlm-domain" class="form-label">{{ $t("Domain") }}</label>
+                                            <div class="tw-my-3">
+                                                <label for="ntlm-domain" class="gizmo-field-label">{{ $t("Domain") }}</label>
                                                 <input
                                                     id="ntlm-domain"
                                                     v-model="monitor.authDomain"
                                                     type="text"
-                                                    class="form-control"
+                                                    class="gizmo-native-control"
                                                     :placeholder="$t('Domain')"
                                                 />
                                             </div>
 
-                                            <div class="my-3">
-                                                <label for="ntlm-workstation" class="form-label">
+                                            <div class="tw-my-3">
+                                                <label for="ntlm-workstation" class="gizmo-field-label">
                                                     {{ $t("Workstation") }}
                                                 </label>
                                                 <input
                                                     id="ntlm-workstation"
                                                     v-model="monitor.authWorkstation"
                                                     type="text"
-                                                    class="form-control"
+                                                    class="gizmo-native-control"
                                                     :placeholder="$t('Workstation')"
                                                 />
                                             </div>
@@ -2831,12 +2831,12 @@
 
                             <!-- Globalping HTTP Options -->
                             <template v-if="monitor.type === 'globalping' && monitor.subtype === 'http'">
-                                <h2 class="mt-5 mb-2">{{ $t("HTTP Options") }}</h2>
+                                <h2 class="tw-mt-5 tw-mb-2">{{ $t("HTTP Options") }}</h2>
 
                                 <!-- Method -->
-                                <div class="my-3">
-                                    <label for="method" class="form-label">{{ $t("Method") }}</label>
-                                    <select id="method" v-model="monitor.method" class="form-select">
+                                <div class="tw-my-3">
+                                    <label for="method" class="gizmo-field-label">{{ $t("Method") }}</label>
+                                    <select id="method" v-model="monitor.method" class="gizmo-native-control gizmo-native-select">
                                         <option value="HEAD">HEAD</option>
                                         <option value="GET">GET</option>
                                         <option value="OPTIONS">OPTIONS</option>
@@ -2844,23 +2844,23 @@
                                 </div>
 
                                 <!-- Headers -->
-                                <div class="my-3">
-                                    <label for="headers" class="form-label">{{ $t("Headers") }}</label>
+                                <div class="tw-my-3">
+                                    <label for="headers" class="gizmo-field-label">{{ $t("Headers") }}</label>
                                     <textarea
                                         id="headers"
                                         v-model="monitor.headers"
-                                        class="form-control"
+                                        class="gizmo-native-control"
                                         :placeholder="headersPlaceholder"
                                     ></textarea>
                                 </div>
 
                                 <!-- HTTP Auth -->
-                                <h4 class="mt-5 mb-2">{{ $t("Authentication") }}</h4>
+                                <h4 class="tw-mt-5 tw-mb-2">{{ $t("Authentication") }}</h4>
 
                                 <!-- Method -->
-                                <div class="my-3">
-                                    <label for="method" class="form-label">{{ $t("Method") }}</label>
-                                    <select id="method" v-model="monitor.authMethod" class="form-select">
+                                <div class="tw-my-3">
+                                    <label for="method" class="gizmo-field-label">{{ $t("Method") }}</label>
+                                    <select id="method" v-model="monitor.authMethod" class="gizmo-native-control gizmo-native-select">
                                         <option :value="null">
                                             {{ $t("None") }}
                                         </option>
@@ -2877,32 +2877,32 @@
                                 </div>
 
                                 <template v-if="monitor.authMethod === 'basic'">
-                                    <div class="my-3">
-                                        <label for="basicauth-user" class="form-label">{{ $t("Username") }}</label>
+                                    <div class="tw-my-3">
+                                        <label for="basicauth-user" class="gizmo-field-label">{{ $t("Username") }}</label>
                                         <input
                                             id="basicauth-user"
                                             v-model="monitor.basic_auth_user"
                                             type="text"
-                                            class="form-control"
+                                            class="gizmo-native-control"
                                             :placeholder="$t('Username')"
                                         />
                                     </div>
 
-                                    <div class="my-3">
-                                        <label for="basicauth-pass" class="form-label">{{ $t("Password") }}</label>
+                                    <div class="tw-my-3">
+                                        <label for="basicauth-pass" class="gizmo-field-label">{{ $t("Password") }}</label>
                                         <input
                                             id="basicauth-pass"
                                             v-model="monitor.basic_auth_pass"
                                             type="password"
                                             autocomplete="new-password"
-                                            class="form-control"
+                                            class="gizmo-native-control"
                                             :placeholder="$t('Password')"
                                         />
                                     </div>
                                 </template>
                                 <template v-else-if="monitor.authMethod === 'bearer'">
-                                    <div class="my-3">
-                                        <label for="bearer-token-globalping" class="form-label">
+                                    <div class="tw-my-3">
+                                        <label for="bearer-token-globalping" class="gizmo-field-label">
                                             {{ $t("Token") }}
                                         </label>
                                         <HiddenInput
@@ -2914,14 +2914,14 @@
                                     </div>
                                 </template>
                                 <template v-else-if="monitor.authMethod === 'oauth2-cc'">
-                                    <div class="my-3">
-                                        <label for="oauth_auth_method" class="form-label">
+                                    <div class="tw-my-3">
+                                        <label for="oauth_auth_method" class="gizmo-field-label">
                                             {{ $t("Authentication Method") }}
                                         </label>
                                         <select
                                             id="oauth_auth_method"
                                             v-model="monitor.oauth_auth_method"
-                                            class="form-select"
+                                            class="gizmo-native-control gizmo-native-select"
                                         >
                                             <option value="client_secret_basic">
                                                 {{ $t("Authorization Header") }}
@@ -2931,26 +2931,26 @@
                                             </option>
                                         </select>
                                     </div>
-                                    <div class="my-3">
-                                        <label for="oauth_token_url" class="form-label">
+                                    <div class="tw-my-3">
+                                        <label for="oauth_token_url" class="gizmo-field-label">
                                             {{ $t("OAuth Token URL") }}
                                         </label>
                                         <input
                                             id="oauth_token_url"
                                             v-model="monitor.oauth_token_url"
                                             type="text"
-                                            class="form-control"
+                                            class="gizmo-native-control"
                                             :placeholder="$t('OAuth Token URL')"
                                             required
                                         />
                                     </div>
-                                    <div class="my-3">
-                                        <label for="oauth_client_id" class="form-label">{{ $t("Client ID") }}</label>
+                                    <div class="tw-my-3">
+                                        <label for="oauth_client_id" class="gizmo-field-label">{{ $t("Client ID") }}</label>
                                         <input
                                             id="oauth_client_id"
                                             v-model="monitor.oauth_client_id"
                                             type="text"
-                                            class="form-control"
+                                            class="gizmo-native-control"
                                             :placeholder="$t('Client ID')"
                                             required
                                         />
@@ -2961,38 +2961,38 @@
                                             monitor.oauth_auth_method === 'client_secret_basic'
                                         "
                                     >
-                                        <div class="my-3">
-                                            <label for="oauth_client_secret" class="form-label">
+                                        <div class="tw-my-3">
+                                            <label for="oauth_client_secret" class="gizmo-field-label">
                                                 {{ $t("Client Secret") }}
                                             </label>
                                             <input
                                                 id="oauth_client_secret"
                                                 v-model="monitor.oauth_client_secret"
                                                 type="password"
-                                                class="form-control"
+                                                class="gizmo-native-control"
                                                 :placeholder="$t('Client Secret')"
                                                 required
                                             />
                                         </div>
-                                        <div class="my-3">
-                                            <label for="oauth_scopes" class="form-label">{{ $t("OAuth Scope") }}</label>
+                                        <div class="tw-my-3">
+                                            <label for="oauth_scopes" class="gizmo-field-label">{{ $t("OAuth Scope") }}</label>
                                             <input
                                                 id="oauth_scopes"
                                                 v-model="monitor.oauth_scopes"
                                                 type="text"
-                                                class="form-control"
+                                                class="gizmo-native-control"
                                                 :placeholder="$t('Optional: Space separated list of scopes')"
                                             />
                                         </div>
-                                        <div class="my-3">
-                                            <label for="oauth_audience" class="form-label">
+                                        <div class="tw-my-3">
+                                            <label for="oauth_audience" class="gizmo-field-label">
                                                 {{ $t("OAuth Audience") }}
                                             </label>
                                             <input
                                                 id="oauth_audience"
                                                 v-model="monitor.oauth_audience"
                                                 type="text"
-                                                class="form-control"
+                                                class="gizmo-native-control"
                                                 :placeholder="$t('Optional: The audience to request the JWT for')"
                                             />
                                         </div>
@@ -3000,10 +3000,10 @@
                                 </template>
 
                                 <!-- Response -->
-                                <h2 class="mt-5 mb-2">{{ $t("Response") }}</h2>
-                                <div class="my-3">
-                                    <label for="checkfor" class="form-label">{{ $t("Check for") }}</label>
-                                    <select id="checkfor" v-model="monitor.responsecheck" class="form-select">
+                                <h2 class="tw-mt-5 tw-mb-2">{{ $t("Response") }}</h2>
+                                <div class="tw-my-3">
+                                    <label for="checkfor" class="gizmo-field-label">{{ $t("Check for") }}</label>
+                                    <select id="checkfor" v-model="monitor.responsecheck" class="gizmo-native-control gizmo-native-select">
                                         <option :value="null">
                                             {{ $t("None") }}
                                         </option>
@@ -3018,31 +3018,31 @@
 
                                 <!-- Keyword -->
                                 <template v-if="monitor.responsecheck === 'keyword'">
-                                    <div class="my-3">
-                                        <label for="keyword" class="form-label">{{ $t("Keyword") }}</label>
+                                    <div class="tw-my-3">
+                                        <label for="keyword" class="gizmo-field-label">{{ $t("Keyword") }}</label>
                                         <input
                                             id="keyword"
                                             v-model="monitor.keyword"
                                             type="text"
-                                            class="form-control"
+                                            class="gizmo-native-control"
                                         />
-                                        <div class="form-text">
+                                        <div class="gizmo-field-help">
                                             {{ $t("keywordDescription") }}
                                         </div>
                                     </div>
 
                                     <!-- Invert keyword -->
-                                    <div class="my-3 form-check">
+                                    <div class="tw-my-3 gizmo-native-check">
                                         <input
                                             id="invert-keyword"
                                             v-model="monitor.invertKeyword"
-                                            class="form-check-input"
+                                            class="gizmo-native-check__input"
                                             type="checkbox"
                                         />
-                                        <label class="form-check-label" for="invert-keyword">
+                                        <label class="gizmo-native-check__label" for="invert-keyword">
                                             {{ $t("Invert Keyword") }}
                                         </label>
-                                        <div class="form-text">
+                                        <div class="gizmo-field-help">
                                             {{ $t("invertKeywordDescription") }}
                                         </div>
                                     </div>
@@ -3050,12 +3050,12 @@
 
                                 <!-- Json Query -->
                                 <template v-if="monitor.responsecheck === 'json-query'">
-                                    <div class="my-3">
-                                        <div class="my-2">
-                                            <label for="jsonPath" class="form-label mb-0">
+                                    <div class="tw-my-3">
+                                        <div class="tw-my-2">
+                                            <label for="jsonPath" class="gizmo-field-label tw-mb-0">
                                                 {{ $t("Json Query Expression") }}
                                             </label>
-                                            <i18n-t tag="div" class="form-text mb-2" keypath="jsonQueryDescription">
+                                            <i18n-t tag="div" class="gizmo-field-help tw-mb-2" keypath="jsonQueryDescription">
                                                 <a href="https://jsonata.org/">jsonata.org</a>
                                                 <a href="https://try.jsonata.org/">{{ $t("playground") }}</a>
                                             </i18n-t>
@@ -3063,21 +3063,21 @@
                                                 id="jsonPath"
                                                 v-model="monitor.jsonPath"
                                                 type="text"
-                                                class="form-control"
+                                                class="gizmo-native-control"
                                                 placeholder="$"
                                                 required
                                             />
                                         </div>
 
-                                        <div class="d-flex align-items-start">
-                                            <div class="me-2">
-                                                <label for="json_path_operator" class="form-label">
+                                        <div class="tw-flex tw-items-start">
+                                            <div class="tw-me-2">
+                                                <label for="json_path_operator" class="gizmo-field-label">
                                                     {{ $t("Condition") }}
                                                 </label>
                                                 <select
                                                     id="json_path_operator"
                                                     v-model="monitor.jsonPathOperator"
-                                                    class="form-select me-3"
+                                                    class="gizmo-native-control gizmo-native-select tw-me-3"
                                                     required
                                                 >
                                                     <option value=">">&gt;</option>
@@ -3089,8 +3089,8 @@
                                                     <option value="contains">contains</option>
                                                 </select>
                                             </div>
-                                            <div class="flex-grow-1">
-                                                <label for="expectedValue" class="form-label">
+                                            <div class="tw-flex-1">
+                                                <label for="expectedValue" class="gizmo-field-label">
                                                     {{ $t("Expected Value") }}
                                                 </label>
                                                 <input
@@ -3102,7 +3102,7 @@
                                                     id="expectedValue"
                                                     v-model="monitor.expectedValue"
                                                     type="number"
-                                                    class="form-control"
+                                                    class="gizmo-native-control"
                                                     required
                                                     step=".01"
                                                 />
@@ -3111,7 +3111,7 @@
                                                     id="expectedValue"
                                                     v-model="monitor.expectedValue"
                                                     type="text"
-                                                    class="form-control"
+                                                    class="gizmo-native-control"
                                                     required
                                                 />
                                             </div>
@@ -3123,69 +3123,69 @@
                             <!-- gRPC Options -->
                             <template v-if="monitor.type === 'grpc-keyword'">
                                 <!-- Proto service enable TLS -->
-                                <h2 class="mt-5 mb-2">{{ $t("GRPC Options") }}</h2>
-                                <div class="my-3 form-check">
+                                <h2 class="tw-mt-5 tw-mb-2">{{ $t("GRPC Options") }}</h2>
+                                <div class="tw-my-3 gizmo-native-check">
                                     <input
                                         id="grpc-enable-tls"
                                         v-model="monitor.grpcEnableTls"
-                                        class="form-check-input"
+                                        class="gizmo-native-check__input"
                                         type="checkbox"
                                         value=""
                                     />
-                                    <label class="form-check-label" for="grpc-enable-tls">
+                                    <label class="gizmo-native-check__label" for="grpc-enable-tls">
                                         {{ $t("Enable TLS") }}
                                     </label>
-                                    <div class="form-text">
+                                    <div class="gizmo-field-help">
                                         {{ $t("enableGRPCTls") }}
                                     </div>
                                 </div>
                                 <!-- Proto service name data -->
-                                <div class="my-3">
-                                    <label for="protobuf" class="form-label">{{ $t("Proto Service Name") }}</label>
+                                <div class="tw-my-3">
+                                    <label for="protobuf" class="gizmo-field-label">{{ $t("Proto Service Name") }}</label>
                                     <input
                                         id="name"
                                         v-model="monitor.grpcServiceName"
                                         type="text"
-                                        class="form-control"
+                                        class="gizmo-native-control"
                                         :placeholder="protoServicePlaceholder"
                                         required
                                     />
                                 </div>
 
                                 <!-- Proto method data -->
-                                <div class="my-3">
-                                    <label for="protobuf" class="form-label">{{ $t("Proto Method") }}</label>
+                                <div class="tw-my-3">
+                                    <label for="protobuf" class="gizmo-field-label">{{ $t("Proto Method") }}</label>
                                     <input
                                         id="name"
                                         v-model="monitor.grpcMethod"
                                         type="text"
-                                        class="form-control"
+                                        class="gizmo-native-control"
                                         :placeholder="protoMethodPlaceholder"
                                         required
                                     />
-                                    <div class="form-text">
+                                    <div class="gizmo-field-help">
                                         {{ $t("grpcMethodDescription") }}
                                     </div>
                                 </div>
 
                                 <!-- Proto data -->
-                                <div class="my-3">
-                                    <label for="protobuf" class="form-label">{{ $t("Proto Content") }}</label>
+                                <div class="tw-my-3">
+                                    <label for="protobuf" class="gizmo-field-label">{{ $t("Proto Content") }}</label>
                                     <textarea
                                         id="protobuf"
                                         v-model="monitor.grpcProtobuf"
-                                        class="form-control"
+                                        class="gizmo-native-control"
                                         :placeholder="protoBufDataPlaceholder"
                                     ></textarea>
                                 </div>
 
                                 <!-- Body -->
-                                <div class="my-3">
-                                    <label for="body" class="form-label">{{ $t("Body") }}</label>
+                                <div class="tw-my-3">
+                                    <label for="body" class="gizmo-field-label">{{ $t("Body") }}</label>
                                     <textarea
                                         id="body"
                                         v-model="monitor.grpcBody"
-                                        class="form-control"
+                                        class="gizmo-native-control"
                                         :placeholder="bodyPlaceholder"
                                     ></textarea>
                                 </div>
@@ -3193,10 +3193,10 @@
                         </div>
                     </div>
 
-                    <div class="fixed-bottom-bar p-3">
+                    <div class="monitor-editor-actions tw-p-3">
                         <button
                             id="monitor-submit-btn"
-                            class="btn btn-primary"
+                            class="gizmo-native-button gizmo-native-button--primary"
                             type="submit"
                             :disabled="processing"
                             data-testid="save-button"
@@ -4545,6 +4545,25 @@ message HealthCheckResponse {
 
 .monitor-editor-surface {
     border: 1px solid var(--color-border);
+}
+
+.monitor-editor-panel { padding: 1.25rem 1.25rem 0; }
+.monitor-editor-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(20rem, 0.78fr); gap: 1.5rem; }
+.monitor-editor-column { min-width: 0; }
+.monitor-editor-actions {
+    position: sticky;
+    z-index: 10;
+    bottom: 0;
+    display: flex;
+    margin-inline: -1.25rem;
+    border-top: 1px solid var(--color-border);
+    border-radius: 0 0 1rem 1rem;
+    background: color-mix(in srgb, var(--color-surface) 92%, transparent);
+    backdrop-filter: blur(0.25rem);
+}
+
+@media (max-width: 900px) {
+    .monitor-editor-grid { grid-template-columns: 1fr; gap: 0; }
 }
 
 textarea {

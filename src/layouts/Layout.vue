@@ -1,7 +1,7 @@
 <template>
     <div :class="classes" class="app-shell">
         <div v-if="!$root.socket.connected && !$root.socket.firstConnect" class="lost-connection">
-            <div class="container-fluid">
+            <div class="lost-connection__inner">
                 {{ $root.connectionErrorMsg }}
                 <div v-if="$root.showReverseProxyGuide">
                     {{ $t("Using a Reverse Proxy?") }}
@@ -25,7 +25,7 @@
                 v-if="hasNewVersion"
                 target="_blank"
                 href="https://github.com/starit/uptime-gizmo/releases"
-                class="btn btn-primary app-header-update"
+                class="gizmo-native-button gizmo-native-button--primary app-header-update"
             >
                 <font-awesome-icon icon="arrow-alt-circle-up" />
                 {{ $t("New Update") }}
@@ -45,72 +45,64 @@
                     </router-link>
                 </li>
                 <li v-if="$root.loggedIn" class="app-nav-item">
-                    <div class="dropdown dropdown-profile-pic">
-                        <div class="nav-link" data-bs-toggle="dropdown">
-                            <div class="profile-pic">{{ $root.usernameFirstChar }}</div>
-                            <font-awesome-icon icon="angle-down" />
-                        </div>
+                    <div class="dropdown-profile-pic">
+                        <GizmoMenu align="end">
+                            <template #trigger>
+                                <button type="button" class="profile-menu-trigger" :aria-label="$t('User')">
+                                    <span class="profile-pic">{{ $root.usernameFirstChar }}</span>
+                                    <font-awesome-icon icon="angle-down" />
+                                </button>
+                            </template>
 
-                        <!-- Header's Dropdown Menu -->
-                        <ul class="dropdown-menu">
-                            <!-- Username -->
-                            <li>
-                                <i18n-t
-                                    v-if="$root.username != null"
-                                    tag="span"
-                                    keypath="signedInDisp"
-                                    class="dropdown-item-text"
-                                >
-                                    <strong>{{ $root.username }}</strong>
-                                </i18n-t>
-                                <span v-if="$root.username == null" class="dropdown-item-text">
-                                    {{ $t("signedInDispDisabled") }}
-                                </span>
-                            </li>
+                            <i18n-t
+                                v-if="$root.username != null"
+                                tag="div"
+                                keypath="signedInDisp"
+                                class="gizmo-menu__label"
+                            >
+                                <strong>{{ $root.username }}</strong>
+                            </i18n-t>
+                            <div v-else class="gizmo-menu__label">
+                                {{ $t("signedInDispDisabled") }}
+                            </div>
+                            <div class="gizmo-menu__separator" role="separator"></div>
 
-                            <li><hr class="dropdown-divider" /></li>
-
-                            <!-- Functions -->
-                            <li>
+                            <GizmoMenuItem as-child>
                                 <router-link
                                     to="/maintenance"
-                                    class="dropdown-item"
                                     :class="{ active: $route.path.includes('manage-maintenance') }"
                                 >
                                     <font-awesome-icon icon="wrench" />
                                     {{ $t("Maintenance") }}
                                 </router-link>
-                            </li>
-
-                            <li>
+                            </GizmoMenuItem>
+                            <GizmoMenuItem as-child>
                                 <router-link
                                     to="/settings/general"
-                                    class="dropdown-item"
                                     :class="{ active: $route.path.includes('settings') }"
                                 >
                                     <font-awesome-icon icon="cog" />
                                     {{ $t("Settings") }}
                                 </router-link>
-                            </li>
-
-                            <li>
+                            </GizmoMenuItem>
+                            <GizmoMenuItem as-child>
                                 <a
                                     href="https://github.com/starit/uptime-gizmo/wiki"
-                                    class="dropdown-item"
                                     target="_blank"
+                                    rel="noopener noreferrer"
                                 >
                                     <font-awesome-icon icon="info-circle" />
                                     {{ $t("Help") }}
                                 </a>
-                            </li>
-
-                            <li v-if="$root.loggedIn && $root.socket.token !== 'autoLogin'">
-                                <button class="dropdown-item" @click="$root.logout">
-                                    <font-awesome-icon icon="sign-out-alt" />
-                                    {{ $t("Logout") }}
-                                </button>
-                            </li>
-                        </ul>
+                            </GizmoMenuItem>
+                            <GizmoMenuItem
+                                v-if="$root.loggedIn && $root.socket.token !== 'autoLogin'"
+                                @select="$root.logout"
+                            >
+                                <font-awesome-icon icon="sign-out-alt" />
+                                {{ $t("Logout") }}
+                            </GizmoMenuItem>
+                        </GizmoMenu>
                     </div>
                 </li>
             </ul>
@@ -155,7 +147,7 @@
         <button
             v-if="numActiveToasts != 0"
             type="button"
-            class="btn btn-normal clear-all-toast-btn"
+            class="gizmo-native-button gizmo-native-button--secondary clear-all-toast-btn"
             @click="clearToasts"
         >
             <font-awesome-icon icon="times" />
@@ -165,12 +157,16 @@
 
 <script>
 import Login from "../components/Login.vue";
+import GizmoMenu from "../components/gizmo/GizmoMenu.vue";
+import GizmoMenuItem from "../components/gizmo/GizmoMenuItem.vue";
 import compareVersions from "compare-versions";
 import { useToast } from "vue-toastification";
 const toast = useToast();
 
 export default {
     components: {
+        GizmoMenu,
+        GizmoMenuItem,
         Login,
     },
 
@@ -328,48 +324,18 @@ export default {
 .dropdown-profile-pic {
     user-select: none;
 
-    .nav-link {
+    .profile-menu-trigger {
         cursor: pointer;
         display: flex;
         gap: 6px;
         align-items: center;
+        border: 0;
         background-color: var(--color-surface-subtle);
+        color: var(--color-text);
         padding: 0.5rem 0.8rem;
 
         &:hover {
             background-color: var(--color-surface-hover);
-        }
-    }
-
-    .dropdown-menu {
-        transition: all 0.2s;
-        padding-left: 0;
-        padding-bottom: 0;
-        margin-top: 8px !important;
-        border: 1px solid var(--color-border);
-        border-radius: 0.875rem;
-        overflow: hidden;
-
-        .dropdown-divider {
-            margin: 0;
-            border-top: 1px solid var(--color-border);
-            background-color: transparent;
-        }
-
-        .dropdown-item-text {
-            font-size: 14px;
-            padding-bottom: 0.7rem;
-        }
-
-        .dropdown-item {
-            color: var(--color-text);
-            padding: 0.7rem 1rem;
-
-            &.active,
-            &:hover {
-                background-color: var(--color-surface-hover);
-                color: var(--color-text);
-            }
         }
     }
 

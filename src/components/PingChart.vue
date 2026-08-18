@@ -1,27 +1,20 @@
 <template>
     <div>
-        <div class="period-options">
-            <button
-                type="button"
-                class="btn btn-light dropdown-toggle btn-period-toggle"
-                data-bs-toggle="dropdown"
-                aria-expanded="false"
+        <GizmoMenu align="end" class="period-options">
+            <template #trigger>
+                <button type="button" class="gizmo-native-button gizmo-native-button--light btn-period-toggle">
+                    {{ chartPeriodOptions[chartPeriodHrs] }}
+                </button>
+            </template>
+            <GizmoMenuItem
+                v-for="(item, key) in chartPeriodOptions"
+                :key="key"
+                :class="{ active: chartPeriodHrs == key }"
+                @select="chartPeriodHrs = key"
             >
-                {{ chartPeriodOptions[chartPeriodHrs] }}&nbsp;
-            </button>
-            <ul class="dropdown-menu dropdown-menu-end">
-                <li v-for="(item, key) in chartPeriodOptions" :key="key">
-                    <button
-                        type="button"
-                        class="dropdown-item"
-                        :class="{ active: chartPeriodHrs == key }"
-                        @click="chartPeriodHrs = key"
-                    >
-                        {{ item }}
-                    </button>
-                </li>
-            </ul>
-        </div>
+                {{ item }}
+            </GizmoMenuItem>
+        </GizmoMenu>
         <div class="chart-wrapper" :class="{ loading: loading }">
             <Line :data="chartData" :options="chartOptions" />
         </div>
@@ -45,6 +38,8 @@ import {
 import "chartjs-adapter-dayjs-4";
 import { Line } from "vue-chartjs";
 import { UP, DOWN, PENDING, MAINTENANCE } from "../util.ts";
+import GizmoMenu from "./gizmo/GizmoMenu.vue";
+import GizmoMenuItem from "./gizmo/GizmoMenuItem.vue";
 
 Chart.register(
     LineController,
@@ -60,7 +55,7 @@ Chart.register(
 );
 
 export default {
-    components: { Line },
+    components: { GizmoMenu, GizmoMenuItem, Line },
     props: {
         /** ID of monitor */
         monitorId: {
@@ -614,28 +609,12 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.form-select {
-    width: unset;
-    display: inline-flex;
-}
-
 .period-options {
     padding: 0.1em 1em;
     margin-bottom: -1.2em;
     float: right;
     position: relative;
     z-index: 10;
-
-    .dropdown-menu {
-        padding: 0;
-        min-width: 50px;
-        font-size: 0.9em;
-
-        .dropdown-item {
-            border-radius: 0.3rem;
-            padding: 2px 16px 4px;
-        }
-    }
 
     .btn-period-toggle {
         padding: 2px 15px;
@@ -644,10 +623,6 @@ export default {
         color: var(--color-interactive);
         opacity: 0.7;
         font-size: 0.9em;
-
-        &::after {
-            vertical-align: 0.155em;
-        }
     }
 }
 

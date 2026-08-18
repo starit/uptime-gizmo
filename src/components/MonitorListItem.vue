@@ -13,7 +13,7 @@
             <!-- Checkbox -->
             <div v-if="isSelectMode" class="select-input-wrapper">
                 <input
-                    class="form-check-input select-input"
+                    class="gizmo-native-check__input select-input"
                     type="checkbox"
                     :aria-label="$t('Check/Uncheck')"
                     :checked="isSelected(monitor.id)"
@@ -22,12 +22,12 @@
             </div>
 
             <router-link :to="monitorURL(monitor.id)" class="item" :class="{ disabled: !monitor.active }">
-                <div class="row">
-                    <div class="small-padding d-flex gap-2 align-items-center" :class="monitorStyle">
-                        <div class="me-1">
+                <div class="monitor-row" :class="monitorStyle">
+                    <div class="monitor-row__identity small-padding tw-flex tw-gap-2 tw-items-center">
+                        <div class="tw-me-1">
                             <Uptime :monitor="monitor" type="24" :pill="true" />
                         </div>
-                        <div class="d-flex align-items-center gap-2 flex-fill" style="min-width: 0">
+                        <div class="tw-flex tw-items-center tw-gap-2 tw-flex-1" style="min-width: 0">
                             <span v-if="hasChildren" class="collapse-padding" @click.prevent="changeCollapsed">
                                 <font-awesome-icon
                                     icon="chevron-down"
@@ -35,9 +35,9 @@
                                     :class="{ collapsed: isCollapsed }"
                                 />
                             </span>
-                            <div class="flex-fill text-truncate" style="min-width: 0">
-                                <div class="text-truncate">{{ monitor.name }}</div>
-                                <div v-if="monitor.tags.length > 0" class="tags gap-1">
+                            <div class="tw-flex-1 tw-truncate" style="min-width: 0">
+                                <div class="tw-truncate">{{ monitor.name }}</div>
+                                <div v-if="monitor.tags.length > 0" class="tags tw-gap-1">
                                     <Tag
                                         v-for="tag in monitor.tags"
                                         :key="tag"
@@ -52,14 +52,14 @@
                     <div
                         v-show="$root.userHeartbeatBar == 'normal'"
                         :key="$root.userHeartbeatBar"
-                        class="col-3 col-xl-6"
+                        class="monitor-row__heartbeat"
                     >
                         <HeartbeatBar ref="heartbeatBar" size="small" :monitor-id="monitor.id" />
                     </div>
                 </div>
 
-                <div v-if="$root.userHeartbeatBar == 'bottom'" class="row">
-                    <div class="col-12 bottom-style">
+                <div v-if="$root.userHeartbeatBar == 'bottom'" class="monitor-row monitor-row--bottom">
+                    <div class="bottom-style">
                         <HeartbeatBar ref="heartbeatBar" size="small" :monitor-id="monitor.id" />
                     </div>
                 </div>
@@ -170,12 +170,9 @@ export default {
         },
         monitorStyle() {
             const isFullWidth = this.$root.userHeartbeatBar === "bottom" || this.$root.userHeartbeatBar === "none";
-            const c = {};
-            if (!isFullWidth) {
-                c["col-9"] = true;
-                c["col-xl-6"] = true;
-            }
-            return c;
+            return {
+                "monitor-row--split": !isFullWidth,
+            };
         },
     },
     watch: {
@@ -335,6 +332,16 @@ export default {
 .small-padding {
     padding-left: 0.5rem !important;
     padding-right: 0.5rem !important;
+}
+
+.monitor-row { display: grid; grid-template-columns: minmax(0, 1fr); align-items: center; gap: 0.75rem; }
+.monitor-row--split { grid-template-columns: minmax(0, 1fr) minmax(8rem, 1fr); }
+.monitor-row__identity,
+.monitor-row__heartbeat { min-width: 0; }
+.monitor-row--bottom { margin-top: 0.375rem; }
+
+@media (max-width: 1180px) {
+    .monitor-row--split { grid-template-columns: minmax(0, 3fr) minmax(7rem, 1fr); }
 }
 
 .tags {

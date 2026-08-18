@@ -13,7 +13,7 @@
             </h1>
             <!-- eslint-disable-next-line vue/no-v-html-->
             <p v-if="monitor.description" v-html="descriptionHTML"></p>
-            <div class="d-flex">
+            <div class="tw-flex">
                 <div class="tags">
                     <Tag
                         v-for="tag in monitor.tags"
@@ -116,38 +116,38 @@
             </p>
 
             <div class="functions monitor-detail-actions">
-                <div class="btn-group" role="group">
-                    <button v-if="monitor.active" class="btn btn-normal" @click="pauseDialog">
+                <div class="gizmo-action-group" role="group">
+                    <button v-if="monitor.active" class="gizmo-native-button gizmo-native-button--secondary" @click="pauseDialog">
                         <font-awesome-icon icon="pause" />
                         {{ $t("Pause") }}
                     </button>
                     <button
                         v-if="!monitor.active"
-                        class="btn btn-primary"
+                        class="gizmo-native-button gizmo-native-button--primary"
                         :disabled="monitor.forceInactive"
                         @click="resumeMonitor"
                     >
                         <font-awesome-icon icon="play" />
                         {{ $t("Resume") }}
                     </button>
-                    <router-link :to="'/edit/' + monitor.id" class="btn btn-normal">
+                    <router-link :to="'/edit/' + monitor.id" class="gizmo-native-button gizmo-native-button--secondary">
                         <font-awesome-icon icon="edit" />
                         {{ $t("Edit") }}
                     </router-link>
-                    <router-link :to="'/clone/' + monitor.id" class="btn btn-normal">
+                    <router-link :to="'/clone/' + monitor.id" class="gizmo-native-button gizmo-native-button--secondary">
                         <font-awesome-icon icon="clone" />
                         {{ $t("Clone") }}
                     </router-link>
-                    <button class="btn btn-normal text-danger" @click="deleteDialog">
+                    <button class="gizmo-native-button gizmo-native-button--secondary tw-text-status-down-fg" @click="deleteDialog">
                         <font-awesome-icon icon="trash" />
                         {{ $t("Delete") }}
                     </button>
                 </div>
             </div>
 
-            <div class="shadow-box detail-card detail-card-health">
-                <div class="row">
-                    <div class="col-md-8">
+            <div class="gizmo-workspace-panel detail-card detail-card-health">
+                <div class="monitor-health-grid">
+                    <div class="monitor-health-grid__timeline">
                         <HeartbeatBar :monitor-id="monitor.id" />
                         <span class="word">
                             {{ $t("checkEverySecond", [monitor.interval]) }} ({{
@@ -155,11 +155,10 @@
                             }})
                         </span>
                     </div>
-                    <div class="col-md-4 text-center">
+                    <div class="monitor-health-grid__status tw-text-center">
                         <span
-                            class="badge rounded-pill monitor-status"
-                            :class="'bg-' + status.color"
-                            style="font-size: 30px"
+                            class="monitor-status"
+                            :class="`gizmo-status--${statusTone}`"
                             data-testid="monitor-status"
                         >
                             {{ status.text }}
@@ -169,14 +168,14 @@
             </div>
 
             <!-- Push Examples -->
-            <div v-if="monitor.type === 'push'" class="shadow-box big-padding detail-card">
+            <div v-if="monitor.type === 'push'" class="gizmo-workspace-panel detail-card detail-card--spacious">
                 <a href="#" @click="pushMonitor.showPushExamples = !pushMonitor.showPushExamples">
                     {{ $t("pushViewCode") }}
                 </a>
 
                 <transition name="slide-fade" appear>
-                    <div v-if="pushMonitor.showPushExamples" class="mt-3">
-                        <select id="push-current-example" v-model="pushMonitor.currentExample" class="form-select">
+                    <div v-if="pushMonitor.showPushExamples" class="tw-mt-3">
+                        <select id="push-current-example" v-model="pushMonitor.currentExample" class="gizmo-native-control gizmo-native-select">
                             <optgroup :label="$t('programmingLanguages')">
                                 <option value="csharp">C#</option>
                                 <option value="go">Go</option>
@@ -195,7 +194,7 @@
 
                         <prism-editor
                             v-model="pushMonitor.code"
-                            class="css-editor mt-3"
+                            class="css-editor tw-mt-3"
                             :highlight="pushExampleHighlighter"
                             line-numbers
                             readonly
@@ -205,15 +204,15 @@
             </div>
 
             <!-- Stats -->
-            <div class="shadow-box big-padding text-center stats detail-card">
-                <div class="row">
+            <div class="gizmo-workspace-panel tw-text-center stats detail-card detail-card--spacious">
+                <div class="monitor-stat-grid">
                     <div
                         v-if="monitor.type !== 'group'"
-                        class="col-12 col-sm col row d-flex align-items-center d-sm-block"
+                        class="monitor-stat"
                     >
-                        <h4 class="col-4 col-sm-12">{{ pingTitle() }}</h4>
-                        <p class="col-4 col-sm-12 mb-0 mb-sm-2">({{ $t("Current") }})</p>
-                        <span class="col-4 col-sm-12 num">
+                        <h4>{{ pingTitle() }}</h4>
+                        <p class="tw-mb-0">({{ $t("Current") }})</p>
+                        <span class="num">
                             <a href="#" @click.prevent="showPingChartBox = !showPingChartBox">
                                 <CountUp :value="ping" />
                             </a>
@@ -221,50 +220,50 @@
                     </div>
                     <div
                         v-if="monitor.type !== 'group'"
-                        class="col-12 col-sm col row d-flex align-items-center d-sm-block"
+                        class="monitor-stat"
                     >
-                        <h4 class="col-4 col-sm-12">{{ pingTitle(true) }}</h4>
-                        <p class="col-4 col-sm-12 mb-0 mb-sm-2">({{ $t("hours", 24) }})</p>
-                        <span class="col-4 col-sm-12 num">
+                        <h4>{{ pingTitle(true) }}</h4>
+                        <p class="tw-mb-0">({{ $t("hours", 24) }})</p>
+                        <span class="num">
                             <CountUp :value="avgPing" />
                         </span>
                     </div>
 
                     <!-- Uptime (24-hour) -->
-                    <div class="col-12 col-sm col row d-flex align-items-center d-sm-block">
-                        <h4 class="col-4 col-sm-12">{{ $t("Uptime") }}</h4>
-                        <p class="col-4 col-sm-12 mb-0 mb-sm-2">({{ $t("hours", 24) }})</p>
-                        <span class="col-4 col-sm-12 num">
+                    <div class="monitor-stat">
+                        <h4>{{ $t("Uptime") }}</h4>
+                        <p class="tw-mb-0">({{ $t("hours", 24) }})</p>
+                        <span class="num">
                             <Uptime :monitor="monitor" type="24" />
                         </span>
                     </div>
 
                     <!-- Uptime (30-day) -->
-                    <div class="col-12 col-sm col row d-flex align-items-center d-sm-block">
-                        <h4 class="col-4 col-sm-12">{{ $t("Uptime") }}</h4>
-                        <p class="col-4 col-sm-12 mb-0 mb-sm-2">({{ $t("days", 30) }})</p>
-                        <span class="col-4 col-sm-12 num">
+                    <div class="monitor-stat">
+                        <h4>{{ $t("Uptime") }}</h4>
+                        <p class="tw-mb-0">({{ $t("days", 30) }})</p>
+                        <span class="num">
                             <Uptime :monitor="monitor" type="720" />
                         </span>
                     </div>
 
                     <!-- Uptime (1-year) -->
-                    <div class="col-12 col-sm col row d-flex align-items-center d-sm-block">
-                        <h4 class="col-4 col-sm-12">{{ $t("Uptime") }}</h4>
-                        <p class="col-4 col-sm-12 mb-0 mb-sm-2">({{ $t("years", 1) }})</p>
-                        <span class="col-4 col-sm-12 num">
+                    <div class="monitor-stat">
+                        <h4>{{ $t("Uptime") }}</h4>
+                        <p class="tw-mb-0">({{ $t("years", 1) }})</p>
+                        <span class="num">
                             <Uptime :monitor="monitor" type="1y" />
                         </span>
                     </div>
 
-                    <div v-if="tlsInfo" class="col-12 col-sm col row d-flex align-items-center d-sm-block">
-                        <h4 class="col-4 col-sm-12">{{ $t("Cert Exp.") }}</h4>
-                        <p class="col-4 col-sm-12 mb-0 mb-sm-2">
+                    <div v-if="tlsInfo" class="monitor-stat">
+                        <h4>{{ $t("Cert Exp.") }}</h4>
+                        <p class="tw-mb-0">
                             (
                             <Datetime :value="tlsInfo.certInfo.validTo" date-only />
                             )
                         </p>
-                        <span class="col-4 col-sm-12 num">
+                        <span class="num">
                             <a href="#" @click.prevent="toggleCertInfoBox = !toggleCertInfoBox">
                                 {{ $t("days", tlsInfo.certInfo.daysRemaining) }}
                             </a>
@@ -276,14 +275,14 @@
                             />
                         </span>
                     </div>
-                    <div v-if="domainInfo" class="col-12 col-sm col row d-flex align-items-center d-sm-block">
-                        <h4 class="col-4 col-sm-12">{{ $t("labelDomainExpiry") }}</h4>
-                        <p class="col-4 col-sm-12 mb-0 mb-sm-2">
+                    <div v-if="domainInfo" class="monitor-stat">
+                        <h4>{{ $t("labelDomainExpiry") }}</h4>
+                        <p class="tw-mb-0">
                             (
                             <Datetime :value="domainInfo.expiresOn" date-only />
                             )
                         </p>
-                        <span class="col-4 col-sm-12 num">
+                        <span class="num">
                             {{ $t("days", domainInfo.daysRemaining) }}
                         </span>
                     </div>
@@ -292,28 +291,20 @@
 
             <!-- Cert Info Box -->
             <transition name="slide-fade" appear>
-                <div v-if="showCertInfoBox" class="shadow-box big-padding text-center detail-card">
-                    <div class="row">
-                        <div class="col">
-                            <certificate-info :certInfo="tlsInfo.certInfo" :valid="tlsInfo.valid" />
-                        </div>
-                    </div>
+                <div v-if="showCertInfoBox" class="gizmo-workspace-panel tw-text-center detail-card detail-card--spacious">
+                    <certificate-info :certInfo="tlsInfo.certInfo" :valid="tlsInfo.valid" />
                 </div>
             </transition>
 
             <!-- Ping Chart -->
-            <div v-if="showPingChartBox" class="shadow-box big-padding text-center ping-chart-wrapper detail-card">
-                <div class="row">
-                    <div class="col">
-                        <PingChart :monitor-id="monitor.id" />
-                    </div>
-                </div>
+            <div v-if="showPingChartBox" class="gizmo-workspace-panel tw-text-center ping-chart-wrapper detail-card detail-card--spacious">
+                <PingChart :monitor-id="monitor.id" />
             </div>
 
             <!-- Screenshot -->
-            <div v-if="monitor.type === 'real-browser'" class="shadow-box detail-card">
-                <div class="row">
-                    <div class="col-md-6 zoom-cursor">
+            <div v-if="monitor.type === 'real-browser'" class="gizmo-workspace-panel detail-card">
+                <div class="monitor-screenshot-grid">
+                    <div class="zoom-cursor">
                         <img
                             :src="screenshotURL"
                             style="width: 100%"
@@ -325,30 +316,22 @@
                 </div>
             </div>
 
-            <div class="shadow-box table-shadow-box detail-card">
-                <div class="dropdown dropdown-clear-data">
-                    <button
-                        class="btn btn-sm btn-outline-danger dropdown-toggle"
-                        type="button"
-                        data-bs-toggle="dropdown"
-                    >
-                        <font-awesome-icon icon="trash" />
-                        {{ $t("Clear Data") }}
-                    </button>
-                    <ul class="dropdown-menu dropdown-menu-end">
-                        <li>
-                            <button type="button" class="dropdown-item" @click="clearEventsDialog">
-                                {{ $t("Events") }}
-                            </button>
-                        </li>
-                        <li>
-                            <button type="button" class="dropdown-item" @click="clearHeartbeatsDialog">
-                                {{ $t("Heartbeats") }}
-                            </button>
-                        </li>
-                    </ul>
-                </div>
-                <table class="table table-borderless table-hover">
+            <div class="gizmo-workspace-panel detail-table-panel detail-card">
+                <GizmoMenu align="end" class="dropdown-clear-data">
+                    <template #trigger>
+                        <button class="gizmo-native-button gizmo-native-button--sm gizmo-native-button--danger-outline" type="button">
+                            <font-awesome-icon icon="trash" />
+                            {{ $t("Clear Data") }}
+                        </button>
+                    </template>
+                    <GizmoMenuItem @select="clearEventsDialog">
+                        {{ $t("Events") }}
+                    </GizmoMenuItem>
+                    <GizmoMenuItem @select="clearHeartbeatsDialog">
+                        {{ $t("Heartbeats") }}
+                    </GizmoMenuItem>
+                </GizmoMenu>
+                <table class="gizmo-data-table gizmo-data-table--borderless gizmo-data-table--hover">
                     <thead>
                         <tr>
                             <th>{{ $t("Status") }}</th>
@@ -359,10 +342,10 @@
                     <tbody>
                         <tr v-for="(beat, index) in displayedRecords" :key="index" style="padding: 10px">
                             <td><Status :status="beat.status" /></td>
-                            <td :class="{ 'border-0': !beat.msg }">
+                            <td :class="{ 'tw-border-0': !beat.msg }">
                                 <Datetime :value="beat.time" />
                             </td>
-                            <td class="border-0">{{ beat.msg }}</td>
+                            <td class="tw-border-0">{{ beat.msg }}</td>
                         </tr>
 
                         <tr v-if="importantHeartBeatListLength === 0">
@@ -373,7 +356,7 @@
                     </tbody>
                 </table>
 
-                <div class="d-flex justify-content-center kuma_pagination">
+                <div class="tw-flex tw-justify-center kuma_pagination">
                     <pagination
                         v-model="page"
                         :records="importantHeartBeatListLength"
@@ -396,14 +379,14 @@
             >
                 <div v-if="monitor && monitor.type === 'group'">
                     <div>{{ $t("deleteGroupMsg") }}</div>
-                    <div v-if="hasChildren" class="form-check">
+                    <div v-if="hasChildren" class="gizmo-native-check">
                         <input
                             id="delete-children-checkbox"
                             v-model="deleteChildrenMonitors"
-                            class="form-check-input"
+                            class="gizmo-native-check__input"
                             type="checkbox"
                         />
-                        <label class="form-check-label" for="delete-children-checkbox">
+                        <label class="gizmo-native-check__label" for="delete-children-checkbox">
                             {{ $t("deleteChildrenMonitors", childrenCount) }}
                         </label>
                     </div>
@@ -462,9 +445,13 @@ import "prismjs/components/prism-css";
 import { PrismEditor } from "vue-prism-editor";
 import "vue-prism-editor/dist/prismeditor.min.css";
 import ScreenshotDialog from "../components/ScreenshotDialog.vue";
+import GizmoMenu from "../components/gizmo/GizmoMenu.vue";
+import GizmoMenuItem from "../components/gizmo/GizmoMenuItem.vue";
 
 export default {
     components: {
+        GizmoMenu,
+        GizmoMenuItem,
         Uptime,
         CountUp,
         Datetime,
@@ -562,6 +549,16 @@ export default {
             }
 
             return {};
+        },
+
+        statusTone() {
+            return {
+                primary: "up",
+                danger: "down",
+                warning: "degraded",
+                maintenance: "maintenance",
+                secondary: "unknown",
+            }[this.status.color] || "unknown";
         },
 
         tlsInfo() {
@@ -948,6 +945,39 @@ export default {
     border: 1px solid var(--color-border);
 }
 
+.detail-card--spacious { padding: 1.25rem; }
+.monitor-health-grid { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 1rem; }
+.monitor-health-grid__timeline { min-width: 0; }
+.monitor-status {
+    display: inline-flex;
+    min-width: 7rem;
+    min-height: 3rem;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem 0.875rem;
+    border: 1px solid;
+    border-radius: 999px;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 1.25rem;
+    font-weight: 750;
+    letter-spacing: 0.04em;
+}
+.monitor-stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr)); }
+.monitor-stat { display: grid; align-content: center; gap: 0.15rem; min-height: 6.5rem; padding: 0.75rem; border-inline-end: 1px solid var(--color-border); }
+.monitor-stat:last-child { border-inline-end: 0; }
+.monitor-stat h4 { margin: 0; font-size: 0.875rem; color: var(--color-text-muted); }
+.monitor-stat .num { font-size: clamp(1.1rem, 2vw, 1.5rem); font-weight: 750; font-variant-numeric: tabular-nums; }
+.monitor-screenshot-grid { display: grid; grid-template-columns: minmax(0, 36rem); justify-content: center; }
+.detail-table-panel { overflow-x: auto; }
+
+@media (max-width: 640px) {
+    .monitor-health-grid { grid-template-columns: 1fr; }
+    .monitor-health-grid__status { text-align: start; }
+    .monitor-stat-grid { grid-template-columns: 1fr; text-align: start; }
+    .monitor-stat { grid-template-columns: minmax(0, 1fr) auto auto; min-height: 0; align-items: baseline; border-inline-end: 0; border-bottom: 1px solid var(--color-border); }
+    .monitor-stat:last-child { border-bottom: 0; }
+}
+
 .detail-card-health {
     background: linear-gradient(135deg, var(--color-surface), var(--color-surface-subtle));
 }
@@ -982,30 +1012,12 @@ table {
     }
 }
 
-@media (max-width: 550px) {
-    .stats {
-        .col {
-            margin: 10px 0 !important;
-        }
-
-        h4 {
-            font-size: 1.1rem;
-        }
-    }
-}
-
 .keyword {
     color: var(--color-text);
 }
 
 .dropdown-clear-data {
     float: right;
-
-    ul {
-        width: 100%;
-        min-width: unset;
-        padding-left: 0;
-    }
 }
 
 .tags {
@@ -1036,11 +1048,4 @@ table {
     opacity: 0.5;
 }
 
-.monitor-status {
-    min-width: 7.5rem;
-    padding: 0.55rem 0.8rem;
-    font-family: "IBM Plex Mono", monospace;
-    font-size: 0.9rem !important;
-    letter-spacing: 0.04em;
-}
 </style>

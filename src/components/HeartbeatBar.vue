@@ -19,7 +19,7 @@
         </div>
         <div
             v-if="!$root.isMobile && size !== 'small' && beatList.length > 4 && $root.styleElapsedTime !== 'none'"
-            class="d-flex justify-content-between align-items-center word"
+            class="tw-flex tw-justify-between tw-items-center word"
             :style="timeStyle"
         >
             <div>{{ timeSinceFirstBeat }}</div>

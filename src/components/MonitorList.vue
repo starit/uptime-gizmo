@@ -1,5 +1,5 @@
 <template>
-    <div class="shadow-box monitor-list-panel mb-3 p-0" :style="boxStyle">
+    <div class="gizmo-workspace-panel monitor-list-panel tw-mb-3 tw-p-0" :style="boxStyle">
         <div class="list-header">
             <!-- Line 1: Checkbox + Status + Tags + Search Bar -->
             <div class="filter-row">
@@ -10,7 +10,7 @@
                     <form @submit.prevent>
                         <input
                             v-model="searchText"
-                            class="form-control search-input"
+                            class="gizmo-native-control search-input"
                             :placeholder="$t('Search...')"
                             :aria-label="$t('Search monitored sites')"
                             autocomplete="off"
@@ -22,7 +22,7 @@
                     <input
                         v-if="!selectMode"
                         v-model="selectMode"
-                        class="form-check-input"
+                        class="gizmo-native-check__input"
                         type="checkbox"
                         :aria-label="$t('selectAllMonitorsAria')"
                         @change="selectAll = selectMode"
@@ -30,7 +30,7 @@
                     <input
                         v-else
                         v-model="selectAll"
-                        class="form-check-input"
+                        class="gizmo-native-check__input"
                         type="checkbox"
                         :aria-label="selectAll ? $t('deselectAllMonitorsAria') : $t('selectAllMonitorsAria')"
                     />
@@ -47,46 +47,34 @@
 
             <!-- Line 2: Cancel + Actions (shown when selection mode is active) -->
             <div v-if="selectMode && selectedMonitorCount > 0" class="selection-row">
-                <button class="btn btn-outline-normal" @click="cancelSelectMode">
+                <button class="gizmo-native-button gizmo-native-button--secondary" @click="cancelSelectMode">
                     {{ $t("Cancel") }}
                 </button>
                 <div class="actions-wrapper">
-                    <div class="dropdown">
-                        <button
-                            class="btn btn-outline-normal dropdown-toggle"
-                            type="button"
-                            data-bs-toggle="dropdown"
-                            :aria-label="$t('Actions')"
-                            :disabled="bulkActionInProgress"
-                            aria-expanded="false"
-                        >
-                            {{ $t("Actions") }}
-                        </button>
-                        <ul class="dropdown-menu">
-                            <li>
-                                <a class="dropdown-item" href="#" @click.prevent="pauseDialog">
-                                    <font-awesome-icon icon="pause" class="me-2" />
-                                    {{ $t("Pause") }}
-                                </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item" href="#" @click.prevent="resumeSelected">
-                                    <font-awesome-icon icon="play" class="me-2" />
-                                    {{ $t("Resume") }}
-                                </a>
-                            </li>
-                            <li>
-                                <a
-                                    class="dropdown-item text-danger"
-                                    href="#"
-                                    @click.prevent="$refs.confirmDelete.show()"
-                                >
-                                    <font-awesome-icon icon="trash" class="me-2" />
-                                    {{ $t("Delete") }}
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
+                    <GizmoMenu align="end">
+                        <template #trigger>
+                            <button
+                                class="gizmo-native-button gizmo-native-button--secondary"
+                                type="button"
+                                :aria-label="$t('Actions')"
+                                :disabled="bulkActionInProgress"
+                            >
+                                {{ $t("Actions") }}
+                            </button>
+                        </template>
+                        <GizmoMenuItem @select="pauseDialog">
+                            <font-awesome-icon icon="pause" />
+                            {{ $t("Pause") }}
+                        </GizmoMenuItem>
+                        <GizmoMenuItem @select="resumeSelected">
+                            <font-awesome-icon icon="play" />
+                            {{ $t("Resume") }}
+                        </GizmoMenuItem>
+                        <GizmoMenuItem variant="danger" @select="$refs.confirmDelete.show()">
+                            <font-awesome-icon icon="trash" />
+                            {{ $t("Delete") }}
+                        </GizmoMenuItem>
+                    </GizmoMenu>
                 </div>
                 <span class="selected-count">
                     {{ $t("selectedMonitorCountMsg", selectedMonitorCount) }}
@@ -95,12 +83,12 @@
         </div>
         <div
             ref="monitorList"
-            class="monitor-list px-2"
+            class="monitor-list tw-px-2"
             :class="{ scrollbar: scrollbar }"
             :style="monitorListStyle"
             data-testid="monitor-list"
         >
-            <div v-if="Object.keys($root.monitorList).length === 0" class="text-center mt-3">
+            <div v-if="Object.keys($root.monitorList).length === 0" class="tw-text-center tw-mt-3">
                 {{ $t("No Monitors, please") }}
                 <router-link to="/add">{{ $t("add one") }}</router-link>
             </div>
@@ -132,10 +120,14 @@
 import Confirm from "../components/Confirm.vue";
 import MonitorListItem from "../components/MonitorListItem.vue";
 import MonitorListFilter from "./MonitorListFilter.vue";
+import GizmoMenu from "./gizmo/GizmoMenu.vue";
+import GizmoMenuItem from "./gizmo/GizmoMenuItem.vue";
 import { getMonitorRelativeURL } from "../util.ts";
 
 export default {
     components: {
+        GizmoMenu,
+        GizmoMenuItem,
         Confirm,
         MonitorListItem,
         MonitorListFilter,
@@ -652,48 +644,6 @@ export default {
 .actions-wrapper {
     display: flex;
     align-items: center;
-
-    .dropdown-toggle {
-        white-space: nowrap;
-
-        &:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-    }
-
-    .dropdown-menu {
-        min-width: 140px;
-        padding: 4px 0;
-        border-radius: 8px;
-        background: var(--color-surface);
-        border-color: var(--color-border);
-        box-shadow: var(--shadow-float);
-    }
-
-    .dropdown-item {
-        cursor: pointer;
-        padding: 6px 12px;
-        font-size: 0.9em;
-
-        &:hover {
-            background: var(--color-surface-hover);
-            color: var(--color-text);
-        }
-
-        &.text-danger {
-            color: var(--color-status-down);
-
-            &:hover {
-                background-color: var(--color-status-down) !important;
-                color: var(--color-text-inverse) !important;
-
-                svg {
-                    color: var(--color-text-inverse) !important;
-                }
-            }
-        }
-    }
 }
 
 .selection-row {

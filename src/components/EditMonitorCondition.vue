@@ -1,8 +1,8 @@
 <template>
-    <div class="monitor-condition mb-3" data-testid="condition">
+    <div class="monitor-condition tw-mb-3" data-testid="condition">
         <button
             v-if="!isInGroup || !isFirst || !isLast"
-            class="btn btn-outline-danger remove-button"
+            class="gizmo-native-button gizmo-native-button--danger-outline remove-button"
             type="button"
             :aria-label="$t('conditionDelete')"
             data-testid="remove-condition"
@@ -11,18 +11,18 @@
             <font-awesome-icon icon="trash" />
         </button>
 
-        <select v-if="!isFirst" v-model="model.andOr" class="form-select and-or-select" data-testid="condition-and-or">
+        <select v-if="!isFirst" v-model="model.andOr" class="gizmo-native-control gizmo-native-select and-or-select" data-testid="condition-and-or">
             <option value="and">{{ $t("and") }}</option>
             <option value="or">{{ $t("or") }}</option>
         </select>
 
-        <select v-model="model.variable" class="form-select" data-testid="condition-variable">
+        <select v-model="model.variable" class="gizmo-native-control gizmo-native-select" data-testid="condition-variable">
             <option v-for="variable in conditionVariables" :key="variable.id" :value="variable.id">
                 {{ $t(variable.id) }}
             </option>
         </select>
 
-        <select v-model="model.operator" class="form-select" data-testid="condition-operator">
+        <select v-model="model.operator" class="gizmo-native-control gizmo-native-select" data-testid="condition-operator">
             <option v-for="operator in getVariableOperators(model.variable)" :key="operator.id" :value="operator.id">
                 {{ $t(operator.caption) }}
             </option>
@@ -31,7 +31,7 @@
         <input
             v-model="model.value"
             type="text"
-            class="form-control"
+            class="gizmo-native-control"
             :aria-label="$t('conditionValuePlaceholder')"
             data-testid="condition-value"
             required

@@ -1,23 +1,23 @@
 <template>
     <div class="settings-workspace">
-        <div v-if="$root.isMobile" class="shadow-box settings-mobile-links mb-3">
-            <router-link to="/manage-status-page" class="nav-link">
+        <div v-if="$root.isMobile" class="gizmo-workspace-panel settings-mobile-links tw-mb-3">
+            <router-link to="/manage-status-page" class="settings-mobile-link">
                 <font-awesome-icon icon="stream" />
                 {{ $t("Status Pages") }}
             </router-link>
-            <router-link to="/maintenance" class="nav-link">
+            <router-link to="/maintenance" class="settings-mobile-link">
                 <font-awesome-icon icon="wrench" />
                 {{ $t("Maintenance") }}
             </router-link>
         </div>
 
-        <h1 v-show="show" class="settings-workspace-title mb-3">
+        <h1 v-show="show" class="settings-workspace-title tw-mb-3">
             {{ $t("Settings") }}
         </h1>
 
-        <div class="shadow-box shadow-box-settings settings-workspace-surface">
-            <div class="row">
-                <div v-if="showSubMenu" class="settings-menu col-lg-3 col-md-5">
+        <div class="gizmo-workspace-panel settings-workspace-surface">
+            <div class="settings-layout">
+                <div v-if="showSubMenu" class="settings-menu">
                     <router-link v-for="(item, key) in subMenus" :key="key" :to="`/settings/${key}`">
                         <div class="menu-item">
                             {{ item.title }}
@@ -36,11 +36,11 @@
                         </div>
                     </a>
                 </div>
-                <div class="settings-content col-lg-9 col-md-7">
+                <div class="settings-content">
                     <div v-if="currentPage" class="settings-content-header">
                         {{ subMenus[currentPage].title }}
                     </div>
-                    <div class="mx-3">
+                    <div class="tw-mx-3">
                         <router-view v-slot="{ Component }">
                             <transition name="slide-fade" appear>
                                 <component :is="Component" />
@@ -255,13 +255,26 @@ export default {
     gap: 0.25rem;
 }
 
+.settings-mobile-link { display: flex; align-items: center; gap: 0.5rem; padding: 0.625rem 0.75rem; border-radius: 0.625rem; color: var(--color-text); text-decoration: none; }
+.settings-mobile-link:hover { background: var(--color-surface-hover); }
+
 .settings-workspace-surface {
     border: 1px solid var(--color-border);
 }
 
-.shadow-box-settings {
-    padding: 1.25rem;
+.settings-layout {
+    display: grid;
+    grid-template-columns: minmax(12rem, 0.28fr) minmax(0, 1fr);
     min-height: calc(100vh - 155px);
+}
+
+.settings-menu { padding: 0.75rem; border-inline-end: 1px solid var(--color-border); }
+.settings-content { min-width: 0; padding: 1.25rem; }
+
+@media (max-width: 767px) {
+    .settings-layout { grid-template-columns: 1fr; min-height: 0; }
+    .settings-menu { border-inline-end: 0; }
+    .settings-content { padding: 0.75rem; }
 }
 
 footer {
@@ -318,6 +331,6 @@ footer {
 }
 
 .logout {
-    color: var(--color-status-down) !important;
+    color: var(--status-down) !important;
 }
 </style>

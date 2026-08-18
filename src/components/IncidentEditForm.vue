@@ -40,56 +40,34 @@
                 {{ $t("Cancel") }}
             </button>
 
-            <div class="dropdown d-inline-block me-2">
-                <button
-                    id="dropdownMenuButton1"
-                    class="btn btn-secondary dropdown-toggle"
-                    type="button"
-                    data-bs-toggle="dropdown"
-                    aria-expanded="false"
+            <GizmoMenu class="d-inline-block me-2">
+                <template #trigger>
+                    <button class="btn btn-secondary" type="button">
+                        {{ $t("Style") }}: {{ $t(modelValue.style) }}
+                    </button>
+                </template>
+                <GizmoMenuItem
+                    v-for="style in incidentStyles"
+                    :key="style"
+                    @select="updateField('style', style)"
                 >
-                    {{ $t("Style") }}: {{ $t(modelValue.style) }}
-                </button>
-                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-                    <li>
-                        <a class="dropdown-item" href="#" @click.prevent="updateField('style', 'info')">
-                            {{ $t("info") }}
-                        </a>
-                    </li>
-                    <li>
-                        <a class="dropdown-item" href="#" @click.prevent="updateField('style', 'warning')">
-                            {{ $t("warning") }}
-                        </a>
-                    </li>
-                    <li>
-                        <a class="dropdown-item" href="#" @click.prevent="updateField('style', 'danger')">
-                            {{ $t("danger") }}
-                        </a>
-                    </li>
-                    <li>
-                        <a class="dropdown-item" href="#" @click.prevent="updateField('style', 'primary')">
-                            {{ $t("primary") }}
-                        </a>
-                    </li>
-                    <li>
-                        <a class="dropdown-item" href="#" @click.prevent="updateField('style', 'light')">
-                            {{ $t("light") }}
-                        </a>
-                    </li>
-                    <li>
-                        <a class="dropdown-item" href="#" @click.prevent="updateField('style', 'dark')">
-                            {{ $t("dark") }}
-                        </a>
-                    </li>
-                </ul>
-            </div>
+                    {{ $t(style) }}
+                </GizmoMenuItem>
+            </GizmoMenu>
         </div>
     </div>
 </template>
 
 <script>
+import GizmoMenu from "./gizmo/GizmoMenu.vue";
+import GizmoMenuItem from "./gizmo/GizmoMenuItem.vue";
+
 export default {
     name: "IncidentEditForm",
+    components: {
+        GizmoMenu,
+        GizmoMenuItem,
+    },
     props: {
         modelValue: {
             type: Object,
@@ -97,6 +75,11 @@ export default {
         },
     },
     emits: ["update:modelValue", "post", "cancel"],
+    data() {
+        return {
+            incidentStyles: ["info", "warning", "danger", "primary", "light", "dark"],
+        };
+    },
     methods: {
         updateField(field, value) {
             this.$emit("update:modelValue", {

@@ -26,6 +26,7 @@
                                 v-if="incident.active"
                                 class="btn btn-success btn-sm me-1"
                                 :title="$t('Resolve')"
+                                :aria-label="$t('Resolve')"
                                 @click="$emit('resolve-incident', incident)"
                             >
                                 <font-awesome-icon icon="check" />
@@ -33,6 +34,7 @@
                             <button
                                 class="btn btn-outline-secondary btn-sm me-1"
                                 :title="$t('Edit')"
+                                :aria-label="$t('Edit')"
                                 @click="$emit('edit-incident', incident)"
                             >
                                 <font-awesome-icon icon="edit" />
@@ -40,6 +42,7 @@
                             <button
                                 class="btn btn-outline-danger btn-sm"
                                 :title="$t('Delete')"
+                                :aria-label="$t('Delete')"
                                 @click="$emit('delete-incident', incident)"
                             >
                                 <font-awesome-icon icon="trash" />

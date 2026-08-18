@@ -2,7 +2,7 @@
     <div class="dashboard-shell">
         <aside v-if="!$root.isMobile" class="monitor-rail">
             <div class="monitor-rail-action">
-                <router-link to="/add" class="btn btn-primary mb-3">
+                <router-link to="/add" class="gizmo-native-button gizmo-native-button--primary tw-mb-3">
                     <font-awesome-icon icon="plus" />
                     {{ $t("Add New Monitor") }}
                 </router-link>

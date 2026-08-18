@@ -1,6 +1,6 @@
 <template>
     <div class="monitor-conditions">
-        <label class="form-label">{{ $t("Conditions") }}</label>
+        <label class="gizmo-field-label">{{ $t("Conditions") }}</label>
         <div class="monitor-conditions-conditions">
             <template v-for="(condition, conditionIndex) in model" :key="conditionIndex">
                 <EditMonitorConditionGroup
@@ -24,7 +24,7 @@
         </div>
         <div class="monitor-conditions-buttons">
             <button
-                class="btn btn-outline-secondary me-2"
+                class="gizmo-native-button gizmo-native-button--secondary tw-me-2"
                 type="button"
                 data-testid="add-condition-button"
                 @click="addCondition"
@@ -32,7 +32,7 @@
                 {{ $t("conditionAdd") }}
             </button>
             <button
-                class="btn btn-outline-secondary me-2"
+                class="gizmo-native-button gizmo-native-button--secondary tw-me-2"
                 type="button"
                 data-testid="add-group-button"
                 @click="addGroup"
