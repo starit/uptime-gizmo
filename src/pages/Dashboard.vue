@@ -54,7 +54,7 @@ export default {
     background: var(--color-surface);
     border: 1px solid var(--color-border);
     border-radius: 1rem;
-    box-shadow: 0 18px 50px rgba(10, 21, 30, 0.08);
+    box-shadow: var(--shadow-panel);
 }
 
 .monitor-rail-action {

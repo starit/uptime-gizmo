@@ -3,7 +3,7 @@
         <div class="onboarding-card">
             <form @submit.prevent="submit">
                 <div class="onboarding-brand">
-                    <img src="/images/uptime-gizmo-logo-horizontal-light.png" :alt="$root.appName" />
+                    <BrandLogo />
                 </div>
 
                 <p class="onboarding-card-prompt">
@@ -72,7 +72,12 @@
 </template>
 
 <script>
+import BrandLogo from "../components/BrandLogo.vue";
+
 export default {
+    components: {
+        BrandLogo,
+    },
     data() {
         return {
             processing: false,
@@ -142,7 +147,7 @@ export default {
     background: var(--color-surface);
     border: 1px solid var(--color-border);
     border-radius: 1.25rem;
-    box-shadow: 0 24px 70px rgba(10, 21, 30, 0.12);
+    box-shadow: var(--shadow-overlay);
     text-align: center;
 }
 

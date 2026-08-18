@@ -18,7 +18,7 @@
                 to="/dashboard"
                 class="app-brand"
             >
-                <img class="app-brand-logo" src="/images/uptime-gizmo-logo-horizontal-light.png" :alt="$root.appName" />
+                <BrandLogo class="app-brand-logo" />
             </router-link>
 
             <a
@@ -111,7 +111,7 @@
         <!-- Mobile header -->
         <header v-else class="app-header app-header-mobile">
             <router-link to="/dashboard" class="app-brand">
-                <img class="app-brand-logo" src="/images/uptime-gizmo-logo-horizontal-light.png" :alt="$root.appName" />
+                <BrandLogo class="app-brand-logo" />
             </router-link>
         </header>
 
@@ -161,10 +161,12 @@ import GizmoMenu from "../components/gizmo/GizmoMenu.vue";
 import GizmoMenuItem from "../components/gizmo/GizmoMenuItem.vue";
 import compareVersions from "compare-versions";
 import { useToast } from "vue-toastification";
+import BrandLogo from "../components/BrandLogo.vue";
 const toast = useToast();
 
 export default {
     components: {
+        BrandLogo,
         GizmoMenu,
         GizmoMenuItem,
         Login,

@@ -2,7 +2,7 @@
     <main v-if="show" class="onboarding-shell">
         <form class="onboarding-card" @submit.prevent="submit">
             <div class="onboarding-brand">
-                <img src="/images/uptime-gizmo-logo-horizontal-light.png" :alt="$root.appName" />
+                <BrandLogo />
             </div>
 
             <div v-if="info.runningSetup" class="tw-mt-5">
@@ -178,9 +178,13 @@
 import axios from "axios";
 import { useToast } from "vue-toastification";
 import { sleep } from "../util.ts";
+import BrandLogo from "../components/BrandLogo.vue";
 const toast = useToast();
 
 export default {
+    components: {
+        BrandLogo,
+    },
     data() {
         return {
             show: false,
@@ -281,7 +285,7 @@ export default {
     background: var(--color-surface);
     border: 1px solid var(--color-border);
     border-radius: 1.25rem;
-    box-shadow: 0 24px 70px rgba(10, 21, 30, 0.12);
+    box-shadow: var(--shadow-overlay);
 }
 
 .onboarding-brand {

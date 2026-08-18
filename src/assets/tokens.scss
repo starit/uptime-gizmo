@@ -27,7 +27,10 @@
     --color-interactive-subtle: #e8f0ff;
     --color-focus-ring: #1e64e7;
     --color-overlay: rgb(10 21 30 / 68%);
+    --shadow-raised: 0 12px 32px rgb(10 21 30 / 6%);
+    --shadow-panel: 0 18px 50px rgb(10 21 30 / 8%);
     --shadow-float: 0 16px 36px rgb(10 21 30 / 12%);
+    --shadow-overlay: 0 24px 70px rgb(10 21 30 / 12%);
     --easing-in: cubic-bezier(0.54, 0.78, 0.55, 0.97);
     --easing-out: cubic-bezier(0.25, 0.46, 0.45, 0.94);
     --easing-in-out: cubic-bezier(0.79, 0.14, 0.15, 0.86);
@@ -91,7 +94,10 @@
     --color-interactive-subtle: #132e5c;
     --color-focus-ring: #75a7ff;
     --color-overlay: rgb(2 8 13 / 78%);
+    --shadow-raised: 0 12px 32px rgb(0 0 0 / 28%);
+    --shadow-panel: 0 18px 50px rgb(0 0 0 / 34%);
     --shadow-float: 0 20px 48px rgb(0 0 0 / 32%);
+    --shadow-overlay: 0 24px 70px rgb(0 0 0 / 46%);
 
     /* Status */
     --status-up: #4ade80;

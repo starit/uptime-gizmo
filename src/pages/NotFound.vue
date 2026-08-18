@@ -6,7 +6,7 @@
                 to="/"
                 class="not-found-brand tw-flex tw-items-center tw-mb-3 md:tw-mb-0 md:tw-me-auto tw-no-underline"
             >
-                <img class="not-found-brand-logo tw-me-2 tw-ms-4" src="/images/uptime-gizmo-logo-horizontal-light.png" :alt="$root.appName" />
+                <BrandLogo class="not-found-brand-logo tw-me-2 tw-ms-4" />
                 <span class="tw-text-2xl title">{{ $root.appName }}</span>
             </router-link>
         </header>
@@ -14,7 +14,7 @@
         <!-- Mobile header -->
         <header v-else class="tw-flex tw-flex-wrap tw-justify-center tw-pt-2 tw-pb-2 tw-mb-3">
             <router-link to="/dashboard" class="not-found-brand tw-flex tw-items-center tw-no-underline">
-                <img class="not-found-brand-logo" src="/images/uptime-gizmo-logo-horizontal-light.png" :alt="$root.appName" />
+                <BrandLogo class="not-found-brand-logo" />
                 <span class="tw-text-2xl title tw-ms-2">{{ $root.appName }}</span>
             </router-link>
         </header>
@@ -48,7 +48,12 @@
 </template>
 
 <script>
+import BrandLogo from "../components/BrandLogo.vue";
+
 export default {
+    components: {
+        BrandLogo,
+    },
     async mounted() {},
     methods: {
         /**

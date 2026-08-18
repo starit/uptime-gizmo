@@ -18,11 +18,11 @@
                     <h2>{{ $t("Maintenance") }}</h2>
                     <span class="stat-card-value">{{ $root.stats.maintenance }}</span>
                 </div>
-                <div class="stat-card stat-card-unknown">
+                <div class="stat-card stat-card-unknown" :class="{ 'is-muted': $root.stats.unknown === 0 }">
                     <h2>{{ $t("Unknown") }}</h2>
                     <span class="stat-card-value">{{ $root.stats.unknown }}</span>
                 </div>
-                <div class="stat-card stat-card-unknown">
+                <div class="stat-card stat-card-pause" :class="{ 'is-muted': $root.stats.pause === 0 }">
                     <h2>{{ $t("pauseDashboardHome") }}</h2>
                     <span class="stat-card-value">{{ $root.stats.pause }}</span>
                 </div>
@@ -333,7 +333,7 @@ export default {
     border: 1px solid var(--color-border);
     border-top: 3px solid var(--status-unknown);
     border-radius: 1rem;
-    box-shadow: 0 12px 32px rgba(10, 21, 30, 0.06);
+    box-shadow: var(--shadow-raised);
 
     h2 {
         margin: 0 0 0.55rem;
@@ -358,6 +358,7 @@ export default {
 .stat-card-down { border-top-color: var(--status-down); }
 .stat-card-maintenance { border-top-color: var(--status-maintenance); }
 .stat-card-unknown { border-top-color: var(--status-unknown); }
+.stat-card-pause { border-top-color: var(--color-border-strong); }
 
 .stat-card.is-muted {
     opacity: 0.62;
