@@ -97,6 +97,7 @@ That project provides the foundation for this work. We aim to preserve its stren
 ### Requirements
 
 - Node.js >= 20.4.0
+- pnpm >= 10 (`corepack enable pnpm` uses the version pinned in `package.json`)
 - Git
 
 ### Development
@@ -104,8 +105,8 @@ That project provides the foundation for this work. We aim to preserve its stren
 ```bash
 git clone https://github.com/starit/uptime-gizmo.git
 cd uptime-gizmo
-npm install
-npm run dev
+pnpm install
+pnpm run dev
 ```
 
 The development frontend runs at <http://localhost:3000>. The backend runs at <http://localhost:3001>.
@@ -113,7 +114,7 @@ The development frontend runs at <http://localhost:3000>. The backend runs at <h
 To run only the backend:
 
 ```bash
-npm start
+pnpm start
 ```
 
 Uptime Gizmo is under active development. Docker images, migration guidance, and upgrade documentation will be added as release practices are established.

@@ -31,5 +31,5 @@ describe("Feature Name", () => {
 ## Run
 
 ```bash
-npm run test-backend
+pnpm run test-backend
 ```

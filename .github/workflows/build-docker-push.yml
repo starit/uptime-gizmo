@@ -42,8 +42,8 @@ jobs:
         uses: actions/setup-go@d35c59abb061a4a6fb18e82ac0862c26744d6ab5 # v5.5.0
 
       - name: Install cross-env
-        run: npm install -g cross-env
+        run: corepack enable pnpm && pnpm add -g cross-env
 
       - name: Build and push Docker image
         working-directory: extra/uptime-kuma-push
-        run: npm run build-docker
+        run: pnpm run build-docker

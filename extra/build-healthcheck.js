@@ -15,7 +15,7 @@ if (platform === "linux/arm/v7") {
         process.exit(0);
     } else {
         console.log(
-            "prebuilt not found, it will be slow! You should execute `npm run build-healthcheck-armv7` before build."
+            "prebuilt not found, it will be slow! You should execute `pnpm run build-healthcheck-armv7` before build."
         );
     }
 } else {

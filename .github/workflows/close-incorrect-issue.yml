@@ -24,7 +24,8 @@ jobs:
         uses: actions/setup-node@395ad3262231945c25e8478fd5baf05154b1d79f # v6.1.0
         with:
           node-version: ${{ matrix.node-version }}
-      - run: npm ci
+      - run: corepack enable pnpm
+      - run: pnpm install --frozen-lockfile
       - name: Close incorrect issue
         run: node extra/close-incorrect-issue.js ${{ secrets.GITHUB_TOKEN }} ${{ github.event.issue.number }} "$ISSUE_USER_LOGIN"
         env:

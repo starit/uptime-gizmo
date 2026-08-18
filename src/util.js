@@ -3,7 +3,7 @@
 // Common Util for frontend and backend
 //
 // DOT NOT MODIFY util.js!
-// Need to run "npm run tsc" to compile if there are any changes.
+// Need to run "pnpm run tsc" to compile if there are any changes.
 //
 // Backend uses the compiled file util.js
 // Frontend uses util.ts

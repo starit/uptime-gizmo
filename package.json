@@ -11,27 +11,28 @@
         "url": "https://github.com/starit/uptime-gizmo/issues"
     },
     "engines": {
-        "node": ">= 20.4.0"
+        "node": ">= 20.4.0",
+        "pnpm": ">= 10"
     },
     "scripts": {
         "lint:js": "eslint --ext \".js,.ts,.vue\" --ignore-path .gitignore .",
-        "lint:js-prod": "npm run lint:js",
+        "lint:js-prod": "pnpm run lint:js",
         "lint-fix:js": "eslint --ext \".js,.ts,.vue\" --fix --ignore-path .gitignore .",
         "lint:style": "stylelint \"**/*.{vue,css,scss}\" --ignore-path .gitignore",
         "lint-fix:style": "stylelint \"**/*.{vue,css,scss}\" --fix --ignore-path .gitignore",
-        "lint": "npm run lint:js && npm run lint:style",
+        "lint": "pnpm run lint:js && pnpm run lint:style",
         "fmt": "prettier --write \"**/*.{js,ts,vue,css,scss,json,md,yml,yaml}\"",
-        "lint:prod": "npm run lint:js-prod && npm run lint:style",
-        "dev": "concurrently -k -r \"wait-on tcp:3000 && npm run start-server-dev \" \"npm run start-frontend-dev\"",
+        "lint:prod": "pnpm run lint:js-prod && pnpm run lint:style",
+        "dev": "concurrently -k -r \"wait-on tcp:3000 && pnpm run start-server-dev \" \"pnpm run start-frontend-dev\"",
         "start-frontend-dev": "cross-env NODE_ENV=development vite --host --config ./config/vite.config.js",
         "start-frontend-devcontainer": "cross-env NODE_ENV=development DEVCONTAINER=1 vite --host --config ./config/vite.config.js",
-        "start": "npm run start-server",
+        "start": "pnpm run start-server",
         "start-server": "node server/server.js",
         "start-server-dev": "cross-env NODE_ENV=development node server/server.js",
         "start-server-dev:watch": "cross-env NODE_ENV=development node --watch server/server.js",
         "build": "vite build --config ./config/vite.config.js",
-        "test": "npm run test-backend && npm run test-e2e",
-        "test-with-build": "npm run build && npm test",
+        "test": "pnpm run test-backend && pnpm run test-e2e",
+        "test-with-build": "pnpm run build && pnpm test",
         "test-backend": "node test/test-backend.mjs",
         "test-backend-22": "cross-env TEST_BACKEND=1 node --test --test-reporter=spec \"test/backend-test/**/*.js\"",
         "test-backend-20": "cross-env TEST_BACKEND=1 node --test --test-reporter=spec test/backend-test",
@@ -44,11 +45,11 @@
         "build-docker-base": "docker buildx build -f docker/debian-base.dockerfile --platform linux/amd64,linux/arm64,linux/arm/v7 -t starit/uptime-gizmo:base2 --target base2 . --push",
         "build-docker-base-slim": "docker buildx build -f docker/debian-base.dockerfile --platform linux/amd64,linux/arm64,linux/arm/v7 -t starit/uptime-gizmo:base2-slim --target base2-slim . --push",
         "build-docker-builder-go": "docker buildx build -f docker/builder-go.dockerfile --platform linux/amd64,linux/arm64,linux/arm/v7 -t starit/uptime-gizmo:builder-go . --push",
-        "build-docker-nightly-local": "npm run build && docker build -f docker/dockerfile -t starit/uptime-gizmo:nightly2 --target nightly .",
+        "build-docker-nightly-local": "pnpm run build && docker build -f docker/dockerfile -t starit/uptime-gizmo:nightly2 --target nightly .",
         "build-docker-pr-test": "docker buildx build -f docker/dockerfile --platform linux/amd64,linux/arm64 -t starit/uptime-gizmo:pr-test2 --target pr-test2 . --push",
         "upload-artifacts": "node extra/release/upload-artifacts.mjs",
         "upload-artifacts-beta": "node extra/release/upload-artifacts-beta.mjs",
-        "setup": "git checkout 2.5.0 && npm ci --omit dev --no-audit && npm run download-dist",
+        "setup": "git checkout 2.5.0 && pnpm install --prod --frozen-lockfile && pnpm run download-dist",
         "download-dist": "node extra/download-dist.js",
         "mark-as-nightly": "node extra/mark-as-nightly.js",
         "reset-password": "node extra/reset-password.js",
@@ -62,8 +63,8 @@
         "release-beta": "node ./extra/release/beta.mjs",
         "release-nightly": "node ./extra/release/nightly.mjs",
         "git-remove-tag": "git tag -d",
-        "build-dist-and-restart": "npm run build && npm run start-server-dev",
-        "start-pr-test": "node extra/checkout-pr.mjs && npm install && npm run dev",
+        "build-dist-and-restart": "pnpm run build && pnpm run start-server-dev",
+        "start-pr-test": "node extra/checkout-pr.mjs && pnpm install && pnpm run dev",
         "build-healthcheck-armv7": "cross-env GOOS=linux GOARCH=arm GOARM=7 go build -x -o ./extra/healthcheck-armv7 ./extra/healthcheck.go",
         "deploy-demo-server": "node extra/deploy-demo-server.js",
         "quick-run-nightly": "docker run --rm --env NODE_ENV=development -p 3001:3001 starit/uptime-gizmo:nightly2",
@@ -235,20 +236,16 @@
         "wait-on": "^7.2.0",
         "whatwg-url": "~12.0.1"
     },
-    "allowScripts": {
-        "@louislam/sqlite3@15.1.6": true,
-        "@fortawesome/fontawesome-common-types@0.2.36": true,
-        "@fortawesome/fontawesome-svg-core@1.2.36": true,
-        "@fortawesome/free-regular-svg-icons@5.15.4": true,
-        "@fortawesome/free-solid-svg-icons@5.15.4": true,
-        "core-js@2.6.12": true,
-        "core-js@3.26.1": true,
-        "cpu-features@0.0.10": true,
-        "protobufjs@7.6.1": true,
-        "protobufjs@7.2.6": true,
-        "esbuild@0.21.5": true,
-        "oracledb@6.10.0": true,
-        "ssh2@1.17.0": true,
-        "vue-demi@0.12.5": true
+    "packageManager": "pnpm@10.30.1",
+    "pnpm": {
+        "onlyBuiltDependencies": [
+            "@louislam/sqlite3",
+            "cpu-features",
+            "esbuild",
+            "oracledb",
+            "protobufjs",
+            "ssh2",
+            "vue-demi"
+        ]
     }
 }

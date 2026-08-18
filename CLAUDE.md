@@ -8,6 +8,7 @@ Uptime Gizmo is a fork of Uptime Gizmo focused on modern monitoring, status page
 
 ## Additional guidance
 
+- Use pnpm for every dependency and script operation; see the package-manager rules in [AGENTS.md](./AGENTS.md).
 - Prefer focused, reviewable changes over broad rewrites.
 - Confirm whether a capability exists before describing it as available; label roadmap work as planned.
 - Follow [DESIGN.md](DESIGN.md) for the approved brand assets, light and dark theme tokens, semantic status colors, accessibility requirements, and UI implementation checklist.

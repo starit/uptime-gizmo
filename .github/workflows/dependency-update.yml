@@ -1,4 +1,4 @@
-name: NPM Update
+name: Dependency Update
 
 on:
   workflow_dispatch:
@@ -10,7 +10,7 @@ permissions:
   pull-requests: write
 
 jobs:
-  npm-update:
+  dependency-update:
     # Only run on the original repository, not on forks
     if: github.repository == 'louislam/uptime-kuma'
     runs-on: ubuntu-latest
@@ -32,16 +32,15 @@ jobs:
 
       - name: Generate lockfile from scratch
         run: |
-          npm install npm -g
-          npm -v
-          rm -f package-lock.json
-          npm install --package-lock-only
-          npm approve-scripts --all
+          corepack enable pnpm
+          pnpm -v
+          rm -f pnpm-lock.yaml
+          pnpm install --lockfile-only
 
       - name: Check if there are changes
         id: check_changes
         run: |
-          if git diff --quiet package-lock.json; then
+          if git diff --quiet pnpm-lock.yaml; then
             echo "has_changes=false" >> $GITHUB_OUTPUT
           else
             echo "has_changes=true" >> $GITHUB_OUTPUT
@@ -56,13 +55,13 @@ jobs:
       - name: Commit changes
         if: steps.check_changes.outputs.has_changes == 'true'
         run: |
-          git add package-lock.json
+          git add pnpm-lock.yaml
           git commit -m "chore: Update dependencies"
 
-      - name: Force push to npm-update branch
+      - name: Force push to dependency-update branch
         if: steps.check_changes.outputs.has_changes == 'true'
         run: |
-          git push -f origin HEAD:npm-update
+          git push -f origin HEAD:dependency-update
 
       - name: Check if PR exists
         if: steps.check_changes.outputs.has_changes == 'true'
@@ -70,7 +69,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          PR_EXISTS=$(gh pr list --base master --head npm-update --json number --jq 'length')
+          PR_EXISTS=$(gh pr list --base master --head dependency-update --json number --jq 'length')
           if [ "$PR_EXISTS" -eq "0" ]; then
             echo "pr_exists=false" >> $GITHUB_OUTPUT
           else
@@ -84,6 +83,6 @@ jobs:
         run: |
           gh pr create \
             --base master \
-            --head npm-update \
+            --head dependency-update \
             --title "chore: Update dependencies" \
             --body ""

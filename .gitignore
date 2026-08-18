@@ -1,4 +1,8 @@
 node_modules
+
+# pnpm is the only supported package manager; these are committed by mistake.
+package-lock.json
+yarn.lock
 .DS_Store
 dist
 dist-ssr

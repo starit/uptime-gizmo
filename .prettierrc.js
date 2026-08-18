@@ -2,8 +2,8 @@
  * Prettier Configuration for Uptime Kuma
  *
  * Usage:
- *   npm run fmt              - Format all files (auto-runs in CI via autofix workflow)
- *   npm run fmt -- --check   - Check formatting without making changes
+ *   pnpm run fmt             - Format all files (auto-runs in CI via autofix workflow)
+ *   pnpm run fmt --check     - Check formatting without making changes
  *
  * TIP: This formatter is automatically run in CI, so no need to worry about it
  */

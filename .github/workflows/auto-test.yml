@@ -38,32 +38,33 @@ jobs:
       #        id: node-modules-cache
       #        with:
       #          path: node_modules
-      #          key: node-modules-${{ runner.os }}-node${{ matrix.node }}-${{ hashFiles('**/package-lock.json') }}
+      #          key: node-modules-${{ runner.os }}-node${{ matrix.node }}-${{ hashFiles('**/pnpm-lock.yaml') }}
 
       - name: Use Node.js ${{ matrix.node }}
         uses: actions/setup-node@395ad3262231945c25e8478fd5baf05154b1d79f # v6.1.0
         with:
           node-version: ${{ matrix.node }}
 
-      # Install latest npm to test the new policy - npm approve-scripts
-      - run: npm install npm -g
+      # corepack ships with Node and installs the pnpm version pinned by the
+      # packageManager field, so no extra action needs pinning here.
+      - run: corepack enable pnpm
 
-      # Print the npm version
-      - run: npm --version
+      # Print the pnpm version
+      - run: pnpm --version
 
-      - run: npm clean-install --no-fund
+      - run: pnpm install --frozen-lockfile
 
       - name: Rebuild native modules for ARM64
         if: matrix.os == 'ubuntu-22.04-arm'
-        run: npm rebuild @louislam/sqlite3
+        run: ppnpm rebuild @louislam/sqlite3
 
-      - run: npm run build
-      - run: npm run test-backend
+      - run: pnpm run build
+      - run: pnpm run test-backend
         env:
           HEADLESS_TEST: 1
           JUST_FOR_TEST: ${{ secrets.JUST_FOR_TEST }}
 
-  # As a lot of dev dependencies are not supported on ARMv7, we have to test it separately and just test if `npm ci --production` works
+  # As a lot of dev dependencies are not supported on ARMv7, we have to test it separately and just test if `pnpm install --prod` works
   armv7-simple-test:
     runs-on: ubuntu-latest
     permissions:
@@ -92,7 +93,7 @@ jobs:
             -v $PWD:/workspace \
             -w /workspace \
             arm32v7/node:${{ matrix.node }} \
-            npm clean-install --no-fund --production
+            corepack enable pnpm && pnpm install --frozen-lockfile --prod
 
   check-linters:
     runs-on: ubuntu-latest
@@ -110,14 +111,15 @@ jobs:
       #        id: node-modules-cache
       #        with:
       #          path: node_modules
-      #          key: node-modules-${{ runner.os }}-node${{ matrix.node }}-${{ hashFiles('**/package-lock.json') }}
+      #          key: node-modules-${{ runner.os }}-node${{ matrix.node }}-${{ hashFiles('**/pnpm-lock.yaml') }}
 
       - name: Use Node.js 20
         uses: actions/setup-node@395ad3262231945c25e8478fd5baf05154b1d79f # v6.1.0
         with:
           node-version: 20
-      - run: npm clean-install --no-fund
-      - run: npm run lint:prod
+      - run: corepack enable pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run lint:prod
 
   e2e-test:
     runs-on: ubuntu-22.04-arm
@@ -136,19 +138,20 @@ jobs:
       #        id: node-modules-cache
       #        with:
       #          path: node_modules
-      #          key: node-modules-${{ runner.os }}-node${{ matrix.node }}-${{ hashFiles('**/package-lock.json') }}
+      #          key: node-modules-${{ runner.os }}-node${{ matrix.node }}-${{ hashFiles('**/pnpm-lock.yaml') }}
 
       - name: Setup Node.js
         uses: actions/setup-node@395ad3262231945c25e8478fd5baf05154b1d79f # v6.1.0
         with:
           node-version: 22
-      - run: npm clean-install --no-fund
+      - run: corepack enable pnpm
+      - run: pnpm install --frozen-lockfile
 
       - name: Rebuild native modules for ARM64
-        run: npm rebuild @louislam/sqlite3
+        run: ppnpm rebuild @louislam/sqlite3
 
       - name: Install Playwright ${{ env.PLAYWRIGHT_VERSION }}
         run: npx playwright@${{ env.PLAYWRIGHT_VERSION }} install
 
-      - run: npm run build
-      - run: npm run test-e2e
+      - run: pnpm run build
+      - run: pnpm run test-e2e

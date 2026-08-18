@@ -15,45 +15,46 @@ Warning: Only maintainers of Uptime Kuma can use this instructions, for other co
 - **Languages**: JavaScript, Vue 3, TypeScript (limited), HTML, CSS/SCSS
 - **Backend**: Node.js >= 20.4, Express.js, Socket.IO, SQLite
 - **Frontend**: Vue 3, Vite, Bootstrap 5, Chart.js
-- **Package Manager**: npm with `legacy-peer-deps=true` (.npmrc)
+- **Package Manager**: pnpm, pinned by the `packageManager` field in `package.json` (see `.npmrc` for peer-dependency and release-age policy)
 
 ## Build & Validation Commands
 
 ### Prerequisites
 
-- Node.js >= 20.4.0, npm >= 9.3, Git
+- Node.js >= 20.4.0, pnpm >= 10, Git
 
 ### Essential Command Sequence
 
 1. **Install Dependencies**:
 
    ```bash
-   npm ci  # Use npm ci NOT npm install (~60-90 seconds)
+   corepack enable pnpm
+   pnpm install --frozen-lockfile  # Do not use plain `pnpm install` in CI (~60-90 seconds)
    ```
 
 2. **Linting** (required before committing):
 
    ```bash
-   npm run lint         # Both linters (~15-30 seconds)
-   npm run lint:prod    # For production (zero warnings)
+   pnpm run lint         # Both linters (~15-30 seconds)
+   pnpm run lint:prod    # For production (zero warnings)
    ```
 
 3. **Build Frontend**:
 
    ```bash
-   npm run build  # Takes ~90-120 seconds, builds to dist/
+   pnpm run build  # Takes ~90-120 seconds, builds to dist/
    ```
 
 4. **Run Tests**:
    ```bash
-   npm run test-backend  # Backend tests (~50-60 seconds)
-   npm test              # All tests
+   pnpm run test-backend  # Backend tests (~50-60 seconds)
+   pnpm test             # All tests
    ```
 
 ### Development Workflow
 
 ```bash
-npm run dev  # Starts frontend (port 3000) and backend (port 3001)
+pnpm run dev  # Starts frontend (port 3000) and backend (port 3001)
 ```
 
 ## Project Architecture
@@ -121,10 +122,10 @@ npm run dev  # Starts frontend (port 3000) and backend (port 3001)
 
 ## Common Issues
 
-1. **npm install vs npm ci**: Always use `npm ci` for reproducible builds
-2. **TypeScript errors**: `npm run tsc` shows 1400+ errors - ignore them, they don't affect builds
+1. **pnpm install vs --frozen-lockfile**: Always pass `--frozen-lockfile` for reproducible builds
+2. **TypeScript errors**: `pnpm run tsc` shows 1400+ errors - ignore them, they don't affect builds
 3. **Stylelint warnings**: Deprecation warnings are expected, ignore them
-4. **Test failures**: Always run `npm run build` before running tests
+4. **Test failures**: Always run `pnpm run build` before running tests
 5. **Port conflicts**: Dev server uses ports 3000 and 3001
 6. **First run**: Server shows "db-config.json not found" - this is expected, starts setup wizard
 

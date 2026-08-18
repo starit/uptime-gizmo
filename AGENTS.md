@@ -18,6 +18,10 @@ Uptime Gizmo is a self-hosted monitoring project based on Uptime Gizmo. Its dire
 - Treat [DESIGN.md](DESIGN.md) as the source of truth for brand assets, color tokens, themes, status colors, accessibility, and UI implementation rules.
 - Reuse existing components, utilities, APIs, and styles before introducing new abstractions.
 - Use `apply_patch` for hand-written file edits.
+- pnpm is the only supported package manager. Run `pnpm install`, `pnpm run <script>`, and `pnpm add`; never `npm` or `yarn`. `package-lock.json` and `yarn.lock` are gitignored, and committing one is a defect.
+- Use `pnpm install --frozen-lockfile` anywhere reproducibility matters, and commit `pnpm-lock.yaml` with any dependency change.
+- A dependency that needs an install script must be listed in `pnpm.onlyBuiltDependencies` in `package.json`. pnpm blocks all other install scripts by design; do not disable that.
+- `.npmrc` carries the peer-dependency and 14-day release-age policy. Widening `minimum-release-age-exclude` weakens a supply-chain control, so treat it as a decision to raise, not a routine fix.
 - Do not delete, reset, or overwrite user changes. If work overlaps with existing changes, stop and explain the conflict.
 - Do not make external changes, publish releases, push branches, or open pull requests unless explicitly requested.
 

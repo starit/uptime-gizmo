@@ -1,6 +1,6 @@
 ############################################
 # Build in Golang
-# Run npm run build-healthcheck-armv7 in the host first, another it will be super slow where it is building the armv7 healthcheck
+# Run pnpm run build-healthcheck-armv7 in the host first, another it will be super slow where it is building the armv7 healthcheck
 ############################################
 FROM golang:1-buster
 WORKDIR /app

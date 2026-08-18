@@ -41,8 +41,11 @@ jobs:
         with:
           node-version: 20
 
+      - name: Enable pnpm
+        run: corepack enable pnpm
+
       - name: Build and push base2-slim image
-        run: npm run build-docker-base-slim
+        run: pnpm run build-docker-base-slim
 
       - name: Build and push base2 image
-        run: npm run build-docker-base
+        run: pnpm run build-docker-base

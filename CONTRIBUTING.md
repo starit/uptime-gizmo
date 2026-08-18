@@ -13,14 +13,14 @@ Keep each change focused and reviewable. Avoid unrelated refactors, dependency u
 Requirements:
 
 - Node.js >= 20.4.0
-- npm
+- pnpm >= 10
 - Git
 
 ```bash
 git clone https://github.com/starit/uptime-gizmo.git
 cd uptime-gizmo
-npm install
-npm run dev
+pnpm install
+pnpm run dev
 ```
 
 The development frontend runs at <http://localhost:3000>. The backend runs at <http://localhost:3001>.
@@ -52,13 +52,13 @@ The development frontend runs at <http://localhost:3000>. The backend runs at <h
 Run the checks relevant to your change:
 
 ```bash
-npm run lint
-npm run tsc
-npm run build
-npm test
+pnpm run lint
+pnpm run tsc
+pnpm run build
+pnpm test
 ```
 
-`npm test` runs backend and end-to-end tests and may require additional local services or browser dependencies. If a check cannot be run, state the reason in the pull request.
+`pnpm test` runs backend and end-to-end tests and may require additional local services or browser dependencies. If a check cannot be run, state the reason in the pull request.
 
 Before submitting, review the final diff for accidental changes, stale documentation, debug code, and missing tests.
 

@@ -38,7 +38,7 @@ const main = async () => {
                 let password;
                 let confirmPassword;
 
-                // When called with "--new-password" argument for unattended modification (e.g. npm run reset-password -- --new_password=secret)
+                // When called with "--new-password" argument for unattended modification (e.g. pnpm run reset-password -- --new_password=secret)
                 if ("new-password" in args) {
                     console.log("Using password from argument");
                     console.warn(

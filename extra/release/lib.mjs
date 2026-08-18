@@ -41,9 +41,9 @@ export function getRepoNames() {
  */
 export function buildDist() {
     if (!dryRun) {
-        childProcess.execSync("npm run build", { stdio: "inherit" });
+        childProcess.execSync("pnpm run build", { stdio: "inherit" });
     } else {
-        console.info("[DRY RUN] npm run build");
+        console.info("[DRY RUN] pnpm run build");
     }
 }
 

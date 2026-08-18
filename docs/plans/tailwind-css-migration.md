@@ -149,8 +149,8 @@ Replace Bootstrap grid, flex, spacing, button, form, table, dropdown, and feedba
 
 Run proportionate checks after each phase and before Bootstrap removal:
 
-- `npm run lint`
-- `npm run build`
+- `pnpm run lint`
+- `pnpm run build`
 - Relevant backend tests and Playwright flows when the local browser environment supports them.
 - Keyboard-only dialog, menu, form, and focus-ring tests.
 - Light, dark, and auto themes; public status-page theme variants.

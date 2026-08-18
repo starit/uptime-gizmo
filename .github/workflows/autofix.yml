@@ -21,7 +21,7 @@ jobs:
       #        id: node-modules-cache
       #        with:
       #          path: node_modules
-      #          key: node-modules-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
+      #          key: node-modules-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
 
       - name: Setup Node.js
         uses: actions/setup-node@395ad3262231945c25e8478fd5baf05154b1d79f # v6.1.0
@@ -29,22 +29,24 @@ jobs:
           node-version: 20
 
       - name: Install dependencies
-        run: npm ci
+        run: |
+          corepack enable pnpm
+          pnpm install --frozen-lockfile
 
       - name: Auto-fix JavaScript/Vue linting issues
-        run: npm run lint-fix:js
+        run: pnpm run lint-fix:js
         continue-on-error: true
 
       - name: Auto-fix CSS/SCSS linting issues
-        run: npm run lint-fix:style
+        run: pnpm run lint-fix:style
         continue-on-error: true
 
       - name: Auto-format code with Prettier
-        run: npm run fmt
+        run: pnpm run fmt
         continue-on-error: true
 
       - name: Compile TypeScript
-        run: npm run tsc
+        run: pnpm run tsc
         continue-on-error: true
 
       - uses: autofix-ci/action@635ffb0c9798bd160680f18fd73371e355b85f27

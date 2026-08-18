@@ -2,7 +2,7 @@ ARG BASE_IMAGE=starit/uptime-gizmo:base2
 
 ############################################
 # Build in Golang
-# Run npm run build-healthcheck-armv7 in the host first, otherwise it will be super slow where it is building the armv7 healthcheck
+# Run pnpm run build-healthcheck-armv7 in the host first, otherwise it will be super slow where it is building the armv7 healthcheck
 # Check file: builder-go.dockerfile
 ############################################
 FROM starit/uptime-gizmo:builder-go AS build_healthcheck
@@ -11,14 +11,19 @@ FROM starit/uptime-gizmo:builder-go AS build_healthcheck
 # Build in Node.js
 ############################################
 FROM starit/uptime-gizmo:base2 AS build
+# corepack installs its shims into the Node prefix, so it must run before the
+# switch to the unprivileged user.
+RUN corepack enable pnpm
 USER node
 WORKDIR /app
 
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=1
 COPY --chown=node:node .npmrc .npmrc
 COPY --chown=node:node package.json package.json
-COPY --chown=node:node package-lock.json package-lock.json
-RUN npm ci --omit=dev
+COPY --chown=node:node pnpm-lock.yaml pnpm-lock.yaml
+# node-linker=hoisted produces a flat node_modules for the runtime image, so the
+# release stage does not depend on pnpm's symlink layout surviving COPY.
+RUN pnpm install --prod --frozen-lockfile --config.node-linker=hoisted
 COPY . .
 COPY --chown=node:node --from=build_healthcheck /app/extra/healthcheck /app/extra/healthcheck
 RUN mkdir ./data
@@ -51,7 +56,7 @@ USER node
 # Mark as Nightly
 ############################################
 FROM release AS nightly
-RUN npm run mark-as-nightly
+RUN pnpm run mark-as-nightly
 
 FROM nightly AS nightly-rootless
 USER node
@@ -74,6 +79,7 @@ RUN apt update \
 
 ## Empty the directory, because we have to clone the Git repo.
 RUN rm -rf ./* && chown node /app
+RUN corepack enable pnpm
 
 USER node
 RUN git config --global user.email "no-reply@no-reply.com"
@@ -83,11 +89,11 @@ RUN git clone https://github.com/starit/uptime-gizmo.git .
 # Hide the warning when running in detached head state
 RUN git config --global advice.detachedHead false
 
-RUN npm ci
+RUN pnpm install --frozen-lockfile
 
 EXPOSE 3000 3001
 HEALTHCHECK --interval=60s --timeout=30s --start-period=180s --retries=5 CMD extra/healthcheck
-CMD ["npm", "run", "start-pr-test"]
+CMD ["pnpm", "run", "start-pr-test"]
 
 ############################################
 # Upload the artifact to Github
