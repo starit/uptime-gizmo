@@ -276,7 +276,63 @@ const STATUS_PAGE_FIELDS = {
     createdDate: { column: "created_date", type: "string" },
 };
 
+/*
+ * Notifications, proxies, Docker hosts and remote browsers.
+ *
+ * These four differ from the resources above: their secrets are not always a
+ * whole column. `notification.config` is a JSON blob holding the entire channel
+ * configuration, which for most of the 100-odd providers includes the token or
+ * webhook URL; `docker_host.docker_daemon` may be a socket path or may be
+ * tcp://user:pass@host; `remote_browser.url` commonly carries a token in a query
+ * parameter. The field table marks whole columns, which cannot express
+ * "sensitive depending on its value".
+ *
+ * So only the fields that are safe whatever the value holds are exposed. An
+ * agent can see that a notification channel exists and is active — enough to
+ * reason about whether a monitor has a way to alert — without reading how it
+ * authenticates.
+ *
+ * The excluded columns are listed here and marked secret rather than omitted:
+ * omitting them would let a later edit add one back with nothing to object.
+ */
+const NOTIFICATION_FIELDS = {
+    id: { column: "id", type: "int" },
+    name: { column: "name", type: "string" },
+    active: { column: "active", type: "bool" },
+    isDefault: { column: "is_default", type: "bool" },
+    config: { column: "config", type: "string", secret: true },
+};
+
+const PROXY_FIELDS = {
+    id: { column: "id", type: "int" },
+    protocol: { column: "protocol", type: "string" },
+    host: { column: "host", type: "string" },
+    port: { column: "port", type: "int" },
+    active: { column: "active", type: "bool" },
+    // Whether the proxy authenticates, not how. Useful and not a credential.
+    auth: { column: "auth", type: "bool" },
+    username: { column: "username", type: "string", secret: true },
+    password: { column: "password", type: "string", secret: true },
+};
+
+const DOCKER_HOST_FIELDS = {
+    id: { column: "id", type: "int" },
+    name: { column: "name", type: "string" },
+    dockerType: { column: "docker_type", type: "string" },
+    dockerDaemon: { column: "docker_daemon", type: "string", secret: true },
+};
+
+const REMOTE_BROWSER_FIELDS = {
+    id: { column: "id", type: "int" },
+    name: { column: "name", type: "string" },
+    url: { column: "url", type: "string", secret: true },
+};
+
 const tagToAPI = makeProjection(TAG_FIELDS);
+const notificationToAPI = makeProjection(NOTIFICATION_FIELDS);
+const proxyToAPI = makeProjection(PROXY_FIELDS);
+const dockerHostToAPI = makeProjection(DOCKER_HOST_FIELDS);
+const remoteBrowserToAPI = makeProjection(REMOTE_BROWSER_FIELDS);
 const statusPageToAPI = makeProjection(STATUS_PAGE_FIELDS);
 
 /*
@@ -563,6 +619,55 @@ router.patch(
 
         const saved = await R.findOne("tag", " id = ? ", [ bean.id ]);
         res.json({ ok: true, data: tagToAPI(saved) });
+    })
+);
+
+/*
+ * Read-only, all four. Creating a notification channel or a proxy means
+ * supplying the credential this API declines to return, so writing them is a
+ * separate decision from listing them.
+ */
+router.get(
+    "/api/v1/notifications",
+    apiAuth,
+    route(async (req, res) => {
+        const rows = await R.getAll("SELECT * FROM notification WHERE user_id = ? ORDER BY name", [
+            req.principal?.userID ?? null,
+        ]);
+        res.json({ ok: true, data: rows.map(notificationToAPI) });
+    })
+);
+
+router.get(
+    "/api/v1/proxies",
+    apiAuth,
+    route(async (req, res) => {
+        const rows = await R.getAll("SELECT * FROM proxy WHERE user_id = ? ORDER BY host", [
+            req.principal?.userID ?? null,
+        ]);
+        res.json({ ok: true, data: rows.map(proxyToAPI) });
+    })
+);
+
+router.get(
+    "/api/v1/docker-hosts",
+    apiAuth,
+    route(async (req, res) => {
+        const rows = await R.getAll("SELECT * FROM docker_host WHERE user_id = ? ORDER BY name", [
+            req.principal?.userID ?? null,
+        ]);
+        res.json({ ok: true, data: rows.map(dockerHostToAPI) });
+    })
+);
+
+router.get(
+    "/api/v1/remote-browsers",
+    apiAuth,
+    route(async (req, res) => {
+        const rows = await R.getAll("SELECT * FROM remote_browser WHERE user_id = ? ORDER BY name", [
+            req.principal?.userID ?? null,
+        ]);
+        res.json({ ok: true, data: rows.map(remoteBrowserToAPI) });
     })
 );
 
@@ -930,6 +1035,39 @@ function buildOpenAPI() {
                     responses: { 200: { description: "Updated" }, 403: { description: "The key is read-only" }, 404: { description: "No such tag" } },
                 },
             },
+            "/api/v1/notifications": {
+                get: {
+                    summary: "List notification channels",
+                    description:
+                        "Name and state only. The channel configuration holds credentials for most providers and is never returned.",
+                    security: authed,
+                    responses: { 200: { description: "Notification channels" } },
+                },
+            },
+            "/api/v1/proxies": {
+                get: {
+                    summary: "List proxies",
+                    description: "Whether a proxy authenticates is reported; its username and password are not.",
+                    security: authed,
+                    responses: { 200: { description: "Proxies" } },
+                },
+            },
+            "/api/v1/docker-hosts": {
+                get: {
+                    summary: "List Docker hosts",
+                    description: "The daemon connection string may embed credentials and is never returned.",
+                    security: authed,
+                    responses: { 200: { description: "Docker hosts" } },
+                },
+            },
+            "/api/v1/remote-browsers": {
+                get: {
+                    summary: "List remote browsers",
+                    description: "The endpoint URL commonly carries a token and is never returned.",
+                    security: authed,
+                    responses: { 200: { description: "Remote browsers" } },
+                },
+            },
             "/api/v1/status-pages": {
                 get: {
                     summary: "List status pages",
@@ -949,6 +1087,25 @@ router.get("/api/v1/openapi.json", (req, res) => {
     res.json(buildOpenAPI());
 });
 
+/*
+ * Terminal handler for the namespace.
+ *
+ * Without it an unrecognised /api/v1 path falls through to the single-page-app
+ * catch-all and answers 200 with a page of HTML. A human notices immediately; a
+ * program asking for a mistyped or removed endpoint is handed a successful
+ * response containing markup, and the mistake surfaces later as a parse error
+ * somewhere unrelated. Anything under this prefix is an API and answers as one.
+ */
+router.use("/api/v1", (req, res) => {
+    res.status(404).json({
+        ok: false,
+        error: {
+            code: "not_found",
+            message: `No such endpoint: ${req.method} ${req.baseUrl}${req.path}. See /api/v1/openapi.json.`,
+        },
+    });
+});
+
 module.exports = router;
 
 // Exposed for tests. The field table is the support of the write-side security
@@ -957,6 +1114,10 @@ module.exports.internals = {
     MONITOR_FIELDS,
     TAG_FIELDS,
     STATUS_PAGE_FIELDS,
+    NOTIFICATION_FIELDS,
+    PROXY_FIELDS,
+    DOCKER_HOST_FIELDS,
+    REMOTE_BROWSER_FIELDS,
     monitorToAPI,
     monitorFromAPI,
     projectWith,

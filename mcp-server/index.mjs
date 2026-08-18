@@ -155,6 +155,34 @@ const READ_TOOLS = [
         inputSchema: { type: "object", properties: {} },
         run: () => api("/api/v1/maintenances"),
     },
+    {
+        name: "list_notification_channels",
+        description:
+            "List notification channels by name and whether they are active. Use this to reason about whether an alert has anywhere to go. The channel configuration holds credentials and is never returned. Side effects: none.",
+        inputSchema: { type: "object", properties: {} },
+        run: () => api("/api/v1/notifications"),
+    },
+    {
+        name: "list_proxies",
+        description:
+            "List proxies by protocol, host and port, and whether each authenticates. Credentials are never returned. Side effects: none.",
+        inputSchema: { type: "object", properties: {} },
+        run: () => api("/api/v1/proxies"),
+    },
+    {
+        name: "list_docker_hosts",
+        description:
+            "List Docker hosts by name and connection type. The daemon address may embed credentials and is never returned. Side effects: none.",
+        inputSchema: { type: "object", properties: {} },
+        run: () => api("/api/v1/docker-hosts"),
+    },
+    {
+        name: "list_remote_browsers",
+        description:
+            "List remote browsers by name. Their endpoint URLs commonly carry tokens and are never returned. Side effects: none.",
+        inputSchema: { type: "object", properties: {} },
+        run: () => api("/api/v1/remote-browsers"),
+    },
 ];
 
 /*

@@ -20,24 +20,51 @@ const FIELD_TABLES = {
     monitor: internals.MONITOR_FIELDS,
     tag: internals.TAG_FIELDS,
     statusPage: internals.STATUS_PAGE_FIELDS,
+    notification: internals.NOTIFICATION_FIELDS,
+    proxy: internals.PROXY_FIELDS,
+    dockerHost: internals.DOCKER_HOST_FIELDS,
+    remoteBrowser: internals.REMOTE_BROWSER_FIELDS,
 };
 
-const SECRET_COLUMNS = [
-    "basic_auth_pass",
-    "bearer_token",
-    "database_connection_string",
-    "gamedig_token",
-    "mqtt_password",
-    "oauth_client_secret",
-    "push_token",
-    "rabbitmq_password",
-    "radius_password",
-    "radius_secret",
-    "snmp_v3_username",
-    "tls_key",
-    // status_page
-    "password",
-];
+/*
+ * Columns that must never be projected, per table.
+ *
+ * Per table rather than a flat list, because a column name does not carry its
+ * own meaning: `url` on a monitor is the target being watched, and is already
+ * published on status pages, while `url` on a remote browser is an endpoint
+ * commonly carrying a token. A blind list conflated the two and failed the
+ * monitor table for having a url at all.
+ */
+const SECRET_COLUMNS = {
+    monitor: [
+        "basic_auth_pass",
+        "bearer_token",
+        "database_connection_string",
+        "gamedig_token",
+        "mqtt_password",
+        "oauth_client_secret",
+        "push_token",
+        "rabbitmq_password",
+        "radius_password",
+        "radius_secret",
+        "snmp_v3_username",
+        "tls_key",
+    ],
+    tag: [],
+    statusPage: [ "password" ],
+    /*
+     * Below: columns whose value may or may not hold a credential depending on
+     * what the operator entered. notification.config is a JSON blob carrying the
+     * whole channel configuration; docker_daemon may be tcp://user:pass@host; a
+     * remote browser url commonly carries a token. A column table cannot express
+     * "sensitive sometimes", so they are treated as always sensitive.
+     */
+    notification: [ "config" ],
+    proxy: [ "username", "password" ],
+    dockerHost: [ "docker_daemon" ],
+    remoteBrowser: [ "url" ],
+};
+
 
 /*
  * Applied to every table rather than only to monitors. A resource added later
@@ -47,8 +74,9 @@ const SECRET_COLUMNS = [
 describe("v1 field tables", () => {
     for (const [ resource, fields ] of Object.entries(FIELD_TABLES)) {
         it(`${resource}: never exposes a credential column`, () => {
+            const sensitive = SECRET_COLUMNS[resource] ?? [];
             const leaked = Object.entries(fields)
-                .filter(([ , field ]) => SECRET_COLUMNS.includes(field.column) && !field.secret)
+                .filter(([ , field ]) => sensitive.includes(field.column) && !field.secret)
                 .map(([ name, field ]) => `${name} -> ${field.column}`);
 
             assert.deepStrictEqual(leaked, [], "these would be returned in API responses");
