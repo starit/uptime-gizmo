@@ -1612,8 +1612,12 @@
     "LLM Model": "LLM Model",
     "LLM Base URL": "LLM Base URL",
     "llmProviderDescription": "Optional. Enables AI features such as generating a theme from a description. Leave unset to keep this instance from contacting any AI provider.",
-    "llmApiKeyDescription": "Stored on this instance and shared by everyone who can sign in. It is held in the database in plain text, like the other API credentials above.",
-    "llmModelDescription": "Optional. Leave blank to use the provider's default model.",
+    "llmApiKeyDescription": "Stored on this instance and shared by everyone who can sign in. It is held in the database in plain text, like the other API credentials this project keeps.",
+    "llmModelDescription": "Leave blank to use the provider's default, shown as the placeholder.",
     "llmModelPlaceholder": "Provider default",
-    "llmBaseUrlDescription": "Optional. Point at a proxy, a regional endpoint, or a self-hosted model that speaks the provider's API."
+    "llmBaseUrlDescription": "Point at a proxy, a regional endpoint, or a self-hosted model that speaks the provider's API.",
+    "AI": "AI",
+    "aiSettingsIntro": "Credentials for AI features such as generating a theme from a description. Nothing here is required, and with no provider selected this instance contacts no AI service.",
+    "LLM Model (optional)": "LLM Model (optional)",
+    "LLM Base URL (optional)": "LLM Base URL (optional)"
 }

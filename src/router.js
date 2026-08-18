@@ -21,6 +21,7 @@ import APIKeys from "./components/settings/APIKeys.vue";
 import SetupDatabase from "./pages/SetupDatabase.vue";
 
 // Settings - Sub Pages
+import AI from "./components/settings/AI.vue";
 import Appearance from "./components/settings/Appearance.vue";
 import General from "./components/settings/General.vue";
 const Notifications = () => import("./components/settings/Notifications.vue");
@@ -94,6 +95,10 @@ const routes = [
                             {
                                 path: "appearance",
                                 component: Appearance,
+                            },
+                            {
+                                path: "ai",
+                                component: AI,
                             },
                             {
                                 path: "notifications",

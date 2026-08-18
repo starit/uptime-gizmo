@@ -150,65 +150,6 @@
                 </i18n-t>
             </div>
 
-            <!-- LLM Provider -->
-            <div class="tw-mb-4">
-                <label class="gizmo-field-label" for="llmProvider">
-                    {{ $t("LLM Provider") }}
-                </label>
-                <select
-                    id="llmProvider"
-                    v-model="settings.llmProvider"
-                    class="gizmo-native-control gizmo-native-select"
-                >
-                    <option :value="null">{{ $t("None") }}</option>
-                    <option v-for="provider in llmProviders" :key="provider.value" :value="provider.value">
-                        {{ provider.label }}
-                    </option>
-                </select>
-                <div class="gizmo-field-help">{{ $t("llmProviderDescription") }}</div>
-            </div>
-
-            <template v-if="settings.llmProvider">
-                <!-- LLM API Key -->
-                <div class="tw-mb-4">
-                    <label class="gizmo-field-label" for="llmApiKey">
-                        {{ $t("LLM API Key") }}
-                    </label>
-                    <HiddenInput id="llmApiKey" v-model="settings.llmApiKey" autocomplete="new-password" />
-                    <div class="gizmo-field-help">{{ $t("llmApiKeyDescription") }}</div>
-                </div>
-
-                <!-- LLM Model -->
-                <div class="tw-mb-4">
-                    <label class="gizmo-field-label" for="llmModel">
-                        {{ $t("LLM Model") }}
-                    </label>
-                    <input
-                        id="llmModel"
-                        v-model="settings.llmModel"
-                        type="text"
-                        class="gizmo-native-control"
-                        :placeholder="$t('llmModelPlaceholder')"
-                    />
-                    <div class="gizmo-field-help">{{ $t("llmModelDescription") }}</div>
-                </div>
-
-                <!-- LLM Base URL -->
-                <div class="tw-mb-4">
-                    <label class="gizmo-field-label" for="llmBaseUrl">
-                        {{ $t("LLM Base URL") }}
-                    </label>
-                    <input
-                        id="llmBaseUrl"
-                        v-model="settings.llmBaseUrl"
-                        type="url"
-                        class="gizmo-native-control"
-                        placeholder="https://"
-                    />
-                    <div class="gizmo-field-help">{{ $t("llmBaseUrlDescription") }}</div>
-                </div>
-            </template>
-
             <!-- DNS Cache (nscd) -->
             <div v-if="$root.info.isContainer" class="tw-mb-4">
                 <label class="gizmo-field-label">
@@ -293,16 +234,6 @@ export default {
     data() {
         return {
             timezoneList: timezoneList(),
-            // Mirrors themed.js AIProviderType, minus the browser-extension and
-            // custom transports, which need a different config shape.
-            llmProviders: [
-                { value: "openai", label: "OpenAI" },
-                { value: "claude", label: "Claude" },
-                { value: "gemini", label: "Gemini" },
-                { value: "groq", label: "Groq" },
-                { value: "deepseek", label: "DeepSeek" },
-                { value: "moonshot", label: "Moonshot" },
-            ],
         };
     },
 

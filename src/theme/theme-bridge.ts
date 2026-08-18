@@ -25,6 +25,8 @@ export type GizmoVars = Record<string, string>;
  * Whether a theme should sit on the light or the dark baseline.
  * Derived from the background rather than declared, so an AI-generated theme
  * lands correctly without having to know about this project's conventions.
+ * @param theme themed.js theme to classify
+ * @returns which built-in baseline the theme layers over
  */
 export function baselineFor(theme: Theme): "light" | "dark" {
     return isLight(theme.tokens.colors.background) ? "light" : "dark";
@@ -37,6 +39,8 @@ export function baselineFor(theme: Theme): "light" | "dark" {
  * derived from what it does, in the same direction the hand-written themes
  * move: hover states step toward the text colour, subtle fills step away from
  * it, and status tints are built from the status hue against the surface.
+ * @param theme themed.js theme to translate
+ * @returns the CSS custom properties to write for that theme
  */
 export function themeToGizmoVars(theme: Theme): GizmoVars {
     const c = theme.tokens.colors;
@@ -48,13 +52,13 @@ export function themeToGizmoVars(theme: Theme): GizmoVars {
      * nothing rather than failing, which is worth knowing before trusting any
      * derived colour. mix's weight is the share of the *second* colour.
      */
-    /** Step a colour toward the foreground of the current baseline. */
+    // Step a colour toward the foreground of the current baseline.
     const toward = (hex: string, pct: number) => (dark ? lighten(hex, pct) : darken(hex, pct));
-    /** Step a colour away from the foreground of the current baseline. */
+    // Step a colour away from the foreground of the current baseline.
     const away = (hex: string, pct: number) => (dark ? darken(hex, pct) : lighten(hex, pct));
-    /** A quiet fill of `hue` that still reads as the surface it sits on. */
+    // A quiet fill of a hue that still reads as the surface it sits on.
     const tint = (hue: string) => mix(hue, c.surface, dark ? 82 : 88);
-    /** A legible version of `hue` for text on that tint. */
+    // A legible version of a hue for text on that tint.
     const onTint = (hue: string) => (dark ? lighten(hue, 22) : darken(hue, 22));
 
     const status = (hue: string, prefix: string): GizmoVars => ({

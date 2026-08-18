@@ -1730,8 +1730,12 @@
     "LLM Model": "LLM 模型",
     "LLM Base URL": "LLM 接口地址",
     "llmProviderDescription": "可选。启用 AI 功能，例如根据描述生成主题。留空则本实例不会连接任何 AI 提供商。",
-    "llmApiKeyDescription": "保存在本实例，所有能登录的人共享。与上方其他 API 凭据一样，以明文存储于数据库中。",
-    "llmModelDescription": "可选。留空则使用提供商的默认模型。",
+    "llmApiKeyDescription": "保存在本实例，所有能登录的人共享。与本项目其他 API 凭据一样，以明文存储于数据库中。",
+    "llmModelDescription": "留空则使用该提供商的默认模型，即占位符中显示的值。",
     "llmModelPlaceholder": "提供商默认",
-    "llmBaseUrlDescription": "可选。可指向代理、区域节点，或兼容该提供商 API 的自托管模型。"
+    "llmBaseUrlDescription": "可指向代理、区域节点，或兼容该提供商 API 的自托管模型。",
+    "AI": "AI",
+    "aiSettingsIntro": "用于 AI 功能的凭据，例如根据描述生成主题。这些均为可选项；未选择提供商时，本实例不会连接任何 AI 服务。",
+    "LLM Model (optional)": "LLM 模型（可选）",
+    "LLM Base URL (optional)": "LLM 接口地址（可选）"
 }

@@ -91,6 +91,9 @@ export default {
                 appearance: {
                     title: this.$t("Appearance"),
                 },
+                ai: {
+                    title: this.$t("AI"),
+                },
                 notifications: {
                     title: this.$t("Notifications"),
                 },
