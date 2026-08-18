@@ -44,15 +44,18 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+/*
+ * A maintenance window is a fact, not a tag. It inherits the notice's colour
+ * and sits on the tint rather than carrying its own capsule.
+ */
 .timeslot {
     margin-top: 0.375rem;
     display: inline-block;
-    font-size: 14px;
-    color: var(--color-text-muted);
-    background-color: var(--color-surface-subtle);
-    border-radius: var(--radius-pill);
-    padding: 0 0.625rem;
-    margin-right: 0.375rem;
+    margin-right: 0.75rem;
+    color: inherit;
+    font-size: 0.8125rem;
+    font-variant-numeric: tabular-nums;
+    opacity: 0.85;
 
     .to {
         margin: 0 6px;

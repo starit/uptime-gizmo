@@ -97,38 +97,38 @@ export default {
 </script>
 
 <style scoped>
+/*
+ * A percentage is a figure, so it reads as one: tabular, aligned, tinted by
+ * state. The capsule with a border around it was badge chrome that added
+ * weight without adding meaning.
+ */
 .uptime-pill {
-    min-width: 62px;
+    min-width: 3.25rem;
     display: inline-flex;
-    justify-content: center;
-    padding: 0.2rem 0.5rem;
-    border: 1px solid var(--status-unknown-border);
-    border-radius: var(--radius-pill);
+    justify-content: flex-end;
+    padding: 0;
+    border: 0;
+    background: none;
     color: var(--status-unknown-fg);
-    background: var(--status-unknown-bg);
+    font-size: 0.8125rem;
+    font-weight: var(--weight-semibold);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.01em;
 }
 
 .uptime-pill-up {
-    border-color: var(--status-up-border);
     color: var(--status-up-fg);
-    background: var(--status-up-bg);
 }
 
 .uptime-pill-danger {
-    border-color: var(--status-down-border);
     color: var(--status-down-fg);
-    background: var(--status-down-bg);
 }
 
 .uptime-pill-warning {
-    border-color: var(--status-degraded-border);
     color: var(--status-degraded-fg);
-    background: var(--status-degraded-bg);
 }
 
 .uptime-pill-maintenance {
-    border-color: var(--status-maintenance-border);
     color: var(--status-maintenance-fg);
-    background: var(--status-maintenance-bg);
 }
 </style>

@@ -852,6 +852,87 @@
     .gizmo-native-alert--warning { border-color: var(--status-degraded-border); background: var(--status-degraded-bg); color: var(--status-degraded-fg); }
     .gizmo-native-alert--danger { border-color: var(--status-down-border); background: var(--status-down-bg); color: var(--status-down-fg); }
     .gizmo-native-alert__title { color: inherit; }
+
+    /*
+     * Status-page notices. A tinted plate with an accent rule on the leading
+     * edge, rather than the saturated fill Bootstrap's bg-* utilities gave
+     * these. A maintenance window should register without shouting louder than
+     * an incident.
+     */
+    .status-notice {
+        position: relative;
+        padding: 0.875rem 1rem 0.875rem 1.125rem;
+        border: 1px solid var(--color-border);
+        border-inline-start: 3px solid var(--color-border-strong);
+        border-radius: var(--radius-md);
+        background: var(--color-surface);
+        color: var(--color-text);
+    }
+
+    .status-notice__title {
+        margin: 0 0 0.25rem;
+        color: inherit;
+        font-size: 0.9375rem;
+        font-weight: var(--weight-semibold);
+        letter-spacing: -0.005em;
+    }
+
+    .status-notice__body {
+        color: var(--color-text-muted);
+        font-size: 0.875rem;
+        line-height: 1.5;
+    }
+
+    .status-notice__meta {
+        margin-top: 0.5rem;
+        color: var(--color-text-subtle);
+        font-size: 0.75rem;
+    }
+
+    .status-notice--maintenance {
+        border-color: var(--status-maintenance-border);
+        border-inline-start-color: var(--status-maintenance);
+        background: var(--status-maintenance-bg);
+        color: var(--status-maintenance-fg);
+    }
+
+    .status-notice--danger {
+        border-color: var(--status-down-border);
+        border-inline-start-color: var(--status-down);
+        background: var(--status-down-bg);
+        color: var(--status-down-fg);
+    }
+
+    .status-notice--warning {
+        border-color: var(--status-degraded-border);
+        border-inline-start-color: var(--status-degraded);
+        background: var(--status-degraded-bg);
+        color: var(--status-degraded-fg);
+    }
+
+    .status-notice--info,
+    .status-notice--primary {
+        border-color: var(--color-interactive);
+        border-inline-start-color: var(--color-interactive);
+        background: var(--color-interactive-subtle);
+        color: var(--color-text);
+    }
+
+    .status-notice--light {
+        background: var(--color-surface-subtle);
+    }
+
+    .status-notice--dark {
+        border-inline-start-color: var(--color-text);
+        background: var(--color-surface-subtle);
+    }
+
+    .status-notice--maintenance .status-notice__body,
+    .status-notice--danger .status-notice__body,
+    .status-notice--warning .status-notice__body,
+    .status-notice--maintenance .status-notice__meta,
+    .status-notice--danger .status-notice__meta,
+    .status-notice--warning .status-notice__meta { color: inherit; opacity: 0.82; }
     .gizmo-inline-badge { display: inline-flex; align-items: center; padding: 0.2rem 0.5rem; border-radius: var(--radius-pill); background: var(--color-interactive-subtle); color: var(--color-interactive); font-size: 0.75rem; font-weight: var(--weight-bold); }
 
     .gizmo-data-table { width: 100%; border-collapse: collapse; color: var(--color-text); font-size: 0.875rem; }

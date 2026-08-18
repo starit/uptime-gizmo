@@ -322,6 +322,24 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+/*
+ * A group name labels the list beneath it; it is not competing with the
+ * overall status for the visitor's attention.
+ */
+.group-title {
+    margin-bottom: 0.625rem;
+    color: var(--color-text-muted);
+    font-size: 0.75rem;
+    font-weight: var(--weight-semibold);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+
+    span {
+        display: inline-block;
+        min-width: 15px;
+    }
+}
+
 
 .extra-info {
     display: flex;
@@ -401,12 +419,6 @@ export default {
     color: var(--status-down);
 }
 
-.group-title {
-    span {
-        display: inline-block;
-        min-width: 15px;
-    }
-}
 
 .collapse-toggle {
     cursor: pointer;

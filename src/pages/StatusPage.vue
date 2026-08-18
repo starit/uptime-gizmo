@@ -323,12 +323,12 @@
                 <!-- Display mode for this incident -->
                 <div
                     v-else
-                    class="shadow-box gizmo-native-alert tw-mb-4 tw-p-4 incident"
+                    class="status-notice tw-mb-4 incident"
                     role="alert"
-                    :class="'bg-' + activeIncident.style"
+                    :class="'status-notice--' + activeIncident.style"
                     data-testid="incident"
                 >
-                    <h4 class="gizmo-native-alert__title" data-testid="incident-title">{{ activeIncident.title }}</h4>
+                    <h4 class="status-notice__title" data-testid="incident-title">{{ activeIncident.title }}</h4>
                     <!-- eslint-disable vue/no-v-html -->
                     <div
                         class="content"
@@ -338,7 +338,7 @@
                     <!-- eslint-enable vue/no-v-html -->
 
                     <!-- Incident Date -->
-                    <div class="date tw-mt-3">
+                    <div class="status-notice__meta date">
                         {{
                             $t("dateCreatedAtFromNow", {
                                 date: $root.datetime(activeIncident.createdDate),
@@ -377,7 +377,7 @@
             </template>
 
             <!-- Overall Status -->
-            <div class="shadow-box list tw-p-4 overall-status tw-mb-4">
+            <div class="overall-status tw-mb-4">
                 <div v-if="Object.keys($root.publicMonitorList).length === 0 && loadedData">
                     <font-awesome-icon icon="question-circle" class="ok" />
                     {{ $t("No Services") }}
@@ -415,10 +415,10 @@
                 <div
                     v-for="maintenance in maintenanceList"
                     :key="maintenance.id"
-                    class="shadow-box gizmo-native-alert tw-mb-4 tw-p-3 bg-maintenance tw-mt-4 tw-relative"
+                    class="status-notice status-notice--maintenance tw-mb-4 tw-mt-4"
                     role="alert"
                 >
-                    <h4 class="gizmo-native-alert__title">{{ maintenance.title }}</h4>
+                    <h4 class="status-notice__title">{{ maintenance.title }}</h4>
                     <!-- eslint-disable-next-line vue/no-v-html-->
                     <div class="content" v-html="maintenanceHTML(maintenance.description)"></div>
                     <MaintenanceTime :maintenance="maintenance" />
@@ -438,7 +438,7 @@
             <!-- eslint-disable vue/no-v-html-->
             <div
                 v-if="!enableEditMode"
-                class="gizmo-native-alert__title tw-p-2"
+                class="status-page-description"
                 data-testid="description"
                 v-html="descriptionHTML"
             ></div>
@@ -557,13 +557,13 @@
                     tag="div"
                     :contenteditable="enableEditMode"
                     :noNL="false"
-                    class="gizmo-native-alert__title tw-p-2"
+                    class="status-page-footer-text"
                     data-testid="custom-footer-editable"
                 />
                 <!-- eslint-disable vue/no-v-html-->
                 <div
                     v-if="!enableEditMode"
-                    class="gizmo-native-alert__title tw-p-2"
+                    class="status-page-footer-text"
                     data-testid="footer-text"
                     v-html="footerHTML"
                 ></div>
@@ -779,14 +779,6 @@ export default {
                 };
             }
             return {};
-        },
-
-        incidentClass() {
-            return "bg-" + this.incident.style;
-        },
-
-        maintenanceClass() {
-            return "bg-maintenance";
         },
 
         overallStatus() {
@@ -1493,7 +1485,9 @@ export default {
 
 <style lang="scss" scoped>
 .status-page-shell {
-    max-width: 1040px;
+    /* A public page for a handful of services composes better on a narrower
+       measure than the 1040px the private workspace uses. */
+    max-width: 880px;
 
     /* Absorbs the centering and gutters that Bootstrap's .container provided. */
     margin-inline: auto;
@@ -1501,24 +1495,44 @@ export default {
     padding-bottom: 2rem;
 }
 
+/*
+ * The single sentence a visitor came for, so it carries the page rather than
+ * sitting in a card competing with everything else.
+ */
 .overall-status {
-    font-weight: var(--weight-bold);
-    font-size: 25px;
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    font-size: clamp(1.375rem, 2.4vw, 1.75rem);
+    font-weight: var(--weight-semibold);
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+
+    > div {
+        display: flex;
+        align-items: center;
+        gap: 0.625rem;
+    }
+
+    svg {
+        flex: 0 0 auto;
+        font-size: 0.8em;
+    }
 
     .ok {
-        color: var(--status-up-fg);
+        color: var(--status-up);
     }
 
     .warning {
-        color: var(--status-degraded-fg);
+        color: var(--status-degraded);
     }
 
     .danger {
-        color: var(--status-down-fg);
+        color: var(--status-down);
     }
 
     .unknown {
-        color: var(--status-unknown-fg);
+        color: var(--status-unknown);
     }
 }
 
@@ -1578,19 +1592,33 @@ h1 {
     }
 }
 
-footer {
-    text-align: center;
-    font-size: 14px;
-}
-
 .description span {
     min-width: 50px;
 }
 
+.status-page-description {
+    max-width: 60ch;
+    margin-bottom: 1.5rem;
+    color: var(--color-text-muted);
+    font-size: 0.9375rem;
+    line-height: 1.6;
+}
+
+.status-page-footer-text {
+    color: var(--color-text-muted);
+    font-size: 0.875rem;
+    line-height: 1.6;
+}
+
+/* The page title names the page; the overall status carries the message, so
+   the title steps back rather than competing with it. */
 .title-flex {
     display: flex;
     align-items: center;
     gap: 10px;
+    font-size: 1.125rem;
+    font-weight: var(--weight-semibold);
+    letter-spacing: -0.01em;
 }
 
 .logo-wrapper {
@@ -1721,14 +1749,23 @@ footer {
     }
 }
 
-.bg-maintenance {
-    .gizmo-native-alert__title {
-        font-weight: var(--weight-bold);
-    }
-}
+
 
 .refresh-info {
-    opacity: 0.7;
+    color: var(--color-text-subtle);
+    font-size: 0.8125rem;
+}
+
+/* Everything below the services list is supporting text and reads as one
+   quiet block rather than three lines of equal weight. */
+footer {
+    color: var(--color-text-muted);
+    font-size: 0.8125rem;
+    text-align: center;
+
+    p {
+        margin-bottom: 0.375rem;
+    }
 }
 
 .past-incidents-title {
@@ -1746,7 +1783,7 @@ footer {
     .incident-date-header {
         font-size: 1rem;
         font-weight: var(--weight-normal);
-        color: var(--bs-secondary);
+        color: var(--color-text-muted);
         margin-bottom: 0.75rem;
     }
 
