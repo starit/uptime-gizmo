@@ -116,6 +116,10 @@ Then replace any Bootstrap-dependent dropdown, collapse, tooltip, or popover beh
 
 ### Phase 4 — Migrate the application shell and high-frequency workflows
 
+**Status:** Complete on 2026-08-18. See the
+[Phase 4 execution record](../execution/2026-08-18-tailwind-phase-4.md). The work
+was carried out before it was recorded, and the record explains that gap.
+
 Migrate in this order:
 
 1. `src/layouts/Layout.vue`, setup/login, and global navigation.
@@ -129,6 +133,10 @@ Replace Bootstrap grid, flex, spacing, button, form, table, dropdown, and feedba
 
 ### Phase 5 — Migrate administration and public surfaces
 
+**Status:** Complete on 2026-08-18. See the
+[Phase 5 execution record](../execution/2026-08-18-tailwind-phase-5.md). No Vue
+template references a Bootstrap class any more.
+
 1. Migrate maintenance, status-page management, API keys, proxies, Docker hosts, remote browsers, and security settings.
 2. Migrate public status pages, incidents, RSS-related presentation, and status-page customization controls.
 3. Validate custom status-page CSS and custom domain behavior independently from the private workspace theme.
@@ -136,6 +144,18 @@ Replace Bootstrap grid, flex, spacing, button, form, table, dropdown, and feedba
 **Exit criteria:** all 13 Bootstrap-dependent pages and remaining shared components use the new system.
 
 ### Phase 6 — Remove Bootstrap and optimize
+
+**Status:** Not started; readiness assessed on 2026-08-18. Removing the import
+was tried as an experiment and reverted: it compiles cleanly and production CSS
+drops from 353,648 to 159,040 bytes, a 55% reduction against the 321,400-byte
+Phase 0 baseline. The Sass variables do not block it — `vars.scss` defines them
+itself and is imported first.
+
+The base layer is the one real risk. Preflight is disabled, so Bootstrap's
+reboot is the only normalize in the build, and Preflight is not an equivalent
+replacement: it strips heading sizes and list styles that reboot preserves. That
+swap changes typography on every screen and must not land without visual
+verification.
 
 1. Remove remaining Bootstrap class names, Sass imports, `bootstrap` runtime imports, and `@popperjs/core` if no remaining dependency needs it.
 2. Remove obsolete Sass variables, compatibility overrides, and dead DOM structure created solely for Bootstrap.
@@ -151,7 +171,10 @@ Run proportionate checks after each phase and before Bootstrap removal:
 
 - `pnpm run lint`
 - `pnpm run build`
-- Relevant backend tests and Playwright flows when the local browser environment supports them.
+- Relevant backend tests and Playwright flows. The browser environment was
+  repaired on 2026-08-18; see
+  [the Playwright recovery record](../execution/2026-08-18-playwright-and-module-resolution.md).
+  Two end-to-end failures are known and pre-existing.
 - Keyboard-only dialog, menu, form, and focus-ring tests.
 - Light, dark, and auto themes; public status-page theme variants.
 - Desktop, tablet, and mobile widths.

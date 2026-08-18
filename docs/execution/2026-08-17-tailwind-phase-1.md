@@ -7,7 +7,7 @@
 - Added Tailwind CSS 3.4 and Autoprefixer to the frontend build toolchain.
 - Added content scanning for `index.html` and application Vue, JavaScript, and TypeScript files.
 - Kept [`src/assets/app.scss`](../../src/assets/app.scss) as the single application stylesheet entry. It now loads the Tailwind layers alongside the existing Bootstrap and project Sass.
-- Added [`tailwind.config.js`](../../tailwind.config.js) with `tw-` as the required utility prefix and disabled Preflight while Bootstrap remains active. This keeps the new system opt-in and prevents global reset or selector collisions during incremental migration.
+- Added [`tailwind.config.js`](../../tailwind.config.ts) (since renamed to `tailwind.config.ts`) with `tw-` as the required utility prefix and disabled Preflight while Bootstrap remains active. This keeps the new system opt-in and prevents global reset or selector collisions during incremental migration.
 - Mapped the semantic tokens defined in [`DESIGN.md`](../../DESIGN.md) to Tailwind colors, font family, radii, shadow, breakpoints, and transition timing functions. Every color is a CSS-variable reference, so a utility resolves against the active light or dark theme at runtime.
 - Added small, token-driven recipes in [`src/assets/tailwind.scss`](../../src/assets/tailwind.scss): focus ring, surface treatments, compact tabular data, and the five monitoring status treatments.
 
