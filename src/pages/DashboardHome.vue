@@ -1,6 +1,31 @@
 <template>
     <transition ref="tableContainer" name="slide-fade" appear>
         <div v-if="$route.name === 'DashboardHome'" class="dashboard-overview">
+            <!--
+                Nothing is being watched yet, so the stat grid would be five
+                zeroes above an empty table — a screen that reports emptiness
+                without saying what to do about it. The mascot fills the space the
+                data will occupy, and the one control is the action that ends it.
+            -->
+            <section v-if="hasNoMonitors" class="dashboard-welcome">
+                <img
+                    class="dashboard-welcome-mascot"
+                    src="/images/gizmo-mascot-engineer-cutout.webp"
+                    alt=""
+                    width="448"
+                    height="448"
+                    decoding="async"
+                >
+                <div class="dashboard-welcome-copy">
+                    <p class="dashboard-welcome-slogan">{{ $t("uptimeIsMoney") }}</p>
+                    <p class="dashboard-welcome-lede">{{ $t("uptimeIsMoneySub") }}</p>
+                    <router-link to="/add" class="dashboard-welcome-cta">
+                        {{ $t("Add New Monitor") }}
+                    </router-link>
+                </div>
+            </section>
+
+            <template v-else>
             <header class="dashboard-overview-header">
                 <h1>{{ $t("Quick Stats") }}</h1>
             </header>
@@ -93,6 +118,7 @@
                     </div>
                 </template>
             </GizmoPanel>
+            </template>
         </div>
     </transition>
     <Confirm
@@ -147,6 +173,14 @@ export default {
         };
     },
     computed: {
+        /**
+         * Whether the instance is watching anything at all.
+         * @returns {boolean} true when no monitor exists
+         */
+        hasNoMonitors() {
+            return Object.keys(this.$root.monitorList).length === 0;
+        },
+
         showGroupColumn() {
             return Object.values(this.$root.monitorList).some((m) => m.parent != null);
         },
@@ -362,6 +396,80 @@ export default {
 
 .stat-card.is-muted {
     opacity: 0.62;
+}
+
+.dashboard-welcome {
+    display: grid;
+    grid-template-columns: minmax(0, auto) minmax(0, 1fr);
+    align-items: center;
+    gap: clamp(1rem, 4vw, 3rem);
+    padding: clamp(1.5rem, 4vw, 3rem);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-panel);
+}
+
+.dashboard-welcome-mascot {
+    width: clamp(9rem, 22vw, 15rem);
+    height: auto;
+
+    /* The cutout carries its own studio shadow; a second one would read as two
+       light sources. */
+    filter: drop-shadow(0 12px 20px rgba(0, 0, 0, 0.18));
+}
+
+.dashboard-welcome-slogan {
+    margin: 0;
+    color: var(--color-text);
+    font-size: clamp(1.5rem, 3.4vw, 2.4rem);
+    font-weight: var(--weight-bold);
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+    text-wrap: balance;
+}
+
+.dashboard-welcome-lede {
+    margin: 0.7rem 0 0;
+    max-width: 42ch;
+    color: var(--color-text-muted);
+    font-size: 1rem;
+    line-height: 1.55;
+}
+
+.dashboard-welcome-cta {
+    display: inline-block;
+    margin-top: 1.4rem;
+    padding: 0.6rem 1.3rem;
+    background: var(--color-brand);
+    color: var(--color-brand-contrast);
+    border-radius: var(--radius-md);
+    font-weight: var(--weight-semibold);
+    text-decoration: none;
+    transition: background 0.15s ease;
+
+    &:hover {
+        background: var(--color-brand-hover);
+        color: var(--color-brand-contrast);
+    }
+
+    &:focus-visible {
+        outline: 2px solid var(--color-focus-ring);
+        outline-offset: 2px;
+    }
+}
+
+/* Below this the mascot and the copy stop sharing a line comfortably. */
+@media (max-width: 640px) {
+    .dashboard-welcome {
+        grid-template-columns: minmax(0, 1fr);
+        justify-items: center;
+        text-align: center;
+    }
+
+    .dashboard-welcome-lede {
+        margin-inline: auto;
+    }
 }
 
 .empty-value {
