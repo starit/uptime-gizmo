@@ -571,4 +571,180 @@ router.patch(
     })
 );
 
+/*
+ * Machine-readable description of this API.
+ *
+ * Generated from MONITOR_FIELDS rather than written alongside it, so the
+ * document cannot describe a field the code does not have, or miss one it does.
+ * Hand-maintained OpenAPI drifts; this cannot.
+ *
+ * Unauthenticated on purpose: a caller has to be able to discover what
+ * credentials are for before it has any. It describes shapes, never data.
+ */
+
+/**
+ * Map a field type onto its OpenAPI schema.
+ * @param {object} field entry from MONITOR_FIELDS
+ * @returns {object} schema fragment
+ */
+function fieldSchema(field) {
+    if (field.type === "int") {
+        return { type: "integer" };
+    }
+    if (field.type === "number") {
+        return { type: "number" };
+    }
+    if (field.type === "bool") {
+        return { type: "boolean" };
+    }
+    if (field.type === "jsonArray") {
+        return { type: "array", items: { type: "string" } };
+    }
+    return { type: "string", nullable: true };
+}
+
+/**
+ * Build the OpenAPI document from the live field table.
+ * @returns {object} an OpenAPI 3.1 document
+ */
+function buildOpenAPI() {
+    const monitorProperties = {};
+    const writableProperties = {};
+    const required = [];
+
+    for (const [ name, field ] of Object.entries(MONITOR_FIELDS)) {
+        if (field.secret) {
+            continue;
+        }
+        monitorProperties[name] = fieldSchema(field);
+        if (field.writable) {
+            writableProperties[name] = fieldSchema(field);
+            if (field.required) {
+                required.push(name);
+            }
+        }
+    }
+
+    const authed = [ { basicAuth: [] } ];
+    const envelope = (schema) => ({
+        "application/json": {
+            schema: {
+                type: "object",
+                properties: { ok: { type: "boolean" }, data: schema },
+            },
+        },
+    });
+    const monitorRef = { $ref: "#/components/schemas/Monitor" };
+
+    return {
+        openapi: "3.1.0",
+        info: {
+            title: "Uptime Gizmo API",
+            version: "1.0.0",
+            description:
+                "Management API. Every route requires an API key sent as HTTP Basic auth, with any username and the key as the password. A key marked read-only is refused on every mutating route.",
+        },
+        components: {
+            securitySchemes: {
+                basicAuth: { type: "http", scheme: "basic" },
+            },
+            schemas: {
+                Monitor: { type: "object", properties: monitorProperties },
+                MonitorInput: { type: "object", required, properties: writableProperties },
+            },
+        },
+        paths: {
+            "/api/v1/monitors": {
+                get: {
+                    summary: "List monitors",
+                    security: authed,
+                    parameters: [
+                        { name: "limit", in: "query", schema: { type: "integer", maximum: 500, default: 100 } },
+                    ],
+                    responses: { 200: { description: "Monitors", content: envelope({ type: "array", items: monitorRef }) } },
+                },
+                post: {
+                    summary: "Create a monitor",
+                    description: "Requires a key that is not read-only.",
+                    security: authed,
+                    requestBody: {
+                        required: true,
+                        content: { "application/json": { schema: { $ref: "#/components/schemas/MonitorInput" } } },
+                    },
+                    responses: {
+                        201: { description: "Created", content: envelope(monitorRef) },
+                        400: { description: "The body was refused" },
+                        403: { description: "The key is read-only" },
+                    },
+                },
+            },
+            "/api/v1/monitors/{id}": {
+                get: {
+                    summary: "Get one monitor",
+                    security: authed,
+                    parameters: [ { name: "id", in: "path", required: true, schema: { type: "integer" } } ],
+                    responses: { 200: { description: "Monitor", content: envelope(monitorRef) }, 404: { description: "No such monitor" } },
+                },
+                patch: {
+                    summary: "Update a monitor",
+                    description: "Partial. Requires a key that is not read-only.",
+                    security: authed,
+                    parameters: [ { name: "id", in: "path", required: true, schema: { type: "integer" } } ],
+                    requestBody: {
+                        required: true,
+                        content: { "application/json": { schema: { type: "object", properties: writableProperties } } },
+                    },
+                    responses: {
+                        200: { description: "Updated", content: envelope(monitorRef) },
+                        403: { description: "The key is read-only" },
+                        404: { description: "No such monitor" },
+                    },
+                },
+            },
+            "/api/v1/overview": {
+                get: {
+                    summary: "Current state of every monitor",
+                    description: "One row per monitor with its status, when it entered that status, and 24-hour uptime.",
+                    security: authed,
+                    responses: { 200: { description: "Overview" } },
+                },
+            },
+            "/api/v1/incidents/active": {
+                get: {
+                    summary: "Monitors that are down or degraded now",
+                    security: authed,
+                    responses: { 200: { description: "Active incidents" } },
+                },
+            },
+            "/api/v1/changes": {
+                get: {
+                    summary: "State transitions in a window",
+                    description:
+                        "Bounded: 24 hours by default, 168 maximum, 500 rows. A request past the cap is answered with the capped window and says so in the window object.",
+                    security: authed,
+                    parameters: [
+                        { name: "hours", in: "query", schema: { type: "number", maximum: 168, default: 24 } },
+                        { name: "limit", in: "query", schema: { type: "integer", maximum: 500, default: 500 } },
+                    ],
+                    responses: { 200: { description: "Transitions" } },
+                },
+            },
+            "/api/v1/tags": {
+                get: { summary: "List tags", security: authed, responses: { 200: { description: "Tags" } } },
+            },
+            "/api/v1/maintenances": {
+                get: { summary: "List maintenance windows", security: authed, responses: { 200: { description: "Maintenance windows" } } },
+            },
+        },
+    };
+}
+
+router.get("/api/v1/openapi.json", (req, res) => {
+    res.json(buildOpenAPI());
+});
+
 module.exports = router;
+
+// Exposed for tests. The field table is the support of the write-side security
+// property, so it needs to be assertable without standing up a server.
+module.exports.internals = { MONITOR_FIELDS, monitorToAPI, monitorFromAPI, buildOpenAPI };

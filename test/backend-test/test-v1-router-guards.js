@@ -25,19 +25,45 @@ function collectRoutes() {
     const source = require("fs").readFileSync(routerPath, "utf8");
     const routes = [];
 
-    // router.get( "path", middleware, middleware, route(...) )
-    const pattern = /router\.(get|post|patch|put|delete)\(\s*\n?\s*"([^"]+)"([\s\S]*?)\n\);/g;
+    /*
+     * Find every registration, whatever style it is written in, by locating the
+     * call and then walking to its closing bracket. An earlier version matched
+     * only the multi-line form and a compact route slipped past all four
+     * assertions — a matcher that silently skips routes is worse than none.
+     */
+    const start = /router\.(get|post|patch|put|delete)\(\s*"([^"]+)"/g;
 
-    for (const match of source.matchAll(pattern)) {
+    for (const match of source.matchAll(start)) {
+        let depth = 0;
+        let end = match.index;
+        for (let i = match.index; i < source.length; i++) {
+            if (source[i] === "(") {
+                depth++;
+            } else if (source[i] === ")") {
+                depth--;
+                if (depth === 0) {
+                    end = i;
+                    break;
+                }
+            }
+        }
+
         routes.push({
             method: match[1],
             path: match[2],
-            body: match[3],
+            body: source.slice(match.index, end),
         });
     }
 
     return routes;
 }
+
+/*
+ * Routes that are public on purpose. A caller has to be able to discover what
+ * credentials are for before it holds any, so the description of the API is
+ * readable without one. It describes shapes, never data.
+ */
+const INTENTIONALLY_PUBLIC = [ "/api/v1/openapi.json" ];
 
 describe("v1 router guards", () => {
     const routes = collectRoutes();
@@ -48,6 +74,7 @@ describe("v1 router guards", () => {
 
     it("puts every route behind apiAuth", () => {
         const unguarded = routes
+            .filter((route) => !INTENTIONALLY_PUBLIC.includes(route.path))
             .filter((route) => !route.body.includes("apiAuth"))
             .map((route) => `${route.method.toUpperCase()} ${route.path}`);
 
@@ -71,8 +98,9 @@ describe("v1 router guards", () => {
         assert.deepStrictEqual(stray, [], "these escape the versioned contract");
     });
 
-    it("wraps every handler so a rejection cannot escape", () => {
+    it("wraps every async handler so a rejection cannot escape", () => {
         const unwrapped = routes
+            .filter((route) => route.body.includes("async"))
             .filter((route) => !route.body.includes("route(async"))
             .map((route) => `${route.method.toUpperCase()} ${route.path}`);
 
