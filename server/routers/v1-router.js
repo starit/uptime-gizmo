@@ -201,9 +201,10 @@ const monitorToAPI = makeProjection(MONITOR_FIELDS);
 /**
  * Turn a request body into the columns it is allowed to set.
  *
- * An allow-list, so a field absent from MONITOR_FIELDS is dropped rather than
+ * An allow-list, so a field absent from the table is dropped rather than
  * written. That is what stops a caller assigning user_id, or any of the other
  * hundred columns, by including it in the payload.
+ * @param {object} fields the resource's field table
  * @param {object} body request body
  * @param {boolean} partial true for PATCH, where required fields may be absent
  * @returns {object} column/value pairs safe to assign
