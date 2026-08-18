@@ -1496,6 +1496,50 @@ let needSetup = false;
             }
         });
 
+        socket.on("generateTheme", async (prompt, callback) => {
+            try {
+                checkLogin(socket);
+
+                if (typeof prompt !== "string" || prompt.trim() === "") {
+                    throw new Error("A description is required");
+                }
+
+                const provider = await Settings.get("llmProvider");
+                const apiKey = await Settings.get("llmApiKey");
+
+                if (!provider || !apiKey) {
+                    throw new Error("No AI provider is configured");
+                }
+
+                // Generation runs here rather than in the browser so the key
+                // never leaves the server.
+                const { createThemed } = await import("@themed.js/core");
+                const themed = createThemed({
+                    ai: {
+                        provider,
+                        apiKey,
+                        model: (await Settings.get("llmModel")) || undefined,
+                        baseURL: (await Settings.get("llmBaseUrl")) || undefined,
+                    },
+                });
+
+                // ThemeManager.generate resolves to a full Theme, unlike the
+                // orchestrator's generateTheme, which returns tokens only.
+                const theme = await themed.generate(prompt.trim());
+
+                callback({
+                    ok: true,
+                    theme,
+                });
+            } catch (e) {
+                log.warn("theme", `AI theme generation failed: ${e.message}`);
+                callback({
+                    ok: false,
+                    msg: e.message,
+                });
+            }
+        });
+
         socket.on("saveCustomThemes", async (themes, callback) => {
             try {
                 checkLogin(socket);

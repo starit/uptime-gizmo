@@ -151,6 +151,9 @@ async function sendInfo(socket, hideVersion = false) {
         // unauthenticated status page need them at boot, so they ride along
         // here rather than behind the authenticated settings channel.
         customThemes: (await setting("customThemes")) ?? [],
+        // Whether AI features can be offered. The credential itself stays on
+        // the server; the client only needs to know it exists.
+        aiConfigured: Boolean((await setting("llmProvider")) && (await setting("llmApiKey"))),
     };
     if (!hideVersion) {
         info.version = checkVersion.version;

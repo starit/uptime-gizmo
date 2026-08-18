@@ -1626,5 +1626,9 @@
     "importThemePlaceholder": "Paste a theme definition in JSON",
     "themeImportInvalidJSON": "That is not valid JSON.",
     "themeImportMissingFields": "A theme needs an id, a name, and tokens.colors.",
-    "themeImportContrastFailed": "Rejected: this theme does not meet the contrast this project requires ({0})."
+    "themeImportContrastFailed": "Rejected: this theme does not meet the contrast this project requires ({0}).",
+    "Generate Theme": "Generate Theme",
+    "Generating...": "Generating…",
+    "generateThemePlaceholder": "Describe a theme, e.g. warm dusk with amber highlights",
+    "generateThemeDescription": "Sends your description to the configured AI provider. The result is checked against this project's contrast requirements and rejected if it falls short."
 }

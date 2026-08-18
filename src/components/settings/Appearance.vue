@@ -88,6 +88,33 @@
 
             <div v-else class="gizmo-field-help tw-mb-3">{{ $t("noCustomThemes") }}</div>
 
+            <div v-if="aiConfigured" class="tw-mb-3">
+                <label class="gizmo-field-label" for="theme-prompt">{{ $t("Generate Theme") }}</label>
+                <div class="gizmo-inline-action">
+                    <input
+                        id="theme-prompt"
+                        v-model="prompt"
+                        type="text"
+                        class="gizmo-native-control"
+                        :placeholder="$t('generateThemePlaceholder')"
+                        :disabled="generating"
+                        @keyup.enter="generateTheme"
+                    />
+                    <button
+                        type="button"
+                        class="gizmo-native-button gizmo-native-button--primary"
+                        :disabled="generating || !prompt.trim()"
+                        @click="generateTheme"
+                    >
+                        {{ generating ? $t("Generating...") : $t("Generate") }}
+                    </button>
+                </div>
+                <div v-if="generateError" class="gizmo-native-alert gizmo-native-alert--danger tw-mt-2">
+                    {{ generateError }}
+                </div>
+                <div class="gizmo-field-help">{{ $t("generateThemeDescription") }}</div>
+            </div>
+
             <details class="custom-theme-import">
                 <summary class="gizmo-field-label">{{ $t("Import Theme") }}</summary>
                 <textarea
@@ -210,12 +237,20 @@ export default {
         return {
             importText: "",
             importError: "",
+            prompt: "",
+            generating: false,
+            generateError: "",
         };
     },
 
     computed: {
         customThemes() {
             return this.$root.info?.customThemes ?? [];
+        },
+
+        /** Generation is offered only once a provider is actually configured. */
+        aiConfigured() {
+            return Boolean(this.$root.info?.aiConfigured);
         },
     },
 
@@ -272,6 +307,43 @@ export default {
 
             this.saveThemes([ ...this.customThemes.filter((t) => t.id !== theme.id), theme ]);
             this.importText = "";
+        },
+
+        /**
+         * Ask the server to generate a theme, then hold it to the same contrast
+         * floor as an imported one. A model optimises for looking pleasant, not
+         * for being legible, so the gate matters more here than on import.
+         * @returns {void}
+         */
+        generateTheme() {
+            this.generateError = "";
+            this.generating = true;
+
+            this.$root.getSocket().emit("generateTheme", this.prompt, (res) => {
+                this.generating = false;
+
+                if (!res.ok) {
+                    this.generateError = res.msg;
+                    return;
+                }
+
+                const theme = res.theme;
+                if (!theme?.id || !theme?.name || !theme?.tokens?.colors) {
+                    this.generateError = this.$t("themeImportMissingFields");
+                    return;
+                }
+
+                const failures = findContrastFailures(theme);
+                if (failures.length > 0) {
+                    this.generateError = this.$t("themeImportContrastFailed", [
+                        failures.map((f) => `${f.label} ${f.ratio.toFixed(2)}:${f.required}`).join(", "),
+                    ]);
+                    return;
+                }
+
+                this.saveThemes([ ...this.customThemes.filter((t) => t.id !== theme.id), theme ]);
+                this.prompt = "";
+            });
         },
 
         /**

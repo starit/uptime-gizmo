@@ -1744,5 +1744,9 @@
     "importThemePlaceholder": "粘贴 JSON 格式的主题定义",
     "themeImportInvalidJSON": "不是有效的 JSON。",
     "themeImportMissingFields": "主题需要包含 id、name 和 tokens.colors。",
-    "themeImportContrastFailed": "已拒绝：该主题不满足本项目要求的对比度（{0}）。"
+    "themeImportContrastFailed": "已拒绝：该主题不满足本项目要求的对比度（{0}）。",
+    "Generate Theme": "生成主题",
+    "Generating...": "生成中…",
+    "generateThemePlaceholder": "描述一个主题，例如：温暖的黄昏，琥珀色点缀",
+    "generateThemeDescription": "会将你的描述发送给已配置的 AI 提供商。生成结果需通过本项目的对比度要求，不达标将被拒绝。"
 }
