@@ -107,3 +107,45 @@ describe("v1 router guards", () => {
         assert.deepStrictEqual(unwrapped, [], "an unhandled rejection here would take the process down");
     });
 });
+
+/*
+ * The OpenAPI document is generated so it cannot describe a field the code
+ * lacks. That guarantee does not extend to routes: a route added without a
+ * matching entry is simply undocumented, and an agent discovering this API
+ * through the document would never find it. So the two are compared.
+ */
+describe("v1 OpenAPI coverage", () => {
+    const { internals } = require("../../server/routers/v1-router");
+    const spec = internals.buildOpenAPI();
+    const routes = collectRoutes();
+
+    it("documents every route", () => {
+        const undocumented = routes
+            .filter((route) => !INTENTIONALLY_PUBLIC.includes(route.path))
+            .filter((route) => {
+                // Express uses :id, OpenAPI uses {id}.
+                const asSpecPath = route.path.replace(/:(\w+)/g, "{$1}");
+                return !spec.paths[asSpecPath]?.[route.method];
+            })
+            .map((route) => `${route.method.toUpperCase()} ${route.path}`);
+
+        assert.deepStrictEqual(undocumented, [], "these exist but the document does not mention them");
+    });
+
+    it("does not document a route that is missing", () => {
+        const registered = new Set(
+            routes.map((route) => `${route.method} ${route.path.replace(/:(\w+)/g, "{$1}")}`)
+        );
+        const phantom = [];
+
+        for (const [ path, methods ] of Object.entries(spec.paths)) {
+            for (const method of Object.keys(methods)) {
+                if (!registered.has(`${method} ${path}`)) {
+                    phantom.push(`${method.toUpperCase()} ${path}`);
+                }
+            }
+        }
+
+        assert.deepStrictEqual(phantom, [], "the document promises these but they are not registered");
+    });
+});

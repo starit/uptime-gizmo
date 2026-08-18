@@ -312,14 +312,12 @@ router.get(
 );
 
 /*
- * Registered with requireWrite purely to prove the guard is wired; it reports
- * what the calling credential may do. A read-only key gets 403 here, which is
- * the cheapest way for a client to discover its own authority.
+ * Lets a caller discover its own authority before attempting anything, which is
+ * the first thing an agent needs to know. A GET, so a read-only key can ask.
  */
 router.get(
-    "/api/v1/whoami/write-check",
+    "/api/v1/whoami",
     apiAuth,
-    requireWrite,
     route(async (req, res) => {
         res.json({
             ok: true,
@@ -331,11 +329,6 @@ router.get(
     })
 );
 
-/*
- * What is wrong right now. Separate from /overview because an agent asking
- * "is anything broken" should not have to receive, or filter, the healthy
- * majority.
- */
 router.get(
     "/api/v1/incidents/active",
     apiAuth,
@@ -727,6 +720,14 @@ function buildOpenAPI() {
                         { name: "limit", in: "query", schema: { type: "integer", maximum: 500, default: 500 } },
                     ],
                     responses: { 200: { description: "Transitions" } },
+                },
+            },
+            "/api/v1/whoami": {
+                get: {
+                    summary: "Describe the calling credential",
+                    description: "Reports the owning user and whether the key is read-only, so a client can discover its authority before attempting a change.",
+                    security: authed,
+                    responses: { 200: { description: "The calling principal" } },
                 },
             },
             "/api/v1/tags": {

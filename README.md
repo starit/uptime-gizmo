@@ -30,6 +30,8 @@ Status pages should be useful, clear, and worth sharing. Uptime Gizmo is moving 
 - More branding and customization options
 - Improved mobile layouts and custom domains
 
+The interface has been migrated from Bootstrap to Tailwind CSS, with a token-driven design system covering both light and dark themes. That removed the framework's visual defaults in favour of a deliberate one — tighter corners, layered elevation, a retuned status palette, and a rebuilt public status page — and cut the shipped stylesheet by roughly half. See the [Design System](DESIGN.md) for the tokens and rules.
+
 ### Better monitoring
 
 Uptime Gizmo builds on a broad monitoring foundation while working toward richer service-health signals—not just **“Is it up?”**, but **“Is it healthy?”**
@@ -55,25 +57,35 @@ Monitor api.example.com every 30 seconds and alert me if latency exceeds 500ms.
 
 ## Agent-friendly interfaces
 
-The project is preparing structured interfaces for automation and AI agents. The
-shape is planned; none of it is built yet.
+Structured interfaces for automation and AI agents, partly built and partly
+planned. What each is, and where it stands:
 
-- **A versioned REST API** under `/api/v1` for monitors, status, metrics and
-  incidents — see [the REST API plan](docs/plans/rest-api.md).
+**Working today**
+
+- A versioned REST API under `/api/v1`: monitors (read, create, update), tags,
+  maintenance windows, and `whoami`, plus `overview`, `incidents/active` and
+  `changes` — endpoints shaped around the questions an agent asks rather than
+  around database tables.
+- **Read-only API keys.** A key can be marked read-only, so an agent can be
+  given access that observes everything and changes nothing. New keys default to
+  read-only.
+- A machine-readable description at `/api/v1/openapi.json`, generated from the
+  same field definitions the API enforces, so it cannot drift.
+
+**Planned**
+
+- The remaining resources, cursor pagination, and per-resource ownership rules.
 - **An MCP server**, shipped from this repository as a separate package with its
-  own process. It reaches Uptime Gizmo only through the REST API, so the
+  own process. It will reach Uptime Gizmo only through the REST API, so the
   monitoring server never hosts the protocol and an agent can do nothing a
   script could not. Installable directly by an agent, or discoverable through a
   third-party platform.
-- **Read-only credentials.** An API key can be marked read-only, so an agent can
-  be given access that observes everything and changes nothing.
 - Webhooks and structured event streams.
+- Multiple users, with a deliberately minimal admin/non-admin split.
 
-See [the MCP and agent-facing API plan](docs/plans/mcp-and-agent-api.md) for the
-design and its guardrails.
-
-**None of these interfaces exist today.** They are a roadmap, not a feature
-list.
+Design and guardrails: [REST API plan](docs/plans/rest-api.md),
+[MCP and agent-facing API plan](docs/plans/mcp-and-agent-api.md),
+[multi-user plan](docs/plans/multi-user.md).
 
 ## Current capabilities
 
@@ -97,11 +109,13 @@ Development is focused on four connected areas:
 3. **AI-agent native workflows** — Let agents safely create and maintain monitoring infrastructure.
 4. **Smarter operations** — Provide context that helps people and agents understand incidents and decide what to do next.
 
+Planned work in more detail is in the [Roadmap](ROADMAP.md).
+
 ## Upstream acknowledgement
 
-Uptime Gizmo originated from an open-source monitoring project created by Louis Lam and its contributors.
+Uptime Gizmo is a fork of [Uptime Kuma](https://github.com/louislam/uptime-kuma) by Louis Lam and its contributors. Thank you — easy self-hosting, broad monitoring support, and a strong notification ecosystem are all theirs, and this project would not exist without that work.
 
-That project provides the foundation for this work. We aim to preserve its strengths—easy self-hosting, broad monitoring support, a friendly UI, and a strong notification ecosystem—while taking the product in a more modern, automated, and AI-friendly direction.
+We aim to preserve those strengths while taking the product in a more modern, automated, and AI-friendly direction.
 
 ## Getting started
 
