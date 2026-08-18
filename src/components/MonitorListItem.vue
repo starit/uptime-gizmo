@@ -340,15 +340,20 @@ export default {
     align-items: center;
     gap: 0.75rem;
 }
-.monitor-row--split { grid-template-columns: minmax(0, 1fr) minmax(8rem, 1fr); }
+
+/*
+ * The heartbeat is a fixed-purpose sparkline, so it takes a fixed width and the
+ * name absorbs whatever is left. The Bootstrap markup used col-3 col-xl-6,
+ * which widened the heartbeat to half the row whenever the *window* passed
+ * 1200px — regardless of how narrow the rail itself was — leaving the name
+ * about 80px and truncating all but the shortest.
+ */
+.monitor-row--split { grid-template-columns: minmax(0, 1fr) 5rem; }
 
 .monitor-row__identity,
 .monitor-row__heartbeat { min-width: 0; }
 .monitor-row--bottom { margin-top: 0.375rem; }
 
-@media (max-width: 1180px) {
-    .monitor-row--split { grid-template-columns: minmax(0, 3fr) minmax(7rem, 1fr); }
-}
 
 .tags {
     margin-top: 0.25rem;
