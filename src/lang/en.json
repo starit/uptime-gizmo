@@ -1630,5 +1630,7 @@
     "Generate Theme": "Generate Theme",
     "Generating...": "Generating…",
     "generateThemePlaceholder": "Describe a theme, e.g. warm dusk with amber highlights",
-    "generateThemeDescription": "Sends your description to the configured AI provider. The result is checked against this project's contrast requirements and rejected if it falls short."
+    "generateThemeDescription": "Sends your description to the configured AI provider. The result is checked against this project's contrast requirements and rejected if it falls short.",
+    "Read-only": "Read-only",
+    "apiKeyReadOnlyDescription": "The key may read but not change anything. Leave this on unless the holder needs to create or modify monitors — it is what an automation or AI agent should normally be given."
 }

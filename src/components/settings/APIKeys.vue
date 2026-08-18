@@ -23,7 +23,12 @@
                     <div class="left-part">
                         <div class="circle"></div>
                         <div class="info">
-                            <div class="title">{{ item.name }}</div>
+                            <div class="title">
+                                {{ item.name }}
+                                <span v-if="item.readOnly" class="gizmo-inline-badge tw-ms-2">
+                                    {{ $t("Read-only") }}
+                                </span>
+                            </div>
                             <div class="status">
                                 {{ $t("apiKey-" + item.status) }}
                             </div>

@@ -1748,5 +1748,7 @@
     "Generate Theme": "生成主题",
     "Generating...": "生成中…",
     "generateThemePlaceholder": "描述一个主题，例如：温暖的黄昏，琥珀色点缀",
-    "generateThemeDescription": "会将你的描述发送给已配置的 AI 提供商。生成结果需通过本项目的对比度要求，不达标将被拒绝。"
+    "generateThemeDescription": "会将你的描述发送给已配置的 AI 提供商。生成结果需通过本项目的对比度要求，不达标将被拒绝。",
+    "Read-only": "只读",
+    "apiKeyReadOnlyDescription": "该密钥只能读取，不能做任何修改。除非持有者需要创建或修改监控项，否则请保持开启——自动化脚本或 AI Agent 通常应使用只读密钥。"
 }

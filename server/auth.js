@@ -35,12 +35,17 @@ exports.login = async function (username, password) {
 
 /**
  * Validate a provided API key
+ * Resolve an API key to its record.
+ *
+ * Returns the key row rather than a boolean so callers can see who is asking
+ * and what the key permits. An expired, inactive or unknown key resolves to
+ * null, which is the only "not authorised" answer.
  * @param {string} key API key to verify
- * @returns {boolean} API is ok?
+ * @returns {Promise<object|null>} the api_key record, or null
  */
-async function verifyAPIKey(key) {
+async function resolveAPIKey(key) {
     if (typeof key !== "string") {
-        return false;
+        return null;
     }
 
     // uk prefix + key ID is before _
@@ -50,16 +55,29 @@ async function verifyAPIKey(key) {
     let hash = await R.findOne("api_key", " id=? ", [index]);
 
     if (hash === null) {
-        return false;
+        return null;
     }
 
     let current = dayjs();
     let expiry = dayjs(hash.expires);
     if (expiry.diff(current) < 0 || !hash.active) {
-        return false;
+        return null;
     }
 
-    return hash && passwordHash.verify(clear, hash.key);
+    if (!passwordHash.verify(clear, hash.key)) {
+        return null;
+    }
+
+    return hash;
+}
+
+/**
+ * Verify an API key
+ * @param {string} key API key to verify
+ * @returns {Promise<boolean>} API is ok?
+ */
+async function verifyAPIKey(key) {
+    return (await resolveAPIKey(key)) !== null;
 }
 
 /**
@@ -71,18 +89,30 @@ async function verifyAPIKey(key) {
 
 /**
  * Custom authorizer for express-basic-auth
+ * @param {express.Request} req Request the principal is attached to
  * @param {string} username Username to login with
  * @param {string} password Password to login with
  * @param {authCallback} callback Callback to handle login result
  * @returns {void}
  */
-function apiAuthorizer(username, password, callback) {
+function apiAuthorizer(req, username, password, callback) {
     // API Rate Limit
     apiRateLimiter.pass(null, 0).then((pass) => {
         if (pass) {
-            verifyAPIKey(password).then((valid) => {
+            resolveAPIKey(password).then((apiKey) => {
+                const valid = apiKey !== null;
                 if (!valid) {
                     log.warn("api-auth", "Failed API auth attempt: invalid API Key");
+                } else {
+                    // express-basic-auth invokes the authorizer as a plain
+                    // function, so the request is only reachable through a
+                    // closure. apiAuth builds this middleware per request, so
+                    // capturing req here cannot leak across requests.
+                    req.principal = {
+                        userID: apiKey.user_id,
+                        apiKeyID: apiKey.id,
+                        readOnly: Boolean(apiKey.read_only),
+                    };
                 }
                 callback(null, valid);
                 // Only allow a set number of api requests per minute
@@ -158,7 +188,7 @@ exports.apiAuth = async function (req, res, next) {
         let middleware;
         if (usingAPIKeys) {
             middleware = basicAuth({
-                authorizer: apiAuthorizer,
+                authorizer: (username, password, cb) => apiAuthorizer(req, username, password, cb),
                 authorizeAsync: true,
                 challenge: true,
             });
@@ -173,4 +203,49 @@ exports.apiAuth = async function (req, res, next) {
     } else {
         next();
     }
+};
+
+/**
+ * Reject a request made with a read-only credential.
+ *
+ * A key never exceeds the authority of the user it belongs to, and a read-only
+ * key may only read, whoever owns it. See docs/plans/multi-user.md.
+ * @param {express.Request} req Express request object
+ * @param {express.Response} res Express response object
+ * @param {express.NextFunction} next Next handler in chain
+ * @returns {void}
+ */
+exports.requireWrite = function (req, res, next) {
+    if (req.principal?.readOnly) {
+        res.status(403).json({
+            ok: false,
+            msg: "This API key is read-only.",
+        });
+        return;
+    }
+    next();
+};
+
+/**
+ * Reject a request whose principal is not an administrator.
+ *
+ * Read-only is checked first, so a read-only key held by an admin is still
+ * refused on a mutating admin route.
+ * @param {express.Request} req Express request object
+ * @param {express.Response} res Express response object
+ * @param {express.NextFunction} next Next handler in chain
+ * @returns {Promise<void>}
+ */
+exports.requireAdmin = async function (req, res, next) {
+    const userID = req.principal?.userID;
+    const user = userID ? await R.findOne("user", " id = ? AND active = 1 ", [ userID ]) : null;
+
+    if (!user?.admin) {
+        res.status(403).json({
+            ok: false,
+            msg: "This operation requires an administrator.",
+        });
+        return;
+    }
+    next();
 };

@@ -35,6 +35,21 @@
                     </div>
                 </div>
             </div>
+
+            <div class="tw-mb-3">
+                <div class="gizmo-native-check">
+                    <input
+                        id="api-key-read-only"
+                        v-model="key.readOnly"
+                        class="gizmo-native-check__input"
+                        type="checkbox"
+                    />
+                    <label class="gizmo-native-check__label" for="api-key-read-only">
+                        {{ $t("Read-only") }}
+                    </label>
+                </div>
+                <div class="gizmo-field-help">{{ $t("apiKeyReadOnlyDescription") }}</div>
+            </div>
         </form>
         <template #footer>
             <GizmoButton
@@ -81,6 +96,7 @@ interface ApiKeyDraft {
     active: number;
     expires: string | null;
     name: string;
+    readOnly: boolean;
 }
 
 interface ApiKeyResult {
@@ -188,6 +204,9 @@ export default {
                 name: "",
                 expires: this.minDate,
                 active: 1,
+                // Safe default: a key that only observes cannot break anything
+                // if it leaks, and it is what an agent should be given.
+                readOnly: true,
             };
             this.noExpire = false;
         },

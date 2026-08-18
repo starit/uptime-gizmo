@@ -29,6 +29,7 @@ class APIKey extends BeanModel {
             userID: this.user_id,
             createdDate: this.created_date,
             active: this.active,
+            readOnly: Boolean(this.read_only),
             expires: this.expires,
             status: this.getStatus(),
         };
@@ -46,6 +47,7 @@ class APIKey extends BeanModel {
             userID: this.user_id,
             createdDate: this.created_date,
             active: this.active,
+            readOnly: Boolean(this.read_only),
             expires: this.expires,
             status: this.getStatus(),
         };
@@ -65,6 +67,9 @@ class APIKey extends BeanModel {
         bean.name = key.name;
         bean.user_id = userID;
         bean.active = key.active;
+        // Read-only is the safe default: a key that only observes cannot break
+        // anything if it leaks. See docs/plans/multi-user.md.
+        bean.read_only = key.readOnly ?? true;
         bean.expires = key.expires;
 
         await R.store(bean);
