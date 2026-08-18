@@ -6,6 +6,11 @@ Add a versioned, authenticated, and maintainable REST API for Uptime Gizmo witho
 
 The API should provide stable HTTP resources for automation, integrations, AI agents, and external administration tools. It should use the project's existing Express server, database models, API-key system, rate limiting, and HTTP/HTTPS configuration.
 
+Agent-facing concerns — API-key scopes, question-shaped read endpoints, and an
+MCP server — are covered separately in
+[the MCP and agent-facing API plan](mcp-and-agent-api.md), which depends on this
+one.
+
 This document describes the target design and implementation sequence. It is a plan; an endpoint is not considered available until its route, validation, authorization, tests, and documentation have been implemented.
 
 ## Current state
