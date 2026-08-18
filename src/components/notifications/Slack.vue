@@ -1,6 +1,6 @@
 <template>
-    <div class="mb-3">
-        <label for="slack-webhook-url" class="form-label">
+    <div class="tw-mb-3">
+        <label for="slack-webhook-url" class="gizmo-field-label">
             {{ $t("Webhook URL") }}
             <span style="color: red"><sup>*</sup></span>
         </label>
@@ -8,58 +8,58 @@
             id="slack-webhook-url"
             v-model="$parent.notification.slackwebhookURL"
             type="text"
-            class="form-control"
+            class="gizmo-native-control"
             required
         />
-        <label for="slack-username" class="form-label">{{ $t("Username") }}</label>
-        <input id="slack-username" v-model="$parent.notification.slackusername" type="text" class="form-control" />
-        <div class="form-text">
+        <label for="slack-username" class="gizmo-field-label">{{ $t("Username") }}</label>
+        <input id="slack-username" v-model="$parent.notification.slackusername" type="text" class="gizmo-native-control" />
+        <div class="gizmo-field-help">
             {{ $t("aboutSlackUsername") }}
         </div>
-        <label for="slack-iconemo" class="form-label">{{ $t("Icon Emoji") }}</label>
-        <input id="slack-iconemo" v-model="$parent.notification.slackiconemo" type="text" class="form-control" />
-        <label for="slack-channel" class="form-label">{{ $t("Channel Name") }}</label>
-        <input id="slack-channel-name" v-model="$parent.notification.slackchannel" type="text" class="form-control" />
+        <label for="slack-iconemo" class="gizmo-field-label">{{ $t("Icon Emoji") }}</label>
+        <input id="slack-iconemo" v-model="$parent.notification.slackiconemo" type="text" class="gizmo-native-control" />
+        <label for="slack-channel" class="gizmo-field-label">{{ $t("Channel Name") }}</label>
+        <input id="slack-channel-name" v-model="$parent.notification.slackchannel" type="text" class="gizmo-native-control" />
 
-        <label class="form-label">{{ $t("Message format") }}</label>
-        <div class="form-check form-switch">
+        <label class="gizmo-field-label">{{ $t("Message format") }}</label>
+        <div class="gizmo-native-check gizmo-native-switch">
             <input
                 id="slack-text-message"
                 v-model="$parent.notification.slackrichmessage"
                 type="checkbox"
-                class="form-check-input"
+                class="gizmo-native-check__input"
             />
-            <label for="slack-text-message" class="form-label">{{ $t("Send rich messages") }}</label>
+            <label for="slack-text-message" class="gizmo-field-label">{{ $t("Send rich messages") }}</label>
         </div>
 
-        <div class="mb-3">
-            <div class="form-check form-switch">
+        <div class="tw-mb-3">
+            <div class="gizmo-native-check gizmo-native-switch">
                 <input
                     id="slack-include-group-name"
                     v-model="$parent.notification.slackIncludeGroupName"
                     type="checkbox"
-                    class="form-check-input"
+                    class="gizmo-native-check__input"
                 />
-                <label for="slack-include-group-name" class="form-check-label">{{ $t("slackIncludeGroupName") }}</label>
+                <label for="slack-include-group-name" class="gizmo-native-check__label">{{ $t("slackIncludeGroupName") }}</label>
             </div>
-            <div class="form-text">
+            <div class="gizmo-field-help">
                 {{ $t("slackIncludeGroupNameDescription") }}
             </div>
         </div>
 
-        <div class="mb-3">
-            <div class="form-check form-switch">
-                <input v-model="$parent.notification.slackUseTemplate" class="form-check-input" type="checkbox" />
-                <label class="form-check-label">{{ $t("slackUseTemplate") }}</label>
+        <div class="tw-mb-3">
+            <div class="gizmo-native-check gizmo-native-switch">
+                <input v-model="$parent.notification.slackUseTemplate" class="gizmo-native-check__input" type="checkbox" />
+                <label class="gizmo-native-check__label">{{ $t("slackUseTemplate") }}</label>
             </div>
-            <div class="form-text">
+            <div class="gizmo-field-help">
                 {{ $t("slackUseTemplateDescription") }}
             </div>
         </div>
 
         <template v-if="$parent.notification.slackUseTemplate">
-            <div class="mb-3">
-                <label class="form-label" for="slack-message-template">{{ $t("Message Template") }}</label>
+            <div class="tw-mb-3">
+                <label class="gizmo-field-label" for="slack-message-template">{{ $t("Message Template") }}</label>
                 <TemplatedTextarea
                     id="slack-message-template"
                     v-model="$parent.notification.slackTemplate"
@@ -69,7 +69,7 @@
             </div>
         </template>
 
-        <div class="form-text">
+        <div class="gizmo-field-help">
             <span style="color: red"><sup>*</sup></span>
             {{ $t("Required") }}
             <i18n-t tag="p" keypath="aboutWebhooks" style="margin-top: 8px">
@@ -90,16 +90,16 @@
             </i18n-t>
         </div>
 
-        <div class="form-check form-switch">
+        <div class="gizmo-native-check gizmo-native-switch">
             <input
                 id="slack-channel-notify"
                 v-model="$parent.notification.slackchannelnotify"
                 type="checkbox"
-                class="form-check-input"
+                class="gizmo-native-check__input"
             />
-            <label for="slack-channel-notify" class="form-label">{{ $t("Notify Channel") }}</label>
+            <label for="slack-channel-notify" class="gizmo-field-label">{{ $t("Notify Channel") }}</label>
         </div>
-        <div class="form-text">
+        <div class="gizmo-field-help">
             {{ $t("aboutNotifyChannel") }}
         </div>
     </div>

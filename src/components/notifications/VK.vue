@@ -1,6 +1,6 @@
 <template>
-    <div class="mb-3">
-        <label for="vk-access-token" class="form-label">{{ $t("Access Token") }}</label>
+    <div class="tw-mb-3">
+        <label for="vk-access-token" class="gizmo-field-label">{{ $t("Access Token") }}</label>
         <HiddenInput
             id="vk-access-token"
             v-model="$parent.notification.vkAccessToken"
@@ -9,34 +9,34 @@
         ></HiddenInput>
     </div>
 
-    <div class="mb-3">
-        <label for="vk-api-version" class="form-label">{{ $t("API Version") }}</label>
+    <div class="tw-mb-3">
+        <label for="vk-api-version" class="gizmo-field-label">{{ $t("API Version") }}</label>
         <input
             id="vk-api-version"
             v-model="$parent.notification.vkApiVersion"
             type="text"
-            class="form-control"
+            class="gizmo-native-control"
             required
         />
-        <div class="form-text">
+        <div class="gizmo-field-help">
             {{ $t("vkApiVersionDescription") }}
         </div>
     </div>
 
-    <div class="mb-3">
-        <label for="vk-peer-id" class="form-label">{{ $t("Peer ID") }}</label>
-        <input id="vk-peer-id" v-model="$parent.notification.vkPeerId" type="text" class="form-control" required />
-        <div class="form-text">
+    <div class="tw-mb-3">
+        <label for="vk-peer-id" class="gizmo-field-label">{{ $t("Peer ID") }}</label>
+        <input id="vk-peer-id" v-model="$parent.notification.vkPeerId" type="text" class="gizmo-native-control" required />
+        <div class="gizmo-field-help">
             {{ $t("vkPeerIdDescription") }}
         </div>
     </div>
 
-    <div class="mb-3">
-        <div class="form-check form-switch">
-            <input v-model="$parent.notification.vkDontParseLinks" class="form-check-input" type="checkbox" />
-            <label class="form-check-label">{{ $t("vkDontParseLinks") }}</label>
+    <div class="tw-mb-3">
+        <div class="gizmo-native-check gizmo-native-switch">
+            <input v-model="$parent.notification.vkDontParseLinks" class="gizmo-native-check__input" type="checkbox" />
+            <label class="gizmo-native-check__label">{{ $t("vkDontParseLinks") }}</label>
         </div>
-        <div class="form-text">
+        <div class="gizmo-field-help">
             {{ $t("vkDontParseLinksDescription") }}
         </div>
     </div>

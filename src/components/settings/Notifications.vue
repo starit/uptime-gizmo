@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div class="notification-list my-4">
+        <div class="notification-list tw-my-4">
             <p v-if="$root.notificationList.length === 0">
                 {{ $t("Not available, please setup.") }}
             </p>
@@ -8,66 +8,66 @@
                 {{ $t("notificationDescription") }}
             </p>
 
-            <ul class="list-group mb-3" style="border-radius: 1rem">
-                <li v-for="(notification, index) in $root.notificationList" :key="index" class="list-group-item">
+            <ul class="gizmo-list-group tw-mb-3" style="border-radius: 1rem">
+                <li v-for="(notification, index) in $root.notificationList" :key="index" class="gizmo-list-group__item">
                     {{ notification.name }}
                     <br />
                     <a href="#" @click="$refs.notificationDialog.show(notification.id)">{{ $t("Edit") }}</a>
                 </li>
             </ul>
 
-            <button class="btn btn-primary me-2" type="button" @click="$refs.notificationDialog.show()">
+            <button class="gizmo-native-button gizmo-native-button--primary tw-me-2" type="button" @click="$refs.notificationDialog.show()">
                 {{ $t("Setup Notification") }}
             </button>
         </div>
 
-        <div class="my-4 pt-4">
-            <h5 class="my-4 settings-subheading">{{ $t("monitorToastMessagesLabel") }}</h5>
+        <div class="tw-my-4 tw-pt-4">
+            <h5 class="tw-my-4 settings-subheading">{{ $t("monitorToastMessagesLabel") }}</h5>
             <p>{{ $t("monitorToastMessagesDescription") }}</p>
 
-            <div class="my-4">
-                <label for="toastErrorTimeoutSecs" class="form-label">
+            <div class="tw-my-4">
+                <label for="toastErrorTimeoutSecs" class="gizmo-field-label">
                     {{ $t("toastErrorTimeout") }}
                 </label>
                 <input
                     id="toastErrorTimeoutSecs"
                     v-model="toastErrorTimeoutSecs"
                     type="number"
-                    class="form-control"
+                    class="gizmo-native-control"
                     min="-1"
                     step="1"
                 />
             </div>
 
-            <div class="my-4">
-                <label for="toastSuccessTimeoutSecs" class="form-label">
+            <div class="tw-my-4">
+                <label for="toastSuccessTimeoutSecs" class="gizmo-field-label">
                     {{ $t("toastSuccessTimeout") }}
                 </label>
                 <input
                     id="toastSuccessTimeoutSecs"
                     v-model="toastSuccessTimeoutSecs"
                     type="number"
-                    class="form-control"
+                    class="gizmo-native-control"
                     min="-1"
                     step="1"
                 />
             </div>
         </div>
 
-        <div class="my-4 pt-4">
-            <h5 class="my-4 settings-subheading">{{ $t("settingsCertificateExpiry") }}</h5>
+        <div class="tw-my-4 tw-pt-4">
+            <h5 class="tw-my-4 settings-subheading">{{ $t("settingsCertificateExpiry") }}</h5>
             <p>{{ $t("certificationExpiryDescription") }}</p>
             <p>{{ $t("notificationDescription") }}</p>
-            <div class="mt-1 mb-3 ps-2 cert-exp-days col-12 col-xl-6">
+            <div class="tw-mt-1 tw-mb-3 tw-ps-2 cert-exp-days notification-setting-column">
                 <div
                     v-for="day in settings.tlsExpiryNotifyDays"
                     :key="day"
-                    class="d-flex align-items-center justify-content-between cert-exp-day-row py-2"
+                    class="tw-flex tw-items-center tw-justify-between cert-exp-day-row tw-py-2"
                 >
                     <span>{{ $t("days", day) }}</span>
                     <button
                         type="button"
-                        class="btn-rm-expiry btn btn-outline-danger ms-2 py-1"
+                        class="btn-rm-expiry gizmo-native-button gizmo-native-button--danger-outline tw-ms-2 tw-py-1"
                         :aria-label="$t('Remove the expiry notification')"
                         @click="removeTlsExpiryNotifDay(day)"
                     >
@@ -75,7 +75,7 @@
                     </button>
                 </div>
             </div>
-            <div class="col-12 col-xl-6">
+            <div class="notification-setting-column">
                 <ActionInput
                     v-model="tlsExpiryNotifInput"
                     :type="'number'"
@@ -86,26 +86,26 @@
                 />
             </div>
             <div>
-                <button class="btn btn-primary" type="button" @click="saveSettings()">
+                <button class="gizmo-native-button gizmo-native-button--primary" type="button" @click="saveSettings()">
                     {{ $t("Save") }}
                 </button>
             </div>
         </div>
 
-        <div class="my-4 pt-4">
-            <h5 class="my-4 settings-subheading">{{ $t("settingsDomainExpiry") }}</h5>
+        <div class="tw-my-4 tw-pt-4">
+            <h5 class="tw-my-4 settings-subheading">{{ $t("settingsDomainExpiry") }}</h5>
             <p>{{ $t("domainExpiryDescription") }}</p>
             <p>{{ $t("notificationDescription") }}</p>
-            <div class="mt-1 mb-3 ps-2 cert-exp-days col-12 col-xl-6">
+            <div class="tw-mt-1 tw-mb-3 tw-ps-2 cert-exp-days notification-setting-column">
                 <div
                     v-for="day in settings.domainExpiryNotifyDays"
                     :key="day"
-                    class="d-flex align-items-center justify-content-between cert-exp-day-row py-2"
+                    class="tw-flex tw-items-center tw-justify-between cert-exp-day-row tw-py-2"
                 >
                     <span>{{ $t("days", day) }}</span>
                     <button
                         type="button"
-                        class="btn-rm-expiry btn btn-outline-danger ms-2 py-1"
+                        class="btn-rm-expiry gizmo-native-button gizmo-native-button--danger-outline tw-ms-2 tw-py-1"
                         :aria-label="$t('Remove the expiry notification')"
                         @click="removeDomainExpiryNotifDay(day)"
                     >
@@ -113,7 +113,7 @@
                     </button>
                 </div>
             </div>
-            <div class="col-12 col-xl-6">
+            <div class="notification-setting-column">
                 <ActionInput
                     v-model="domainExpiryNotifInput"
                     :type="'number'"
@@ -124,7 +124,7 @@
                 />
             </div>
             <div>
-                <button class="btn btn-primary" type="button" @click="saveSettings()">
+                <button class="gizmo-native-button gizmo-native-button--primary" type="button" @click="saveSettings()">
                     {{ $t("Save") }}
                 </button>
             </div>
@@ -276,6 +276,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.notification-setting-column { width: min(100%, 40rem); }
 .btn-rm-expiry {
     padding-left: 0.7rem;
     padding-right: 0.7rem;

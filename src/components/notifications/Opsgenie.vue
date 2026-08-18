@@ -1,16 +1,16 @@
 <template>
-    <div class="mb-3">
-        <label for="opsgenie-region" class="form-label">
+    <div class="tw-mb-3">
+        <label for="opsgenie-region" class="gizmo-field-label">
             {{ $t("Region") }}
             <span style="color: red"><sup>*</sup></span>
         </label>
-        <select id="opsgenie-region" v-model="$parent.notification.opsgenieRegion" class="form-select" required>
+        <select id="opsgenie-region" v-model="$parent.notification.opsgenieRegion" class="gizmo-native-control gizmo-native-select" required>
             <option value="us">US (Default)</option>
             <option value="eu">EU</option>
         </select>
     </div>
-    <div class="mb-3">
-        <label for="opsgenie-apikey" class="form-label">
+    <div class="tw-mb-3">
+        <label for="opsgenie-apikey" class="gizmo-field-label">
             {{ $t("API Key") }}
             <span style="color: red"><sup>*</sup></span>
         </label>
@@ -21,19 +21,19 @@
             autocomplete="false"
         ></HiddenInput>
     </div>
-    <div class="mb-3">
-        <label for="opsgenie-priority" class="form-label">{{ $t("Priority") }}</label>
+    <div class="tw-mb-3">
+        <label for="opsgenie-priority" class="gizmo-field-label">{{ $t("Priority") }}</label>
         <input
             id="opsgenie-priority"
             v-model="$parent.notification.opsgeniePriority"
             type="number"
-            class="form-control"
+            class="gizmo-native-control"
             min="1"
             max="5"
             step="1"
         />
     </div>
-    <div class="form-text">
+    <div class="gizmo-field-help">
         <span style="color: red"><sup>*</sup></span>
         {{ $t("Required") }}
         <i18n-t tag="p" keypath="aboutWebhooks" style="margin-top: 8px">

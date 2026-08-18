@@ -1,20 +1,20 @@
 <template>
-    <div class="mb-3">
-        <label for="nostr-relays" class="form-label">
+    <div class="tw-mb-3">
+        <label for="nostr-relays" class="gizmo-field-label">
             {{ $t("nostrRelays") }}
             <span style="color: red"><sup>*</sup></span>
         </label>
         <textarea
             id="nostr-relays"
             v-model="$parent.notification.relays"
-            class="form-control"
+            class="gizmo-native-control"
             :required="true"
             placeholder="wss://127.0.0.1:7777/"
         ></textarea>
-        <small class="form-text text-muted">{{ $t("nostrRelaysHelp") }}</small>
+        <small class="gizmo-field-help tw-text-content-muted">{{ $t("nostrRelaysHelp") }}</small>
     </div>
-    <div class="mb-3">
-        <label for="nostr-sender" class="form-label">
+    <div class="tw-mb-3">
+        <label for="nostr-sender" class="gizmo-field-label">
             {{ $t("nostrSender") }}
             <span style="color: red"><sup>*</sup></span>
         </label>
@@ -25,19 +25,19 @@
             :required="true"
         ></HiddenInput>
     </div>
-    <div class="mb-3">
-        <label for="nostr-recipients" class="form-label">
+    <div class="tw-mb-3">
+        <label for="nostr-recipients" class="gizmo-field-label">
             {{ $t("nostrRecipients") }}
             <span style="color: red"><sup>*</sup></span>
         </label>
         <textarea
             id="nostr-recipients"
             v-model="$parent.notification.recipients"
-            class="form-control"
+            class="gizmo-native-control"
             :required="true"
             placeholder="npub123...&#10;npub789..."
         ></textarea>
-        <small class="form-text text-muted">{{ $t("nostrRecipientsHelp") }}</small>
+        <small class="gizmo-field-help tw-text-content-muted">{{ $t("nostrRecipientsHelp") }}</small>
     </div>
 </template>
 

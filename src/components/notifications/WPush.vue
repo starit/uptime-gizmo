@@ -1,6 +1,6 @@
 <template>
-    <div class="mb-3">
-        <label for="wpush-apikey" class="form-label">WPush {{ $t("API Key") }}</label>
+    <div class="tw-mb-3">
+        <label for="wpush-apikey" class="gizmo-field-label">WPush {{ $t("API Key") }}</label>
         <HiddenInput
             id="wpush-apikey"
             v-model="$parent.notification.wpushAPIkey"
@@ -10,9 +10,9 @@
         ></HiddenInput>
     </div>
 
-    <div class="mb-3">
-        <label for="wpush-channel" class="form-label">发送通道</label>
-        <select id="wpush-channel" v-model="$parent.notification.wpushChannel" class="form-select" required>
+    <div class="tw-mb-3">
+        <label for="wpush-channel" class="gizmo-field-label">发送通道</label>
+        <select id="wpush-channel" v-model="$parent.notification.wpushChannel" class="gizmo-native-control gizmo-native-select" required>
             <option value="wechat">微信</option>
             <option value="sms">短信</option>
             <option value="mail">邮件</option>

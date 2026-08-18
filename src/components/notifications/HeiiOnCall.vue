@@ -1,6 +1,6 @@
 <template>
-    <div class="mb-3">
-        <label for="heiioncall-apikey" class="form-label">
+    <div class="tw-mb-3">
+        <label for="heiioncall-apikey" class="gizmo-field-label">
             {{ $t("API Key") }}
             <span style="color: red"><sup>*</sup></span>
         </label>
@@ -11,8 +11,8 @@
             autocomplete="false"
         ></HiddenInput>
     </div>
-    <div class="mb-3">
-        <label for="heiioncall-trigger-id" class="form-label">
+    <div class="tw-mb-3">
+        <label for="heiioncall-trigger-id" class="gizmo-field-label">
             Trigger ID
             <span style="color: red"><sup>*</sup></span>
         </label>
@@ -23,7 +23,7 @@
             autocomplete="false"
         ></HiddenInput>
     </div>
-    <i18n-t tag="p" keypath="wayToGetHeiiOnCallDetails" class="form-text mt-3">
+    <i18n-t tag="p" keypath="wayToGetHeiiOnCallDetails" class="gizmo-field-help tw-mt-3">
         <template #documentation>
             <a href="https://heiioncall.com/docs" target="_blank">{{ $t("documentationOf", ["Heii On-Call"]) }}</a>
         </template>

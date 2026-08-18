@@ -1,6 +1,6 @@
 <template>
-    <div class="mb-3">
-        <label for="pushbullet-access-token" class="form-label">{{ $t("Access Token") }}</label>
+    <div class="tw-mb-3">
+        <label for="pushbullet-access-token" class="gizmo-field-label">{{ $t("Access Token") }}</label>
         <HiddenInput
             id="pushbullet-access-token"
             v-model="$parent.notification.pushbulletAccessToken"

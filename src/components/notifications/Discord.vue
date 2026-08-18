@@ -1,6 +1,6 @@
 <template>
-    <div class="mb-3">
-        <label for="discord-webhook-url" class="form-label">{{ $t("Discord Webhook URL") }}</label>
+    <div class="tw-mb-3">
+        <label for="discord-webhook-url" class="gizmo-field-label">{{ $t("Discord Webhook URL") }}</label>
         <HiddenInput
             id="discord-webhook-url"
             v-model="$parent.notification.discordWebhookUrl"
@@ -8,38 +8,38 @@
             required
             autocomplete="false"
         />
-        <div class="form-text">
+        <div class="gizmo-field-help">
             {{ $t("wayToGetDiscordURL") }}
         </div>
     </div>
 
-    <div class="mb-3">
-        <label for="discord-username" class="form-label">{{ $t("Bot Display Name") }}</label>
+    <div class="tw-mb-3">
+        <label for="discord-username" class="gizmo-field-label">{{ $t("Bot Display Name") }}</label>
         <input
             id="discord-username"
             v-model="$parent.notification.discordUsername"
             type="text"
-            class="form-control"
+            class="gizmo-native-control"
             autocomplete="false"
             :placeholder="$root.appName"
         />
     </div>
 
-    <div class="mb-3">
-        <label for="discord-prefix-message" class="form-label">{{ $t("Prefix Custom Message") }}</label>
+    <div class="tw-mb-3">
+        <label for="discord-prefix-message" class="gizmo-field-label">{{ $t("Prefix Custom Message") }}</label>
         <input
             id="discord-prefix-message"
             v-model="$parent.notification.discordPrefixMessage"
             type="text"
-            class="form-control"
+            class="gizmo-native-control"
             autocomplete="false"
             :placeholder="$t('Hello @everyone is...')"
         />
     </div>
 
-    <div class="mb-3">
-        <label for="discord-message-format" class="form-label">{{ $t("discordMessageFormat") }}</label>
-        <select id="discord-message-format" v-model="$parent.notification.discordMessageFormat" class="form-select">
+    <div class="tw-mb-3">
+        <label for="discord-message-format" class="gizmo-field-label">{{ $t("discordMessageFormat") }}</label>
+        <select id="discord-message-format" v-model="$parent.notification.discordMessageFormat" class="gizmo-native-control gizmo-native-select">
             <option value="normal">{{ $t("discordMessageFormatNormal") }}</option>
             <option value="minimalist">{{ $t("discordMessageFormatMinimalist") }}</option>
             <option value="custom">{{ $t("discordMessageFormatCustom") }}</option>
@@ -47,21 +47,21 @@
     </div>
 
     <div v-show="$parent.notification.discordMessageFormat === 'custom'">
-        <div class="mb-3">
-            <label for="discord-message-template" class="form-label">{{ $t("discordMessageTemplate") }}</label>
+        <div class="tw-mb-3">
+            <label for="discord-message-template" class="gizmo-field-label">{{ $t("discordMessageTemplate") }}</label>
             <TemplatedTextarea
                 id="discord-message-template"
                 v-model="$parent.notification.discordMessageTemplate"
                 :required="false"
                 placeholder=""
             ></TemplatedTextarea>
-            <div class="form-text">{{ $t("discordUseMessageTemplateDescription") }}</div>
+            <div class="gizmo-field-help">{{ $t("discordUseMessageTemplateDescription") }}</div>
         </div>
     </div>
 
-    <div class="mb-3">
-        <label for="discord-message-type" class="form-label">{{ $t("Select message type") }}</label>
-        <select id="discord-message-type" v-model="$parent.notification.discordChannelType" class="form-select">
+    <div class="tw-mb-3">
+        <label for="discord-message-type" class="gizmo-field-label">{{ $t("Select message type") }}</label>
+        <select id="discord-message-type" v-model="$parent.notification.discordChannelType" class="gizmo-native-control gizmo-native-select">
             <option value="channel">{{ $t("Send to channel") }}</option>
             <option value="createNewForumPost">{{ $t("Create new forum post") }}</option>
             <option value="postToThread">{{ $t("postToExistingThread") }}</option>
@@ -69,36 +69,36 @@
     </div>
 
     <div v-if="$parent.notification.discordChannelType === 'createNewForumPost'">
-        <div class="mb-3">
-            <label for="discord-target" class="form-label">
+        <div class="tw-mb-3">
+            <label for="discord-target" class="gizmo-field-label">
                 {{ $t("forumPostName") }}
             </label>
             <input
                 id="discord-target"
                 v-model="$parent.notification.postName"
                 type="text"
-                class="form-control"
+                class="gizmo-native-control"
                 autocomplete="false"
             />
-            <div class="form-text">
+            <div class="gizmo-field-help">
                 {{ $t("whatHappensAtForumPost", { option: $t("postToExistingThread") }) }}
             </div>
         </div>
     </div>
     <div v-if="$parent.notification.discordChannelType === 'postToThread'">
-        <div class="mb-3">
-            <label for="discord-target" class="form-label">
+        <div class="tw-mb-3">
+            <label for="discord-target" class="gizmo-field-label">
                 {{ $t("threadForumPostID") }}
             </label>
             <input
                 id="discord-target"
                 v-model="$parent.notification.threadId"
                 type="text"
-                class="form-control"
+                class="gizmo-native-control"
                 autocomplete="false"
                 :placeholder="$t('e.g. {discordThreadID}', { discordThreadID: 1177566663751782411 })"
             />
-            <div class="form-text">
+            <div class="gizmo-field-help">
                 <i18n-t keypath="wayToGetDiscordThreadId">
                     <a
                         href="https://support.discord.com/hc/en-us/articles/206346498-Where-can-I-find-my-User-Server-Message-ID-"
@@ -111,33 +111,33 @@
         </div>
     </div>
 
-    <div class="mb-3">
-        <div class="form-check form-switch">
+    <div class="tw-mb-3">
+        <div class="gizmo-native-check gizmo-native-switch">
             <input
                 id="discord-disable-url"
                 v-model="$parent.notification.disableUrl"
-                class="form-check-input"
+                class="gizmo-native-check__input"
                 type="checkbox"
                 role="switch"
             />
-            <label class="form-check-label" for="discord-disable-url">{{ $t("Disable URL in Notification") }}</label>
+            <label class="gizmo-native-check__label" for="discord-disable-url">{{ $t("Disable URL in Notification") }}</label>
         </div>
     </div>
 
-    <div class="mb-3">
-        <div class="form-check form-switch">
+    <div class="tw-mb-3">
+        <div class="gizmo-native-check gizmo-native-switch">
             <input
                 id="discord-suppress-notifications"
                 v-model="$parent.notification.discordSuppressNotifications"
-                class="form-check-input"
+                class="gizmo-native-check__input"
                 type="checkbox"
                 role="switch"
             />
-            <label class="form-check-label" for="discord-suppress-notifications">
+            <label class="gizmo-native-check__label" for="discord-suppress-notifications">
                 {{ $t("Suppress Notifications") }}
             </label>
         </div>
-        <div class="form-text">
+        <div class="gizmo-field-help">
             {{ $t("discordSuppressNotificationsHelptext") }}
         </div>
     </div>

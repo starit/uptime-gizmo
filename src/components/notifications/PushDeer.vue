@@ -1,17 +1,17 @@
 <template>
-    <div class="mb-3">
-        <label for="pushdeer-server" class="form-label">{{ $t("PushDeer Server URL") }}</label>
+    <div class="tw-mb-3">
+        <label for="pushdeer-server" class="gizmo-field-label">{{ $t("PushDeer Server URL") }}</label>
         <input
             id="pushdeer-server"
             v-model="$parent.notification.pushdeerServer"
             type="text"
-            class="form-control"
+            class="gizmo-native-control"
             placeholder="https://api2.pushdeer.com"
         />
-        <div class="form-text">{{ $t("pushDeerServerDescription") }}</div>
+        <div class="gizmo-field-help">{{ $t("pushDeerServerDescription") }}</div>
     </div>
-    <div class="mb-3">
-        <label for="pushdeer-key" class="form-label">{{ $t("PushDeer Key") }}</label>
+    <div class="tw-mb-3">
+        <label for="pushdeer-key" class="gizmo-field-label">{{ $t("PushDeer Key") }}</label>
         <HiddenInput
             id="pushdeer-key"
             v-model="$parent.notification.pushdeerKey"

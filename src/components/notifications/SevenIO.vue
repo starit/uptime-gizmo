@@ -1,41 +1,41 @@
 <template>
-    <div class="mb-3">
-        <label for="sevenio-api-key" class="form-label">{{ $t("apiKeySevenIO") }}</label>
+    <div class="tw-mb-3">
+        <label for="sevenio-api-key" class="gizmo-field-label">{{ $t("apiKeySevenIO") }}</label>
         <HiddenInput
             id="sevenio-api-key"
             v-model="$parent.notification.sevenioApiKey"
             :required="true"
             autocomplete="new-password"
         ></HiddenInput>
-        <div class="form-text">
+        <div class="gizmo-field-help">
             {{ $t("wayToGetSevenIOApiKey") }}
         </div>
     </div>
 
-    <div class="mb-3">
-        <label for="sevenio-sender" class="form-label">{{ $t("senderSevenIO") }}</label>
+    <div class="tw-mb-3">
+        <label for="sevenio-sender" class="gizmo-field-label">{{ $t("senderSevenIO") }}</label>
         <input
             id="sevenio-sender"
             v-model="$parent.notification.sevenioSender"
             type="text"
-            class="form-control"
+            class="gizmo-native-control"
             autocomplete="false"
             placeholder="Uptime Gizmo"
         />
     </div>
 
-    <div class="mb-3">
-        <label for="sevenio-receiver" class="form-label">{{ $t("receiverSevenIO") }}</label>
+    <div class="tw-mb-3">
+        <label for="sevenio-receiver" class="gizmo-field-label">{{ $t("receiverSevenIO") }}</label>
         <input
             id="sevenio-receiver"
             v-model="$parent.notification.sevenioReceiver"
             type="number"
-            class="form-control"
+            class="gizmo-native-control"
             required
             autocomplete="false"
             placeholder="0123456789"
         />
-        <div class="form-text">
+        <div class="gizmo-field-help">
             {{ $t("receiverInfoSevenIO") }}
         </div>
     </div>

@@ -1,28 +1,28 @@
 <template>
-    <div class="mb-3">
-        <label for="kook-bot-token" class="form-label">{{ $t("Bot Token") }}</label>
+    <div class="tw-mb-3">
+        <label for="kook-bot-token" class="gizmo-field-label">{{ $t("Bot Token") }}</label>
         <HiddenInput
             id="kook-bot-token"
             v-model="$parent.notification.kookBotToken"
             :required="true"
             autocomplete="new-password"
         ></HiddenInput>
-        <i18n-t tag="div" keypath="wayToGetKookBotToken" class="form-text">
+        <i18n-t tag="div" keypath="wayToGetKookBotToken" class="gizmo-field-help">
             <a href="https://developer.kookapp.cn/bot" target="_blank">https://developer.kookapp.cn/bot</a>
         </i18n-t>
     </div>
 
-    <div class="mb-3">
-        <label for="kook-guild-id" class="form-label">{{ $t("Guild ID") }}</label>
+    <div class="tw-mb-3">
+        <label for="kook-guild-id" class="gizmo-field-label">{{ $t("Guild ID") }}</label>
         <input
             id="kook-guild-id"
             v-model="$parent.notification.kookGuildID"
             type="text"
-            class="form-control"
+            class="gizmo-native-control"
             required
         />
 
-        <div class="form-text">
+        <div class="gizmo-field-help">
             <p style="margin-top: 8px">
                 {{ $t("wayToGetKookGuildID") }}
             </p>

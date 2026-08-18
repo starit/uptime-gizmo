@@ -1,6 +1,6 @@
 <template>
-    <div class="mb-3">
-        <label for="turbosmtp-consumer-key" class="form-label">{{ $t("turbosmtpConsumerKey") }}</label>
+    <div class="tw-mb-3">
+        <label for="turbosmtp-consumer-key" class="gizmo-field-label">{{ $t("turbosmtpConsumerKey") }}</label>
         <HiddenInput
             id="turbosmtp-consumer-key"
             v-model="$parent.notification.turbosmtpConsumerKey"
@@ -8,8 +8,8 @@
             autocomplete="new-password"
         ></HiddenInput>
     </div>
-    <div class="mb-3">
-        <label for="turbosmtp-consumer-secret" class="form-label">{{ $t("turbosmtpConsumerSecret") }}</label>
+    <div class="tw-mb-3">
+        <label for="turbosmtp-consumer-secret" class="gizmo-field-label">{{ $t("turbosmtpConsumerSecret") }}</label>
         <HiddenInput
             id="turbosmtp-consumer-secret"
             v-model="$parent.notification.turbosmtpConsumerSecret"
@@ -17,68 +17,68 @@
             autocomplete="new-password"
         ></HiddenInput>
     </div>
-    <div class="mb-3">
-        <label for="turbosmtp-region" class="form-label">{{ $t("Region") }}</label>
+    <div class="tw-mb-3">
+        <label for="turbosmtp-region" class="gizmo-field-label">{{ $t("Region") }}</label>
         <select
             id="turbosmtp-region"
             v-model="$parent.notification.turbosmtpRegion"
             :required="true"
-            class="form-select"
+            class="gizmo-native-control gizmo-native-select"
         >
             <option value="us">US (Default)</option>
             <option value="eu">EU</option>
         </select>
     </div>
-    <div class="mb-3">
-        <label for="turbosmtp-from-email" class="form-label">{{ $t("From Email") }}</label>
+    <div class="tw-mb-3">
+        <label for="turbosmtp-from-email" class="gizmo-field-label">{{ $t("From Email") }}</label>
         <input
             id="turbosmtp-from-email"
             v-model="$parent.notification.turbosmtpFromEmail"
             type="text"
-            class="form-control"
+            class="gizmo-native-control"
             required
         />
     </div>
-    <div class="mb-3">
-        <label for="turbosmtp-to-email" class="form-label">{{ $t("To Email") }}</label>
+    <div class="tw-mb-3">
+        <label for="turbosmtp-to-email" class="gizmo-field-label">{{ $t("To Email") }}</label>
         <input
             id="turbosmtp-to-email"
             v-model="$parent.notification.turbosmtpToEmail"
             type="text"
-            class="form-control"
+            class="gizmo-native-control"
             required
         />
-        <div class="form-text">{{ $t("Separate multiple email addresses with commas") }}</div>
+        <div class="gizmo-field-help">{{ $t("Separate multiple email addresses with commas") }}</div>
     </div>
-    <div class="mb-3">
-        <label for="turbosmtp-cc-email" class="form-label">{{ $t("smtpCC") }}</label>
+    <div class="tw-mb-3">
+        <label for="turbosmtp-cc-email" class="gizmo-field-label">{{ $t("smtpCC") }}</label>
         <input
             id="turbosmtp-cc-email"
             v-model="$parent.notification.turbosmtpCcEmail"
             type="text"
-            class="form-control"
+            class="gizmo-native-control"
         />
-        <div class="form-text">{{ $t("Separate multiple email addresses with commas") }}</div>
+        <div class="gizmo-field-help">{{ $t("Separate multiple email addresses with commas") }}</div>
     </div>
-    <div class="mb-3">
-        <label for="turbosmtp-bcc-email" class="form-label">{{ $t("smtpBCC") }}</label>
+    <div class="tw-mb-3">
+        <label for="turbosmtp-bcc-email" class="gizmo-field-label">{{ $t("smtpBCC") }}</label>
         <input
             id="turbosmtp-bcc-email"
             v-model="$parent.notification.turbosmtpBccEmail"
             type="text"
-            class="form-control"
+            class="gizmo-native-control"
         />
-        <div class="form-text">{{ $t("Separate multiple email addresses with commas") }}</div>
+        <div class="gizmo-field-help">{{ $t("Separate multiple email addresses with commas") }}</div>
     </div>
-    <div class="mb-3">
-        <label for="turbosmtp-subject" class="form-label">{{ $t("Subject:") }}</label>
+    <div class="tw-mb-3">
+        <label for="turbosmtp-subject" class="gizmo-field-label">{{ $t("Subject:") }}</label>
         <input
             id="turbosmtp-subject"
             v-model="$parent.notification.turbosmtpSubject"
             type="text"
-            class="form-control"
+            class="gizmo-native-control"
         />
-        <small class="form-text text-muted">{{ $t("leave blank for default subject") }}</small>
+        <small class="gizmo-field-help tw-text-content-muted">{{ $t("leave blank for default subject") }}</small>
     </div>
     <i18n-t tag="p" keypath="More info on:" style="margin-top: 8px">
         <a href="https://serversmtp.com/turbo-api/" target="_blank">https://serversmtp.com/turbo-api/</a>

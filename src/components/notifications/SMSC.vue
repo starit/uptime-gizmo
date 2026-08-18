@@ -1,13 +1,13 @@
 <template>
-    <div class="mb-3">
-        <label for="smsc-login" class="form-label">{{ $t("API Username") }}</label>
-        <i18n-t tag="div" class="form-text" keypath="wayToGetClickSendSMSToken">
+    <div class="tw-mb-3">
+        <label for="smsc-login" class="gizmo-field-label">{{ $t("API Username") }}</label>
+        <i18n-t tag="div" class="gizmo-field-help" keypath="wayToGetClickSendSMSToken">
             <template #here>
                 <a href="https://smsc.kz/" target="_blank">{{ $t("here") }}</a>
             </template>
         </i18n-t>
-        <input id="smsc-login" v-model="$parent.notification.smscLogin" type="text" class="form-control" required />
-        <label for="smsc-key" class="form-label">{{ $t("API Key") }}</label>
+        <input id="smsc-login" v-model="$parent.notification.smscLogin" type="text" class="gizmo-native-control" required />
+        <label for="smsc-key" class="gizmo-field-label">{{ $t("API Key") }}</label>
         <HiddenInput
             id="smsc-key"
             v-model="$parent.notification.smscPassword"
@@ -15,41 +15,41 @@
             autocomplete="new-password"
         ></HiddenInput>
     </div>
-    <div class="mb-3">
-        <i18n-t tag="div" keypath="checkPriceAt" class="form-text">
+    <div class="tw-mb-3">
+        <i18n-t tag="div" keypath="checkPriceAt" class="gizmo-field-help">
             <template #service>СМСЦ</template>
             <template #url>
                 <a href="https://smsc.kz/tariffs/" target="_blank">https://smsc.kz/tariffs/</a>
             </template>
         </i18n-t>
     </div>
-    <div class="mb-3">
-        <label for="smsc-to-number" class="form-label">{{ $t("Recipient Number") }}</label>
+    <div class="tw-mb-3">
+        <label for="smsc-to-number" class="gizmo-field-label">{{ $t("Recipient Number") }}</label>
         <input
             id="smsc-to-number"
             v-model="$parent.notification.smscToNumber"
             type="text"
             minlength="11"
-            class="form-control"
+            class="gizmo-native-control"
             required
         />
     </div>
-    <div class="mb-3">
-        <label for="smsc-sender-name" class="form-label">{{ $t("From Name/Number") }}</label>
+    <div class="tw-mb-3">
+        <label for="smsc-sender-name" class="gizmo-field-label">{{ $t("From Name/Number") }}</label>
         <input
             id="smsc-sender-name"
             v-model="$parent.notification.smscSenderName"
             type="text"
             minlength="1"
             maxlength="15"
-            class="form-control"
+            class="gizmo-native-control"
         />
-        <div class="form-text">{{ $t("Leave blank to use a shared sender number.") }}</div>
+        <div class="gizmo-field-help">{{ $t("Leave blank to use a shared sender number.") }}</div>
     </div>
-    <div class="mb-3">
-        <label for="smsc-platform" class="form-label">{{ $t("smscTranslit") }}</label>
+    <div class="tw-mb-3">
+        <label for="smsc-platform" class="gizmo-field-label">{{ $t("smscTranslit") }}</label>
         <span style="color: red"><sup>*</sup></span>
-        <select id="smsc-platform" v-model="$parent.notification.smscTranslit" class="form-select">
+        <select id="smsc-platform" v-model="$parent.notification.smscTranslit" class="gizmo-native-control gizmo-native-select">
             <option value="0">{{ $t("Default") }}</option>
             <option value="1">Translit</option>
             <option value="2">MpaHc/Ium</option>

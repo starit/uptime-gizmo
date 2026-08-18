@@ -1,45 +1,45 @@
 <template>
-    <div class="mb-3">
-        <label for="ntfy-ntfytopic" class="form-label">{{ $t("ntfy Topic") }}</label>
-        <input id="ntfy-ntfytopic" v-model="$parent.notification.ntfytopic" type="text" class="form-control" required />
+    <div class="tw-mb-3">
+        <label for="ntfy-ntfytopic" class="gizmo-field-label">{{ $t("ntfy Topic") }}</label>
+        <input id="ntfy-ntfytopic" v-model="$parent.notification.ntfytopic" type="text" class="gizmo-native-control" required />
     </div>
-    <div class="mb-3">
-        <label for="ntfy-server-url" class="form-label">{{ $t("Server URL") }}</label>
+    <div class="tw-mb-3">
+        <label for="ntfy-server-url" class="gizmo-field-label">{{ $t("Server URL") }}</label>
         <input
             id="ntfy-server-url"
             v-model="$parent.notification.ntfyserverurl"
             type="text"
-            class="form-control"
+            class="gizmo-native-control"
             required
         />
-        <div class="form-text">
+        <div class="gizmo-field-help">
             {{ $t("Server URL should not contain the nfty topic") }}
         </div>
     </div>
-    <div class="mb-3">
-        <label for="ntfy-priority" class="form-label">{{ $t("Priority") }}</label>
+    <div class="tw-mb-3">
+        <label for="ntfy-priority" class="gizmo-field-label">{{ $t("Priority") }}</label>
         <input
             id="ntfy-priority"
             v-model="$parent.notification.ntfyPriority"
             type="number"
-            class="form-control"
+            class="gizmo-native-control"
             required
             min="1"
             max="5"
             step="1"
         />
-        <label for="ntfy-priority-down" class="form-label">{{ $t("ntfyPriorityDown") }}</label>
+        <label for="ntfy-priority-down" class="gizmo-field-label">{{ $t("ntfyPriorityDown") }}</label>
         <input
             id="ntfy-priority-down"
             v-model="$parent.notification.ntfyPriorityDown"
             type="number"
-            class="form-control"
+            class="gizmo-native-control"
             required
             min="1"
             max="5"
             step="1"
         />
-        <div class="form-text">
+        <div class="gizmo-field-help">
             <p
                 v-if="
                     $parent.notification.ntfyPriority == $parent.notification.ntfyPriorityDown &&
@@ -63,84 +63,84 @@
             </i18n-t>
         </div>
     </div>
-    <div class="mb-3">
-        <label for="authentication-method" class="form-label">{{ $t("ntfyAuthenticationMethod") }}</label>
-        <select id="authentication-method" v-model="$parent.notification.ntfyAuthenticationMethod" class="form-select">
+    <div class="tw-mb-3">
+        <label for="authentication-method" class="gizmo-field-label">{{ $t("ntfyAuthenticationMethod") }}</label>
+        <select id="authentication-method" v-model="$parent.notification.ntfyAuthenticationMethod" class="gizmo-native-control gizmo-native-select">
             <option v-for="(name, type) in authenticationMethods" :key="type" :value="type">{{ name }}</option>
         </select>
     </div>
-    <div v-if="$parent.notification.ntfyAuthenticationMethod === 'usernamePassword'" class="mb-3">
-        <label for="ntfy-username" class="form-label">{{ $t("Username") }}</label>
-        <input id="ntfy-username" v-model="$parent.notification.ntfyusername" type="text" class="form-control" />
+    <div v-if="$parent.notification.ntfyAuthenticationMethod === 'usernamePassword'" class="tw-mb-3">
+        <label for="ntfy-username" class="gizmo-field-label">{{ $t("Username") }}</label>
+        <input id="ntfy-username" v-model="$parent.notification.ntfyusername" type="text" class="gizmo-native-control" />
     </div>
-    <div v-if="$parent.notification.ntfyAuthenticationMethod === 'usernamePassword'" class="mb-3">
-        <label for="ntfy-password" class="form-label">{{ $t("Password") }}</label>
+    <div v-if="$parent.notification.ntfyAuthenticationMethod === 'usernamePassword'" class="tw-mb-3">
+        <label for="ntfy-password" class="gizmo-field-label">{{ $t("Password") }}</label>
         <HiddenInput
             id="ntfy-password"
             v-model="$parent.notification.ntfypassword"
             autocomplete="new-password"
         ></HiddenInput>
     </div>
-    <div v-if="$parent.notification.ntfyAuthenticationMethod === 'accessToken'" class="mb-3">
-        <label for="ntfy-access-token" class="form-label">{{ $t("Access Token") }}</label>
+    <div v-if="$parent.notification.ntfyAuthenticationMethod === 'accessToken'" class="tw-mb-3">
+        <label for="ntfy-access-token" class="gizmo-field-label">{{ $t("Access Token") }}</label>
         <HiddenInput id="ntfy-access-token" v-model="$parent.notification.ntfyaccesstoken"></HiddenInput>
     </div>
-    <div class="mb-3">
-        <label for="ntfy-icon" class="form-label">{{ $t("IconUrl") }}</label>
-        <input id="ntfy-icon" v-model="$parent.notification.ntfyIcon" type="text" class="form-control" />
+    <div class="tw-mb-3">
+        <label for="ntfy-icon" class="gizmo-field-label">{{ $t("IconUrl") }}</label>
+        <input id="ntfy-icon" v-model="$parent.notification.ntfyIcon" type="text" class="gizmo-native-control" />
     </div>
-    <div class="mb-3">
-        <label for="ntfy-call" class="form-label">{{ $t("ntfyCall") }}</label>
+    <div class="tw-mb-3">
+        <label for="ntfy-call" class="gizmo-field-label">{{ $t("ntfyCall") }}</label>
         <input
             id="ntfy-call"
             v-model="$parent.notification.ntfyCall"
             type="text"
-            class="form-control"
+            class="gizmo-native-control"
             placeholder="yes or +12223334444"
         />
-        <div class="form-text">
+        <div class="gizmo-field-help">
             {{ $t("ntfyCallHelptext") }}
         </div>
     </div>
 
-    <div class="mb-3">
-        <div class="form-check form-switch">
+    <div class="tw-mb-3">
+        <div class="gizmo-native-check gizmo-native-switch">
             <input
                 id="ntfy-use-template"
                 v-model="$parent.notification.ntfyUseTemplate"
-                class="form-check-input"
+                class="gizmo-native-check__input"
                 type="checkbox"
             />
-            <label class="form-check-label" for="ntfy-use-template">
+            <label class="gizmo-native-check__label" for="ntfy-use-template">
                 {{ $t("ntfyUseTemplate") }}
             </label>
         </div>
-        <div class="form-text">
+        <div class="gizmo-field-help">
             {{ $t("ntfyUseTemplateDescription") }}
         </div>
     </div>
 
     <div v-show="$parent.notification.ntfyUseTemplate">
-        <div class="mb-3">
-            <label for="ntfy-title" class="form-label">{{ $t("ntfyCustomTitle") }}</label>
+        <div class="tw-mb-3">
+            <label for="ntfy-title" class="gizmo-field-label">{{ $t("ntfyCustomTitle") }}</label>
             <TemplatedInput
                 id="ntfy-title"
                 v-model="$parent.notification.ntfyCustomTitle"
                 :required="false"
                 placeholder=""
             ></TemplatedInput>
-            <div class="form-text">{{ $t("ntfyNotificationTemplateFallback") }}</div>
+            <div class="gizmo-field-help">{{ $t("ntfyNotificationTemplateFallback") }}</div>
         </div>
 
-        <div class="mb-3">
-            <label for="ntfy-message" class="form-label">{{ $t("ntfyCustomMessage") }}</label>
+        <div class="tw-mb-3">
+            <label for="ntfy-message" class="gizmo-field-label">{{ $t("ntfyCustomMessage") }}</label>
             <TemplatedTextarea
                 id="ntfy-message"
                 v-model="$parent.notification.ntfyCustomMessage"
                 :required="false"
                 placeholder=""
             ></TemplatedTextarea>
-            <div class="form-text">{{ $t("ntfyNotificationTemplateFallback") }}</div>
+            <div class="gizmo-field-help">{{ $t("ntfyNotificationTemplateFallback") }}</div>
         </div>
     </div>
 </template>

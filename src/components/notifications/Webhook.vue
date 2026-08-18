@@ -1,33 +1,33 @@
 <template>
-    <div class="mb-3">
-        <label for="webhook-url" class="form-label">{{ $t("Post URL") }}</label>
+    <div class="tw-mb-3">
+        <label for="webhook-url" class="gizmo-field-label">{{ $t("Post URL") }}</label>
         <input
             id="webhook-url"
             v-model="$parent.notification.webhookURL"
             type="url"
             pattern="https?://.+"
-            class="form-control"
+            class="gizmo-native-control"
             required
         />
     </div>
 
-    <div class="mb-3">
-        <label for="webhook-http-method" class="form-label">{{ $t("HTTP Method") }}</label>
-        <select id="webhook-http-method" v-model="$parent.notification.httpMethod" class="form-select">
+    <div class="tw-mb-3">
+        <label for="webhook-http-method" class="gizmo-field-label">{{ $t("HTTP Method") }}</label>
+        <select id="webhook-http-method" v-model="$parent.notification.httpMethod" class="gizmo-native-control gizmo-native-select">
             <option value="post">POST</option>
             <option value="get">GET</option>
         </select>
-        <div class="form-text">
+        <div class="gizmo-field-help">
             {{ $parent.notification.httpMethod === "get" ? $t("webhookGetMethodDesc") : $t("webhookPostMethodDesc") }}
         </div>
     </div>
 
-    <div v-if="$parent.notification.httpMethod === 'post'" class="mb-3">
-        <label for="webhook-request-body" class="form-label">{{ $t("Request Body") }}</label>
+    <div v-if="$parent.notification.httpMethod === 'post'" class="tw-mb-3">
+        <label for="webhook-request-body" class="gizmo-field-label">{{ $t("Request Body") }}</label>
         <select
             id="webhook-request-body"
             v-model="$parent.notification.webhookContentType"
-            class="form-select"
+            class="gizmo-native-control gizmo-native-select"
             required
         >
             <option value="json">{{ $t("webhookBodyPresetOption", ["application/json"]) }}</option>
@@ -35,14 +35,14 @@
             <option value="custom">{{ $t("webhookBodyCustomOption") }}</option>
         </select>
 
-        <div v-if="$parent.notification.webhookContentType == 'json'" class="form-text">
+        <div v-if="$parent.notification.webhookContentType == 'json'" class="gizmo-field-help">
             {{ $t("webhookJsonDesc", ['"application/json"']) }}
         </div>
         <i18n-t
             v-else-if="$parent.notification.webhookContentType == 'form-data'"
             tag="div"
             keypath="webhookFormDataDesc"
-            class="form-text"
+            class="gizmo-field-help"
         >
             <template #multipart>multipart/form-data"</template>
             <template #decodeFunction>
@@ -59,17 +59,17 @@
         </template>
     </div>
 
-    <div class="mb-3">
-        <div class="form-check form-switch">
-            <input v-model="showAdditionalHeadersField" class="form-check-input" type="checkbox" />
-            <label class="form-check-label">{{ $t("webhookAdditionalHeadersTitle") }}</label>
+    <div class="tw-mb-3">
+        <div class="gizmo-native-check gizmo-native-switch">
+            <input v-model="showAdditionalHeadersField" class="gizmo-native-check__input" type="checkbox" />
+            <label class="gizmo-native-check__label">{{ $t("webhookAdditionalHeadersTitle") }}</label>
         </div>
-        <div class="form-text">{{ $t("webhookAdditionalHeadersDesc") }}</div>
+        <div class="gizmo-field-help">{{ $t("webhookAdditionalHeadersDesc") }}</div>
         <textarea
             v-if="showAdditionalHeadersField"
             id="additionalHeaders"
             v-model="$parent.notification.webhookAdditionalHeaders"
-            class="form-control"
+            class="gizmo-native-control"
             :placeholder="headersPlaceholder"
             :required="showAdditionalHeadersField"
         ></textarea>

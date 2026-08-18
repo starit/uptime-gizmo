@@ -1,16 +1,16 @@
 <template>
-    <div class="mb-3">
-        <label for="cellsynt-login" class="form-label">{{ $t("Username") }}</label>
+    <div class="tw-mb-3">
+        <label for="cellsynt-login" class="gizmo-field-label">{{ $t("Username") }}</label>
         <input
             id="cellsynt-login"
             v-model="$parent.notification.cellsyntLogin"
             type="text"
-            class="form-control"
+            class="gizmo-native-control"
             required
         />
     </div>
-    <div class="mb-3">
-        <label for="cellsynt-key" class="form-label">{{ $t("Password") }}</label>
+    <div class="tw-mb-3">
+        <label for="cellsynt-key" class="gizmo-field-label">{{ $t("Password") }}</label>
         <HiddenInput
             id="cellsynt-key"
             v-model="$parent.notification.cellsyntPassword"
@@ -18,18 +18,18 @@
             autocomplete="new-password"
         ></HiddenInput>
     </div>
-    <div class="mb-3">
-        <label for="cellsynt-Originatortype" class="form-label">{{ $t("Originator type") }}</label>
+    <div class="tw-mb-3">
+        <label for="cellsynt-Originatortype" class="gizmo-field-label">{{ $t("Originator type") }}</label>
         <select
             id="cellsynt-Originatortype"
             v-model="$parent.notification.cellsyntOriginatortype"
             :required="true"
-            class="form-select"
+            class="gizmo-native-control gizmo-native-select"
         >
             <option value="alpha">{{ $t("Alphanumeric (recommended)") }}</option>
             <option value="numeric">{{ $t("Telephone number") }}</option>
         </select>
-        <div class="form-text">
+        <div class="gizmo-field-help">
             <p>
                 <b>{{ $t("Alphanumeric (recommended)") }}:</b>
                 <br />
@@ -42,8 +42,8 @@
             </p>
         </div>
     </div>
-    <div class="mb-3">
-        <label for="cellsynt-originator" class="form-label">
+    <div class="tw-mb-3">
+        <label for="cellsynt-originator" class="gizmo-field-label">
             {{ $t("Originator") }}
             <small>
                 ({{
@@ -58,7 +58,7 @@
             id="cellsynt-originator"
             v-model="$parent.notification.cellsyntOriginator"
             type="text"
-            class="form-control"
+            class="gizmo-native-control"
             pattern="[a-zA-Z0-9\s]+"
             maxlength="11"
             required
@@ -68,37 +68,37 @@
             id="cellsynt-originator"
             v-model="$parent.notification.cellsyntOriginator"
             type="number"
-            class="form-control"
+            class="gizmo-native-control"
             pattern="[0-9]+"
             maxlength="15"
             required
         />
-        <div class="form-text">
+        <div class="gizmo-field-help">
             <p>{{ $t("cellsyntOriginator") }}</p>
         </div>
     </div>
-    <div class="mb-3">
-        <label for="cellsynt-destination" class="form-label">{{ $t("Destination") }}</label>
+    <div class="tw-mb-3">
+        <label for="cellsynt-destination" class="gizmo-field-label">{{ $t("Destination") }}</label>
         <input
             id="cellsynt-destination"
             v-model="$parent.notification.cellsyntDestination"
             type="text"
-            class="form-control"
+            class="gizmo-native-control"
             required
         />
-        <div class="form-text">
+        <div class="gizmo-field-help">
             <p>{{ $t("cellsyntDestination") }}</p>
         </div>
     </div>
-    <div class="form-check form-switch">
+    <div class="gizmo-native-check gizmo-native-switch">
         <input
             id="cellsynt-allow-long"
             v-model="$parent.notification.cellsyntAllowLongSMS"
             type="checkbox"
-            class="form-check-input"
+            class="gizmo-native-check__input"
         />
-        <label for="cellsynt-allow-long" class="form-label">{{ $t("Allow Long SMS") }}</label>
-        <div class="form-text">{{ $t("cellsyntSplitLongMessages") }}</div>
+        <label for="cellsynt-allow-long" class="gizmo-field-label">{{ $t("Allow Long SMS") }}</label>
+        <div class="gizmo-field-help">{{ $t("cellsyntSplitLongMessages") }}</div>
     </div>
     <i18n-t tag="p" keypath="More info on:" style="margin-top: 8px">
         <a href="https://www.cellsynt.com/en/" target="_blank">https://www.cellsynt.com/en/</a>

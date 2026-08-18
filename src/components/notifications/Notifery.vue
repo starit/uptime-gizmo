@@ -1,6 +1,6 @@
 <template>
-    <div class="mb-3">
-        <label for="notifery-api-key" class="form-label">{{ $t("API Key") }}</label>
+    <div class="tw-mb-3">
+        <label for="notifery-api-key" class="gizmo-field-label">{{ $t("API Key") }}</label>
         <HiddenInput
             id="notifery-api-key"
             v-model="$parent.notification.notiferyApiKey"
@@ -9,24 +9,24 @@
         ></HiddenInput>
     </div>
 
-    <div class="mb-3">
-        <label for="notifery-title" class="form-label">{{ $t("Title") }}</label>
+    <div class="tw-mb-3">
+        <label for="notifery-title" class="gizmo-field-label">{{ $t("Title") }}</label>
         <input
             id="notifery-title"
             v-model="$parent.notification.notiferyTitle"
             type="text"
-            class="form-control"
+            class="gizmo-native-control"
             placeholder="Uptime Gizmo Alert"
         />
     </div>
 
-    <div class="mb-3">
-        <label for="notifery-group" class="form-label">{{ $t("Group") }}</label>
+    <div class="tw-mb-3">
+        <label for="notifery-group" class="gizmo-field-label">{{ $t("Group") }}</label>
         <input
             id="notifery-group"
             v-model="$parent.notification.notiferyGroup"
             type="text"
-            class="form-control"
+            class="gizmo-native-control"
             :placeholder="$t('Optional')"
         />
     </div>

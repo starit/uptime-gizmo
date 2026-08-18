@@ -1,62 +1,62 @@
 <template>
-    <div class="mb-3">
-        <label for="host-onesender" class="form-label">{{ $t("Host Onesender") }}</label>
+    <div class="tw-mb-3">
+        <label for="host-onesender" class="gizmo-field-label">{{ $t("Host Onesender") }}</label>
         <input
             id="host-onesender"
             v-model="$parent.notification.onesenderURL"
             type="url"
             placeholder="https://xxxxxxxxxxx.com/api/v1/messages"
             pattern="https?://.+"
-            class="form-control"
+            class="gizmo-native-control"
             required
         />
     </div>
 
-    <div class="mb-3">
-        <label for="receiver-onesender" class="form-label">{{ $t("Token Onesender") }}</label>
+    <div class="tw-mb-3">
+        <label for="receiver-onesender" class="gizmo-field-label">{{ $t("Token Onesender") }}</label>
         <HiddenInput
             id="receiver-onesender"
             v-model="$parent.notification.onesenderToken"
             :required="true"
             autocomplete="false"
         ></HiddenInput>
-        <i18n-t tag="div" keypath="wayToGetOnesenderUrlandToken" class="form-text">
+        <i18n-t tag="div" keypath="wayToGetOnesenderUrlandToken" class="gizmo-field-help">
             <a href="https://onesender.net/" target="_blank">{{ $t("here") }}</a>
         </i18n-t>
     </div>
 
-    <div class="mb-3">
-        <label for="webhook-request-body" class="form-label">{{ $t("Recipient Type") }}</label>
+    <div class="tw-mb-3">
+        <label for="webhook-request-body" class="gizmo-field-label">{{ $t("Recipient Type") }}</label>
         <select
             id="webhook-request-body"
             v-model="$parent.notification.onesenderTypeReceiver"
-            class="form-select"
+            class="gizmo-native-control gizmo-native-select"
             required
         >
             <option value="private">{{ $t("Private Number") }}</option>
             <option value="group">{{ $t("Group ID") }}</option>
         </select>
     </div>
-    <div v-if="$parent.notification.onesenderTypeReceiver == 'private'" class="form-text">
+    <div v-if="$parent.notification.onesenderTypeReceiver == 'private'" class="gizmo-field-help">
         {{ $t("privateOnesenderDesc", ['"application/json"']) }}
     </div>
-    <div v-else class="form-text">{{ $t("groupOnesenderDesc") }}</div>
-    <div class="mb-3">
+    <div v-else class="gizmo-field-help">{{ $t("groupOnesenderDesc") }}</div>
+    <div class="tw-mb-3">
         <input
             id="type-receiver-onesender"
             v-model="$parent.notification.onesenderReceiver"
             type="text"
             placeholder="628123456789 or 628123456789-34534"
-            class="form-control"
+            class="gizmo-native-control"
             required
         />
     </div>
-    <div class="mb-3">
+    <div class="tw-mb-3">
         <input
             id="type-receiver-onesender"
             v-model="computedReceiverResult"
             type="text"
-            class="form-control"
+            class="gizmo-native-control"
             disabled
         />
     </div>

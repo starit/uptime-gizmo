@@ -1,62 +1,62 @@
 <template>
-    <div class="mb-3">
-        <label for="octopush-version" class="form-label">{{ $t("Octopush API Version") }}</label>
-        <select id="octopush-version" v-model="$parent.notification.octopushVersion" class="form-select">
+    <div class="tw-mb-3">
+        <label for="octopush-version" class="gizmo-field-label">{{ $t("Octopush API Version") }}</label>
+        <select id="octopush-version" v-model="$parent.notification.octopushVersion" class="gizmo-native-control gizmo-native-select">
             <option value="2">{{ $t("octopushEndpoint", { url: "api.octopush.com" }) }}</option>
             <option value="1">{{ $t("legacyOctopushEndpoint", { url: "www.octopush-dm.com" }) }}</option>
         </select>
-        <div class="form-text">
+        <div class="gizmo-field-help">
             {{ $t("octopushLegacyHint") }}
         </div>
     </div>
-    <div class="mb-3">
-        <label for="octopush-key" class="form-label">{{ $t("octopushAPIKey") }}</label>
+    <div class="tw-mb-3">
+        <label for="octopush-key" class="gizmo-field-label">{{ $t("octopushAPIKey") }}</label>
         <HiddenInput
             id="octopush-key"
             v-model="$parent.notification.octopushAPIKey"
             :required="true"
             autocomplete="new-password"
         ></HiddenInput>
-        <label for="octopush-login" class="form-label">{{ $t("octopushLogin") }}</label>
+        <label for="octopush-login" class="gizmo-field-label">{{ $t("octopushLogin") }}</label>
         <input
             id="octopush-login"
             v-model="$parent.notification.octopushLogin"
             type="text"
-            class="form-control"
+            class="gizmo-native-control"
             required
         />
     </div>
-    <div class="mb-3">
-        <label for="octopush-type-sms" class="form-label">{{ $t("SMS Type") }}</label>
-        <select id="octopush-type-sms" v-model="$parent.notification.octopushSMSType" class="form-select">
+    <div class="tw-mb-3">
+        <label for="octopush-type-sms" class="gizmo-field-label">{{ $t("SMS Type") }}</label>
+        <select id="octopush-type-sms" v-model="$parent.notification.octopushSMSType" class="gizmo-native-control gizmo-native-select">
             <option value="sms_premium">{{ $t("octopushTypePremium") }}</option>
             <option value="sms_low_cost">{{ $t("octopushTypeLowCost") }}</option>
         </select>
-        <i18n-t tag="div" keypath="Check octopush prices" class="form-text">
+        <i18n-t tag="div" keypath="Check octopush prices" class="gizmo-field-help">
             <a href="https://octopush.com/tarifs-sms-international/" target="_blank">
                 https://octopush.com/tarifs-sms-international/
             </a>
         </i18n-t>
     </div>
-    <div class="mb-3">
-        <label for="octopush-phone-number" class="form-label">{{ $t("octopushPhoneNumber") }}</label>
+    <div class="tw-mb-3">
+        <label for="octopush-phone-number" class="gizmo-field-label">{{ $t("octopushPhoneNumber") }}</label>
         <input
             id="octopush-phone-number"
             v-model="$parent.notification.octopushPhoneNumber"
             type="text"
-            class="form-control"
+            class="gizmo-native-control"
             required
         />
     </div>
-    <div class="mb-3">
-        <label for="octopush-sender-name" class="form-label">{{ $t("octopushSMSSender") }}</label>
+    <div class="tw-mb-3">
+        <label for="octopush-sender-name" class="gizmo-field-label">{{ $t("octopushSMSSender") }}</label>
         <input
             id="octopush-sender-name"
             v-model="$parent.notification.octopushSenderName"
             type="text"
             minlength="3"
             maxlength="11"
-            class="form-control"
+            class="gizmo-native-control"
         />
     </div>
 

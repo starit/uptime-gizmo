@@ -1,13 +1,13 @@
 <template>
-    <div class="mb-3">
-        <label for="Bark API Version" class="form-label">{{ $t("Bark API Version") }}</label>
-        <select id="Bark API Version" v-model="$parent.notification.apiVersion" class="form-select" required>
+    <div class="tw-mb-3">
+        <label for="Bark API Version" class="gizmo-field-label">{{ $t("Bark API Version") }}</label>
+        <select id="Bark API Version" v-model="$parent.notification.apiVersion" class="gizmo-native-control gizmo-native-select" required>
             <option value="v1">v1</option>
             <option value="v2">v2</option>
         </select>
     </div>
-    <div class="mb-3">
-        <label for="Bark Endpoint" class="form-label">
+    <div class="tw-mb-3">
+        <label for="Bark Endpoint" class="gizmo-field-label">
             {{ $t("Bark Endpoint") }}
             <span style="color: red"><sup>*</sup></span>
         </label>
@@ -15,20 +15,20 @@
             id="Bark Endpoint"
             v-model="$parent.notification.barkEndpoint"
             type="text"
-            class="form-control"
+            class="gizmo-native-control"
             required
         />
-        <i18n-t tag="div" keypath="wayToGetTeamsURL" class="form-text">
+        <i18n-t tag="div" keypath="wayToGetTeamsURL" class="gizmo-field-help">
             <a href="https://github.com/Finb/Bark" target="_blank">{{ $t("here") }}</a>
         </i18n-t>
     </div>
-    <div class="mb-3">
-        <label for="Bark Group" class="form-label">{{ $t("Bark Group") }}</label>
-        <input id="Bark Group" v-model="$parent.notification.barkGroup" type="text" class="form-control" required />
+    <div class="tw-mb-3">
+        <label for="Bark Group" class="gizmo-field-label">{{ $t("Bark Group") }}</label>
+        <input id="Bark Group" v-model="$parent.notification.barkGroup" type="text" class="gizmo-native-control" required />
     </div>
-    <div class="mb-3">
-        <label for="Bark Sound" class="form-label">{{ $t("Bark Sound") }}</label>
-        <select id="Bark Sound" v-model="$parent.notification.barkSound" class="form-select" required>
+    <div class="tw-mb-3">
+        <label for="Bark Sound" class="gizmo-field-label">{{ $t("Bark Sound") }}</label>
+        <select id="Bark Sound" v-model="$parent.notification.barkSound" class="gizmo-native-control gizmo-native-select" required>
             <option value="alarm">alarm</option>
             <option value="anticipate">anticipate</option>
             <option value="bell">bell</option>

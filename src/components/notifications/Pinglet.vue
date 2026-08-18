@@ -1,6 +1,6 @@
 <template>
-    <div class="mb-3">
-        <label for="pinglet-publish-url" class="form-label">
+    <div class="tw-mb-3">
+        <label for="pinglet-publish-url" class="gizmo-field-label">
             {{ $t("Pinglet Topic URL") }}
             <span style="color: red"><sup>*</sup></span>
         </label>
@@ -8,17 +8,17 @@
             id="pinglet-publish-url"
             v-model="$parent.notification.pingletPublishUrl"
             type="url"
-            class="form-control"
+            class="gizmo-native-control"
             required
             autocomplete="false"
             placeholder="https://app.pinglet.co.uk/your-namespace/alerts"
         />
-        <div class="form-text">
+        <div class="gizmo-field-help">
             {{ $t("pingletTopicUrlDescription") }}
         </div>
     </div>
-    <div class="mb-3">
-        <label for="pinglet-api-key" class="form-label">
+    <div class="tw-mb-3">
+        <label for="pinglet-api-key" class="gizmo-field-label">
             {{ $t("API Key") }}
             <span style="color: red"><sup>*</sup></span>
         </label>

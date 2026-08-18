@@ -1,6 +1,6 @@
 <template>
-    <div class="mb-3">
-        <label for="google-sheets-webhook-url" class="form-label">{{ $t("Google Apps Script Webhook URL") }}</label>
+    <div class="tw-mb-3">
+        <label for="google-sheets-webhook-url" class="gizmo-field-label">{{ $t("Google Apps Script Webhook URL") }}</label>
         <HiddenInput
             id="google-sheets-webhook-url"
             v-model="$parent.notification.googleSheetsWebhookUrl"
@@ -8,12 +8,12 @@
             placeholder="https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec"
             autocomplete="off"
         />
-        <div class="form-text">
+        <div class="gizmo-field-help">
             <p>{{ $t("Deploy a Google Apps Script as a web app and paste the URL here") }}</p>
         </div>
     </div>
 
-    <div class="alert alert-info" style="border-radius: 8px">
+    <div class="gizmo-native-alert gizmo-native-alert--info" style="border-radius: 8px">
         <h6 style="margin-bottom: 12px; font-weight: 600">{{ $t("Quick Setup Guide") }}:</h6>
         <ol style="margin-bottom: 0; padding-left: 20px; line-height: 1.8">
             <li>{{ $t("Open your Google Spreadsheet") }}</li>
@@ -26,15 +26,15 @@
     </div>
 
     <ToggleSection :heading="$t('Google Apps Script Code')">
-        <div class="mb-3">
+        <div class="tw-mb-3">
             <textarea
                 readonly
-                class="form-control"
+                class="gizmo-native-control"
                 rows="15"
                 style="font-family: monospace; font-size: 12px"
                 :value="scriptCode"
             />
-            <button type="button" class="btn btn-outline-secondary btn-sm mt-2" @click="copyScript">
+            <button type="button" class="gizmo-native-button gizmo-native-button--secondary gizmo-native-button--sm tw-mt-2" @click="copyScript">
                 {{ $t("Copy to Clipboard") }}
             </button>
         </div>

@@ -1,44 +1,44 @@
 <template>
-    <div class="mb-3">
-        <label for="alerta-api-endpoint" class="form-label">{{ $t("alertaApiEndpoint") }}</label>
+    <div class="tw-mb-3">
+        <label for="alerta-api-endpoint" class="gizmo-field-label">{{ $t("alertaApiEndpoint") }}</label>
         <input
             id="alerta-api-endpoint"
             v-model="$parent.notification.alertaApiEndpoint"
             type="text"
-            class="form-control"
+            class="gizmo-native-control"
             required
         />
-        <label for="alerta-environment" class="form-label">{{ $t("alertaEnvironment") }}</label>
+        <label for="alerta-environment" class="gizmo-field-label">{{ $t("alertaEnvironment") }}</label>
         <input
             id="alerta-environment"
             v-model="$parent.notification.alertaEnvironment"
             type="text"
-            class="form-control"
+            class="gizmo-native-control"
             required
         />
-        <label for="alerta-api-key" class="form-label">{{ $t("alertaApiKey") }}</label>
+        <label for="alerta-api-key" class="gizmo-field-label">{{ $t("alertaApiKey") }}</label>
         <input
             id="alerta-api-key"
             v-model="$parent.notification.alertaApiKey"
             type="text"
-            class="form-control"
+            class="gizmo-native-control"
             required
         />
-        <label for="alerta-alert-state" class="form-label">{{ $t("alertaAlertState") }}</label>
+        <label for="alerta-alert-state" class="gizmo-field-label">{{ $t("alertaAlertState") }}</label>
         <input
             id="alerta-alert-state"
             v-model="$parent.notification.alertaAlertState"
             type="text"
-            class="form-control"
+            class="gizmo-native-control"
             placeholder="critical"
             required
         />
-        <label for="alerta-recover-state" class="form-label">{{ $t("alertaRecoverState") }}</label>
+        <label for="alerta-recover-state" class="gizmo-field-label">{{ $t("alertaRecoverState") }}</label>
         <input
             id="alerta-recover-state"
             v-model="$parent.notification.alertaRecoverState"
             type="text"
-            class="form-control"
+            class="gizmo-native-control"
             placeholder="cleared"
             required
         />

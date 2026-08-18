@@ -1,43 +1,43 @@
 <template>
-    <div class="mb-3">
-        <label for="360messenger-auth-token" class="form-label">{{ $t("360messengerAuthToken") }}</label>
+    <div class="tw-mb-3">
+        <label for="360messenger-auth-token" class="gizmo-field-label">{{ $t("360messengerAuthToken") }}</label>
         <HiddenInput
             id="360messenger-auth-token"
             v-model="$parent.notification.Whatsapp360messengerAuthToken"
             :required="true"
             autocomplete="new-password"
         ></HiddenInput>
-        <i18n-t tag="div" keypath="360messengerWayToGetUrlAndToken" class="form-text">
+        <i18n-t tag="div" keypath="360messengerWayToGetUrlAndToken" class="gizmo-field-help">
             <a href="https://360messenger.com/en/uptime-kuma" target="_blank">
                 https://360messenger.com/en/uptime-kuma
             </a>
         </i18n-t>
     </div>
 
-    <div class="mb-3">
-        <label for="360messenger-recipient" class="form-label">{{ $t("360messengerRecipient") }}</label>
+    <div class="tw-mb-3">
+        <label for="360messenger-recipient" class="gizmo-field-label">{{ $t("360messengerRecipient") }}</label>
         <input
             id="360messenger-recipient"
             v-model="$parent.notification.Whatsapp360messengerRecipient"
             type="text"
-            class="form-control"
+            class="gizmo-native-control"
             placeholder="447488888888, 447499999999"
             :required="!hasAnySelectedGroup"
         />
-        <div class="form-text">{{ $t("360messengerWayToWriteRecipient", ["447488888888"]) }}</div>
+        <div class="gizmo-field-help">{{ $t("360messengerWayToWriteRecipient", ["447488888888"]) }}</div>
     </div>
 
     <!-- Checkbox to enable/disable Combobox -->
-    <div class="mb-3 form-check form-switch">
-        <input id="360messenger-enable-options" v-model="isOptionsEnabled" type="checkbox" class="form-check-input" />
-        <label for="360messenger-enable-options" class="form-check-label">
+    <div class="tw-mb-3 gizmo-native-check gizmo-native-switch">
+        <input id="360messenger-enable-options" v-model="isOptionsEnabled" type="checkbox" class="gizmo-native-check__input" />
+        <label for="360messenger-enable-options" class="gizmo-native-check__label">
             {{ $t("360messengerEnableSendToGroup") }}
         </label>
     </div>
 
     <!-- Group selection using existing VueMultiselect -->
-    <div class="mb-3">
-        <label for="360messenger-group-list" class="form-label">
+    <div class="tw-mb-3">
+        <label for="360messenger-group-list" class="gizmo-field-label">
             {{ $t("360messengerGroupList") }}
         </label>
         <VueMultiselect
@@ -63,27 +63,27 @@
                 </div>
             </template>
         </VueMultiselect>
-        <div v-if="errorMessage" class="text-danger mt-1">{{ errorMessage }}</div>
+        <div v-if="errorMessage" class="tw-text-status-down-fg tw-mt-1">{{ errorMessage }}</div>
     </div>
 
-    <div class="mb-3">
-        <div class="form-check form-switch">
+    <div class="tw-mb-3">
+        <div class="gizmo-native-check gizmo-native-switch">
             <input
                 v-model="$parent.notification.Whatsapp360messengerUseTemplate"
-                class="form-check-input"
+                class="gizmo-native-check__input"
                 type="checkbox"
             />
-            <label class="form-check-label">{{ $t("360messengerCustomMessageTemplate") }}</label>
+            <label class="gizmo-native-check__label">{{ $t("360messengerCustomMessageTemplate") }}</label>
         </div>
 
-        <div class="form-text">
+        <div class="gizmo-field-help">
             {{ $t("360messengerEnableCustomMessage") }}
         </div>
     </div>
 
     <template v-if="$parent.notification.Whatsapp360messengerUseTemplate">
-        <div class="mb-3">
-            <label class="form-label" for="360messenger-template">{{ $t("360messengerMessageTemplate") }}</label>
+        <div class="tw-mb-3">
+            <label class="gizmo-field-label" for="360messenger-template">{{ $t("360messengerMessageTemplate") }}</label>
             <TemplatedTextarea
                 id="360messenger-template"
                 v-model="$parent.notification.Whatsapp360messengerTemplate"

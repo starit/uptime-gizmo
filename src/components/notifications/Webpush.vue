@@ -1,17 +1,17 @@
 <template>
     <button
-        class="mb-3"
+        class="tw-mb-3"
         type="button"
-        :class="['btn', browserSupportsServiceWorkers ? 'btn-primary' : 'btn-danger']"
+        :class="['gizmo-native-button', browserSupportsServiceWorkers ? 'gizmo-native-button--primary' : 'gizmo-native-button--danger']"
         :disabled="!btnEnabled"
         @click="registerWebpush"
     >
-        <div v-if="processing" class="spinner-border spinner-border-sm me-1"></div>
-        <span v-else-if="$parent.notification.subscription" class="me-1">✓</span>
+        <div v-if="processing" class="gizmo-spinner-inline gizmo-spinner-inline--sm tw-me-1"></div>
+        <span v-else-if="$parent.notification.subscription" class="tw-me-1">✓</span>
         {{ btnText }}
     </button>
 
-    <div class="form-text">
+    <div class="gizmo-field-help">
         {{ $t("Webpush Helptext") }}
     </div>
 </template>

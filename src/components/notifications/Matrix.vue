@@ -1,28 +1,28 @@
 <template>
-    <div class="mb-3">
-        <label for="homeserver-url" class="form-label">{{ $t("matrixHomeserverURL") }}</label>
+    <div class="tw-mb-3">
+        <label for="homeserver-url" class="gizmo-field-label">{{ $t("matrixHomeserverURL") }}</label>
         <span style="color: red"><sup>*</sup></span>
         <input
             id="homeserver-url"
             v-model="$parent.notification.homeserverUrl"
             type="text"
-            class="form-control"
+            class="gizmo-native-control"
             :required="true"
         />
     </div>
-    <div class="mb-3">
-        <label for="internal-room-id" class="form-label">{{ $t("Internal Room Id") }}</label>
+    <div class="tw-mb-3">
+        <label for="internal-room-id" class="gizmo-field-label">{{ $t("Internal Room Id") }}</label>
         <span style="color: red"><sup>*</sup></span>
         <input
             id="internal-room-id"
             v-model="$parent.notification.internalRoomId"
             type="text"
-            class="form-control"
+            class="gizmo-native-control"
             required="true"
         />
     </div>
-    <div class="mb-3">
-        <label for="access-token" class="form-label">{{ $t("Access Token") }}</label>
+    <div class="tw-mb-3">
+        <label for="access-token" class="gizmo-field-label">{{ $t("Access Token") }}</label>
         <span style="color: red"><sup>*</sup></span>
         <HiddenInput
             id="access-token"
@@ -33,7 +33,7 @@
         ></HiddenInput>
     </div>
 
-    <div class="form-text">
+    <div class="gizmo-field-help">
         <span style="color: red"><sup>*</sup></span>
         {{ $t("Required") }}
         <p style="margin-top: 8px">
@@ -48,20 +48,20 @@
         </i18n-t>
     </div>
 
-    <div class="mb-3">
-        <div class="form-check form-switch">
-            <input v-model="$parent.notification.matrixUseTemplate" class="form-check-input" type="checkbox" />
-            <label class="form-check-label">{{ $t("matrixUseTemplate") }}</label>
+    <div class="tw-mb-3">
+        <div class="gizmo-native-check gizmo-native-switch">
+            <input v-model="$parent.notification.matrixUseTemplate" class="gizmo-native-check__input" type="checkbox" />
+            <label class="gizmo-native-check__label">{{ $t("matrixUseTemplate") }}</label>
         </div>
 
-        <div class="form-text">
+        <div class="gizmo-field-help">
             {{ $t("matrixUseTemplateDescription") }}
         </div>
     </div>
 
     <template v-if="$parent.notification.matrixUseTemplate">
-        <div class="mb-3">
-            <label class="form-label" for="message_template">{{ $t("Message Template") }}</label>
+        <div class="tw-mb-3">
+            <label class="gizmo-field-label" for="message_template">{{ $t("Message Template") }}</label>
             <TemplatedTextarea
                 id="message_template"
                 v-model="$parent.notification.matrixTemplate"

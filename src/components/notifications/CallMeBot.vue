@@ -1,14 +1,14 @@
 <template>
-    <div class="mb-3">
-        <label for="callmebot-endpoint" class="form-label">{{ $t("Endpoint") }}</label>
+    <div class="tw-mb-3">
+        <label for="callmebot-endpoint" class="gizmo-field-label">{{ $t("Endpoint") }}</label>
         <input
             id="callmebot-endpoint"
             v-model="$parent.notification.callMeBotEndpoint"
             type="text"
-            class="form-control"
+            class="gizmo-native-control"
             required
         />
-        <i18n-t tag="div" keypath="callMeBotGet" class="form-text">
+        <i18n-t tag="div" keypath="callMeBotGet" class="gizmo-field-help">
             <a href="https://www.callmebot.com/blog/free-api-facebook-messenger/" target="_blank">Facebook Messenger</a>
             <a href="https://www.callmebot.com/blog/test-whatsapp-api/" target="_blank">WhatsApp</a>
             <a href="https://www.callmebot.com/blog/telegram-phone-call-using-your-browser/" target="_blank">

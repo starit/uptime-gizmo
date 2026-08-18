@@ -1,6 +1,6 @@
 <template>
-    <div class="mb-3">
-        <label for="rocket-webhook-url" class="form-label">
+    <div class="tw-mb-3">
+        <label for="rocket-webhook-url" class="gizmo-field-label">
             {{ $t("Webhook URL") }}
             <span style="color: red"><sup>*</sup></span>
         </label>
@@ -8,16 +8,16 @@
             id="rocket-webhook-url"
             v-model="$parent.notification.rocketwebhookURL"
             type="text"
-            class="form-control"
+            class="gizmo-native-control"
             required
         />
-        <label for="rocket-username" class="form-label">{{ $t("Username") }}</label>
-        <input id="rocket-username" v-model="$parent.notification.rocketusername" type="text" class="form-control" />
-        <label for="rocket-iconemo" class="form-label">{{ $t("Icon Emoji") }}</label>
-        <input id="rocket-iconemo" v-model="$parent.notification.rocketiconemo" type="text" class="form-control" />
-        <label for="rocket-channel" class="form-label">{{ $t("Channel Name") }}</label>
-        <input id="rocket-channel-name" v-model="$parent.notification.rocketchannel" type="text" class="form-control" />
-        <div class="form-text">
+        <label for="rocket-username" class="gizmo-field-label">{{ $t("Username") }}</label>
+        <input id="rocket-username" v-model="$parent.notification.rocketusername" type="text" class="gizmo-native-control" />
+        <label for="rocket-iconemo" class="gizmo-field-label">{{ $t("Icon Emoji") }}</label>
+        <input id="rocket-iconemo" v-model="$parent.notification.rocketiconemo" type="text" class="gizmo-native-control" />
+        <label for="rocket-channel" class="gizmo-field-label">{{ $t("Channel Name") }}</label>
+        <input id="rocket-channel-name" v-model="$parent.notification.rocketchannel" type="text" class="gizmo-native-control" />
+        <div class="gizmo-field-help">
             <span style="color: red"><sup>*</sup></span>
             {{ $t("Required") }}
             <i18n-t tag="p" keypath="aboutWebhooks" style="margin-top: 8px">

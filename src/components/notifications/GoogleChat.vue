@@ -1,6 +1,6 @@
 <template>
-    <div class="mb-3">
-        <label for="google-chat-webhook-url" class="form-label">
+    <div class="tw-mb-3">
+        <label for="google-chat-webhook-url" class="gizmo-field-label">
             {{ $t("Webhook URL") }}
             <span style="color: red"><sup>*</sup></span>
         </label>
@@ -8,11 +8,11 @@
             id="google-chat-webhook-url"
             v-model="$parent.notification.googleChatWebhookURL"
             type="text"
-            class="form-control"
+            class="gizmo-native-control"
             required
         />
 
-        <div class="form-text">
+        <div class="gizmo-field-help">
             <span style="color: red"><sup>*</sup></span>
             {{ $t("Required") }}
             <i18n-t tag="p" keypath="aboutWebhooks" style="margin-top: 8px">
@@ -23,8 +23,8 @@
         </div>
     </div>
 
-    <div class="mb-3">
-        <label for="google-chat-max-retries" class="form-label">
+    <div class="tw-mb-3">
+        <label for="google-chat-max-retries" class="gizmo-field-label">
             {{ $t("Maximum Retries") }}
             <span style="color: red"><sup>*</sup></span>
         </label>
@@ -32,29 +32,29 @@
             id="google-chat-max-retries"
             v-model.number="$parent.notification.googleChatMaxRetries"
             type="number"
-            class="form-control"
+            class="gizmo-native-control"
             min="1"
             max="10"
             step="1"
             required
         />
-        <div class="form-text">
+        <div class="gizmo-field-help">
             {{ $t("Number of retry attempts if webhook fails") }}
         </div>
     </div>
 
-    <div class="mb-3">
-        <div class="form-check form-switch">
+    <div class="tw-mb-3">
+        <div class="gizmo-native-check gizmo-native-switch">
             <input
                 id="google-chat-use-template"
                 v-model="$parent.notification.googleChatUseTemplate"
                 type="checkbox"
-                class="form-check-input"
+                class="gizmo-native-check__input"
             />
-            <label for="google-chat-use-template" class="form-check-label">
+            <label for="google-chat-use-template" class="gizmo-native-check__label">
                 {{ $t("Template plain text instead of using cards") }}
             </label>
-            <i18n-t tag="p" class="form-text" keypath="issueWithGoogleChatOnAndroidHelptext">
+            <i18n-t tag="p" class="gizmo-field-help" keypath="issueWithGoogleChatOnAndroidHelptext">
                 <template #issuetackerURL>
                     <a href="https://issuetracker.google.com/issues/283746283" target="_blank">
                         issuetracker.google.com/issues/283746283
@@ -65,7 +65,7 @@
     </div>
 
     <template v-if="$parent.notification.googleChatUseTemplate">
-        <div class="mb-3">
+        <div class="tw-mb-3">
             <TemplatedTextarea
                 id="google-chat-template"
                 v-model="$parent.notification.googleChatTemplate"

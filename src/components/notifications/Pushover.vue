@@ -1,6 +1,6 @@
 <template>
-    <div class="mb-3">
-        <label for="pushover-user" class="form-label">
+    <div class="tw-mb-3">
+        <label for="pushover-user" class="gizmo-field-label">
             {{ $t("User Key") }}
             <span style="color: red"><sup>*</sup></span>
         </label>
@@ -10,7 +10,7 @@
             :required="true"
             autocomplete="new-password"
         ></HiddenInput>
-        <label for="pushover-app-token" class="form-label">
+        <label for="pushover-app-token" class="gizmo-field-label">
             {{ $t("Application Token") }}
             <span style="color: red"><sup>*</sup></span>
         </label>
@@ -20,12 +20,12 @@
             :required="true"
             autocomplete="new-password"
         ></HiddenInput>
-        <label for="pushover-device" class="form-label">{{ $t("Device") }}</label>
-        <input id="pushover-device" v-model="$parent.notification.pushoverdevice" type="text" class="form-control" />
-        <label for="pushover-device" class="form-label">{{ $t("Message Title") }}</label>
-        <input id="pushover-title" v-model="$parent.notification.pushovertitle" type="text" class="form-control" />
-        <label for="pushover-priority" class="form-label">{{ $t("Priority") }}</label>
-        <select id="pushover-priority" v-model="$parent.notification.pushoverpriority" class="form-select">
+        <label for="pushover-device" class="gizmo-field-label">{{ $t("Device") }}</label>
+        <input id="pushover-device" v-model="$parent.notification.pushoverdevice" type="text" class="gizmo-native-control" />
+        <label for="pushover-device" class="gizmo-field-label">{{ $t("Message Title") }}</label>
+        <input id="pushover-title" v-model="$parent.notification.pushovertitle" type="text" class="gizmo-native-control" />
+        <label for="pushover-priority" class="gizmo-field-label">{{ $t("Priority") }}</label>
+        <select id="pushover-priority" v-model="$parent.notification.pushoverpriority" class="gizmo-native-control gizmo-native-select">
             <option>-2</option>
             <option>-1</option>
             <option>0</option>
@@ -33,31 +33,31 @@
             <option>2</option>
         </select>
 
-        <label for="pushover-sound-down" class="form-label">{{ $t("Notification Sound") }} - Down</label>
-        <select id="pushover-sound-down" v-model="$parent.notification.pushoversounds" class="form-select">
+        <label for="pushover-sound-down" class="gizmo-field-label">{{ $t("Notification Sound") }} - Down</label>
+        <select id="pushover-sound-down" v-model="$parent.notification.pushoversounds" class="gizmo-native-control gizmo-native-select">
             <option v-for="sound in soundOptions" :key="sound" :value="sound">
                 {{ $t(`pushoversounds ${sound}`) }}
             </option>
         </select>
 
-        <label for="pushover-sound-up" class="form-label">{{ $t("Notification Sound") }} - Up</label>
-        <select id="pushover-sound-up" v-model="$parent.notification.pushoversounds_up" class="form-select">
+        <label for="pushover-sound-up" class="gizmo-field-label">{{ $t("Notification Sound") }} - Up</label>
+        <select id="pushover-sound-up" v-model="$parent.notification.pushoversounds_up" class="gizmo-native-control gizmo-native-select">
             <option v-for="sound in soundOptions" :key="sound" :value="sound">
                 {{ $t(`pushoversounds ${sound}`) }}
             </option>
         </select>
 
-        <label for="pushover-ttl" class="form-label">{{ $t("pushoverMessageTtl") }}</label>
+        <label for="pushover-ttl" class="gizmo-field-label">{{ $t("pushoverMessageTtl") }}</label>
         <input
             id="pushover-ttl"
             v-model="$parent.notification.pushoverttl"
             type="number"
             min="0"
             step="1"
-            class="form-control"
+            class="gizmo-native-control"
         />
 
-        <div class="form-text">
+        <div class="gizmo-field-help">
             <span style="color: red"><sup>*</sup></span>
             {{ $t("Required") }}
             <i18n-t tag="p" keypath="More info on:" style="margin-top: 8px">

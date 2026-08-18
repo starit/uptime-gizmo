@@ -1,31 +1,31 @@
 <template>
-    <div class="mb-3">
-        <label for="bale-bot-token" class="form-label">{{ $t("Bot Token") }}</label>
+    <div class="tw-mb-3">
+        <label for="bale-bot-token" class="gizmo-field-label">{{ $t("Bot Token") }}</label>
         <HiddenInput
             id="bale-bot-token"
             v-model="$parent.notification.baleBotToken"
             :required="true"
             autocomplete="new-password"
         ></HiddenInput>
-        <i18n-t tag="div" keypath="wayToGetBaleToken" class="form-text">
+        <i18n-t tag="div" keypath="wayToGetBaleToken" class="gizmo-field-help">
             <a href="https://ble.ir/BotFather" target="_blank">https://ble.ir/BotFather</a>
         </i18n-t>
     </div>
 
-    <div class="mb-3">
-        <label for="bale-chat-id" class="form-label">{{ $t("Chat ID") }}</label>
+    <div class="tw-mb-3">
+        <label for="bale-chat-id" class="gizmo-field-label">{{ $t("Chat ID") }}</label>
 
-        <div class="input-group mb-3">
+        <div class="gizmo-input-group tw-mb-3">
             <input
                 id="bale-chat-id"
                 v-model="$parent.notification.baleChatID"
                 type="text"
-                class="form-control"
+                class="gizmo-native-control"
                 required
             />
             <button
                 v-if="$parent.notification.baleBotToken"
-                class="btn btn-outline-secondary"
+                class="gizmo-native-button gizmo-native-button--secondary"
                 type="button"
                 @click="autoGetBaleChatID"
             >
@@ -33,7 +33,7 @@
             </button>
         </div>
 
-        <div class="form-text">
+        <div class="gizmo-field-help">
             {{ $t("supportBaleChatID") }}
 
             <p style="margin-top: 8px">

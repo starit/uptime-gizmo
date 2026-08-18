@@ -1,6 +1,6 @@
 <template>
-    <div class="mb-3">
-        <label for="wxpusher-spt" class="form-label">WxPusher SPT</label>
+    <div class="tw-mb-3">
+        <label for="wxpusher-spt" class="gizmo-field-label">WxPusher SPT</label>
         <HiddenInput
             id="wxpusher-spt"
             v-model="$parent.notification.wxpusherSPT"
@@ -8,7 +8,7 @@
             autocomplete="new-password"
             placeholder="SPT_xxxxxxxxxxxx"
         ></HiddenInput>
-        <div class="form-text">
+        <div class="gizmo-field-help">
             <i18n-t tag="p" keypath="wxPusherSptDescription">
                 <template #download>
                     <a

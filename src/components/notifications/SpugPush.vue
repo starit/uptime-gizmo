@@ -1,6 +1,6 @@
 <template>
-    <div class="mb-3">
-        <label for="spugpush-templateKey" class="form-label">{{ $t("SpugPush Template Code") }}</label>
+    <div class="tw-mb-3">
+        <label for="spugpush-templateKey" class="gizmo-field-label">{{ $t("SpugPush Template Code") }}</label>
         <HiddenInput
             id="spugpush-templateKey"
             v-model="$parent.notification.templateKey"

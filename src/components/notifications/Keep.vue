@@ -1,15 +1,15 @@
 <template>
-    <div class="mb-3">
-        <label for="webhook-url" class="form-label">{{ $t("Host URL") }}</label>
+    <div class="tw-mb-3">
+        <label for="webhook-url" class="gizmo-field-label">{{ $t("Host URL") }}</label>
         <input
             id="webhook-url"
             v-model="$parent.notification.webhookURL"
             type="url"
             pattern="https?://.+"
-            class="form-control"
+            class="gizmo-native-control"
             required
         />
-        <div class="form-text">
+        <div class="gizmo-field-help">
             <i18n-t tag="p" keypath="Read more:">
                 <a href="https://docs.keephq.dev/providers/documentation/uptimekuma-provider" target="_blank">
                     https://docs.keephq.dev/providers/documentation/uptimekuma-provider
@@ -18,8 +18,8 @@
         </div>
     </div>
 
-    <div class="mb-3">
-        <label for="webhook-apikey" class="form-label">{{ $t("API Key") }}</label>
+    <div class="tw-mb-3">
+        <label for="webhook-apikey" class="gizmo-field-label">{{ $t("API Key") }}</label>
         <HiddenInput id="webhook-apikey" v-model="$parent.notification.webhookAPIKey" :required="true"></HiddenInput>
     </div>
 </template>

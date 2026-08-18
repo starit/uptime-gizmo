@@ -1,13 +1,13 @@
 <template>
-    <div class="mb-3">
-        <label for="WebHookUrl" class="form-label">
+    <div class="tw-mb-3">
+        <label for="WebHookUrl" class="gizmo-field-label">
             {{ $t("WebHookUrl") }}
             <span style="color: red"><sup>*</sup></span>
         </label>
-        <input id="WebHookUrl" v-model="$parent.notification.webHookUrl" type="text" class="form-control" required />
+        <input id="WebHookUrl" v-model="$parent.notification.webHookUrl" type="text" class="gizmo-native-control" required />
     </div>
-    <div class="mb-3">
-        <label for="secretKey" class="form-label">
+    <div class="tw-mb-3">
+        <label for="secretKey" class="gizmo-field-label">
             {{ $t("SecretKey") }}
             <span style="color: red"><sup>*</sup></span>
         </label>
@@ -18,7 +18,7 @@
             autocomplete="new-password"
         ></HiddenInput>
 
-        <div class="form-text">
+        <div class="gizmo-field-help">
             <p>{{ $t("For safety, must use secret key") }}</p>
             <i18n-t tag="p" keypath="Read more:">
                 <a href="https://developers.dingtalk.com/document/robots/custom-robot-access" target="_blank">
@@ -33,15 +33,15 @@
             </i18n-t>
         </div>
     </div>
-    <div class="mb-3">
-        <label for="mentioning" class="form-label">
+    <div class="tw-mb-3">
+        <label for="mentioning" class="gizmo-field-label">
             {{ $t("Mentioning") }}
             <span style="color: red"><sup>*</sup></span>
         </label>
         <select
             id="mentioning"
             v-model="$parent.notification.mentioning"
-            class="form-select"
+            class="gizmo-native-control gizmo-native-select"
             required
             @change="onMentioningChange"
         >
@@ -51,8 +51,8 @@
             <option value="specify-users">{{ $t("Mention User List") }}</option>
         </select>
     </div>
-    <div v-if="$parent.notification.mentioning === 'specify-mobiles'" class="mb-3">
-        <label for="mobileList" class="form-label">
+    <div v-if="$parent.notification.mentioning === 'specify-mobiles'" class="tw-mb-3">
+        <label for="mobileList" class="gizmo-field-label">
             {{ $t("Dingtalk Mobile List") }}
             <span style="color: red"><sup>*</sup></span>
         </label>
@@ -74,8 +74,8 @@
             @tag="addMobile"
         ></VueMultiselect>
     </div>
-    <div v-if="$parent.notification.mentioning === 'specify-users'" class="mb-3">
-        <label for="userList" class="form-label">
+    <div v-if="$parent.notification.mentioning === 'specify-users'" class="tw-mb-3">
+        <label for="userList" class="gizmo-field-label">
             {{ $t("Dingtalk User List") }}
             <span style="color: red"><sup>*</sup></span>
         </label>

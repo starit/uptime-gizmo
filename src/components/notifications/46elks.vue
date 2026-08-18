@@ -1,16 +1,16 @@
 <template>
-    <div class="mb-3">
-        <label for="ElksUsername" class="form-label">{{ $t("Username") }}</label>
+    <div class="tw-mb-3">
+        <label for="ElksUsername" class="gizmo-field-label">{{ $t("Username") }}</label>
         <input
             id="ElksUsername"
             v-model="$parent.notification.elksUsername"
             type="text"
-            class="form-control"
+            class="gizmo-native-control"
             required
         />
-        <label for="ElksPassword" class="form-label">{{ $t("Password") }}</label>
+        <label for="ElksPassword" class="gizmo-field-label">{{ $t("Password") }}</label>
     </div>
-    <div class="form-text">
+    <div class="gizmo-field-help">
         <HiddenInput
             id="ElksPassword"
             v-model="$parent.notification.elksAuthToken"
@@ -21,16 +21,16 @@
             <a href="https://46elks.com/account" target="_blank">https://46elks.com/account</a>
         </i18n-t>
     </div>
-    <div class="mb-3">
-        <label for="Elks-from-number" class="form-label">{{ $t("From") }}</label>
+    <div class="tw-mb-3">
+        <label for="Elks-from-number" class="gizmo-field-label">{{ $t("From") }}</label>
         <input
             id="Elks-from-number"
             v-model="$parent.notification.elksFromNumber"
             type="text"
-            class="form-control"
+            class="gizmo-native-control"
             required
         />
-        <div class="form-text">
+        <div class="gizmo-field-help">
             {{
                 $t(
                     "Either a text sender ID or a phone number in E.164 format if you want to be able to receive replies."
@@ -42,16 +42,16 @@
         </div>
     </div>
 
-    <div class="mb-3">
-        <label for="Elks-to-number" class="form-label">{{ $t("To Number") }}</label>
+    <div class="tw-mb-3">
+        <label for="Elks-to-number" class="gizmo-field-label">{{ $t("To Number") }}</label>
         <input
             id="Elks-to-number"
             v-model="$parent.notification.elksToNumber"
             type="text"
-            class="form-control"
+            class="gizmo-native-control"
             required
         />
-        <div class="form-text">
+        <div class="gizmo-field-help">
             {{ $t("The phone number of the recipient in E.164 format.") }}
             <i18n-t tag="p" keypath="More info on:">
                 <a href="https://46elks.se/kb/e164" target="_blank">https://46elks.se/kb/e164</a>

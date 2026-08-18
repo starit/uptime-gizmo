@@ -1,75 +1,75 @@
 <template>
-    <div class="mb-3">
-        <label for="plivo-auth-id" class="form-label">{{ $t("plivoAuthID") }}</label>
+    <div class="tw-mb-3">
+        <label for="plivo-auth-id" class="gizmo-field-label">{{ $t("plivoAuthID") }}</label>
         <input
             id="plivo-auth-id"
             v-model="$parent.notification.plivoAuthID"
             type="text"
-            class="form-control"
+            class="gizmo-native-control"
             required
         />
-        <div class="form-text">{{ $t("plivoAuthIDHelptext") }}</div>
+        <div class="gizmo-field-help">{{ $t("plivoAuthIDHelptext") }}</div>
     </div>
 
-    <div class="mb-3">
-        <label for="plivo-auth-token" class="form-label">{{ $t("plivoAuthToken") }}</label>
+    <div class="tw-mb-3">
+        <label for="plivo-auth-token" class="gizmo-field-label">{{ $t("plivoAuthToken") }}</label>
         <HiddenInput
             id="plivo-auth-token"
             v-model="$parent.notification.plivoAuthToken"
             :required="true"
             autocomplete="new-password"
         ></HiddenInput>
-        <div class="form-text">{{ $t("plivoAuthTokenHelptext") }}</div>
+        <div class="gizmo-field-help">{{ $t("plivoAuthTokenHelptext") }}</div>
     </div>
 
-    <div class="mb-3">
-        <label for="plivo-from-number" class="form-label">{{ $t("plivoFromNumber") }}</label>
+    <div class="tw-mb-3">
+        <label for="plivo-from-number" class="gizmo-field-label">{{ $t("plivoFromNumber") }}</label>
         <input
             id="plivo-from-number"
             v-model="$parent.notification.plivoFromNumber"
             type="text"
-            class="form-control"
+            class="gizmo-native-control"
             placeholder="+15551234567"
             required
         />
-        <div class="form-text">{{ $t("plivoFromNumberHelptext") }}</div>
+        <div class="gizmo-field-help">{{ $t("plivoFromNumberHelptext") }}</div>
     </div>
 
-    <div class="mb-3">
-        <label for="plivo-to-number" class="form-label">{{ $t("plivoToNumber") }}</label>
+    <div class="tw-mb-3">
+        <label for="plivo-to-number" class="gizmo-field-label">{{ $t("plivoToNumber") }}</label>
         <input
             id="plivo-to-number"
             v-model="$parent.notification.plivoToNumber"
             type="text"
-            class="form-control"
+            class="gizmo-native-control"
             placeholder="+15559876543"
             required
         />
-        <div class="form-text">{{ $t("plivoToNumberHelptext") }}</div>
+        <div class="gizmo-field-help">{{ $t("plivoToNumberHelptext") }}</div>
     </div>
 
-    <div class="mb-3">
-        <label for="plivo-message-type" class="form-label">{{ $t("plivoMessageType") }}</label>
-        <select id="plivo-message-type" v-model="$parent.notification.plivoMessageType" class="form-select">
+    <div class="tw-mb-3">
+        <label for="plivo-message-type" class="gizmo-field-label">{{ $t("plivoMessageType") }}</label>
+        <select id="plivo-message-type" v-model="$parent.notification.plivoMessageType" class="gizmo-native-control gizmo-native-select">
             <option value="sms">SMS</option>
             <option value="call">{{ $t("plivoVoiceCall") }}</option>
         </select>
     </div>
 
-    <div v-if="$parent.notification.plivoMessageType === 'call'" class="mb-3">
-        <label for="plivo-answer-url" class="form-label">{{ $t("plivoAnswerUrl") }}</label>
+    <div v-if="$parent.notification.plivoMessageType === 'call'" class="tw-mb-3">
+        <label for="plivo-answer-url" class="gizmo-field-label">{{ $t("plivoAnswerUrl") }}</label>
         <input
             id="plivo-answer-url"
             v-model="$parent.notification.plivoAnswerUrl"
             type="url"
-            class="form-control"
+            class="gizmo-native-control"
             placeholder="https://example.com/answer.xml"
             :required="true"
         />
-        <div class="form-text">{{ $t("plivoAnswerUrlHelptext") }}</div>
+        <div class="gizmo-field-help">{{ $t("plivoAnswerUrlHelptext") }}</div>
     </div>
 
-    <div class="mb-3">
+    <div class="tw-mb-3">
         <i18n-t tag="p" keypath="More info on:" style="margin-top: 8px">
             <a
                 v-if="$parent.notification.plivoMessageType === 'call'"

@@ -1,6 +1,6 @@
 <template>
-    <div class="mb-3">
-        <label for="flowtriq-webhook-url" class="form-label">
+    <div class="tw-mb-3">
+        <label for="flowtriq-webhook-url" class="gizmo-field-label">
             {{ $t("Flowtriq Webhook URL") }}
             <span style="color: red"><sup>*</sup></span>
         </label>
@@ -8,14 +8,14 @@
             id="flowtriq-webhook-url"
             v-model="$parent.notification.flowtriqWebhookUrl"
             type="url"
-            class="form-control"
+            class="gizmo-native-control"
             required
             autocomplete="false"
             placeholder="https://app.flowtriq.com/api/webhooks/..."
         />
     </div>
-    <div class="mb-3">
-        <label for="flowtriq-api-key" class="form-label">
+    <div class="tw-mb-3">
+        <label for="flowtriq-api-key" class="gizmo-field-label">
             {{ $t("Flowtriq API Key") }}
         </label>
         <HiddenInput
@@ -24,7 +24,7 @@
             autocomplete="false"
             :placeholder="$t('Optional')"
         />
-        <div class="form-text">
+        <div class="gizmo-field-help">
             {{ $t("flowtriqApiKeyDescription") }}
         </div>
     </div>

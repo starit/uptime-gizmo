@@ -1,15 +1,15 @@
 <template>
-    <div class="mb-3">
-        <div class="mb-3">
-            <label for="nextcloud-host" class="form-label">
+    <div class="tw-mb-3">
+        <div class="tw-mb-3">
+            <label for="nextcloud-host" class="gizmo-field-label">
                 {{ $t("Nextcloud host") }}
                 <span style="color: red"><sup>*</sup></span>
             </label>
-            <input id="nextcloud-host" v-model="$parent.notification.host" type="text" class="form-control" />
+            <input id="nextcloud-host" v-model="$parent.notification.host" type="text" class="gizmo-native-control" />
         </div>
 
-        <div class="mb-3">
-            <label for="nextcloud-conversation-token" class="form-label">
+        <div class="tw-mb-3">
+            <label for="nextcloud-conversation-token" class="gizmo-field-label">
                 {{ $t("Conversation token") }}
                 <span style="color: red"><sup>*</sup></span>
             </label>
@@ -17,12 +17,12 @@
                 id="nextcloud-conversation-token"
                 v-model="$parent.notification.conversationToken"
                 type="text"
-                class="form-control"
+                class="gizmo-native-control"
             />
         </div>
 
-        <div class="mb-3">
-            <label for="nextcloud-bot-secret" class="form-label">
+        <div class="tw-mb-3">
+            <label for="nextcloud-bot-secret" class="gizmo-field-label">
                 {{ $t("Bot secret") }}
                 <span style="color: red"><sup>*</sup></span>
             </label>
@@ -34,22 +34,22 @@
             ></HiddenInput>
         </div>
 
-        <div class="mb-3">
-            <div class="form-check form-switch">
-                <input v-model="$parent.notification.sendSilentUp" class="form-check-input" type="checkbox" />
-                <label class="form-check-label">{{ $t("Send UP silently") }}</label>
+        <div class="tw-mb-3">
+            <div class="gizmo-native-check gizmo-native-switch">
+                <input v-model="$parent.notification.sendSilentUp" class="gizmo-native-check__input" type="checkbox" />
+                <label class="gizmo-native-check__label">{{ $t("Send UP silently") }}</label>
             </div>
         </div>
 
-        <div class="mb-3">
-            <div class="form-check form-switch">
-                <input v-model="$parent.notification.sendSilentDown" class="form-check-input" type="checkbox" />
-                <label class="form-check-label">{{ $t("Send DOWN silently") }}</label>
+        <div class="tw-mb-3">
+            <div class="gizmo-native-check gizmo-native-switch">
+                <input v-model="$parent.notification.sendSilentDown" class="gizmo-native-check__input" type="checkbox" />
+                <label class="gizmo-native-check__label">{{ $t("Send DOWN silently") }}</label>
             </div>
         </div>
 
-        <div class="mb-3">
-            <div class="form-text">
+        <div class="tw-mb-3">
+            <div class="gizmo-field-help">
                 <p>{{ $t("Installing a Nextcloud Talk bot requires administrative access to the server.") }}</p>
                 <p>{{ $t("Example:") }}</p>
                 <pre>

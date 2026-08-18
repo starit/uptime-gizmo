@@ -1,6 +1,6 @@
 <template>
-    <div class="mb-3">
-        <label for="accessKeyId" class="form-label">
+    <div class="tw-mb-3">
+        <label for="accessKeyId" class="gizmo-field-label">
             {{ $t("AccessKeyId") }}
             <span style="color: red"><sup>*</sup></span>
         </label>
@@ -11,7 +11,7 @@
             autocomplete="new-password"
         ></HiddenInput>
 
-        <label for="secretAccessKey" class="form-label">
+        <label for="secretAccessKey" class="gizmo-field-label">
             {{ $t("SecretAccessKey") }}
             <span style="color: red"><sup>*</sup></span>
         </label>
@@ -22,7 +22,7 @@
             autocomplete="new-password"
         ></HiddenInput>
 
-        <label for="phonenumber" class="form-label">
+        <label for="phonenumber" class="gizmo-field-label">
             {{ $t("PhoneNumbers") }}
             <span style="color: red"><sup>*</sup></span>
         </label>
@@ -33,7 +33,7 @@
             autocomplete="new-password"
         ></HiddenInput>
 
-        <label for="templateCode" class="form-label">
+        <label for="templateCode" class="gizmo-field-label">
             {{ $t("TemplateCode") }}
             <span style="color: red"><sup>*</sup></span>
         </label>
@@ -41,27 +41,27 @@
             id="templateCode"
             v-model="$parent.notification.templateCode"
             type="text"
-            class="form-control"
+            class="gizmo-native-control"
             required
         />
 
-        <label for="signName" class="form-label">
+        <label for="signName" class="gizmo-field-label">
             {{ $t("SignName") }}
             <span style="color: red"><sup>*</sup></span>
         </label>
-        <input id="signName" v-model="$parent.notification.signName" type="text" class="form-control" required />
-        <div class="form-check form-switch">
-            <label class="form-check-label">{{ $t("OptionalParameters") }}</label>
+        <input id="signName" v-model="$parent.notification.signName" type="text" class="gizmo-native-control" required />
+        <div class="gizmo-native-check gizmo-native-switch">
+            <label class="gizmo-native-check__label">{{ $t("OptionalParameters") }}</label>
             <input
                 id="optionalParameters"
                 v-model="$parent.notification.optionalParameters"
-                class="form-check-input"
+                class="gizmo-native-check__input"
                 type="checkbox"
             />
-            <div class="form-text">{{ $t("aliyun_enable_optional_variables_at_the_risk_of_non_delivery") }}</div>
+            <div class="gizmo-field-help">{{ $t("aliyun_enable_optional_variables_at_the_risk_of_non_delivery") }}</div>
         </div>
         <br />
-        <div class="form-text">
+        <div class="gizmo-field-help">
             <i18n-t tag="p" keypath="aliyun-template-requirements-and-parameters">
                 <template #parameters>
                     <code>${name} ${time} ${status}</code>

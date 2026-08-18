@@ -1,6 +1,6 @@
 <template>
-    <div class="mb-3">
-        <label for="homeAssistantUrl" class="form-label">
+    <div class="tw-mb-3">
+        <label for="homeAssistantUrl" class="gizmo-field-label">
             {{ $t("Home Assistant URL") }}
             <span style="color: red"><sup>*</sup></span>
         </label>
@@ -8,13 +8,13 @@
             id="homeAssistantUrl"
             v-model="$parent.notification.homeAssistantUrl"
             type="url"
-            class="form-control"
+            class="gizmo-native-control"
             required
         />
     </div>
 
-    <div class="mb-3">
-        <label for="longLivedAccessToken" class="form-label">
+    <div class="tw-mb-3">
+        <label for="longLivedAccessToken" class="gizmo-field-label">
             {{ $t("Long-Lived Access Token") }}
             <span style="color: red"><sup>*</sup></span>
         </label>
@@ -22,11 +22,11 @@
             id="longLivedAccessToken"
             v-model="$parent.notification.longLivedAccessToken"
             type="text"
-            class="form-control"
+            class="gizmo-native-control"
             required
         />
 
-        <div class="form-text">
+        <div class="gizmo-field-help">
             <p>
                 {{
                     $t(
@@ -37,17 +37,17 @@
         </div>
     </div>
 
-    <div class="mb-3">
-        <label for="notificationService" class="form-label">{{ $t("Notification Action") }}</label>
+    <div class="tw-mb-3">
+        <label for="notificationService" class="gizmo-field-label">{{ $t("Notification Action") }}</label>
         <input
             id="notificationService"
             v-model="$parent.notification.notificationService"
             type="text"
             :placeholder="$t('default: notify all devices')"
-            class="form-control"
+            class="gizmo-native-control"
         />
 
-        <div class="form-text">
+        <div class="gizmo-field-help">
             <p>{{ $t("homeAssistantNotificationActionHelptext") }}</p>
             <p>{{ $t("Automations can optionally be triggered in Home Assistant:") }}</p>
             <p>

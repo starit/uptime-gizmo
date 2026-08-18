@@ -1,6 +1,6 @@
 <template>
-    <div class="mb-3">
-        <label for="pushy-app-token" class="form-label">{{ $t("pushyAPIKey") }}</label>
+    <div class="tw-mb-3">
+        <label for="pushy-app-token" class="gizmo-field-label">{{ $t("pushyAPIKey") }}</label>
         <HiddenInput
             id="pushy-app-token"
             v-model="$parent.notification.pushyAPIKey"
@@ -9,8 +9,8 @@
         ></HiddenInput>
     </div>
 
-    <div class="mb-3">
-        <label for="pushy-user-key" class="form-label">{{ $t("pushyToken") }}</label>
+    <div class="tw-mb-3">
+        <label for="pushy-user-key" class="gizmo-field-label">{{ $t("pushyToken") }}</label>
         <HiddenInput
             id="pushy-user-key"
             v-model="$parent.notification.pushyToken"

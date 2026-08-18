@@ -1,6 +1,6 @@
 <template>
-    <div class="mb-3">
-        <label for="alertnow-webhook-url" class="form-label">
+    <div class="tw-mb-3">
+        <label for="alertnow-webhook-url" class="gizmo-field-label">
             {{ $t("Webhook URL") }}
             <span style="color: red"><sup>*</sup></span>
         </label>
@@ -8,11 +8,11 @@
             id="alertnow-webhook-url"
             v-model="$parent.notification.alertNowWebhookURL"
             type="text"
-            class="form-control"
+            class="gizmo-native-control"
             required
         />
 
-        <div class="form-text">
+        <div class="gizmo-field-help">
             <span style="color: red"><sup>*</sup></span>
             {{ $t("Required") }}
             <i18n-t tag="p" keypath="aboutWebhooks" style="margin-top: 8px">

@@ -1,31 +1,31 @@
 <template>
-    <div class="mb-3">
-        <label for="telegram-bot-token" class="form-label">{{ $t("Bot Token") }}</label>
+    <div class="tw-mb-3">
+        <label for="telegram-bot-token" class="gizmo-field-label">{{ $t("Bot Token") }}</label>
         <HiddenInput
             id="telegram-bot-token"
             v-model="$parent.notification.telegramBotToken"
             :required="true"
             autocomplete="new-password"
         ></HiddenInput>
-        <i18n-t tag="div" keypath="wayToGetTelegramToken" class="form-text">
+        <i18n-t tag="div" keypath="wayToGetTelegramToken" class="gizmo-field-help">
             <a href="https://t.me/BotFather" target="_blank">https://t.me/BotFather</a>
         </i18n-t>
     </div>
 
-    <div class="mb-3">
-        <label for="telegram-chat-id" class="form-label">{{ $t("Chat ID") }}</label>
+    <div class="tw-mb-3">
+        <label for="telegram-chat-id" class="gizmo-field-label">{{ $t("Chat ID") }}</label>
 
-        <div class="input-group mb-3">
+        <div class="gizmo-input-group tw-mb-3">
             <input
                 id="telegram-chat-id"
                 v-model="$parent.notification.telegramChatID"
                 type="text"
-                class="form-control"
+                class="gizmo-native-control"
                 required
             />
             <button
                 v-if="$parent.notification.telegramBotToken"
-                class="btn btn-outline-secondary"
+                class="gizmo-native-button gizmo-native-button--secondary"
                 type="button"
                 @click="autoGetTelegramChatID"
             >
@@ -33,7 +33,7 @@
             </button>
         </div>
 
-        <div class="form-text">
+        <div class="gizmo-field-help">
             {{ $t("supportTelegramChatID") }}
 
             <p style="margin-top: 8px">
@@ -47,18 +47,18 @@
             </p>
         </div>
 
-        <label for="message_thread_id" class="form-label">{{ $t("telegramMessageThreadID") }}</label>
+        <label for="message_thread_id" class="gizmo-field-label">{{ $t("telegramMessageThreadID") }}</label>
         <input
             id="message_thread_id"
             v-model="$parent.notification.telegramMessageThreadID"
             type="text"
-            class="form-control"
+            class="gizmo-native-control"
         />
-        <p class="form-text">{{ $t("telegramMessageThreadIDDescription") }}</p>
+        <p class="gizmo-field-help">{{ $t("telegramMessageThreadIDDescription") }}</p>
 
-        <label for="server_url" class="form-label">{{ $t("telegramServerUrl") }}</label>
-        <input id="server_url" v-model="$parent.notification.telegramServerUrl" type="text" class="form-control" />
-        <div class="form-text">
+        <label for="server_url" class="gizmo-field-label">{{ $t("telegramServerUrl") }}</label>
+        <input id="server_url" v-model="$parent.notification.telegramServerUrl" type="text" class="gizmo-native-control" />
+        <div class="gizmo-field-help">
             <i18n-t keypath="telegramServerUrlDescription">
                 <a href="https://core.telegram.org/bots/api#using-a-local-bot-api-server" target="_blank">
                     {{ $t("here") }}
@@ -68,37 +68,37 @@
         </div>
     </div>
 
-    <div class="mb-3">
-        <div class="form-check form-switch">
-            <input v-model="$parent.notification.telegramUseTemplate" class="form-check-input" type="checkbox" />
-            <label class="form-check-label">{{ $t("telegramUseTemplate") }}</label>
+    <div class="tw-mb-3">
+        <div class="gizmo-native-check gizmo-native-switch">
+            <input v-model="$parent.notification.telegramUseTemplate" class="gizmo-native-check__input" type="checkbox" />
+            <label class="gizmo-native-check__label">{{ $t("telegramUseTemplate") }}</label>
         </div>
 
-        <div class="form-text">
+        <div class="gizmo-field-help">
             {{ $t("telegramUseTemplateDescription") }}
         </div>
     </div>
 
     <template v-if="$parent.notification.telegramUseTemplate">
-        <div class="mb-3">
-            <label class="form-label" for="message_parse_mode">{{ $t("Message Format") }}</label>
+        <div class="tw-mb-3">
+            <label class="gizmo-field-label" for="message_parse_mode">{{ $t("Message Format") }}</label>
             <select
                 id="message_parse_mode"
                 v-model="$parent.notification.telegramTemplateParseMode"
-                class="form-select"
+                class="gizmo-native-control gizmo-native-select"
                 required
             >
                 <option value="plain">{{ $t("Plain Text") }}</option>
                 <option value="HTML">HTML</option>
                 <option value="MarkdownV2">MarkdownV2</option>
             </select>
-            <i18n-t tag="p" keypath="telegramTemplateFormatDescription" class="form-text">
+            <i18n-t tag="p" keypath="telegramTemplateFormatDescription" class="gizmo-field-help">
                 <a href="https://core.telegram.org/bots/api#formatting-options" target="_blank">
                     {{ $t("documentation") }}
                 </a>
             </i18n-t>
 
-            <label class="form-label" for="message_template">{{ $t("Message Template") }}</label>
+            <label class="gizmo-field-label" for="message_template">{{ $t("Message Template") }}</label>
             <TemplatedTextarea
                 id="message_template"
                 v-model="$parent.notification.telegramTemplate"
@@ -108,24 +108,24 @@
         </div>
     </template>
 
-    <div class="mb-3">
-        <div class="form-check form-switch">
-            <input v-model="$parent.notification.telegramSendSilently" class="form-check-input" type="checkbox" />
-            <label class="form-check-label">{{ $t("telegramSendSilently") }}</label>
+    <div class="tw-mb-3">
+        <div class="gizmo-native-check gizmo-native-switch">
+            <input v-model="$parent.notification.telegramSendSilently" class="gizmo-native-check__input" type="checkbox" />
+            <label class="gizmo-native-check__label">{{ $t("telegramSendSilently") }}</label>
         </div>
 
-        <div class="form-text">
+        <div class="gizmo-field-help">
             {{ $t("telegramSendSilentlyDescription") }}
         </div>
     </div>
 
-    <div class="mb-3">
-        <div class="form-check form-switch">
-            <input v-model="$parent.notification.telegramProtectContent" class="form-check-input" type="checkbox" />
-            <label class="form-check-label">{{ $t("telegramProtectContent") }}</label>
+    <div class="tw-mb-3">
+        <div class="gizmo-native-check gizmo-native-switch">
+            <input v-model="$parent.notification.telegramProtectContent" class="gizmo-native-check__input" type="checkbox" />
+            <label class="gizmo-native-check__label">{{ $t("telegramProtectContent") }}</label>
         </div>
 
-        <div class="form-text">
+        <div class="gizmo-field-help">
             {{ $t("telegramProtectContentDescription") }}
         </div>
     </div>

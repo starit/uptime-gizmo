@@ -1,50 +1,50 @@
 <template>
-    <div class="mb-3">
-        <label for="evolution-instance-name" class="form-label">{{ $t("evolutionInstanceName") }}</label>
+    <div class="tw-mb-3">
+        <label for="evolution-instance-name" class="gizmo-field-label">{{ $t("evolutionInstanceName") }}</label>
         <input
             id="evolution-instance-name"
             v-model="$parent.notification.evolutionInstanceName"
             type="text"
-            class="form-control"
+            class="gizmo-native-control"
             required
         />
     </div>
 
-    <div class="mb-3">
-        <label for="evolution-api-url" class="form-label">{{ $t("API URL") }}</label>
+    <div class="tw-mb-3">
+        <label for="evolution-api-url" class="gizmo-field-label">{{ $t("API URL") }}</label>
         <input
             id="evolution-api-url"
             v-model="$parent.notification.evolutionApiUrl"
             placeholder="https://evoapicloud.com/"
             type="text"
-            class="form-control"
+            class="gizmo-native-control"
         />
     </div>
 
-    <div class="mb-3">
-        <label for="evolution-auth-token" class="form-label">{{ $t("Token") }}</label>
+    <div class="tw-mb-3">
+        <label for="evolution-auth-token" class="gizmo-field-label">{{ $t("Token") }}</label>
         <HiddenInput
             id="evolution-auth-token"
             v-model="$parent.notification.evolutionAuthToken"
             :required="true"
             autocomplete="new-password"
         ></HiddenInput>
-        <i18n-t tag="div" keypath="wayToGetEvolutionUrlAndToken" class="form-text">
+        <i18n-t tag="div" keypath="wayToGetEvolutionUrlAndToken" class="gizmo-field-help">
             <a href="https://evoapicloud.com" target="_blank">https://evoapicloud.com</a>
         </i18n-t>
     </div>
 
-    <div class="mb-3">
-        <label for="evolution-recipient" class="form-label">{{ $t("evolutionRecipient") }}</label>
+    <div class="tw-mb-3">
+        <label for="evolution-recipient" class="gizmo-field-label">{{ $t("evolutionRecipient") }}</label>
         <input
             id="evolution-recipient"
             v-model="$parent.notification.evolutionRecipient"
             type="text"
             pattern="^[\d-]{10,31}(@[\w\.]{1,})?$"
-            class="form-control"
+            class="gizmo-native-control"
             required
         />
-        <div class="form-text">
+        <div class="gizmo-field-help">
             {{
                 $t("wayToWriteEvolutionRecipient", [
                     "00117612345678",
@@ -55,16 +55,16 @@
         </div>
     </div>
 
-    <div class="mb-3">
-        <div class="form-check form-switch">
-            <input v-model="$parent.notification.evolutionUseCustomMessage" class="form-check-input" type="checkbox" />
-            <label class="form-check-label">{{ $t("evolutionCustomMessageTitle") }}</label>
+    <div class="tw-mb-3">
+        <div class="gizmo-native-check gizmo-native-switch">
+            <input v-model="$parent.notification.evolutionUseCustomMessage" class="gizmo-native-check__input" type="checkbox" />
+            <label class="gizmo-native-check__label">{{ $t("evolutionCustomMessageTitle") }}</label>
         </div>
-        <div class="form-text">{{ $t("evolutionCustomMessageDesc") }}</div>
+        <div class="gizmo-field-help">{{ $t("evolutionCustomMessageDesc") }}</div>
     </div>
 
     <template v-if="$parent.notification.evolutionUseCustomMessage">
-        <div class="mb-3">
+        <div class="tw-mb-3">
             <TemplatedTextarea
                 id="evolution-custom-message"
                 v-model="$parent.notification.evolutionCustomMessage"
@@ -74,7 +74,7 @@
         </div>
     </template>
 
-    <i18n-t tag="div" keypath="More info on:" class="mb-3 form-text">
+    <i18n-t tag="div" keypath="More info on:" class="tw-mb-3 gizmo-field-help">
         <a href="https://evoapicloud.com/" target="_blank">https://evoapicloud.com/</a>
     </i18n-t>
 </template>
