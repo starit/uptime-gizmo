@@ -4,6 +4,7 @@ WORKDIR /app
 COPY ./extra/download-apprise.mjs ./download-apprise.mjs
 RUN apt update && \
     apt --yes --no-install-recommends install curl && \
+    export COREPACK_ENABLE_DOWNLOAD_PROMPT=0 && \
     corepack enable pnpm && \
     pnpm add cheerio semver && \
     node ./download-apprise.mjs

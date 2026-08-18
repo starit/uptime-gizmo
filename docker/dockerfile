@@ -18,6 +18,7 @@ USER node
 WORKDIR /app
 
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=1
+ENV COREPACK_ENABLE_DOWNLOAD_PROMPT=0
 COPY --chown=node:node .npmrc .npmrc
 COPY --chown=node:node package.json package.json
 COPY --chown=node:node pnpm-lock.yaml pnpm-lock.yaml
@@ -56,7 +57,9 @@ USER node
 # Mark as Nightly
 ############################################
 FROM release AS nightly
-RUN pnpm run mark-as-nightly
+# release descends from the base image, not from the build stage, so corepack
+# has not been enabled here.
+RUN corepack enable pnpm && pnpm run mark-as-nightly
 
 FROM nightly AS nightly-rootless
 USER node
@@ -79,6 +82,7 @@ RUN apt update \
 
 ## Empty the directory, because we have to clone the Git repo.
 RUN rm -rf ./* && chown node /app
+ENV COREPACK_ENABLE_DOWNLOAD_PROMPT=0
 RUN corepack enable pnpm
 
 USER node
