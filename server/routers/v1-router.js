@@ -220,19 +220,40 @@ function monitorFromAPI(body, partial) {
     return columns;
 }
 
+/*
+ * Cursor pagination.
+ *
+ * Ordering by id rather than name so the cursor is stable: a rename would move a
+ * row in a name-ordered page and a caller walking the pages would skip or repeat
+ * it. Callers who want alphabetical order can sort a full page themselves.
+ */
 router.get(
     "/api/v1/monitors",
     apiAuth,
     route(async (req, res) => {
         const limit = boundedLimit(req.query.limit, 100, 500);
+        const cursor = Number.parseInt(req.query.cursor, 10);
+        const after = Number.isFinite(cursor) ? cursor : 0;
+
+        // One extra row tells us whether another page exists without a count.
         const rows = await R.getAll(
-            "SELECT * FROM monitor WHERE user_id = ? ORDER BY name LIMIT ?",
-            [ req.principal?.userID ?? null, limit ]
+            "SELECT * FROM monitor WHERE user_id = ? AND id > ? ORDER BY id LIMIT ?",
+            [ req.principal?.userID ?? null, after, limit + 1 ]
         );
+
+        const hasMore = rows.length > limit;
+        const page = hasMore ? rows.slice(0, limit) : rows;
 
         res.json({
             ok: true,
-            data: R.convertToBeans("monitor", rows).map(monitorToAPI),
+            data: R.convertToBeans("monitor", page).map(monitorToAPI),
+            // Stated rather than implied: a caller that ignores this sees a
+            // partial list, and nothing else would tell it so.
+            page: {
+                limit,
+                hasMore,
+                nextCursor: hasMore ? page[page.length - 1].id : null,
+            },
         });
     })
 );
@@ -651,8 +672,11 @@ function buildOpenAPI() {
                 get: {
                     summary: "List monitors",
                     security: authed,
+                    description:
+                        "Ordered by id so the cursor is stable across renames. The response carries a page object; a caller that ignores nextCursor sees a partial list.",
                     parameters: [
                         { name: "limit", in: "query", schema: { type: "integer", maximum: 500, default: 100 } },
+                        { name: "cursor", in: "query", description: "nextCursor from a previous page", schema: { type: "integer" } },
                     ],
                     responses: { 200: { description: "Monitors", content: envelope({ type: "array", items: monitorRef }) } },
                 },

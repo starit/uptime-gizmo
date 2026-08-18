@@ -1,0 +1,20 @@
+{
+    "name": "uptime-gizmo-mcp",
+    "version": "0.1.0",
+    "description": "MCP server for Uptime Gizmo. Talks to a Uptime Gizmo instance over its REST API.",
+    "license": "MIT",
+    "type": "module",
+    "bin": {
+        "uptime-gizmo-mcp": "./index.mjs"
+    },
+    "files": [
+        "index.mjs",
+        "README.md"
+    ],
+    "engines": {
+        "node": ">= 20.4.0"
+    },
+    "dependencies": {
+        "@modelcontextprotocol/sdk": "1.30.0"
+    }
+}

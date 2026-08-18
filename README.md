@@ -71,15 +71,15 @@ planned. What each is, and where it stands:
   read-only.
 - A machine-readable description at `/api/v1/openapi.json`, generated from the
   same field definitions the API enforces, so it cannot drift.
+- **An [MCP server](mcp-server/)**, in this repository as a separate package with
+  its own process. It reaches Uptime Gizmo only through the REST API, so the
+  monitoring server never hosts the protocol and an agent can do nothing a script
+  could not. With a read-only key it offers eight read tools; creating and
+  updating monitors appear only when the key permits it.
 
 **Planned**
 
 - The remaining resources, cursor pagination, and per-resource ownership rules.
-- **An MCP server**, shipped from this repository as a separate package with its
-  own process. It will reach Uptime Gizmo only through the REST API, so the
-  monitoring server never hosts the protocol and an agent can do nothing a
-  script could not. Installable directly by an agent, or discoverable through a
-  third-party platform.
 - Webhooks and structured event streams.
 - Multiple users, with a deliberately minimal admin/non-admin split.
 
