@@ -1606,5 +1606,14 @@
     "milkyGroupMessage": "Group",
     "milkyPrivateMessage": "Private",
     "milkyUserOrGroupId": "Group/User ID",
-    "milkySafetyTips": "For safety, must set access token"
+    "milkySafetyTips": "For safety, must set access token",
+    "LLM Provider": "LLM Provider",
+    "LLM API Key": "LLM API Key",
+    "LLM Model": "LLM Model",
+    "LLM Base URL": "LLM Base URL",
+    "llmProviderDescription": "Optional. Enables AI features such as generating a theme from a description. Leave unset to keep this instance from contacting any AI provider.",
+    "llmApiKeyDescription": "Stored on this instance and shared by everyone who can sign in. It is held in the database in plain text, like the other API credentials above.",
+    "llmModelDescription": "Optional. Leave blank to use the provider's default model.",
+    "llmModelPlaceholder": "Provider default",
+    "llmBaseUrlDescription": "Optional. Point at a proxy, a regional endpoint, or a self-hosted model that speaks the provider's API."
 }

@@ -1724,5 +1724,14 @@
     "ClickUp Workspace ID Description": "您可以在工作区的 URL 中找到它，紧跟在 app.clickup.com/ 之后，例如 app.clickup.com/12345678/home。",
     "ClickUp Channel ID": "ClickUp 频道 ID",
     "ClickUp Channel ID Description": "您可以在聊天频道的 URL 中找到它，紧跟在 /chat/r/ 之后，例如 .../chat/r/abc123-4567。",
-    "ClickUp API Token Description": "您可以在 ClickUp 中创建个人访问令牌，方法是转到“设置”(Settings) -> “集成与 ClickApps”(Integrations & ClickApps) -> “ClickUp API” -> “API 令牌”(API Token)"
+    "ClickUp API Token Description": "您可以在 ClickUp 中创建个人访问令牌，方法是转到“设置”(Settings) -> “集成与 ClickApps”(Integrations & ClickApps) -> “ClickUp API” -> “API 令牌”(API Token)",
+    "LLM Provider": "LLM 提供商",
+    "LLM API Key": "LLM API 密钥",
+    "LLM Model": "LLM 模型",
+    "LLM Base URL": "LLM 接口地址",
+    "llmProviderDescription": "可选。启用 AI 功能，例如根据描述生成主题。留空则本实例不会连接任何 AI 提供商。",
+    "llmApiKeyDescription": "保存在本实例，所有能登录的人共享。与上方其他 API 凭据一样，以明文存储于数据库中。",
+    "llmModelDescription": "可选。留空则使用提供商的默认模型。",
+    "llmModelPlaceholder": "提供商默认",
+    "llmBaseUrlDescription": "可选。可指向代理、区域节点，或兼容该提供商 API 的自托管模型。"
 }

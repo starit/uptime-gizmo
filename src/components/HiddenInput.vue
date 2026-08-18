@@ -1,6 +1,7 @@
 <template>
     <div class="gizmo-inline-action">
         <GizmoInput
+            :id="id"
             v-model="model"
             :type="visibility"
             :placeholder="placeholder"
@@ -28,7 +29,13 @@ export default {
         GizmoIconButton,
         GizmoInput,
     },
+    inheritAttrs: false,
     props: {
+        /** Forwarded to the input itself so a caller's <label for> resolves. */
+        id: {
+            type: String,
+            default: undefined,
+        },
         /** The value of the input */
         modelValue: {
             type: String,
