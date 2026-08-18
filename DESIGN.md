@@ -81,6 +81,7 @@ Use semantic UI tokens in application code instead of hard-coding primitive colo
     --color-interactive-hover: #1854C4;
     --color-interactive-subtle: #E8F0FF;
     --color-focus-ring: #1E64E7;
+    --color-overlay: rgb(10 21 30 / 68%);
 
     /* Status: light mode */
     --status-up: #22C55E;
@@ -132,6 +133,7 @@ body.dark,
     --color-interactive-hover: #9ABEFF;
     --color-interactive-subtle: #132E5C;
     --color-focus-ring: #75A7FF;
+    --color-overlay: rgb(2 8 13 / 78%);
 
     /* Status: dark mode */
     --status-up: #4ADE80;

@@ -4,7 +4,7 @@ These primitives are the shared presentation layer introduced in Tailwind migrat
 
 ## Rules
 
-- Import primitives from `src/components/gizmo/` and preserve the project’s Vue Options API convention.
+- Import primitives from `src/components/gizmo/`. New primitives should use TypeScript; preserve existing Options API contracts where an incremental migration depends on them.
 - Pass translated visible text from the caller. A primitive must not invent user-facing copy or locale keys.
 - Use native controls. Do not substitute a clickable `<a>` or `<div>` for a button, input, select, textarea, checkbox, radio, or switch.
 - Prefer a compact list row, table, or inline metric over a card. Use `GizmoPanel` only for meaningful surface boundaries.
@@ -46,6 +46,32 @@ These primitives are the shared presentation layer introduced in Tailwind migrat
 | `GizmoTable` / `GizmoListRow` | Dense data presentation. The caller owns headings, row data, sorting, and pagination. |
 
 Status labels must retain non-color information. For example, pair `tone="down"` with a translated “Down” label, not only a red dot.
+
+## Dialogs
+
+`GizmoDialog` is the shared accessible shell for modal interactions. It owns focus trapping and restoration, page scroll locking, Escape and backdrop dismissal, semantic title/description association, responsive sizing, and theme-aware presentation. Callers continue to own translated copy, form state, async submission, and business actions.
+
+- Bind the controlled state with `:open` and `@update:open`; do not instantiate Reka UI or Bootstrap directly in business components.
+- Always pass translated `title` and `close-label` values. Put explanatory copy in the `description` slot so it is associated through `aria-describedby`.
+- Use only `sm`, `md`, or `lg`. Confirmation prompts should normally use `sm`; complex forms should select the smallest size that avoids unnecessary wrapping.
+- Disable `close-on-backdrop` for forms where an outside click could discard meaningful work. Set `close-disabled` while an asynchronous operation must not be interrupted; it blocks button, Escape, and backdrop dismissal while still allowing the owner to close the controlled dialog after success.
+- Put actions in the `footer` slot. Keep the safe action before the destructive action in DOM order so keyboard navigation remains predictable.
+- Because dialog content is portaled, keep each native `<form>` in the dialog body and associate footer submit buttons with a stable `form` id. Do not rely on Vue component ancestry for form submission.
+- Mark the preferred initial action with the native `autofocus` attribute. Destructive confirmations must focus the safe cancel action first.
+
+`Confirm.vue`, `APIKeyDialog.vue`, `NotificationDialog.vue`, and `MonitorSettingDialog.vue` now use `GizmoDialog`. `NotificationFormHost.vue` is a narrow migration boundary for legacy notification forms that still read `notification` from their direct parent; new notification forms must use explicit props and events instead. Remove the host after those forms have been migrated rather than extending its compatibility surface.
+
+## Menus
+
+`GizmoMenu` and `GizmoMenuItem` provide the shared Reka-backed dropdown behavior. They own menu focus, arrow-key navigation, Escape dismissal, trigger focus restoration, collision handling, and portal layering.
+
+- Put exactly one native button in the `trigger` slot. Reka supplies `aria-haspopup`, `aria-expanded`, and keyboard behavior.
+- Use `GizmoMenuItem` for actions and handle its `select` event, so pointer and keyboard activation follow the same path.
+- Set `as-child` when an item is a real `router-link` or external link. Keep external-link security attributes on the link itself.
+- Use `variant="danger"` for destructive actions and preserve a visible text label alongside any icon.
+- Plain non-interactive menu labels and separators use `gizmo-menu__label` and `gizmo-menu__separator` with an explicit separator role.
+
+Bootstrap JavaScript is no longer loaded. Do not add `data-bs-toggle`, direct Bootstrap constructors, or another page-specific dropdown implementation.
 
 ## Layout recipes
 

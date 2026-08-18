@@ -50,6 +50,7 @@ The most common dependencies are form controls, buttons, selects, grid/flex layo
 - Preserve the dense, scan-first character of authenticated monitoring workflows. Do not replace data rows and inline metrics with decorative cards, oversized headers, or low-signal whitespace; follow the Monitoring density rules in `DESIGN.md`.
 - Delete Bootstrap styles and JavaScript only after their replacements are verified. Do not leave permanent dual implementations.
 - Prefer route-level code splitting and lightweight primitives. A monitoring dashboard should not gain a large UI-library runtime.
+- Breaking changes are acceptable when they remove obsolete architecture or enable a clearer, safer design. Prefer the best-practice API for new code over large compatibility layers created only to preserve Bootstrap-era implementation details.
 
 ## Implementation phases
 
@@ -96,14 +97,20 @@ Use these primitives to replace repeated Bootstrap patterns before migrating lar
 
 ### Phase 3 — Replace Bootstrap JavaScript interactions
 
-Replace the 14 direct Bootstrap `Modal` usages with a single accessible dialog abstraction backed by Reka UI or an equivalently verified primitive.
+**Phase 3A status:** Complete on 2026-08-17. The shared Reka-backed `GizmoDialog`, frontend Vue TypeScript gate, and migrated `Confirm.vue` are recorded in [the Phase 3A execution record](../execution/2026-08-17-tailwind-phase-3a.md).
+
+**Phase 3B status:** Complete on 2026-08-17. The initial high-frequency dialogs (`APIKeyDialog.vue`, `NotificationDialog.vue`, and `MonitorSettingDialog.vue`) are recorded in [the Phase 3B execution record](../execution/2026-08-17-tailwind-phase-3b.md). Ten direct Bootstrap modal consumers remain for Phase 3C.
+
+**Phase 3C status:** Complete on 2026-08-17. The remaining ten modal consumers and five Bootstrap dropdown consumers now use shared Gizmo primitives, and the Bootstrap JavaScript entry has been removed. See [the Phase 3C execution record](../execution/2026-08-17-tailwind-phase-3c.md). Bootstrap SCSS remains until the route styling phases are complete.
+
+Replace the 14 components containing 15 direct Bootstrap `Modal` instances with a single accessible dialog abstraction backed by Reka UI or an equivalently verified primitive.
 
 Initial targets include:
 
 - `Confirm.vue`, `APIKeyDialog.vue`, `NotificationDialog.vue`, and `MonitorSettingDialog.vue`.
 - Status-page, maintenance, proxy, Docker host, remote browser, tag, screenshot, two-factor, incident, and badge dialogs.
 
-Then replace any Bootstrap-dependent dropdown, collapse, tooltip, or popover behavior. Preserve existing public component APIs where practical so page migration can be incremental.
+Then replace any Bootstrap-dependent dropdown, collapse, tooltip, or popover behavior. Preserve public APIs only when they remain appropriate for the new architecture; otherwise make the breaking change explicitly and migrate callers to the higher-quality API.
 
 **Exit criteria:** `import "bootstrap"` is no longer needed for JavaScript behavior; dialogs retain focus management, escape handling, accessible labels, and safe nested interactions.
 
