@@ -1,8 +1,8 @@
 <template>
     <!-- Group List -->
-    <Draggable v-model="$root.publicGroupList" :disabled="!editMode" item-key="id" :animation="100">
+    <Draggable v-model="$root.publicGroupList" class="service-groups" :disabled="!editMode" item-key="id" :animation="100">
         <template #item="group">
-            <div class="tw-mb-5" data-testid="group">
+            <div class="service-group" data-testid="group">
                 <!-- Group Title -->
                 <h2 class="group-title">
                     <font-awesome-icon v-if="editMode && showGroupDrag" icon="arrows-alt-v" class="action drag tw-me-3" />
@@ -30,7 +30,7 @@
                 </h2>
 
                 <transition name="slide-fade-up">
-                    <div v-if="!isGroupCollapsed(group.element)" class="shadow-box monitor-list tw-mt-4 tw-relative">
+                    <div v-if="!isGroupCollapsed(group.element)" class="monitor-list tw-relative">
                         <div v-if="group.element.monitorList.length === 0" class="tw-text-center no-monitor-msg">
                             {{ $t("No Monitors") }}
                         </div>
@@ -323,11 +323,30 @@ export default {
 
 <style lang="scss" scoped>
 /*
+ * One surface for the whole service list. Every group used to be its own card,
+ * so three groups of one monitor each produced three 90px cards around three
+ * 24px rows, and the group headings floated outside them. Groups are now
+ * sections inside a single container, separated by rules.
+ */
+.service-groups {
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+    overflow: hidden;
+}
+
+.service-group + .service-group .group-title {
+    border-top: 1px solid var(--color-border);
+}
+
+/*
  * A group name labels the list beneath it; it is not competing with the
  * overall status for the visitor's attention.
  */
 .group-title {
-    margin-bottom: 0.625rem;
+    margin: 0;
+    padding: 0.625rem 1rem;
+    background: var(--color-surface-subtle);
     color: var(--color-text-muted);
     font-size: 0.75rem;
     font-weight: var(--weight-semibold);
@@ -365,15 +384,27 @@ export default {
 }
 
 .item {
-    padding: 0.875rem;
-    border: 1px solid transparent;
-    border-radius: var(--radius-sm);
-    transition: background-color 160ms ease, border-color 160ms ease;
+    /*
+     * Uniform rows. The heartbeat only prints its time range once it has more
+     * than four beats, so a freshly added monitor rendered 14px shorter than
+     * its neighbours and broke the list's rhythm.
+     */
+    display: flex;
+    min-height: 4.75rem;
+    flex-direction: column;
+    justify-content: center;
+    padding: 0.75rem 1rem;
+    border-top: 1px solid var(--color-border);
+    transition: background-color 160ms ease;
 
     &:hover {
         background: var(--color-surface-hover);
-        border-color: var(--color-border);
     }
+}
+
+.group-title + * .item:first-child,
+.monitor-list > .item:first-child {
+    border-top: 0;
 }
 
 .item-name {
