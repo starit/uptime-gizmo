@@ -134,7 +134,71 @@ These are projections over existing data, not new persistence. They exist so an
 agent does not have to reimplement correlation that the server already does for
 its own dashboard.
 
-Everything else an agent needs is already in the REST plan.
+### `changes` is cheap, and still bounded
+
+An earlier draft worried this endpoint would need its own index. It does not.
+`heartbeat.important` already marks state transitions, and
+`monitor_important_time_index` on `(monitor_id, important, time)` already covers
+the query — a 2025-12-22 migration added partial indexes for exactly this
+access pattern. On a development instance 31 of 718 heartbeats were transitions,
+about 4%, so the endpoint reads a small fraction of the table through an index
+built for it.
+
+Bounds are still required, for a different reason: an agent asking an open
+question should not be able to pull an instance's entire history in one call.
+
+- `since` defaults to 24 hours and is capped at 7 days.
+- At most 500 transitions per response, with a cursor for the rest.
+- A request past the cap is answered with the capped window and says so, rather
+  than failing.
+
+These are guards against accidental load, not security controls. The security
+control is who may call it at all.
+
+## Two classes of agent access
+
+Agents fall into two groups with very different risk, and they should not share
+a door.
+
+### Reading
+
+The intent is that a read-only agent may not need a credential at all. That is
+reasonable, but **"read-only without a key" must not mean "the whole monitor
+inventory without a key"**.
+
+The monitor table is the sensitive part of a monitoring instance. It holds
+hostnames, URLs, ports, and what is currently failing — an inventory of the
+estate and a list of which parts of it are already weak. Publishing that
+unauthenticated is a different act from publishing a status page, which is a
+curated subset an operator deliberately chose to make public.
+
+So the read surface splits:
+
+| Access | Credential | Surface |
+| --- | --- | --- |
+| Public read | none, and **off by default** | Only what published status pages already expose: the names an operator chose to publish, their status, and uptime |
+| Private read | read-only API key | Full inventory, configuration excluding secrets, heartbeats, statistics, `overview`, `incidents/active`, `changes` |
+
+The public tier is derived from status-page configuration rather than from the
+monitor table, so nothing reaches it that an operator has not already published
+by other means. It carries no URLs, hostnames, ports, or monitor configuration,
+and `changes` on that tier is limited to the monitors a status page exposes.
+
+Turning it on is a deliberate instance-level choice with a plain description of
+what becomes public.
+
+### Writing
+
+The valuable case: an agent creates and maintains monitors, which removes a
+large amount of manual setup.
+
+The first release supports **create and update, not delete.** An agent that can
+delete a monitor can silently stop monitoring production, and the failure is
+invisible precisely because monitoring is what stopped. Creation and update are
+recoverable; deletion is not, and there is no audit log to attribute it.
+
+Writing always requires a key that is not read-only. There is no unauthenticated
+write tier and there should never be one.
 
 ## MCP surface
 
@@ -153,10 +217,15 @@ Each is annotated with whether it mutates and whether it can notify anyone.
 | `resume_monitor` | `POST /monitors/:id/resume` | yes | may trigger alerts |
 | `create_maintenance` | `POST /maintenance` | yes | suppresses alerts for its window |
 
-Deliberately absent from the first release: creating or deleting monitors,
-deleting history, editing notification channels, and anything touching API keys.
-An agent that can delete a monitor can silently stop monitoring production, and
-no convenience justifies that until the scope model has been in use for a while.
+The writing tools follow the create-and-update rule above:
+
+| Tool | Maps to | Mutates | Side effects |
+| --- | --- | --- | --- |
+| `create_monitor` | `POST /monitors` | yes | begins checking a target |
+| `update_monitor` | `PATCH /monitors/:id` | yes | may change alerting |
+
+Deliberately absent from the first release: deleting monitors, deleting history,
+editing notification channels, and anything touching API keys or users.
 
 Resources (as opposed to tools) are a good fit for status pages: an agent can
 read a status page as a document without calling anything.
@@ -174,6 +243,10 @@ read a status page as a document without calling anything.
   reason about consequences before calling.
 - **Rate limits apply to the key,** not to the transport, so an agent cannot
   bypass them by using MCP instead of HTTP.
+- **The public read tier, if enabled, is derived from status-page
+  configuration** — never from the monitor table. An operator must not be able
+  to publish their infrastructure inventory by ticking one box.
+- **There is no unauthenticated write tier,** now or later.
 - **The monitoring server never imports an MCP SDK.**
 
 ## Phases
@@ -215,9 +288,7 @@ tool call, holding a key that cannot change anything.
   is obviously right; whether the response should distinguish "your key cannot
   write" from "your account cannot do this" is a usability question with a small
   information-disclosure edge.
-- **Whether `changes` needs its own index.** It reads the heartbeat table by
-  time; on a large instance that may need work, and this plan does not assume it
-  is free.
-- **Whether `changes` should be capped by default.** An agent asking for a wide
-  window could pull a great deal of history; a default bound with an explicit
-  opt-out is probably right, but the limit is not chosen yet.
+- **Whether the public read tier is worth building at all.** It serves agents
+  that cannot hold a credential, but every instance that enables it publishes
+  more than a status page does today, and the safe version of it may be narrow
+  enough to be uninteresting.
