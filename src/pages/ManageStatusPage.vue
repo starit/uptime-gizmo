@@ -128,7 +128,7 @@ export default {
     text-decoration: none;
     color: var(--color-text);
     border: 1px solid transparent;
-    border-radius: 0.875rem;
+    border-radius: var(--radius-md);
     transition: background-color 160ms ease, border-color 160ms ease;
     padding: 0.75rem;
 
@@ -155,7 +155,7 @@ export default {
         flex: 1 1 auto;
 
         .title {
-            font-weight: bold;
+            font-weight: var(--weight-bold);
         font-size: 1.1rem;
         }
 

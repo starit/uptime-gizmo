@@ -4563,7 +4563,7 @@ message HealthCheckResponse {
     display: flex;
     margin-inline: -1.25rem;
     border-top: 1px solid var(--color-border);
-    border-radius: 0 0 1rem 1rem;
+    border-radius: 0 0 var(--radius-md) var(--radius-md);
     background: color-mix(in srgb, var(--color-surface) 92%, transparent);
     backdrop-filter: blur(0.25rem);
 }

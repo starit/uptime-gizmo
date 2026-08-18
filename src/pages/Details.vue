@@ -922,7 +922,7 @@ export default {
 .url {
     color: var(--color-interactive);
     margin-bottom: 1.25rem;
-    font-weight: bold;
+    font-weight: var(--weight-bold);
 
     a {
         color: var(--color-interactive);
@@ -953,10 +953,10 @@ export default {
     justify-content: center;
     padding: 0.5rem 0.875rem;
     border: 1px solid;
-    border-radius: 999px;
+    border-radius: var(--radius-pill);
     font-family: "IBM Plex Mono", monospace;
     font-size: 1.25rem;
-    font-weight: 750;
+    font-weight: var(--weight-bold);
     letter-spacing: 0.04em;
 }
 
@@ -983,7 +983,7 @@ export default {
 
 .monitor-stat .num {
     font-size: clamp(1.1rem, 2vw, 1.5rem);
-    font-weight: 750;
+    font-weight: var(--weight-bold);
     font-variant-numeric: tabular-nums;
 }
 

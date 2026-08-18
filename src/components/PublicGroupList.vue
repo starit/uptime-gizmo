@@ -349,7 +349,7 @@ export default {
 .item {
     padding: 0.875rem;
     border: 1px solid transparent;
-    border-radius: 0.75rem;
+    border-radius: var(--radius-sm);
     transition: background-color 160ms ease, border-color 160ms ease;
 
     &:hover {
@@ -364,7 +364,7 @@ export default {
     margin: 0;
     display: inline-block;
     color: var(--color-text);
-    font-weight: 600;
+    font-weight: var(--weight-semibold);
 }
 
 /* Renamed from .btn-link: it was always a local rule, and the Bootstrap class

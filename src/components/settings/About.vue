@@ -81,7 +81,7 @@ export default {
 
 .about-title {
     font-size: 1.25rem;
-    font-weight: 700;
+    font-weight: var(--weight-bold);
 }
 
 .about-version-alert,

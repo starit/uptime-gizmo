@@ -175,7 +175,7 @@ export default {
     gap: 0.75rem;
     text-decoration: none;
     border: 1px solid transparent;
-    border-radius: 0.875rem;
+    border-radius: var(--radius-md);
     transition: background-color 160ms ease, border-color 160ms ease;
     justify-content: space-between;
     padding: 0.875rem;
@@ -217,12 +217,12 @@ export default {
         .circle {
             width: 1.5rem;
             height: 1.5rem;
-            border-radius: 50rem;
+            border-radius: var(--radius-pill);
         }
 
         .info {
             .title {
-                font-weight: bold;
+                font-weight: var(--weight-bold);
                 font-size: 1.1rem;
             }
 
@@ -249,7 +249,7 @@ export default {
     font-size: 14px;
     color: var(--color-text-muted);
     background-color: var(--color-surface-subtle);
-    border-radius: 999px;
+    border-radius: var(--radius-pill);
     padding: 0 0.625rem;
     width: fit-content;
 

@@ -284,7 +284,7 @@ export default {
     padding: clamp(1.5rem, 4vw, 2.75rem);
     background: var(--color-surface);
     border: 1px solid var(--color-border);
-    border-radius: 1.25rem;
+    border-radius: var(--radius-lg);
     box-shadow: var(--shadow-overlay);
 }
 
@@ -295,7 +295,7 @@ export default {
     img {
         width: min(100%, 16rem);
         height: auto;
-        border-radius: 0.75rem;
+        border-radius: var(--radius-sm);
     }
 }
 
@@ -303,7 +303,7 @@ export default {
     margin: 2rem 0 1rem;
     color: var(--color-text);
     font-size: 1.05rem;
-    font-weight: 700;
+    font-weight: var(--weight-bold);
 }
 
 .database-options {
@@ -314,8 +314,8 @@ export default {
     label {
         min-height: 4.25rem;
         padding: 0.75rem;
-        border-radius: 0.875rem !important;
-        font-weight: 700;
+        border-radius: var(--radius-md) !important;
+        font-weight: var(--weight-bold);
     }
 }
 

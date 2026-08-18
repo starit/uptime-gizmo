@@ -274,7 +274,7 @@ export default {
     display: block;
     width: min(13rem, 42vw);
     height: auto;
-    border-radius: 0.65rem;
+    border-radius: var(--radius-sm);
 }
 
 .app-header-update {
@@ -295,9 +295,9 @@ export default {
     align-items: center;
     gap: 0.5rem;
     padding: 0.6rem 0.8rem;
-    border-radius: 0.7rem;
+    border-radius: var(--radius-sm);
     color: var(--color-text-muted);
-    font-weight: 650;
+    font-weight: var(--weight-semibold);
     text-decoration: none;
 
     &:hover,
@@ -350,8 +350,8 @@ export default {
         width: 24px;
         height: 24px;
         margin-right: 5px;
-        border-radius: 50rem;
-        font-weight: bold;
+        border-radius: var(--radius-pill);
+        font-weight: var(--weight-bold);
         font-size: 10px;
     }
 }
@@ -378,7 +378,7 @@ export default {
     min-width: 0;
     color: var(--color-text-subtle);
     font-size: 0.72rem;
-    font-weight: 700;
+    font-weight: var(--weight-bold);
     text-align: center;
     text-decoration: none;
 

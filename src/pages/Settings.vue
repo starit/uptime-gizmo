@@ -260,7 +260,7 @@ export default {
     align-items: center;
     gap: 0.5rem;
     padding: 0.625rem 0.75rem;
-    border-radius: 0.625rem;
+    border-radius: var(--radius-sm);
     color: var(--color-text);
     text-decoration: none;
 }
@@ -286,7 +286,7 @@ export default {
 
     .menu-item {
         color: var(--color-text-muted);
-        border-radius: 0.75rem;
+        border-radius: var(--radius-sm);
         margin: 0.5em;
         padding: 0.7em 1em;
         cursor: pointer;
@@ -315,7 +315,7 @@ export default {
     .settings-content-header {
         width: calc(100% + 20px);
         border-bottom: 1px solid var(--color-border);
-        border-radius: 0 10px 0 0;
+        border-radius: 0 var(--radius-md) 0 0;
         margin-top: -20px;
         margin-right: -20px;
         padding: 12.5px 1em;

@@ -9,7 +9,7 @@
                 {{ $t("proxyDescription") }}
             </p>
 
-            <ul class="gizmo-list-group tw-mb-3" style="border-radius: 1rem">
+            <ul class="gizmo-list-group tw-mb-3">
                 <li v-for="(proxy, index) in $root.proxyList" :key="index" class="gizmo-list-group__item">
                     {{ proxy.host }}:{{ proxy.port }} ({{ proxy.protocol }})
                     <span v-if="proxy.default === true" class="gizmo-inline-badge tw-ms-2">{{ $t("Default") }}</span>

@@ -103,7 +103,7 @@ export default {
     justify-content: center;
     padding: 0.2rem 0.5rem;
     border: 1px solid var(--status-unknown-border);
-    border-radius: 999px;
+    border-radius: var(--radius-pill);
     color: var(--status-unknown-fg);
     background: var(--status-unknown-bg);
 }

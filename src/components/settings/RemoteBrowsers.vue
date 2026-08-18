@@ -5,7 +5,7 @@
                 {{ $t("Not available, please setup.") }}
             </p>
 
-            <ul class="gizmo-list-group tw-mb-3" style="border-radius: 1rem">
+            <ul class="gizmo-list-group tw-mb-3">
                 <li v-for="(remoteBrowser, index) in $root.remoteBrowserList" :key="index" class="gizmo-list-group__item">
                     {{ remoteBrowser.name }}
                     <br />

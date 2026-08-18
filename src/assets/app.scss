@@ -20,7 +20,7 @@
 
 ::-webkit-scrollbar-thumb {
     background: var(--color-border-strong);
-    border-radius: 999px;
+    border-radius: var(--radius-pill);
 }
 
 ::-webkit-scrollbar-thumb:hover {
@@ -95,7 +95,7 @@ optgroup {
 .monitor-list .item {
     display: block;
     padding: 0.8125rem 0.9375rem 0.625rem;
-    border-radius: 0.625rem;
+    border-radius: var(--radius-sm);
     color: inherit;
     text-decoration: none;
     transition: background-color 0.15s ease-in-out;
@@ -121,7 +121,7 @@ optgroup {
 
 [contenteditable="true"] {
     background-color: color-mix(in srgb, var(--color-surface-hover) 75%, transparent);
-    border-radius: 0.5rem;
+    border-radius: var(--radius-sm);
     transition: background-color 0.2s $easing-in;
 
     &.no-bg {
@@ -145,7 +145,7 @@ optgroup {
 }
 
 .vue-image-crop-upload .vicp-wrap {
-    border-radius: 0.625rem !important;
+    border-radius: var(--radius-sm) !important;
 }
 
 .spinner {
@@ -173,7 +173,7 @@ h5.settings-subheading::after {
 .css-editor {
     padding: 0.625rem 0.3125rem;
     border: 1px solid var(--color-border);
-    border-radius: 0.75rem;
+    border-radius: var(--radius-sm);
     background: var(--color-surface);
     color: var(--color-text);
 }
@@ -189,7 +189,7 @@ $shadow-box-padding: 1.25rem;
     z-index: 10;
     bottom: 0;
     margin-inline: -$shadow-box-padding;
-    border-radius: 0 0 1rem 1rem;
+    border-radius: 0 0 var(--radius-md) var(--radius-md);
     background-color: color-mix(in srgb, var(--color-surface) 88%, transparent);
     backdrop-filter: blur(0.125rem);
 }

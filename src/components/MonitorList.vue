@@ -613,7 +613,7 @@ export default {
     padding: 0.875rem;
     background: var(--color-surface-subtle);
     border-bottom: 1px solid var(--color-border);
-    border-radius: 1rem 1rem 0 0;
+    border-radius: var(--radius-md) var(--radius-md) 0 0;
     display: flex;
     flex-direction: column;
     gap: 0.625rem;

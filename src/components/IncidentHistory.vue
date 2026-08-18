@@ -112,7 +112,7 @@ export default {
             display: flex;
             padding: 0.875rem;
             border: 1px solid var(--color-border);
-            border-radius: 0.875rem;
+            border-radius: var(--radius-md);
             background: var(--color-surface);
             transition: background-color 160ms ease, border-color 160ms ease;
 
@@ -132,7 +132,7 @@ export default {
             .incident-style-indicator {
                 width: 6px;
                 min-height: 100%;
-                border-radius: 999px;
+                border-radius: var(--radius-pill);
                 flex-shrink: 0;
                 margin-right: 0.75rem;
             }

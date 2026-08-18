@@ -124,7 +124,7 @@ export default {
         background: var(--color-surface);
         backdrop-filter: blur(8px);
         border: 1px solid var(--color-border);
-        border-radius: 8px;
+        border-radius: var(--radius-sm);
         padding: 8px 12px;
         box-shadow: var(--shadow-float);
         min-width: 120px;
@@ -144,7 +144,7 @@ export default {
 
         .tooltip-status {
             font-size: 16px;
-            font-weight: 600;
+            font-weight: var(--weight-semibold);
             margin-bottom: 4px;
             text-transform: uppercase;
             letter-spacing: 0.5px;

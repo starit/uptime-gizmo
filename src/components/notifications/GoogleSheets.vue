@@ -13,8 +13,8 @@
         </div>
     </div>
 
-    <div class="gizmo-native-alert gizmo-native-alert--info" style="border-radius: 8px">
-        <h6 style="margin-bottom: 12px; font-weight: 600">{{ $t("Quick Setup Guide") }}:</h6>
+    <div class="gizmo-native-alert gizmo-native-alert--info">
+        <h6 style="margin-bottom: 12px; font-weight: var(--weight-semibold)">{{ $t("Quick Setup Guide") }}:</h6>
         <ol style="margin-bottom: 0; padding-left: 20px; line-height: 1.8">
             <li>{{ $t("Open your Google Spreadsheet") }}</li>
             <li>{{ $t("Go to Extensions → Apps Script") }}</li>

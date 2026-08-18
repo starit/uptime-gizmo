@@ -41,7 +41,7 @@ h5,
 h6 {
     margin-bottom: 0.5rem;
     color: var(--color-text);
-    font-weight: 700;
+    font-weight: var(--weight-bold);
     line-height: 1.25;
 }
 
@@ -99,7 +99,7 @@ ol.gizmo-prose-list {
 code,
 kbd,
 samp {
-    border-radius: 0.3125rem;
+    border-radius: var(--radius-xs);
     background: var(--color-surface-subtle);
     padding-inline: 0.25em;
     color: var(--color-text);
@@ -133,7 +133,7 @@ a {
 .shadow-box {
     background-color: var(--color-surface);
     border: 1px solid var(--color-border);
-    border-radius: 1rem;
+    border-radius: var(--radius-md);
     box-shadow: var(--shadow-panel);
 }
 

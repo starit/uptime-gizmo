@@ -103,7 +103,7 @@ export default {
 }
 
 .title {
-    font-weight: bold;
+    font-weight: var(--weight-bold);
 }
 
 </style>

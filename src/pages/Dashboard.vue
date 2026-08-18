@@ -53,7 +53,7 @@ export default {
     overflow: hidden;
     background: var(--color-surface);
     border: 1px solid var(--color-border);
-    border-radius: 1rem;
+    border-radius: var(--radius-md);
     box-shadow: var(--shadow-panel);
 }
 

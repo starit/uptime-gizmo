@@ -146,7 +146,7 @@ export default {
     padding: clamp(1.5rem, 4vw, 2.75rem);
     background: var(--color-surface);
     border: 1px solid var(--color-border);
-    border-radius: 1.25rem;
+    border-radius: var(--radius-lg);
     box-shadow: var(--shadow-overlay);
     text-align: center;
 }
@@ -154,13 +154,13 @@ export default {
 .onboarding-brand img {
     width: min(100%, 16rem);
     height: auto;
-    border-radius: 0.75rem;
+    border-radius: var(--radius-sm);
 }
 
 .onboarding-card-prompt {
     margin: 2rem 0 1rem;
     color: var(--color-text);
     font-size: 1.05rem;
-    font-weight: 700;
+    font-weight: var(--weight-bold);
 }
 </style>

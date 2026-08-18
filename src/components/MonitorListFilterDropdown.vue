@@ -57,7 +57,7 @@ export default {
     transition: opacity 160ms ease, transform 160ms ease;
     padding: 0.25rem 0 !important;
     border: 1px solid var(--color-border);
-    border-radius: 0.875rem;
+    border-radius: var(--radius-md);
     overflow: hidden;
 
     position: absolute;
@@ -95,7 +95,7 @@ export default {
     color: var(--color-interactive);
     background: var(--color-surface);
     border: 1px solid var(--color-border);
-    border-radius: 0.625rem;
+    border-radius: var(--radius-sm);
 
     &:focus {
         outline: 2px solid var(--color-focus-ring);

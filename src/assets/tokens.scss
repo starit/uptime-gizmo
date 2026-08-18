@@ -27,6 +27,20 @@
     --color-interactive-subtle: #e8f0ff;
     --color-focus-ring: #1e64e7;
     --color-overlay: rgb(10 21 30 / 68%);
+
+    /* Corner scale. Four steps, deliberately tight. */
+    --radius-xs: 0.25rem;
+    --radius-sm: 0.375rem;
+    --radius-md: 0.5rem;
+    --radius-lg: 0.75rem;
+    --radius-pill: 999px;
+
+    /* Weight scale. IBM Plex Sans ships static cuts, so 650/750 rounded
+       anyway; naming the four real steps keeps call sites honest. */
+    --weight-normal: 400;
+    --weight-medium: 500;
+    --weight-semibold: 600;
+    --weight-bold: 700;
     --shadow-raised:
         0 1px 2px -1px rgb(10 21 30 / 10%),
         0 1px 3px rgb(10 21 30 / 8%);

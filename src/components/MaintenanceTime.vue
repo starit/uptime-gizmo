@@ -50,7 +50,7 @@ export default {
     font-size: 14px;
     color: var(--color-text-muted);
     background-color: var(--color-surface-subtle);
-    border-radius: 999px;
+    border-radius: var(--radius-pill);
     padding: 0 0.625rem;
     margin-right: 0.375rem;
 

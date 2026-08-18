@@ -25,7 +25,7 @@
 }
 
 .dp__input {
-    border-radius: $border-radius;
+    border-radius: var(--radius-sm);
 }
 
 /* Fix full input width for inline textInput + inlineWithInput mode. */

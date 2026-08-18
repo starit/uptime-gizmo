@@ -1502,7 +1502,7 @@ export default {
 }
 
 .overall-status {
-    font-weight: bold;
+    font-weight: var(--weight-bold);
     font-size: 25px;
 
     .ok {
@@ -1611,7 +1611,7 @@ footer {
         left: -14px;
         background-color: var(--color-surface);
         padding: 5px;
-        border-radius: 10px;
+        border-radius: var(--radius-md);
         cursor: pointer;
         box-shadow: var(--shadow-float);
     }
@@ -1723,7 +1723,7 @@ footer {
 
 .bg-maintenance {
     .gizmo-native-alert__title {
-        font-weight: bold;
+        font-weight: var(--weight-bold);
     }
 }
 
@@ -1733,7 +1733,7 @@ footer {
 
 .past-incidents-title {
     font-size: 26px;
-    font-weight: normal;
+    font-weight: var(--weight-normal);
 }
 
 .past-incidents-section {
@@ -1745,7 +1745,7 @@ footer {
 .incident-date-group {
     .incident-date-header {
         font-size: 1rem;
-        font-weight: normal;
+        font-weight: var(--weight-normal);
         color: var(--bs-secondary);
         margin-bottom: 0.75rem;
     }

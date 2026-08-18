@@ -316,7 +316,7 @@ export default {
     margin: 0;
     color: var(--color-text);
     font-size: clamp(1.6rem, 3vw, 2.25rem);
-    font-weight: 750;
+    font-weight: var(--weight-bold);
     letter-spacing: -0.04em;
 }
 
@@ -332,14 +332,14 @@ export default {
     background: var(--color-surface);
     border: 1px solid var(--color-border);
     border-top: 3px solid var(--status-unknown);
-    border-radius: 1rem;
+    border-radius: var(--radius-md);
     box-shadow: var(--shadow-raised);
 
     h2 {
         margin: 0 0 0.55rem;
         color: var(--color-text-muted);
         font-size: 0.78rem;
-        font-weight: 750;
+        font-weight: var(--weight-bold);
         letter-spacing: 0.08em;
         text-transform: uppercase;
     }
@@ -350,7 +350,7 @@ export default {
     color: var(--color-text);
     font-family: "IBM Plex Mono", "Noto Sans Mono", monospace;
     font-size: clamp(1.75rem, 4vw, 2.6rem);
-    font-weight: 700;
+    font-weight: var(--weight-bold);
     line-height: 1;
 }
 

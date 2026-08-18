@@ -384,7 +384,7 @@ export default {
 .drag-over {
     outline: 2px dashed var(--color-interactive);
     outline-offset: 2px;
-    border-radius: 0.875rem;
+    border-radius: var(--radius-md);
     background-color: var(--color-interactive-subtle);
 }
 
@@ -403,7 +403,7 @@ export default {
         color: var(--color-text);
         background: var(--color-surface);
         border: 1px solid transparent;
-        border-radius: 0.875rem;
+        border-radius: var(--radius-md);
         transition: background-color 160ms ease, border-color 160ms ease, transform 160ms ease;
 
         &:hover {
