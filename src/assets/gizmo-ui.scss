@@ -10,7 +10,7 @@
  *
  * Deliberate departures from the old reboot:
  *   - Lists stay unstyled. Nearly every <ul> here is structural (navigation,
- *     menus, monitor lists); a content list opts back in with .gizmo-prose-list.
+ *     menus, monitor lists).
  *   - Buttons keep Preflight's transparent, borderless reset. Every button in
  *     the product carries .gizmo-native-button or a Gizmo component.
  */
@@ -83,17 +83,6 @@ hr {
     margin-block: 1rem;
     border-top: 1px solid var(--color-border);
     opacity: 1;
-}
-
-/* Opt-in for genuine prose lists, since the global default stays unstyled. */
-.gizmo-prose-list {
-    margin-bottom: 1rem;
-    padding-left: 1.5rem;
-    list-style: disc;
-}
-
-ol.gizmo-prose-list {
-    list-style: decimal;
 }
 
 code,

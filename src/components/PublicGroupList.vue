@@ -378,11 +378,6 @@ export default {
     min-height: 46px;
 }
 
-.shadow-box.monitor-list {
-    padding: 0.5rem;
-    border: 1px solid var(--color-border);
-}
-
 .item {
     /*
      * Uniform rows. The heartbeat only prints its time range once it has more
