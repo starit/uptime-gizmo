@@ -77,31 +77,48 @@ database connections had better be part of monitoring, and an MCP server is not.
 The cost is one network hop on calls that are not latency-critical. That is the
 right trade.
 
+**The MCP server ships in this repository** as a separate package with its own
+process, rather than in a separate repository. Keeping it beside the API it
+consumes is what stops the two drifting; keeping it out of the server process is
+what protects monitoring. Publishing it is then a packaging question — an agent
+can install it directly, or a third-party platform can discover and install it,
+without Uptime Gizmo hosting any of that itself.
+
 It also keeps the contract honest: if MCP can only reach the product through
 `/api/v1`, then anything an agent can do, a script can do, and there is one set
 of authorization rules rather than two.
 
 ## Permission model
 
-Add a scope to API keys. Minimum viable set, deliberately coarse:
+An earlier draft of this plan proposed three scopes — `read`, `write`, `admin`.
+That was over-designed. The product's multi-user model is deliberately minimal
+(see [the multi-user plan](multi-user.md)), and the agent requirement is
+narrower than three scopes imply: what an agent needs is a credential that can
+look at everything and change nothing.
 
-| Scope | Allows |
-| --- | --- |
-| `read` | Every `GET`, and nothing else |
-| `write` | Create and update monitors, tags, maintenance windows, incidents |
-| `admin` | Delete resources, clear history, manage notifications and API keys |
+Two booleans are enough.
+
+| Carried by | Flag | Meaning |
+| --- | --- | --- |
+| User | `admin` | May manage other users, notifications, integrations, and API keys |
+| API key | `read_only` | The key may issue `GET` requests and nothing else |
+
+Effective authority is the intersection: a key never exceeds the authority of
+the user it belongs to, and a read-only key is read-only regardless of who owns
+it. There are no scope strings, no capability lists, and nothing to keep in sync
+as the API grows — a new mutating route is covered by the read-only check the
+day it is written.
 
 Rules:
 
-- A key carries one or more scopes; absent any scope it is `read`.
-- Existing keys migrate to `read` + `write` + `admin` so nothing breaks, but the
-  UI defaults new keys to `read`.
-- The scope check happens in middleware, before the route, and is derived from
-  the key record rather than the request.
-- `admin` is never the default and the UI should say what it permits.
+- Existing keys migrate to `read_only = false`, so nothing breaks.
+- The UI defaults new keys to read-only, because that is the safe default and
+  the common case for automation that only observes.
+- The check happens in middleware, before the route, derived from the key
+  record rather than from anything the client sends.
 
-An agent is expected to hold a `read` key. Giving it `write` is a decision an
-operator makes deliberately, per key, and can revoke.
+An agent is expected to hold a read-only key. Giving it a writing key is a
+decision an operator makes per key and can revoke.
 
 ## Agent-shaped endpoints
 
@@ -149,7 +166,7 @@ read a status page as a document without calling anything.
 - **No secrets, ever.** Monitor credentials, notification config, push tokens
   and API keys are excluded from every response, as the REST plan already
   requires. An MCP server must not be able to ask for them.
-- **The scope check is server-side.** The MCP server is a client; it is not
+- **The permission check is server-side.** The MCP server is a client; it is not
   trusted to restrict itself.
 - **Mutating tools are opt-in per deployment,** disabled unless the operator
   configures a key that permits them.
@@ -161,18 +178,23 @@ read a status page as a document without calling anything.
 
 ## Phases
 
-### Phase 1 — Scopes
+### Phase 1 — Read-only keys and the admin flag
 
-Migration adding scopes to `api_key`, middleware enforcement, UI for choosing
-scopes when creating a key, existing keys grandfathered. No new endpoints.
+Migrations adding `read_only` to `api_key` and `admin` to `user`, middleware
+enforcing both, and UI for each. Existing keys and the existing user are
+grandfathered so nothing breaks. No new endpoints.
 
-**Exit criteria:** a `read` key is refused on every mutating route, and existing
-keys keep working.
+Depends on [the multi-user plan](multi-user.md), which introduces the admin
+flag.
+
+**Exit criteria:** a read-only key is refused on every mutating route, a
+non-admin user is refused on every admin route, and existing credentials keep
+working.
 
 ### Phase 2 — REST as planned
 
-Follow [the REST API plan](rest-api.md) through its own phases, with the scope
-check wired into the middleware foundation from the start.
+Follow [the REST API plan](rest-api.md) through its own phases, with both checks
+wired into the middleware foundation from the start.
 
 ### Phase 3 — Agent-shaped reads
 
@@ -189,12 +211,13 @@ tool call, holding a key that cannot change anything.
 
 ## Open questions
 
-- **Multi-user is planned but does not exist yet.** Scopes are per key, so they
-  compose with a future role model rather than pre-empting it, but the two should
-  be designed together before Phase 1 ships.
+- **How an admin-only route behaves for a non-admin user's writing key.** A 403
+  is obviously right; whether the response should distinguish "your key cannot
+  write" from "your account cannot do this" is a usability question with a small
+  information-disclosure edge.
 - **Whether `changes` needs its own index.** It reads the heartbeat table by
   time; on a large instance that may need work, and this plan does not assume it
   is free.
-- **Whether the MCP server ships in this repository** or separately. In-repo is
-  easier to keep in step with the API; separate makes the process boundary
-  obvious. No recommendation yet.
+- **Whether `changes` should be capped by default.** An agent asking for a wide
+  window could pull a great deal of history; a default bound with an explicit
+  opt-out is probably right, but the limit is not chosen yet.

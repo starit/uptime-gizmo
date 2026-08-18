@@ -55,14 +55,25 @@ Monitor api.example.com every 30 seconds and alert me if latency exceeds 500ms.
 
 ## Agent-friendly interfaces
 
-The project is preparing structured interfaces for automation and AI agents. Planned capabilities may include:
+The project is preparing structured interfaces for automation and AI agents. The
+shape is planned; none of it is built yet.
 
-- Monitor, status, metrics, and incident APIs
-- Webhooks and structured event streams
-- Agent authentication and permissions
-- MCP and other agent/tool integrations
+- **A versioned REST API** under `/api/v1` for monitors, status, metrics and
+  incidents — see [the REST API plan](docs/plans/rest-api.md).
+- **An MCP server**, shipped from this repository as a separate package with its
+  own process. It reaches Uptime Gizmo only through the REST API, so the
+  monitoring server never hosts the protocol and an agent can do nothing a
+  script could not. Installable directly by an agent, or discoverable through a
+  third-party platform.
+- **Read-only credentials.** An API key can be marked read-only, so an agent can
+  be given access that observes everything and changes nothing.
+- Webhooks and structured event streams.
 
-These interfaces are part of the development roadmap and should not be considered generally available yet.
+See [the MCP and agent-facing API plan](docs/plans/mcp-and-agent-api.md) for the
+design and its guardrails.
+
+**None of these interfaces exist today.** They are a roadmap, not a feature
+list.
 
 ## Current capabilities
 
