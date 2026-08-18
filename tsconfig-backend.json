@@ -5,5 +5,5 @@
         "allowSyntheticDefaultImports": true,
         "skipLibCheck": true
     },
-    "files": ["./src/util.ts"]
+    "files": ["./src/util.ts", "./src/badge-constants.ts"]
 }

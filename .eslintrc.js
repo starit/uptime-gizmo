@@ -98,6 +98,29 @@ module.exports = {
         "jsdoc/require-param-description": "warn",
     },
     overrides: [
+        // src/util and src/badge-constants each ship a committed CommonJS build
+        // for the backend next to the TypeScript source. Vite resolves ".js"
+        // before ".ts", so an extensionless import hands the frontend a module
+        // with no ESM named exports. Production builds resolve it differently
+        // and stay green, so only the dev server breaks - hence a lint rule.
+        {
+            files: ["src/**/*.vue", "src/**/*.ts"],
+            excludedFiles: ["src/util.ts", "src/badge-constants.ts"],
+            rules: {
+                "no-restricted-imports": [
+                    "error",
+                    {
+                        patterns: [
+                            {
+                                group: ["**/util", "**/badge-constants"],
+                                message:
+                                    "Name the .ts source explicitly (e.g. \"../util.ts\"). Without the extension Vite resolves to the CommonJS build meant for the backend.",
+                            },
+                        ],
+                    },
+                ],
+            },
+        },
         // Vue compiler macros are available only inside single-file components.
         {
             files: ["**/*.vue"],

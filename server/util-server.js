@@ -3,12 +3,12 @@ const { R } = require("redbean-node");
 const {
     log,
     genSecret,
-    badgeConstants,
     PING_PACKET_SIZE_DEFAULT,
     PING_GLOBAL_TIMEOUT_DEFAULT,
     PING_COUNT_DEFAULT,
     PING_PER_REQUEST_TIMEOUT_DEFAULT,
 } = require("../src/util");
+const { badgeConstants } = require("../src/badge-constants");
 const passwordHash = require("./password-hash");
 const iconv = require("iconv-lite");
 const chardet = require("chardet");

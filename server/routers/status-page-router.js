@@ -4,7 +4,7 @@ const { UptimeGizmoServer } = require("../uptime-gizmo-server");
 const StatusPage = require("../model/status_page");
 const { allowDevAllOrigin, sendHttpError } = require("../util-server");
 const { R } = require("redbean-node");
-const { badgeConstants } = require("../../src/util");
+const { badgeConstants } = require("../../src/badge-constants");
 const { makeBadge } = require("badge-maker");
 const { UptimeCalculator } = require("../uptime-calculator");
 

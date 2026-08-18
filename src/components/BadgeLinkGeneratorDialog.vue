@@ -81,7 +81,7 @@
 import CopyableInput from "./CopyableInput.vue";
 import GizmoButton from "./gizmo/GizmoButton.vue";
 import GizmoDialog from "./gizmo/GizmoDialog.vue";
-import { badgeConstants } from "../badge-constants";
+import { badgeConstants } from "../badge-constants.ts";
 
 type BadgeType = "status" | "uptime" | "ping" | "avg-response" | "cert-exp" | "response";
 type BadgeParameter =
