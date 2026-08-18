@@ -53,11 +53,11 @@
                             v-model="password.repeatNewPassword"
                             type="password"
                             class="gizmo-native-control"
-                            :class="{ 'is-invalid': invalidPassword }"
+                            :class="{ 'gizmo-native-control--invalid': invalidPassword }"
                             autocomplete="new-password"
                             required
                         />
-                        <div class="invalid-feedback">
+                        <div class="gizmo-field-error">
                             {{ $t("passwordNotMatchMsg") }}
                         </div>
                     </div>

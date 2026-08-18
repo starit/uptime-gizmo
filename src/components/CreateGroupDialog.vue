@@ -8,12 +8,12 @@
         @update:open="setOpen"
     >
         <form id="create-monitor-group-form" @submit.prevent="confirm">
-            <label for="draftGroupName" class="form-label">{{ $t("Group Name") }}</label>
+            <label for="draftGroupName" class="gizmo-field-label">{{ $t("Group Name") }}</label>
             <input
                 id="draftGroupName"
                 v-model.trim="groupName"
                 type="text"
-                class="form-control"
+                class="gizmo-native-control"
                 required
                 autofocus
             />

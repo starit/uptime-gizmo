@@ -74,7 +74,7 @@
                             </router-link>
 
                             <button
-                                class="gizmo-native-button btn-normal text-danger"
+                                class="gizmo-native-button btn-normal tw-text-status-down-fg"
                                 :aria-label="$t('ariaDeleteMaintenance')"
                                 @click="deleteDialog(item.id)"
                             >

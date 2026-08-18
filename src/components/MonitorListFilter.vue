@@ -19,7 +19,7 @@
         </template>
         <template #dropdown>
             <li>
-                <div class="dropdown-item" tabindex="0" @click.stop="toggleStatusFilter(1)">
+                <div class="gizmo-menu__item" tabindex="0" @click.stop="toggleStatusFilter(1)">
                     <div class="tw-flex tw-items-center tw-justify-between">
                         <Status :status="1" />
                         <span class="tw-ps-3">
@@ -32,7 +32,7 @@
                 </div>
             </li>
             <li>
-                <div class="dropdown-item" tabindex="0" @click.stop="toggleStatusFilter(0)">
+                <div class="gizmo-menu__item" tabindex="0" @click.stop="toggleStatusFilter(0)">
                     <div class="tw-flex tw-items-center tw-justify-between">
                         <Status :status="0" />
                         <span class="tw-ps-3">
@@ -45,7 +45,7 @@
                 </div>
             </li>
             <li>
-                <div class="dropdown-item" tabindex="0" @click.stop="toggleStatusFilter(2)">
+                <div class="gizmo-menu__item" tabindex="0" @click.stop="toggleStatusFilter(2)">
                     <div class="tw-flex tw-items-center tw-justify-between">
                         <Status :status="2" />
                         <span class="tw-ps-3">
@@ -58,7 +58,7 @@
                 </div>
             </li>
             <li>
-                <div class="dropdown-item" tabindex="0" @click.stop="toggleStatusFilter(3)">
+                <div class="gizmo-menu__item" tabindex="0" @click.stop="toggleStatusFilter(3)">
                     <div class="tw-flex tw-items-center tw-justify-between">
                         <Status :status="3" />
                         <span class="tw-ps-3">
@@ -71,10 +71,10 @@
                 </div>
             </li>
             <li>
-                <hr class="dropdown-divider" />
+                <hr class="filter-dropdown-divider" />
             </li>
             <li>
-                <div class="dropdown-item" tabindex="0" @click.stop="toggleActiveFilter(true)">
+                <div class="gizmo-menu__item" tabindex="0" @click.stop="toggleActiveFilter(true)">
                     <div class="tw-flex tw-items-center tw-justify-between">
                         <span class="gizmo-inline-badge status-pill running">
                             <font-awesome-icon icon="play" class="icon-small" />
@@ -90,7 +90,7 @@
                 </div>
             </li>
             <li>
-                <div class="dropdown-item" tabindex="0" @click.stop="toggleActiveFilter(false)">
+                <div class="gizmo-menu__item" tabindex="0" @click.stop="toggleActiveFilter(false)">
                     <div class="tw-flex tw-items-center tw-justify-between">
                         <span class="gizmo-inline-badge status-pill paused">
                             <font-awesome-icon icon="pause" class="icon-small" />
@@ -121,11 +121,11 @@
             </span>
         </template>
         <template #dropdown>
-            <li class="list-unstyled tw-m-0 tw-p-0">
+            <li class="tw-list-none tw-p-0 tw-m-0">
                 <div class="tags-dropdown-scroll">
-                    <ul class="list-unstyled tw-m-0 tw-p-0">
+                    <ul class="tw-list-none tw-p-0 tw-m-0">
                         <li v-for="tag in tagsList" :key="tag.id">
-                            <div class="dropdown-item" tabindex="0" @click.stop="toggleTagFilter(tag)">
+                            <div class="gizmo-menu__item" tabindex="0" @click.stop="toggleTagFilter(tag)">
                                 <div class="tw-flex tw-items-center tw-justify-between">
                                     <span class="tag-name-wrapper" :title="tag.name">
                                         <Tag :item="tag" :size="'sm'" :scrollable="true" :constrained="true" />
@@ -140,7 +140,7 @@
                             </div>
                         </li>
                         <li v-if="tagsList.length === 0">
-                            <div class="dropdown-item disabled tw-px-3">
+                            <div class="gizmo-menu__item disabled tw-px-3">
                                 {{ $t("No tags found.") }}
                             </div>
                         </li>
@@ -279,12 +279,16 @@ export default {
 
 <style lang="scss" scoped>
 
-.dropdown-item {
+.gizmo-menu__item {
     cursor: pointer;
 }
 
-.dropdown-divider {
+/* An <hr>, not the shared .gizmo-menu__separator div, so it clears the
+   element's default border itself rather than relying on Bootstrap's reboot. */
+.filter-dropdown-divider {
+    height: 0;
     margin: 0.5rem 0;
+    border: 0;
     border-top: 1px solid var(--color-border);
 }
 

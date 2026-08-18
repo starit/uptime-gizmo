@@ -1,5 +1,5 @@
 <template>
-    <div tabindex="-1" class="dropdown" @focusin="openMenu" @focusout="handleFocusOut">
+    <div tabindex="-1" class="filter-dropdown" @focusin="openMenu" @focusout="handleFocusOut">
         <button type="button" class="filter-dropdown-status" :class="{ active: filterActive }" tabindex="0">
             <div class="tw-px-1 tw-flex tw-items-center">
                 <slot name="status"></slot>
@@ -46,6 +46,12 @@ export default {
 </script>
 
 <style lang="scss">
+/* Bootstrap's .dropdown supplied the positioning context that
+   .filter-dropdown-menu is absolutely positioned against. */
+.filter-dropdown {
+    position: relative;
+}
+
 .filter-dropdown-menu {
     z-index: 100;
     transition: opacity 160ms ease, transform 160ms ease;
@@ -72,11 +78,11 @@ export default {
         opacity: 1;
     }
 
-    .dropdown-item {
+    .gizmo-menu__item {
         padding: 0.375rem 0.875rem;
     }
 
-    .dropdown-item:focus {
+    .gizmo-menu__item:focus {
         background: var(--color-surface-hover);
     }
 }

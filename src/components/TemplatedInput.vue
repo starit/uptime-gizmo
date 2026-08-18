@@ -1,5 +1,5 @@
 <template>
-    <div class="form-text mb-2">
+    <div class="gizmo-field-help tw-mb-2">
         <i18n-t tag="div" keypath="liquidIntroduction">
             <a href="https://liquidjs.com/" target="_blank">{{ $t("documentation") }}</a>
         </i18n-t>
@@ -31,7 +31,7 @@
         ref="templatedInput"
         v-model="model"
         type="text"
-        class="form-control"
+        class="gizmo-native-control"
         :placeholder="placeholder"
         :required="required"
         autocomplete="false"

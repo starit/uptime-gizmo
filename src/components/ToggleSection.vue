@@ -1,13 +1,13 @@
 <template>
-    <div class="my-3 py-3">
+    <div class="tw-my-3 tw-py-3">
         <h5 @click="isOpen = !isOpen">
-            <div class="w-50 d-flex justify-content-between align-items-center pe-2">
-                <span class="pb-2">{{ heading }}</span>
+            <div class="tw-w-1/2 tw-flex tw-justify-between tw-items-center tw-pe-2">
+                <span class="tw-pb-2">{{ heading }}</span>
                 <font-awesome-icon icon="chevron-down" class="animated" :class="{ open: isOpen }" />
             </div>
         </h5>
         <transition name="slide-fade-up">
-            <div v-if="isOpen" class="mt-3">
+            <div v-if="isOpen" class="tw-mt-3">
                 <slot></slot>
             </div>
         </transition>

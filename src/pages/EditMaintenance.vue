@@ -331,7 +331,7 @@
 
                             <template v-if="maintenance.strategy === 'single'">
                                 <div class="tw-my-3">
-                                    <div class="tw-flex gap-2 tw-flex-wrap">
+                                    <div class="tw-flex tw-gap-2 tw-flex-wrap">
                                         <button
                                             type="button"
                                             class="gizmo-native-button gizmo-native-button--sm"

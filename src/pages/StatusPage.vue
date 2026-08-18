@@ -123,7 +123,7 @@
                             :aria-label="$t('Add a domain')"
                             @click="addDomainField"
                         >
-                            <font-awesome-icon icon="plus-circle" class="action text-primary" />
+                            <font-awesome-icon icon="plus-circle" class="action tw-text-interactive" />
                         </button>
                     </label>
 
@@ -140,7 +140,7 @@
                                 :aria-label="$t('Remove domain', [domain])"
                                 @click="removeDomain(index)"
                             >
-                                <font-awesome-icon icon="times" class="action remove tw-ms-2 tw-me-3 text-danger" />
+                                <font-awesome-icon icon="times" class="action remove tw-ms-2 tw-me-3 tw-text-status-down-fg" />
                             </button>
                         </li>
                     </ul>
@@ -248,7 +248,7 @@
                         class="tw-p-0 tw-bg-transparent tw-border-0 small-reset-btn reset-top-left"
                         @click.stop="resetToDefaultImage"
                     >
-                        <font-awesome-icon icon="times" class="text-danger" />
+                        <font-awesome-icon icon="times" class="tw-text-status-down-fg" />
                     </button>
                     <img :src="logoURL" alt class="logo tw-me-2" :class="logoClass" />
                     <font-awesome-icon v-if="enableEditMode" class="icon-upload" icon="upload" />
@@ -467,7 +467,7 @@
                             data-testid="monitor-select"
                         >
                             <template #option="{ option }">
-                                <div class="d-inline-flex">
+                                <div class="tw-inline-flex">
                                     <span>
                                         {{ option.pathName }}
                                         <Tag v-for="tag in option.tags" :key="tag" :item="tag" :size="'sm'" />

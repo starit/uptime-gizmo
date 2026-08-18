@@ -20,8 +20,8 @@
             </i18n-t>
 
             <div>
-                <label for="badge-type" class="form-label">{{ $t("Badge Type") }}</label>
-                <select id="badge-type" v-model="badge.type" class="form-select" autofocus>
+                <label for="badge-type" class="gizmo-field-label">{{ $t("Badge Type") }}</label>
+                <select id="badge-type" v-model="badge.type" class="gizmo-native-control gizmo-native-select" autofocus>
                     <option value="status">status</option>
                     <option value="uptime">uptime</option>
                     <option value="ping">ping</option>
@@ -32,20 +32,20 @@
             </div>
 
             <div v-for="field in visibleFields" :key="field.key">
-                <label :for="`badge-${field.key}`" class="form-label">{{ $t(field.label) }}</label>
+                <label :for="`badge-${field.key}`" class="gizmo-field-label">{{ $t(field.label) }}</label>
                 <input
                     :id="`badge-${field.key}`"
                     v-model="badge[field.key]"
                     :type="field.type"
                     :min="field.min"
                     :placeholder="field.placeholder"
-                    class="form-control"
+                    class="gizmo-native-control"
                 />
             </div>
 
             <div>
-                <label for="badge-style" class="form-label">{{ $t("Badge Style") }}</label>
-                <select id="badge-style" v-model="badge.style" class="form-select">
+                <label for="badge-style" class="gizmo-field-label">{{ $t("Badge Style") }}</label>
+                <select id="badge-style" v-model="badge.style" class="gizmo-native-control gizmo-native-select">
                     <option value="plastic">plastic</option>
                     <option value="flat">flat</option>
                     <option value="flat-square">flat-square</option>
@@ -55,8 +55,8 @@
             </div>
 
             <div>
-                <label for="badge-value" class="form-label">{{ $t("Badge value (For Testing only.)") }}</label>
-                <input id="badge-value" v-model="badge.value" type="text" class="form-control" />
+                <label for="badge-value" class="gizmo-field-label">{{ $t("Badge value (For Testing only.)") }}</label>
+                <input id="badge-value" v-model="badge.value" type="text" class="gizmo-native-control" />
             </div>
 
             <div class="gizmo-dialog-badge-preview">
@@ -64,7 +64,7 @@
             </div>
 
             <div>
-                <label for="badge-url" class="form-label">{{ $t("Badge URL") }}</label>
+                <label for="badge-url" class="gizmo-field-label">{{ $t("Badge URL") }}</label>
                 <CopyableInput id="badge-url" v-model="badgeURL" type="url" disabled="disabled" />
             </div>
         </div>

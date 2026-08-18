@@ -11,20 +11,20 @@
     >
         <form id="docker-host-form" class="gizmo-form-stack" @submit.prevent="submit">
             <div>
-                <label for="docker-name" class="form-label">{{ $t("Friendly Name") }}</label>
+                <label for="docker-name" class="gizmo-field-label">{{ $t("Friendly Name") }}</label>
                 <input
                     id="docker-name"
                     v-model="dockerHost.name"
                     type="text"
-                    class="form-control"
+                    class="gizmo-native-control"
                     required
                     autofocus
                 />
             </div>
 
             <div>
-                <label for="docker-type" class="form-label">{{ $t("Connection Type") }}</label>
-                <select id="docker-type" v-model="dockerHost.dockerType" class="form-select">
+                <label for="docker-type" class="gizmo-field-label">{{ $t("Connection Type") }}</label>
+                <select id="docker-type" v-model="dockerHost.dockerType" class="gizmo-native-control gizmo-native-select">
                     <option v-for="type in connectionTypes" :key="type" :value="type">
                         {{ $t(type) }}
                     </option>
@@ -32,15 +32,15 @@
             </div>
 
             <div>
-                <label for="docker-daemon" class="form-label">{{ $t("Docker Daemon") }}</label>
+                <label for="docker-daemon" class="gizmo-field-label">{{ $t("Docker Daemon") }}</label>
                 <input
                     id="docker-daemon"
                     v-model="dockerHost.dockerDaemon"
                     type="text"
-                    class="form-control"
+                    class="gizmo-native-control"
                     required
                 />
-                <i18n-t tag="div" keypath="Examples:" class="form-text">
+                <i18n-t tag="div" keypath="Examples:" class="gizmo-field-help">
                     <ul>
                         <li><code>/var/run/docker.sock</code></li>
                         <li><code>http://localhost:2375</code></li>

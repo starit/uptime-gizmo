@@ -11,12 +11,12 @@
     >
         <form id="api-key-create-form" class="gizmo-form-stack" @submit.prevent="submit">
             <div>
-                <label for="api-key-name" class="form-label">{{ $t("Name") }}</label>
-                <input id="api-key-name" v-model="key.name" type="text" class="form-control" required autofocus />
+                <label for="api-key-name" class="gizmo-field-label">{{ $t("Name") }}</label>
+                <input id="api-key-name" v-model="key.name" type="text" class="gizmo-native-control" required autofocus />
             </div>
 
             <div>
-                <label class="form-label">{{ $t("Expiry date") }}</label>
+                <label class="gizmo-field-label">{{ $t("Expiry date") }}</label>
                 <div class="gizmo-dialog-field-row">
                     <Datepicker
                         v-model="key.expires"
@@ -29,9 +29,9 @@
                         :required="!noExpire"
                         :disabled="noExpire"
                     />
-                    <div class="form-check mb-0">
-                        <input id="api-key-no-expire" v-model="noExpire" class="form-check-input" type="checkbox" />
-                        <label class="form-check-label" for="api-key-no-expire">{{ $t("Don't expire") }}</label>
+                    <div class="gizmo-native-check tw-mb-0">
+                        <input id="api-key-no-expire" v-model="noExpire" class="gizmo-native-check__input" type="checkbox" />
+                        <label class="gizmo-native-check__label" for="api-key-no-expire">{{ $t("Don't expire") }}</label>
                     </div>
                 </div>
             </div>

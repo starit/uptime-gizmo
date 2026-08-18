@@ -25,12 +25,12 @@
             <p v-if="showURI && !twoFAStatus" class="gizmo-dialog-break-text">{{ uri }}</p>
 
             <div v-if="!(uri && !twoFAStatus)">
-                <label for="current-password" class="form-label">{{ $t("Current Password") }}</label>
+                <label for="current-password" class="gizmo-field-label">{{ $t("Current Password") }}</label>
                 <input
                     id="current-password"
                     v-model="currentPassword"
                     type="password"
-                    class="form-control"
+                    class="gizmo-native-control"
                     autocomplete="current-password"
                     required
                     autofocus
@@ -38,7 +38,7 @@
             </div>
 
             <div v-if="uri && !twoFAStatus">
-                <label for="two-factor-token" class="form-label">{{ $t("twoFAVerifyLabel") }}</label>
+                <label for="two-factor-token" class="gizmo-field-label">{{ $t("twoFAVerifyLabel") }}</label>
                 <div class="gizmo-dialog-field-row">
                     <input
                         id="two-factor-token"
@@ -46,7 +46,7 @@
                         type="text"
                         inputmode="numeric"
                         maxlength="6"
-                        class="form-control gizmo-dialog-field-row__primary"
+                        class="gizmo-native-control gizmo-dialog-field-row__primary"
                         autocomplete="one-time-code"
                         required
                     />

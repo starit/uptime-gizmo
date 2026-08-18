@@ -7,35 +7,35 @@
         @update:open="setOpen"
     >
         <div class="gizmo-form-stack">
-            <div class="form-check">
+            <div class="gizmo-native-check">
                 <input
                     id="show-clickable-link"
                     v-model="monitor.isClickAble"
-                    class="form-check-input"
+                    class="gizmo-native-check__input"
                     type="checkbox"
                     data-testid="show-clickable-link"
                     autofocus
                     @change="toggleLink(monitor.group_index, monitor.monitor_index)"
                 />
-                <label class="form-check-label" for="show-clickable-link">
+                <label class="gizmo-native-check__label" for="show-clickable-link">
                     {{ $t("Show Clickable Link") }}
                 </label>
-                <div class="form-text">
+                <div class="gizmo-field-help">
                     {{ $t("Show Clickable Link Description") }}
                 </div>
             </div>
 
             <div v-if="monitor.isClickAble">
-                <label for="customUrl" class="form-label">{{ $t("Custom URL") }}</label>
+                <label for="customUrl" class="gizmo-field-label">{{ $t("Custom URL") }}</label>
                 <input
                     id="customUrl"
                     :value="monitor.url"
                     type="url"
-                    class="form-control"
+                    class="gizmo-native-control"
                     data-testid="custom-url-input"
                     @input="changeUrlFromEvent"
                 />
-                <div class="form-text">
+                <div class="gizmo-field-help">
                     {{ $t("customUrlDescription") }}
                 </div>
             </div>

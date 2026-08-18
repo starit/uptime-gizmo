@@ -11,27 +11,27 @@
     >
         <form id="remote-browser-form" class="gizmo-form-stack" @submit.prevent="submit">
             <div>
-                <label for="remote-browser-name" class="form-label">{{ $t("Friendly Name") }}</label>
+                <label for="remote-browser-name" class="gizmo-field-label">{{ $t("Friendly Name") }}</label>
                 <input
                     id="remote-browser-name"
                     v-model="remoteBrowser.name"
                     type="text"
-                    class="form-control"
+                    class="gizmo-native-control"
                     required
                     autofocus
                 />
             </div>
 
             <div>
-                <label for="remote-browser-url" class="form-label">{{ $t("URL") }}</label>
+                <label for="remote-browser-url" class="gizmo-field-label">{{ $t("URL") }}</label>
                 <input
                     id="remote-browser-url"
                     v-model="remoteBrowser.url"
                     type="text"
-                    class="form-control"
+                    class="gizmo-native-control"
                     required
                 />
-                <i18n-t tag="div" keypath="Example:" class="form-text mt-3">
+                <i18n-t tag="div" keypath="Example:" class="gizmo-field-help tw-mt-3">
                     <code>ws://chrome.browserless.io/playwright?token=YOUR-API-TOKEN</code>
                 </i18n-t>
             </div>

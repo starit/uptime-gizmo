@@ -1,41 +1,41 @@
 <template>
     <div>
-        <div class="d-flex flex-row align-items-center p-1 overflow-hidden">
-            <div class="m-3 ps-3">
+        <div class="tw-flex tw-flex-row tw-items-center tw-p-1 tw-overflow-hidden">
+            <div class="tw-m-3 tw-ps-3">
                 <div class="cert-icon">
                     <font-awesome-icon icon="file" />
                     <font-awesome-icon class="award-icon" icon="award" />
                 </div>
             </div>
-            <div class="m-3">
-                <table class="text-start">
+            <div class="tw-m-3">
+                <table class="tw-text-start">
                     <tbody>
-                        <tr class="my-3">
-                            <td class="px-3">{{ $t("Subject:") }}</td>
+                        <tr class="tw-my-3">
+                            <td class="tw-px-3">{{ $t("Subject:") }}</td>
                             <td>{{ formatSubject(cert.subject) }}</td>
                         </tr>
-                        <tr class="my-3">
-                            <td class="px-3">{{ $t("Valid To:") }}</td>
+                        <tr class="tw-my-3">
+                            <td class="tw-px-3">{{ $t("Valid To:") }}</td>
                             <td><Datetime :value="cert.validTo" /></td>
                         </tr>
-                        <tr class="my-3">
-                            <td class="px-3">{{ $t("Days Remaining:") }}</td>
+                        <tr class="tw-my-3">
+                            <td class="tw-px-3">{{ $t("Days Remaining:") }}</td>
                             <td>{{ cert.daysRemaining }}</td>
                         </tr>
-                        <tr class="my-3">
-                            <td class="px-3">{{ $t("Issuer:") }}</td>
+                        <tr class="tw-my-3">
+                            <td class="tw-px-3">{{ $t("Issuer:") }}</td>
                             <td>{{ formatSubject(cert.issuer) }}</td>
                         </tr>
-                        <tr class="my-3">
-                            <td class="px-3">{{ $t("Fingerprint:") }}</td>
+                        <tr class="tw-my-3">
+                            <td class="tw-px-3">{{ $t("Fingerprint:") }}</td>
                             <td>{{ cert.fingerprint }}</td>
                         </tr>
                     </tbody>
                 </table>
             </div>
         </div>
-        <div class="d-flex">
-            <font-awesome-icon v-if="cert.issuerCertificate" class="m-2 ps-6 link-icon" icon="link" />
+        <div class="tw-flex">
+            <font-awesome-icon v-if="cert.issuerCertificate" class="tw-m-2 ps-6 link-icon" icon="link" />
         </div>
         <certificate-info-row v-if="cert.issuerCertificate" :cert="cert.issuerCertificate" />
     </div>

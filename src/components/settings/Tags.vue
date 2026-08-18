@@ -1,6 +1,6 @@
 <template>
     <div class="tw-my-4">
-        <div class="tw-mx-0 mx-lg-4 tw-pt-1 tw-mb-4">
+        <div class="tw-mx-0 lg:tw-mx-4 tw-pt-1 tw-mb-4">
             <button class="gizmo-native-button gizmo-native-button--primary" @click.stop="addTag">
                 <font-awesome-icon icon="plus" />
                 {{ $t("Add New Tag") }}
@@ -11,20 +11,20 @@
             <div
                 v-for="(tag, index) in tagsList"
                 :key="tag.id"
-                class="tw-flex tw-items-center tw-mx-0 mx-lg-4 tw-py-1 tags-list-row"
+                class="tw-flex tw-items-center tw-mx-0 lg:tw-mx-4 tw-py-1 tags-list-row"
                 :disabled="processing"
                 @click="editTag(index)"
             >
-                <div class="tw-grow overflow-hidden tw-pe-3">
+                <div class="tw-grow tw-overflow-hidden tw-pe-3">
                     <Tag :item="tag" :title="tag.name" :scrollable="true" :constrained="true" />
                 </div>
 
-                <div class="flex-shrink-0 tw-px-1">
+                <div class="tw-shrink-0 tw-px-1">
                     <span class="tw-hidden lg:tw-inline">{{ $t("Monitors", monitorsByTag(tag.id).length) }}</span>
                     <span class="lg:tw-hidden">{{ monitorsByTag(tag.id).length }} M</span>
                 </div>
 
-                <div class="flex-shrink-0 tw-pe-2 pe-lg-3">
+                <div class="tw-shrink-0 tw-pe-2 lg:tw-pe-3">
                     <button
                         type="button"
                         class="btn-rm-tag gizmo-native-button gizmo-native-button--danger-outline tw-ms-2 tw-py-1"

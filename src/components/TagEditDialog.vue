@@ -10,26 +10,26 @@
         @update:open="setOpen"
     >
         <form id="tag-edit-form" class="gizmo-form-stack" @submit.prevent="submit">
-                        <div class="mb-3">
-                            <label for="tag-name" class="form-label">{{ $t("Name") }}</label>
+                        <div class="tw-mb-3">
+                            <label for="tag-name" class="gizmo-field-label">{{ $t("Name") }}</label>
                             <input
                                 id="tag-name"
                                 v-model="tag.name"
                                 type="text"
-                                class="form-control"
-                                :class="{ 'is-invalid': nameInvalid }"
+                                class="gizmo-native-control"
+                                :class="{ 'gizmo-native-control--invalid': nameInvalid }"
                                 required
                                 autofocus
                             />
-                            <div class="invalid-feedback">
+                            <div class="gizmo-field-error">
                                 {{ $t("Tag with this name already exist.") }}
                             </div>
                         </div>
 
-                        <div class="mb-3">
-                            <label for="tag-color" class="form-label">{{ $t("color") }}</label>
-                            <div class="d-flex">
-                                <div class="col-8 pe-1">
+                        <div class="tw-mb-3">
+                            <label for="tag-color" class="gizmo-field-label">{{ $t("color") }}</label>
+                            <div class="tw-flex">
+                                <div class="tw-w-2/3 tw-pe-1">
                                     <vue-multiselect
                                         v-model="selectedColor"
                                         :options="colorOptions"
@@ -49,36 +49,36 @@
                                         </template>
                                     </vue-multiselect>
                                 </div>
-                                <div class="col-4 ps-1">
-                                    <input id="tag-color-hex" v-model="tag.color" type="text" class="form-control" />
+                                <div class="tw-w-1/3 tw-ps-1">
+                                    <input id="tag-color-hex" v-model="tag.color" type="text" class="gizmo-native-control" />
                                 </div>
                             </div>
                         </div>
 
-                        <div class="mb-3">
-                            <label for="tag-monitors" class="form-label">
+                        <div class="tw-mb-3">
+                            <label for="tag-monitors" class="gizmo-field-label">
                                 {{ $t("Monitors", selectedMonitors.length) }}
                             </label>
                             <div class="tag-monitors-list">
                                 <router-link
                                     v-for="monitor in selectedMonitors"
                                     :key="monitor.id"
-                                    class="d-flex align-items-center justify-content-between text-decoration-none tag-monitors-list-row py-2 px-3"
+                                    class="tw-flex tw-items-center tw-justify-between tw-no-underline tag-monitors-list-row tw-py-2 tw-px-3"
                                     :to="monitorURL(monitor.id)"
                                     @click="setOpen(false)"
                                 >
                                     <span>{{ monitor.name }}</span>
                                     <button
                                         type="button"
-                                        class="btn-rm-monitor btn btn-outline-danger ms-2 py-1"
+                                        class="btn-rm-monitor gizmo-native-button gizmo-native-button--danger-outline tw-ms-2 tw-py-1"
                                         @click.stop.prevent="removeMonitor(monitor.id)"
                                     >
                                         <font-awesome-icon class="" icon="times" />
                                     </button>
                                 </router-link>
                             </div>
-                            <div v-if="allMonitorList.length > 0" class="pt-3">
-                                <label class="form-label">{{ $t("Add a monitor") }}:</label>
+                            <div v-if="allMonitorList.length > 0" class="tw-pt-3">
+                                <label class="gizmo-field-label">{{ $t("Add a monitor") }}:</label>
                                 <VueMultiselect
                                     v-model="selectedAddMonitor"
                                     :options="allMonitorList"
@@ -87,10 +87,10 @@
                                     :placeholder="$t('Add a monitor')"
                                     label="name"
                                     trackBy="name"
-                                    class="mt-1"
+                                    class="tw-mt-1"
                                 >
                                     <template #option="{ option }">
-                                        <div class="d-inline-flex">
+                                        <div class="tw-inline-flex">
                                             <span>
                                                 {{ option.name }}
                                                 <Tag

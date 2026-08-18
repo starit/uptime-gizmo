@@ -1,21 +1,21 @@
 <template>
     <div>
         <!-- Desktop header -->
-        <header v-if="!$root.isMobile" class="d-flex flex-wrap justify-content-center py-3 mb-3 border-bottom">
+        <header v-if="!$root.isMobile" class="tw-flex tw-flex-wrap tw-justify-center tw-py-3 tw-mb-3 tw-border-b tw-border-solid tw-border-border">
             <router-link
                 to="/"
-                class="not-found-brand d-flex align-items-center mb-3 mb-md-0 me-md-auto text-decoration-none"
+                class="not-found-brand tw-flex tw-items-center tw-mb-3 md:tw-mb-0 md:tw-me-auto tw-no-underline"
             >
-                <img class="not-found-brand-logo me-2 ms-4" src="/images/uptime-gizmo-logo-horizontal-light.png" :alt="$root.appName" />
-                <span class="fs-4 title">{{ $root.appName }}</span>
+                <img class="not-found-brand-logo tw-me-2 tw-ms-4" src="/images/uptime-gizmo-logo-horizontal-light.png" :alt="$root.appName" />
+                <span class="tw-text-2xl title">{{ $root.appName }}</span>
             </router-link>
         </header>
 
         <!-- Mobile header -->
-        <header v-else class="d-flex flex-wrap justify-content-center pt-2 pb-2 mb-3">
-            <router-link to="/dashboard" class="not-found-brand d-flex align-items-center text-decoration-none">
+        <header v-else class="tw-flex tw-flex-wrap tw-justify-center tw-pt-2 tw-pb-2 tw-mb-3">
+            <router-link to="/dashboard" class="not-found-brand tw-flex tw-items-center tw-no-underline">
                 <img class="not-found-brand-logo" src="/images/uptime-gizmo-logo-horizontal-light.png" :alt="$root.appName" />
-                <span class="fs-4 title ms-2">{{ $root.appName }}</span>
+                <span class="tw-text-2xl title tw-ms-2">{{ $root.appName }}</span>
             </router-link>
         </header>
 

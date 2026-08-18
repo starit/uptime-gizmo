@@ -11,8 +11,8 @@
     >
         <form id="proxy-settings-form" class="gizmo-form-stack" @submit.prevent="submit">
             <div>
-                <label for="proxy-protocol" class="form-label">{{ $t("Proxy Protocol") }}</label>
-                <select id="proxy-protocol" v-model="proxy.protocol" class="form-select" autofocus>
+                <label for="proxy-protocol" class="gizmo-field-label">{{ $t("Proxy Protocol") }}</label>
+                <select id="proxy-protocol" v-model="proxy.protocol" class="gizmo-native-control gizmo-native-select" autofocus>
                     <option value="https">HTTPS</option>
                     <option value="http">HTTP</option>
                     <option value="socks">SOCKS</option>
@@ -23,13 +23,13 @@
             </div>
 
             <div>
-                <label for="proxy-host" class="form-label">{{ $t("Proxy Server") }}</label>
+                <label for="proxy-host" class="gizmo-field-label">{{ $t("Proxy Server") }}</label>
                 <div class="gizmo-dialog-address-row">
                     <input
                         id="proxy-host"
                         v-model="proxy.host"
                         type="text"
-                        class="form-control"
+                        class="gizmo-native-control"
                         required
                         :placeholder="$t('Server Address')"
                     />
@@ -37,7 +37,7 @@
                         id="proxy-port"
                         v-model="proxy.port"
                         type="number"
-                        class="form-control"
+                        class="gizmo-native-control"
                         required
                         min="1"
                         max="65535"
@@ -47,54 +47,54 @@
                 </div>
             </div>
 
-            <div class="form-check form-switch">
-                <input id="mark-auth" v-model="proxy.auth" class="form-check-input" type="checkbox" />
-                <label for="mark-auth" class="form-check-label">
+            <div class="gizmo-native-check gizmo-native-switch">
+                <input id="mark-auth" v-model="proxy.auth" class="gizmo-native-check__input" type="checkbox" />
+                <label for="mark-auth" class="gizmo-native-check__label">
                     {{ $t("Proxy server has authentication") }}
                 </label>
             </div>
 
             <div v-if="proxy.auth">
-                <label for="proxy-username" class="form-label">{{ $t("User") }}</label>
-                <input id="proxy-username" v-model="proxy.username" type="text" class="form-control" required />
+                <label for="proxy-username" class="gizmo-field-label">{{ $t("User") }}</label>
+                <input id="proxy-username" v-model="proxy.username" type="text" class="gizmo-native-control" required />
             </div>
 
             <div v-if="proxy.auth">
-                <label for="proxy-password" class="form-label">{{ $t("Password") }}</label>
+                <label for="proxy-password" class="gizmo-field-label">{{ $t("Password") }}</label>
                 <input
                     id="proxy-password"
                     v-model="proxy.password"
                     type="password"
-                    class="form-control"
+                    class="gizmo-native-control"
                     required
                 />
             </div>
 
             <div class="gizmo-form-stack gizmo-dialog-section">
                 <div>
-                    <div class="form-check form-switch">
-                        <input id="mark-active" v-model="proxy.active" class="form-check-input" type="checkbox" />
-                        <label for="mark-active" class="form-check-label">{{ $t("enabled") }}</label>
+                    <div class="gizmo-native-check gizmo-native-switch">
+                        <input id="mark-active" v-model="proxy.active" class="gizmo-native-check__input" type="checkbox" />
+                        <label for="mark-active" class="gizmo-native-check__label">{{ $t("enabled") }}</label>
                     </div>
-                    <div class="form-text">{{ $t("enableProxyDescription") }}</div>
+                    <div class="gizmo-field-help">{{ $t("enableProxyDescription") }}</div>
                 </div>
 
                 <div>
-                    <div class="form-check form-switch">
-                        <input id="mark-default" v-model="proxy.default" class="form-check-input" type="checkbox" />
-                        <label for="mark-default" class="form-check-label">{{ $t("setAsDefault") }}</label>
+                    <div class="gizmo-native-check gizmo-native-switch">
+                        <input id="mark-default" v-model="proxy.default" class="gizmo-native-check__input" type="checkbox" />
+                        <label for="mark-default" class="gizmo-native-check__label">{{ $t("setAsDefault") }}</label>
                     </div>
-                    <div class="form-text">{{ $t("setAsDefaultProxyDescription") }}</div>
+                    <div class="gizmo-field-help">{{ $t("setAsDefaultProxyDescription") }}</div>
                 </div>
 
-                <div class="form-check form-switch">
+                <div class="gizmo-native-check gizmo-native-switch">
                     <input
                         id="apply-existing"
                         v-model="proxy.applyExisting"
-                        class="form-check-input"
+                        class="gizmo-native-check__input"
                         type="checkbox"
                     />
-                    <label class="form-check-label" for="apply-existing">
+                    <label class="gizmo-native-check__label" for="apply-existing">
                         {{ $t("Apply on all existing monitors") }}
                     </label>
                 </div>

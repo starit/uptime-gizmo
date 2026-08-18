@@ -5,14 +5,14 @@
         <div class="tw-my-3">
             <div>
                 cloudflared:
-                <span v-if="installed === true" class="text-primary">{{ $t("Installed") }}</span>
-                <span v-else-if="installed === false" class="text-danger">{{ $t("Not installed") }}</span>
+                <span v-if="installed === true" class="tw-text-interactive">{{ $t("Installed") }}</span>
+                <span v-else-if="installed === false" class="tw-text-status-down-fg">{{ $t("Not installed") }}</span>
             </div>
 
             <div>
                 {{ $t("Status") }}:
-                <span v-if="running" class="text-primary">{{ $t("Running") }}</span>
-                <span v-else-if="!running" class="text-danger">{{ $t("Not running") }}</span>
+                <span v-if="running" class="tw-text-interactive">{{ $t("Running") }}</span>
+                <span v-else-if="!running" class="tw-text-status-down-fg">{{ $t("Not running") }}</span>
             </div>
 
             <div v-if="errorMessage" class="tw-mt-3">
