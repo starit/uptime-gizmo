@@ -183,4 +183,133 @@ router.get(
     })
 );
 
+/*
+ * What is wrong right now. Separate from /overview because an agent asking
+ * "is anything broken" should not have to receive, or filter, the healthy
+ * majority.
+ */
+router.get(
+    "/api/v1/incidents/active",
+    apiAuth,
+    route(async (req, res) => {
+        const rows = await R.getAll(
+            `SELECT m.id, m.name, h.status, h.time AS last_check
+             FROM monitor m
+             JOIN heartbeat h ON h.id = (
+                 SELECT id FROM heartbeat WHERE monitor_id = m.id ORDER BY time DESC LIMIT 1
+             )
+             WHERE m.user_id = ? AND m.active = 1 AND h.status IN (0, 2)
+             ORDER BY m.name`,
+            [ req.principal?.userID ?? null ]
+        );
+
+        const data = [];
+        for (const row of rows) {
+            const since = await R.getRow(
+                "SELECT time FROM heartbeat WHERE monitor_id = ? AND important = 1 ORDER BY time DESC LIMIT 1",
+                [ row.id ]
+            );
+            data.push({
+                id: row.id,
+                name: row.name,
+                status: row.status,
+                lastCheck: row.last_check,
+                since: since ? since.time : null,
+            });
+        }
+
+        res.json({ ok: true, data });
+    })
+);
+
+/*
+ * State transitions in a window.
+ *
+ * Reads only heartbeats flagged important, which is what marks a transition and
+ * is covered by monitor_important_time_index. Bounded on both axes: an agent
+ * asking an open question must not be able to pull an instance's whole history
+ * in one call. See docs/plans/mcp-and-agent-api.md.
+ */
+router.get(
+    "/api/v1/changes",
+    apiAuth,
+    route(async (req, res) => {
+        const MAX_LOOKBACK_HOURS = 24 * 7;
+        const DEFAULT_LOOKBACK_HOURS = 24;
+
+        let hours = Number.parseFloat(req.query.hours);
+        if (!Number.isFinite(hours) || hours <= 0) {
+            hours = DEFAULT_LOOKBACK_HOURS;
+        }
+        const capped = hours > MAX_LOOKBACK_HOURS;
+        hours = Math.min(hours, MAX_LOOKBACK_HOURS);
+
+        const limit = boundedLimit(req.query.limit, 500, 500);
+        const since = new Date(Date.now() - hours * 3600 * 1000).toISOString().slice(0, 19).replace("T", " ");
+
+        const rows = await R.getAll(
+            `SELECT h.monitor_id, m.name, h.status, h.time
+             FROM heartbeat h
+             JOIN monitor m ON m.id = h.monitor_id
+             WHERE m.user_id = ? AND h.important = 1 AND h.time > ?
+             ORDER BY h.time DESC
+             LIMIT ?`,
+            [ req.principal?.userID ?? null, since, limit ]
+        );
+
+        res.json({
+            ok: true,
+            data: rows.map((row) => ({
+                monitorID: row.monitor_id,
+                name: row.name,
+                status: row.status,
+                time: row.time,
+            })),
+            window: {
+                hours,
+                // Said plainly rather than silently honoured, so a caller knows
+                // it is seeing a truncated answer.
+                capped,
+                maxHours: MAX_LOOKBACK_HOURS,
+                limit,
+                truncated: rows.length === limit,
+            },
+        });
+    })
+);
+
+/*
+ * Tags and maintenance windows, read-only. Both are small, bounded sets that an
+ * agent needs to interpret a monitor's state.
+ */
+router.get(
+    "/api/v1/tags",
+    apiAuth,
+    route(async (req, res) => {
+        const rows = await R.getAll("SELECT id, name, color FROM tag ORDER BY name");
+        res.json({ ok: true, data: rows });
+    })
+);
+
+router.get(
+    "/api/v1/maintenances",
+    apiAuth,
+    route(async (req, res) => {
+        const rows = await R.getAll(
+            "SELECT id, title, description, strategy, active FROM maintenance WHERE user_id = ? ORDER BY title",
+            [ req.principal?.userID ?? null ]
+        );
+        res.json({
+            ok: true,
+            data: rows.map((row) => ({
+                id: row.id,
+                title: row.title,
+                description: row.description,
+                strategy: row.strategy,
+                active: Boolean(row.active),
+            })),
+        });
+    })
+);
+
 module.exports = router;
