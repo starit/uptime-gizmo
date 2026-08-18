@@ -181,11 +181,39 @@ So the read surface splits:
 
 The public tier is derived from status-page configuration rather than from the
 monitor table, so nothing reaches it that an operator has not already published
-by other means. It carries no URLs, hostnames, ports, or monitor configuration,
-and `changes` on that tier is limited to the monitors a status page exposes.
+by other means.
 
-Turning it on is a deliberate instance-level choice with a plain description of
-what becomes public.
+#### Most of this already exists
+
+Checked against a running instance rather than assumed. Three unauthenticated
+endpoints already serve exactly this data:
+
+| Endpoint | Already public |
+| --- | --- |
+| `/api/status-page/:slug` | groups, monitors as `{id, name, type, tags, sendUrl}`, incidents, maintenance windows, page config |
+| `/api/status-page/heartbeat/:slug` | the last 100 heartbeats per monitor, plus 24-hour uptime |
+| `/api/status-page/:slug/incident-history` | incident history, already cursor-paginated |
+
+The boundary is enforced in code, not by convention.
+`Heartbeat.toPublicJSON()` blanks the message field outright — `msg: ""`, marked
+"Hide for public" — so failure detail such as an unresolved internal hostname
+never reaches a public response. Monitors carry no URL unless the operator turns
+on `sendUrl`.
+
+So a public agent tier is a **re-projection of data that is already public**,
+not a new exposure. That makes it both cheaper and safer than this plan first
+assumed. What it lacks is shape, not data:
+
+- The existing endpoints serve the frontend and are not a versioned contract.
+- `heartbeatList` is bucketed by monitor id as raw arrays; an agent wants "what
+  is down and since when".
+- There is no `changes` equivalent.
+
+**There is no endpoint that lists status pages, and there must not be one.** A
+caller has to know the slug. Adding a directory would turn "what does this
+instance monitor" into something enumerable, which is the inventory leak this
+whole split exists to prevent. The public tier stays fetch-by-slug and
+non-enumerable.
 
 ### Writing
 
@@ -288,7 +316,7 @@ tool call, holding a key that cannot change anything.
   is obviously right; whether the response should distinguish "your key cannot
   write" from "your account cannot do this" is a usability question with a small
   information-disclosure edge.
-- **Whether the public read tier is worth building at all.** It serves agents
-  that cannot hold a credential, but every instance that enables it publishes
-  more than a status page does today, and the safe version of it may be narrow
-  enough to be uninteresting.
+- **Whether the public tier needs an opt-in at all.** Since it re-projects data
+  three endpoints already serve without authentication, a switch may be
+  protecting nothing. Leaving it opt-in is the cautious default, but it may be
+  ceremony.
