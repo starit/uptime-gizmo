@@ -133,16 +133,6 @@ export default {
     padding-bottom: 40px;
 }
 
-.form-floating {
-    > label {
-        padding-left: 1.3rem;
-    }
-
-    > .form-control {
-        padding-left: 1.3rem;
-    }
-}
-
 .form {
     width: 100%;
     max-width: 330px;

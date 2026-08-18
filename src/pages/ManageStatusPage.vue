@@ -183,7 +183,7 @@ export default {
         .actions {
             visibility: visible;
 
-            .btn {
+            .gizmo-native-button {
                 padding: 10px;
             }
 

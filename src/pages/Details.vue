@@ -879,16 +879,6 @@ export default {
     letter-spacing: -0.035em;
 }
 
-.form-check {
-    margin-top: 16px;
-}
-
-@media (max-width: 767px) {
-    .badge {
-        margin-top: 14px;
-    }
-}
-
 @media (max-width: 550px) {
     .ping-chart-wrapper {
         padding: 10px !important;
@@ -900,16 +890,16 @@ export default {
 }
 
 @media (max-width: 450px) {
-    .btn {
+    .gizmo-native-button {
         padding-top: 10px;
         font-size: 0.9em;
     }
 
-    .btn-group {
+    .gizmo-action-group {
         width: 100%;
 
-        .btn,
-        a.btn {
+        .gizmo-native-button,
+        a.gizmo-native-button {
             display: inline-flex;
             flex-direction: column;
             align-items: center;
@@ -1051,10 +1041,6 @@ table {
 
 .stats {
     padding: 10px;
-
-    .col {
-        margin: 20px 0;
-    }
 }
 
 .keyword {

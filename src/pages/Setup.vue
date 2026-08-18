@@ -135,26 +135,6 @@ export default {
         var(--color-bg);
 }
 
-.form-floating {
-    > .form-select {
-        padding-left: 1.3rem;
-        padding-top: 1.525rem;
-        line-height: 1.35;
-
-        ~ label {
-            padding-left: 1.3rem;
-        }
-    }
-
-    > label {
-        padding-left: 1.3rem;
-    }
-
-    > .form-control {
-        padding-left: 1.3rem;
-    }
-}
-
 .onboarding-card {
     width: 100%;
     max-width: 30rem;

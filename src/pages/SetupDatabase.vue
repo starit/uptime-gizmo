@@ -315,26 +315,6 @@ export default {
     }
 }
 
-.form-floating {
-    > .form-select {
-        padding-left: 1.3rem;
-        padding-top: 1.525rem;
-        line-height: 1.35;
-
-        ~ label {
-            padding-left: 1.3rem;
-        }
-    }
-
-    > label {
-        padding-left: 1.3rem;
-    }
-
-    > .form-control {
-        padding-left: 1.3rem;
-    }
-}
-
 @media (max-width: 480px) {
     .onboarding-card {
         padding: 1.25rem;

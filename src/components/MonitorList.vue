@@ -627,11 +627,10 @@ export default {
     flex-wrap: nowrap;
     width: 100%;
 
-    .form-check-input {
+    .gizmo-native-check__input {
         cursor: pointer;
         margin: 0;
         margin-left: 0.25rem;
-        flex-shrink: 0;
     }
 }
 
