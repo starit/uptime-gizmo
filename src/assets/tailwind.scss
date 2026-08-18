@@ -851,6 +851,7 @@
     .gizmo-native-alert--info { border-color: var(--color-interactive); background: var(--color-interactive-subtle); color: var(--color-interactive); }
     .gizmo-native-alert--warning { border-color: var(--status-degraded-border); background: var(--status-degraded-bg); color: var(--status-degraded-fg); }
     .gizmo-native-alert--danger { border-color: var(--status-down-border); background: var(--status-down-bg); color: var(--status-down-fg); }
+    .gizmo-native-alert__title { color: inherit; }
     .gizmo-inline-badge { display: inline-flex; align-items: center; padding: 0.2rem 0.5rem; border-radius: 999px; background: var(--color-interactive-subtle); color: var(--color-interactive); font-size: 0.75rem; font-weight: 700; }
 
     .gizmo-data-table { width: 100%; border-collapse: collapse; color: var(--color-text); font-size: 0.875rem; }

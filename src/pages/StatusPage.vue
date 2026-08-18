@@ -1,125 +1,125 @@
 <template>
-    <div v-if="loadedTheme" class="container status-page-shell mt-3">
+    <div v-if="loadedTheme" class="status-page-shell tw-mt-3">
         <!-- Sidebar for edit mode -->
         <div v-if="enableEditMode" class="sidebar" data-testid="edit-sidebar">
             <div class="sidebar-body">
-                <div class="my-3">
-                    <label for="slug" class="form-label">{{ $t("Slug") }}</label>
-                    <div class="input-group">
-                        <span id="basic-addon3" class="input-group-text">/status/</span>
-                        <input id="slug" v-model="config.slug" type="text" class="form-control" />
+                <div class="tw-my-3">
+                    <label for="slug" class="gizmo-field-label">{{ $t("Slug") }}</label>
+                    <div class="gizmo-input-group">
+                        <span id="basic-addon3" class="gizmo-input-group__text">/status/</span>
+                        <input id="slug" v-model="config.slug" type="text" class="gizmo-native-control" />
                     </div>
                 </div>
 
-                <div class="my-3">
-                    <label for="title" class="form-label">{{ $t("Title") }}</label>
-                    <input id="title" v-model="config.title" type="text" class="form-control" />
+                <div class="tw-my-3">
+                    <label for="title" class="gizmo-field-label">{{ $t("Title") }}</label>
+                    <input id="title" v-model="config.title" type="text" class="gizmo-native-control" />
                 </div>
 
                 <!-- Description -->
-                <div class="my-3">
-                    <label for="description" class="form-label">{{ $t("Description") }}</label>
+                <div class="tw-my-3">
+                    <label for="description" class="gizmo-field-label">{{ $t("Description") }}</label>
                     <textarea
                         id="description"
                         v-model="config.description"
-                        class="form-control"
+                        class="gizmo-native-control"
                         data-testid="description-input"
                     ></textarea>
-                    <div class="form-text">{{ $t("markdownSupported") }}</div>
+                    <div class="gizmo-field-help">{{ $t("markdownSupported") }}</div>
                 </div>
 
                 <!-- Footer Text -->
-                <div class="my-3">
-                    <label for="footer-text" class="form-label">{{ $t("Footer Text") }}</label>
+                <div class="tw-my-3">
+                    <label for="footer-text" class="gizmo-field-label">{{ $t("Footer Text") }}</label>
                     <textarea
                         id="footer-text"
                         v-model="config.footerText"
-                        class="form-control"
+                        class="gizmo-native-control"
                         data-testid="footer-text-input"
                     ></textarea>
-                    <div class="form-text">{{ $t("markdownSupported") }}</div>
+                    <div class="gizmo-field-help">{{ $t("markdownSupported") }}</div>
                 </div>
 
-                <div class="my-3">
-                    <label for="auto-refresh-interval" class="form-label">{{ $t("Refresh Interval") }}</label>
+                <div class="tw-my-3">
+                    <label for="auto-refresh-interval" class="gizmo-field-label">{{ $t("Refresh Interval") }}</label>
                     <input
                         id="auto-refresh-interval"
                         v-model="config.autoRefreshInterval"
                         type="number"
-                        class="form-control"
+                        class="gizmo-native-control"
                         :min="5"
                         data-testid="refresh-interval-input"
                     />
-                    <div class="form-text">
+                    <div class="gizmo-field-help">
                         {{ $t("Refresh Interval Description", [config.autoRefreshInterval]) }}
                     </div>
                 </div>
 
-                <div class="my-3">
-                    <label for="switch-theme" class="form-label">{{ $t("Theme") }}</label>
-                    <select id="switch-theme" v-model="config.theme" class="form-select" data-testid="theme-select">
+                <div class="tw-my-3">
+                    <label for="switch-theme" class="gizmo-field-label">{{ $t("Theme") }}</label>
+                    <select id="switch-theme" v-model="config.theme" class="gizmo-native-control gizmo-native-select" data-testid="theme-select">
                         <option value="auto">{{ $t("Auto") }}</option>
                         <option value="light">{{ $t("Light") }}</option>
                         <option value="dark">{{ $t("Dark") }}</option>
                     </select>
                 </div>
 
-                <div class="my-3 form-check form-switch">
+                <div class="tw-my-3 gizmo-native-check gizmo-native-switch">
                     <input
                         id="showTags"
                         v-model="config.showTags"
-                        class="form-check-input"
+                        class="gizmo-native-check__input"
                         type="checkbox"
                         data-testid="show-tags-checkbox"
                     />
-                    <label class="form-check-label" for="showTags">{{ $t("Show Tags") }}</label>
+                    <label class="gizmo-native-check__label" for="showTags">{{ $t("Show Tags") }}</label>
                 </div>
 
                 <!-- Show Powered By -->
-                <div class="my-3 form-check form-switch">
+                <div class="tw-my-3 gizmo-native-check gizmo-native-switch">
                     <input
                         id="show-powered-by"
                         v-model="config.showPoweredBy"
-                        class="form-check-input"
+                        class="gizmo-native-check__input"
                         type="checkbox"
                         data-testid="show-powered-by-checkbox"
                     />
-                    <label class="form-check-label" for="show-powered-by">{{ $t("Show Powered By") }}</label>
+                    <label class="gizmo-native-check__label" for="show-powered-by">{{ $t("Show Powered By") }}</label>
                 </div>
 
                 <!-- Show certificate expiry -->
-                <div class="my-3 form-check form-switch">
+                <div class="tw-my-3 gizmo-native-check gizmo-native-switch">
                     <input
                         id="show-certificate-expiry"
                         v-model="config.showCertificateExpiry"
-                        class="form-check-input"
+                        class="gizmo-native-check__input"
                         type="checkbox"
                         data-testid="show-certificate-expiry-checkbox"
                     />
-                    <label class="form-check-label" for="show-certificate-expiry">
+                    <label class="gizmo-native-check__label" for="show-certificate-expiry">
                         {{ $t("showCertificateExpiry") }}
                     </label>
                 </div>
 
                 <!-- Show only last heartbeat -->
-                <div class="my-3 form-check form-switch">
+                <div class="tw-my-3 gizmo-native-check gizmo-native-switch">
                     <input
                         id="show-only-last-heartbeat"
                         v-model="config.showOnlyLastHeartbeat"
-                        class="form-check-input"
+                        class="gizmo-native-check__input"
                         type="checkbox"
                     />
-                    <label class="form-check-label" for="show-only-last-heartbeat">
+                    <label class="gizmo-native-check__label" for="show-only-last-heartbeat">
                         {{ $t("showOnlyLastHeartbeat") }}
                     </label>
                 </div>
 
                 <!-- Domain Name List -->
-                <div class="my-3">
-                    <label class="form-label">
+                <div class="tw-my-3">
+                    <label class="gizmo-field-label">
                         {{ $t("Domain Names") }}
                         <button
-                            class="p-0 bg-transparent border-0"
+                            class="tw-p-0 tw-bg-transparent tw-border-0"
                             :aria-label="$t('Add a domain')"
                             @click="addDomainField"
                         >
@@ -127,8 +127,8 @@
                         </button>
                     </label>
 
-                    <ul class="list-group domain-name-list">
-                        <li v-for="(domain, index) in config.domainNameList" :key="index" class="list-group-item">
+                    <ul class="gizmo-list-group domain-name-list">
+                        <li v-for="(domain, index) in config.domainNameList" :key="index" class="gizmo-list-group__item">
                             <input
                                 v-model="config.domainNameList[index]"
                                 type="text"
@@ -136,11 +136,11 @@
                                 placeholder="example.com"
                             />
                             <button
-                                class="p-0 bg-transparent border-0"
+                                class="tw-p-0 tw-bg-transparent tw-border-0"
                                 :aria-label="$t('Remove domain', [domain])"
                                 @click="removeDomain(index)"
                             >
-                                <font-awesome-icon icon="times" class="action remove ms-2 me-3 text-danger" />
+                                <font-awesome-icon icon="times" class="action remove tw-ms-2 tw-me-3 text-danger" />
                             </button>
                         </li>
                     </ul>
@@ -148,12 +148,12 @@
 
                 <!-- Analytics -->
 
-                <div class="my-3">
-                    <label for="analyticsType" class="form-label">{{ $t("Analytics Type") }}</label>
+                <div class="tw-my-3">
+                    <label for="analyticsType" class="gizmo-field-label">{{ $t("Analytics Type") }}</label>
                     <select
                         id="analyticsType"
                         v-model="config.analyticsType"
-                        class="form-select"
+                        class="gizmo-native-control gizmo-native-select"
                         data-testid="analytics-type-select"
                     >
                         <option :value="null">{{ $t("None") }}</option>
@@ -165,46 +165,46 @@
                     </select>
                 </div>
 
-                <div v-if="!!config.analyticsType" class="my-3">
-                    <label for="analyticsId" class="form-label">{{ $t("Analytics ID") }}</label>
+                <div v-if="!!config.analyticsType" class="tw-my-3">
+                    <label for="analyticsId" class="gizmo-field-label">{{ $t("Analytics ID") }}</label>
                     <input
                         id="analyticsId"
                         v-model="config.analyticsId"
                         type="text"
-                        class="form-control"
+                        class="gizmo-native-control"
                         data-testid="analytics-id-input"
                     />
                 </div>
 
-                <div v-if="!!config.analyticsType && config.analyticsType !== 'google'" class="my-3">
-                    <label for="analyticsScriptUrl" class="form-label">{{ $t("Analytics Script URL") }}</label>
+                <div v-if="!!config.analyticsType && config.analyticsType !== 'google'" class="tw-my-3">
+                    <label for="analyticsScriptUrl" class="gizmo-field-label">{{ $t("Analytics Script URL") }}</label>
                     <input
                         id="analyticsScriptUrl"
                         v-model="config.analyticsScriptUrl"
                         type="url"
-                        class="form-control"
+                        class="gizmo-native-control"
                         data-testid="analytics-script-url-input"
                     />
                 </div>
 
                 <!-- RSS Title -->
-                <div class="my-3">
-                    <label for="rss-title" class="form-label">{{ $t("RSS Title") }}</label>
+                <div class="tw-my-3">
+                    <label for="rss-title" class="gizmo-field-label">{{ $t("RSS Title") }}</label>
                     <input
                         id="rss-title"
                         v-model="config.rssTitle"
                         type="text"
-                        class="form-control"
+                        class="gizmo-native-control"
                         data-testid="rss-title-input"
                     />
-                    <div class="form-text">
+                    <div class="gizmo-field-help">
                         {{ $t("Leave blank to use status page title") }}
                     </div>
                 </div>
 
                 <!-- Custom CSS -->
-                <div class="my-3">
-                    <div class="mb-1">{{ $t("Custom CSS") }}</div>
+                <div class="tw-my-3">
+                    <div class="tw-mb-1">{{ $t("Custom CSS") }}</div>
                     <prism-editor
                         v-model="config.customCSS"
                         class="css-editor"
@@ -215,7 +215,7 @@
                 </div>
 
                 <div class="danger-zone">
-                    <button class="btn btn-danger me-2" @click="deleteDialog">
+                    <button class="gizmo-native-button gizmo-native-button--danger tw-me-2" @click="deleteDialog">
                         <font-awesome-icon icon="trash" />
                         {{ $t("Delete") }}
                     </button>
@@ -224,12 +224,12 @@
 
             <!-- Sidebar Footer -->
             <div class="sidebar-footer">
-                <button class="btn btn-success me-2" :disabled="loading" data-testid="save-button" @click="save">
+                <button class="gizmo-native-button gizmo-native-button--success tw-me-2" :disabled="loading" data-testid="save-button" @click="save">
                     <font-awesome-icon icon="save" />
                     {{ $t("Save") }}
                 </button>
 
-                <button class="btn btn-danger me-2" @click="discard">
+                <button class="gizmo-native-button gizmo-native-button--danger tw-me-2" @click="discard">
                     <font-awesome-icon icon="undo" />
                     {{ $t("Discard") }}
                 </button>
@@ -239,18 +239,18 @@
         <!-- Main Status Page -->
         <div :class="{ edit: enableEditMode }" class="main">
             <!-- Logo & Title -->
-            <h1 class="mb-4 title-flex">
+            <h1 class="tw-mb-4 title-flex">
                 <!-- Logo -->
                 <span class="logo-wrapper" @click="showImageCropUploadMethod">
                     <button
                         v-if="editMode"
                         type="button"
-                        class="p-0 bg-transparent border-0 small-reset-btn reset-top-left"
+                        class="tw-p-0 tw-bg-transparent tw-border-0 small-reset-btn reset-top-left"
                         @click.stop="resetToDefaultImage"
                     >
                         <font-awesome-icon icon="times" class="text-danger" />
                     </button>
-                    <img :src="logoURL" alt class="logo me-2" :class="logoClass" />
+                    <img :src="logoURL" alt class="logo tw-me-2" :class="logoClass" />
                     <font-awesome-icon v-if="enableEditMode" class="icon-upload" icon="upload" />
                 </span>
 
@@ -273,14 +273,14 @@
             </h1>
 
             <!-- Admin functions -->
-            <div v-if="hasToken" class="mb-2">
+            <div v-if="hasToken" class="tw-mb-2">
                 <div v-if="!enableEditMode">
-                    <button class="btn btn-primary mb-2 me-2" data-testid="edit-button" @click="edit">
+                    <button class="gizmo-native-button gizmo-native-button--primary tw-mb-2 tw-me-2" data-testid="edit-button" @click="edit">
                         <font-awesome-icon icon="edit" />
                         {{ $t("Edit Status Page") }}
                     </button>
 
-                    <a href="/manage-status-page" class="btn btn-primary mb-2">
+                    <a href="/manage-status-page" class="gizmo-native-button gizmo-native-button--primary tw-mb-2">
                         <font-awesome-icon icon="tachometer-alt" />
                         {{ $t("Go to Dashboard") }}
                     </a>
@@ -288,7 +288,7 @@
 
                 <div v-else>
                     <button
-                        class="btn btn-primary btn-add-group me-2"
+                        class="gizmo-native-button gizmo-native-button--primary btn-add-group tw-me-2"
                         data-testid="create-incident-button"
                         @click="createIncident"
                     >
@@ -323,12 +323,12 @@
                 <!-- Display mode for this incident -->
                 <div
                     v-else
-                    class="shadow-box alert mb-4 p-4 incident"
+                    class="shadow-box gizmo-native-alert tw-mb-4 tw-p-4 incident"
                     role="alert"
                     :class="'bg-' + activeIncident.style"
                     data-testid="incident"
                 >
-                    <h4 class="alert-heading" data-testid="incident-title">{{ activeIncident.title }}</h4>
+                    <h4 class="gizmo-native-alert__title" data-testid="incident-title">{{ activeIncident.title }}</h4>
                     <!-- eslint-disable vue/no-v-html -->
                     <div
                         class="content"
@@ -338,7 +338,7 @@
                     <!-- eslint-enable vue/no-v-html -->
 
                     <!-- Incident Date -->
-                    <div class="date mt-3">
+                    <div class="date tw-mt-3">
                         {{
                             $t("dateCreatedAtFromNow", {
                                 date: $root.datetime(activeIncident.createdDate),
@@ -356,17 +356,17 @@
                         </span>
                     </div>
 
-                    <div v-if="editMode" class="mt-3">
-                        <button class="btn btn-light me-2" @click="resolveIncident(activeIncident)">
+                    <div v-if="editMode" class="tw-mt-3">
+                        <button class="gizmo-native-button gizmo-native-button--light tw-me-2" @click="resolveIncident(activeIncident)">
                             <font-awesome-icon icon="check" />
                             {{ $t("Resolve") }}
                         </button>
-                        <button class="btn btn-light me-2" @click="editIncident(activeIncident)">
+                        <button class="gizmo-native-button gizmo-native-button--light tw-me-2" @click="editIncident(activeIncident)">
                             <font-awesome-icon icon="edit" />
                             {{ $t("Edit") }}
                         </button>
                         <button
-                            class="btn btn-light me-2"
+                            class="gizmo-native-button gizmo-native-button--light tw-me-2"
                             @click="$refs.incidentManageModal.showDelete(activeIncident)"
                         >
                             <font-awesome-icon icon="unlink" />
@@ -377,7 +377,7 @@
             </template>
 
             <!-- Overall Status -->
-            <div class="shadow-box list p-4 overall-status mb-4">
+            <div class="shadow-box list tw-p-4 overall-status tw-mb-4">
                 <div v-if="Object.keys($root.publicMonitorList).length === 0 && loadedData">
                     <font-awesome-icon icon="question-circle" class="ok" />
                     {{ $t("No Services") }}
@@ -415,10 +415,10 @@
                 <div
                     v-for="maintenance in maintenanceList"
                     :key="maintenance.id"
-                    class="shadow-box alert mb-4 p-3 bg-maintenance mt-4 position-relative"
+                    class="shadow-box gizmo-native-alert tw-mb-4 tw-p-3 bg-maintenance tw-mt-4 tw-relative"
                     role="alert"
                 >
-                    <h4 class="alert-heading">{{ maintenance.title }}</h4>
+                    <h4 class="gizmo-native-alert__title">{{ maintenance.title }}</h4>
                     <!-- eslint-disable-next-line vue/no-v-html-->
                     <div class="content" v-html="maintenanceHTML(maintenance.description)"></div>
                     <MaintenanceTime :maintenance="maintenance" />
@@ -432,27 +432,27 @@
                 v-model="config.description"
                 :contenteditable="editMode"
                 tag="div"
-                class="mb-4 description"
+                class="tw-mb-4 description"
                 data-testid="description-editable"
             />
             <!-- eslint-disable vue/no-v-html-->
             <div
                 v-if="!enableEditMode"
-                class="alert-heading p-2"
+                class="gizmo-native-alert__title tw-p-2"
                 data-testid="description"
                 v-html="descriptionHTML"
             ></div>
             <!-- eslint-enable vue/no-v-html-->
 
-            <div v-if="editMode" class="mb-4">
+            <div v-if="editMode" class="tw-mb-4">
                 <div>
-                    <button class="btn btn-primary btn-add-group me-2" data-testid="add-group-button" @click="addGroup">
+                    <button class="gizmo-native-button gizmo-native-button--primary btn-add-group tw-me-2" data-testid="add-group-button" @click="addGroup">
                         <font-awesome-icon icon="plus" />
                         {{ $t("Add Group") }}
                     </button>
                 </div>
 
-                <div class="mt-3">
+                <div class="tw-mt-3">
                     <div v-if="sortedMonitorList.length > 0 && loadedData">
                         <label>{{ $t("Add a monitor") }}:</label>
                         <VueMultiselect
@@ -463,7 +463,7 @@
                             :placeholder="$t('Add a monitor')"
                             label="name"
                             trackBy="name"
-                            class="mt-3"
+                            class="tw-mt-3"
                             data-testid="monitor-select"
                         >
                             <template #option="{ option }">
@@ -476,15 +476,15 @@
                             </template>
                         </VueMultiselect>
                     </div>
-                    <div v-else class="text-center">
+                    <div v-else class="tw-text-center">
                         {{ $t("No monitors available.") }}
                         <router-link to="/add">{{ $t("Add one") }}</router-link>
                     </div>
                 </div>
             </div>
 
-            <div class="mb-4">
-                <div v-if="$root.publicGroupList.length === 0 && loadedData" class="text-center">
+            <div class="tw-mb-4">
+                <div v-if="$root.publicGroupList.length === 0 && loadedData" class="tw-text-center">
                     <font-awesome-icon icon="eye" aria-hidden="true" />
                     {{ $t("statusPageNothing") }}
                 </div>
@@ -498,8 +498,8 @@
             </div>
 
             <!-- Past Incidents -->
-            <div v-if="pastIncidentCount > 0" class="past-incidents-section mb-4">
-                <h2 class="past-incidents-title mb-3">
+            <div v-if="pastIncidentCount > 0" class="past-incidents-section tw-mb-4">
+                <h2 class="past-incidents-title tw-mb-3">
                     {{ $t("Past Incidents") }}
                 </h2>
 
@@ -507,7 +507,7 @@
                     <div
                         v-for="(dateGroup, dateKey) in groupedIncidentHistory"
                         :key="dateKey"
-                        class="incident-date-group mb-4"
+                        class="incident-date-group tw-mb-4"
                     >
                         <h4 class="incident-date-header">{{ dateKey }}</h4>
                         <div class="shadow-box incident-list-box">
@@ -522,15 +522,15 @@
                         </div>
                     </div>
 
-                    <div v-if="incidentHistoryHasMore" class="load-more-controls d-flex justify-content-center mt-3">
+                    <div v-if="incidentHistoryHasMore" class="load-more-controls tw-flex tw-justify-center tw-mt-3">
                         <button
-                            class="btn btn-outline-secondary btn-sm"
+                            class="gizmo-native-button gizmo-native-button--outline gizmo-native-button--sm"
                             :disabled="incidentHistoryLoading"
                             @click="loadMoreIncidentHistory"
                         >
                             <span
                                 v-if="incidentHistoryLoading"
-                                class="spinner-border spinner-border-sm me-1"
+                                class="gizmo-spinner-inline gizmo-spinner-inline--sm tw-me-1"
                                 role="status"
                             ></span>
                             {{ $t("Load More") }}
@@ -547,8 +547,8 @@
                 @incident-updated="loadIncidentHistory"
             />
 
-            <footer class="mt-5 mb-4">
-                <div class="custom-footer-text text-start">
+            <footer class="tw-mt-5 tw-mb-4">
+                <div class="custom-footer-text tw-text-start">
                     <strong v-if="enableEditMode">{{ $t("Custom Footer") }}:</strong>
                 </div>
                 <Editable
@@ -557,13 +557,13 @@
                     tag="div"
                     :contenteditable="enableEditMode"
                     :noNL="false"
-                    class="alert-heading p-2"
+                    class="gizmo-native-alert__title tw-p-2"
                     data-testid="custom-footer-editable"
                 />
                 <!-- eslint-disable vue/no-v-html-->
                 <div
                     v-if="!enableEditMode"
-                    class="alert-heading p-2"
+                    class="gizmo-native-alert__title tw-p-2"
                     data-testid="footer-text"
                     v-html="footerHTML"
                 ></div>
@@ -574,7 +574,7 @@
                     {{ $root.appName }}
                 </p>
 
-                <div class="refresh-info mb-2">
+                <div class="refresh-info tw-mb-2">
                     <div>{{ $t("lastUpdatedAt", { date: lastUpdateTimeDisplay }) }}</div>
                     <div data-testid="update-countdown-text">
                         {{ $t("statusPageRefreshIn", [updateCountdownText]) }}
@@ -1494,6 +1494,10 @@ export default {
 <style lang="scss" scoped>
 .status-page-shell {
     max-width: 1040px;
+
+    /* Absorbs the centering and gutters that Bootstrap's .container provided. */
+    margin-inline: auto;
+    padding-inline: 0.75rem;
     padding-bottom: 2rem;
 }
 
@@ -1718,7 +1722,7 @@ footer {
 }
 
 .bg-maintenance {
-    .alert-heading {
+    .gizmo-native-alert__title {
         font-weight: bold;
     }
 }

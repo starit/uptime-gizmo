@@ -1,6 +1,6 @@
 <template>
     <div
-        class="shadow-box alert mb-4 p-4 incident"
+        class="shadow-box gizmo-native-alert tw-mb-4 tw-p-4 incident"
         role="alert"
         :class="'bg-' + modelValue.style"
         data-testid="incident-edit"
@@ -11,7 +11,7 @@
             tag="h4"
             :contenteditable="true"
             :noNL="true"
-            class="alert-heading"
+            class="gizmo-native-alert__title"
             data-testid="incident-title"
             @update:model-value="updateField('title', $event)"
         />
@@ -25,24 +25,24 @@
             data-testid="incident-content-editable"
             @update:model-value="updateField('content', $event)"
         />
-        <div class="form-text">
+        <div class="gizmo-field-help">
             {{ $t("markdownSupported") }}
         </div>
 
-        <div class="mt-3">
-            <button class="btn btn-light me-2" data-testid="post-incident-button" @click="$emit('post')">
+        <div class="tw-mt-3">
+            <button class="gizmo-native-button gizmo-native-button--light tw-me-2" data-testid="post-incident-button" @click="$emit('post')">
                 <font-awesome-icon icon="bullhorn" />
                 {{ $t("Post") }}
             </button>
 
-            <button class="btn btn-light me-2" @click="$emit('cancel')">
+            <button class="gizmo-native-button gizmo-native-button--light tw-me-2" @click="$emit('cancel')">
                 <font-awesome-icon icon="times" />
                 {{ $t("Cancel") }}
             </button>
 
-            <GizmoMenu class="d-inline-block me-2">
+            <GizmoMenu class="tw-inline-block tw-me-2">
                 <template #trigger>
-                    <button class="btn btn-secondary" type="button">
+                    <button class="gizmo-native-button gizmo-native-button--secondary" type="button">
                         {{ $t("Style") }}: {{ $t(modelValue.style) }}
                     </button>
                 </template>

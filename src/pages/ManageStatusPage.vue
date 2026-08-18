@@ -1,12 +1,12 @@
 <template>
     <transition name="slide-fade" appear>
         <div class="management-workspace">
-            <h1 class="management-workspace-title mb-3">
+            <h1 class="management-workspace-title tw-mb-3">
                 {{ $t("Status Pages") }}
             </h1>
 
             <div>
-                <router-link to="/add-status-page" class="btn btn-primary mb-3">
+                <router-link to="/add-status-page" class="gizmo-native-button gizmo-native-button--primary tw-mb-3">
                     <font-awesome-icon icon="plus" />
                     {{ $t("New Status Page") }}
                 </router-link>
@@ -16,7 +16,7 @@
                 <template v-if="$root.statusPageListLoaded">
                     <span
                         v-if="Object.keys($root.statusPageList).length === 0"
-                        class="d-flex align-items-center justify-content-center my-3"
+                        class="tw-flex tw-items-center tw-justify-center tw-my-3"
                     >
                         {{ $t("No status pages") }}
                     </span>
@@ -28,14 +28,14 @@
                         :href="'/status/' + statusPage.slug"
                         class="item"
                     >
-                        <img :src="icon(statusPage.icon)" alt class="logo me-2" />
+                        <img :src="icon(statusPage.icon)" alt class="logo tw-me-2" />
                         <div class="info">
                             <div class="title">{{ statusPage.title }}</div>
                             <div class="slug">/status/{{ statusPage.slug }}</div>
                         </div>
                         <div class="actions">
                             <button
-                                class="btn btn-danger delete-status-page"
+                                class="gizmo-native-button gizmo-native-button--danger delete-status-page"
                                 @click.stop.prevent="deleteDialog(statusPage.slug)"
                             >
                                 <font-awesome-icon icon="trash" />
@@ -44,7 +44,7 @@
                         </div>
                     </a>
                 </template>
-                <div v-else class="d-flex align-items-center justify-content-center my-3 spinner">
+                <div v-else class="tw-flex tw-items-center tw-justify-center tw-my-3 spinner">
                     <font-awesome-icon icon="spinner" size="2x" spin />
                 </div>
             </div>

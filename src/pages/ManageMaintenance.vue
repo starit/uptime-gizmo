@@ -1,12 +1,12 @@
 <template>
     <transition name="slide-fade" appear>
         <div class="management-workspace maintenance-workspace">
-            <h1 class="management-workspace-title mb-3">
+            <h1 class="management-workspace-title tw-mb-3">
                 {{ $t("Maintenance") }}
             </h1>
 
             <div>
-                <router-link to="/add-maintenance" class="btn btn-primary mb-3">
+                <router-link to="/add-maintenance" class="gizmo-native-button gizmo-native-button--primary tw-mb-3">
                     <font-awesome-icon icon="plus" />
                     {{ $t("Schedule Maintenance") }}
                 </router-link>
@@ -15,7 +15,7 @@
             <div class="shadow-box management-workspace-surface">
                 <span
                     v-if="Object.keys(sortedMaintenanceList).length === 0"
-                    class="d-flex align-items-center justify-content-center my-3"
+                    class="tw-flex tw-items-center tw-justify-center tw-my-3"
                 >
                     {{ $t("No Maintenance") }}
                 </span>
@@ -34,10 +34,10 @@
                     </div>
 
                     <div class="buttons">
-                        <div class="btn-group" role="group">
+                        <div class="gizmo-action-group" role="group">
                             <button
                                 v-if="item.active"
-                                class="btn btn-normal"
+                                class="gizmo-native-button btn-normal"
                                 :aria-label="$t('ariaPauseMaintenance')"
                                 @click="pauseDialog(item.id)"
                             >
@@ -47,7 +47,7 @@
 
                             <button
                                 v-if="!item.active"
-                                class="btn btn-primary"
+                                class="gizmo-native-button gizmo-native-button--primary"
                                 :aria-label="$t('ariaResumeMaintenance')"
                                 @click="resumeMaintenance(item.id)"
                             >
@@ -57,7 +57,7 @@
 
                             <router-link
                                 :to="'/maintenance/clone/' + item.id"
-                                class="btn btn-normal"
+                                class="gizmo-native-button btn-normal"
                                 :aria-label="$t('ariaCloneMaintenance')"
                             >
                                 <font-awesome-icon icon="clone" />
@@ -66,7 +66,7 @@
 
                             <router-link
                                 :to="'/maintenance/edit/' + item.id"
-                                class="btn btn-normal"
+                                class="gizmo-native-button btn-normal"
                                 :aria-label="$t('ariaEditMaintenance')"
                             >
                                 <font-awesome-icon icon="edit" />
@@ -74,7 +74,7 @@
                             </router-link>
 
                             <button
-                                class="btn btn-normal text-danger"
+                                class="gizmo-native-button btn-normal text-danger"
                                 :aria-label="$t('ariaDeleteMaintenance')"
                                 @click="deleteDialog(item.id)"
                             >
@@ -86,7 +86,7 @@
                 </div>
             </div>
 
-            <div class="text-center mt-3" style="font-size: 13px">
+            <div class="tw-text-center tw-mt-3" style="font-size: 13px">
                 <a href="https://github.com/starit/uptime-gizmo/wiki/Maintenance" target="_blank">
                     {{ $t("Learn More") }}
                 </a>
@@ -333,7 +333,7 @@ export default {
                 width: 100%;
             }
 
-            .btn-group {
+            .gizmo-action-group {
                 margin: 1em 1em 0 1em;
                 width: 100%;
             }

@@ -11,12 +11,12 @@
     >
         <form id="incident-edit-form" class="gizmo-form-stack" @submit.prevent="submit">
             <div>
-                <label for="incident-title" class="form-label">{{ $t("Title") }}</label>
+                <label for="incident-title" class="gizmo-field-label">{{ $t("Title") }}</label>
                 <input
                     id="incident-title"
                     v-model="form.title"
                     type="text"
-                    class="form-control"
+                    class="gizmo-native-control"
                     :placeholder="$t('Incident title')"
                     required
                     autofocus
@@ -24,11 +24,11 @@
             </div>
 
             <div>
-                <label for="incident-content" class="form-label">{{ $t("Content") }}</label>
+                <label for="incident-content" class="gizmo-field-label">{{ $t("Content") }}</label>
                 <textarea
                     id="incident-content"
                     v-model="form.content"
-                    class="form-control"
+                    class="gizmo-native-control"
                     rows="4"
                     :placeholder="$t('Incident description')"
                     required
@@ -36,8 +36,8 @@
             </div>
 
             <div>
-                <label for="incident-style" class="form-label">{{ $t("Style") }}</label>
-                <select id="incident-style" v-model="form.style" class="form-select">
+                <label for="incident-style" class="gizmo-field-label">{{ $t("Style") }}</label>
+                <select id="incident-style" v-model="form.style" class="gizmo-native-control gizmo-native-select">
                     <option value="info">{{ $t("info") }}</option>
                     <option value="warning">{{ $t("warning") }}</option>
                     <option value="danger">{{ $t("danger") }}</option>
@@ -47,10 +47,10 @@
                 </select>
             </div>
 
-            <div class="form-check">
-                <input id="incident-pin" v-model="form.pin" type="checkbox" class="form-check-input" />
-                <label for="incident-pin" class="form-check-label">{{ $t("Pin this incident") }}</label>
-                <div class="form-text">
+            <div class="gizmo-native-check">
+                <input id="incident-pin" v-model="form.pin" type="checkbox" class="gizmo-native-check__input" />
+                <label for="incident-pin" class="gizmo-native-check__label">{{ $t("Pin this incident") }}</label>
+                <div class="gizmo-field-help">
                     {{ $t("Pinned incidents are shown prominently on the status page") }}
                 </div>
             </div>

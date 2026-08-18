@@ -1,12 +1,12 @@
 <template>
     <div class="incident-group" data-testid="incident-group">
-        <div v-if="loading && incidents.length === 0" class="text-center py-4">
-            <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">{{ $t("Loading...") }}</span>
+        <div v-if="loading && incidents.length === 0" class="tw-text-center tw-py-4">
+            <div class="gizmo-spinner-inline tw-text-interactive" role="status">
+                <span class="gizmo-visually-hidden">{{ $t("Loading...") }}</span>
             </div>
         </div>
 
-        <div v-else-if="incidents.length === 0" class="text-center py-4 text-muted">
+        <div v-else-if="incidents.length === 0" class="tw-text-center tw-py-4 tw-text-content-muted">
             {{ $t("No incidents recorded") }}
         </div>
 
@@ -19,12 +19,12 @@
             >
                 <div class="incident-style-indicator" :class="`bg-${incident.style}`"></div>
                 <div class="incident-body">
-                    <div class="incident-header d-flex justify-content-between align-items-start">
-                        <h5 class="incident-title mb-0">{{ incident.title }}</h5>
+                    <div class="incident-header tw-flex tw-justify-between tw-items-start">
+                        <h5 class="incident-title tw-mb-0">{{ incident.title }}</h5>
                         <div v-if="editMode" class="incident-actions">
                             <button
                                 v-if="incident.active"
-                                class="btn btn-success btn-sm me-1"
+                                class="gizmo-native-button gizmo-native-button--success gizmo-native-button--sm tw-me-1"
                                 :title="$t('Resolve')"
                                 :aria-label="$t('Resolve')"
                                 @click="$emit('resolve-incident', incident)"
@@ -32,7 +32,7 @@
                                 <font-awesome-icon icon="check" />
                             </button>
                             <button
-                                class="btn btn-outline-secondary btn-sm me-1"
+                                class="gizmo-native-button gizmo-native-button--outline gizmo-native-button--sm tw-me-1"
                                 :title="$t('Edit')"
                                 :aria-label="$t('Edit')"
                                 @click="$emit('edit-incident', incident)"
@@ -40,7 +40,7 @@
                                 <font-awesome-icon icon="edit" />
                             </button>
                             <button
-                                class="btn btn-outline-danger btn-sm"
+                                class="gizmo-native-button gizmo-native-button--danger-outline gizmo-native-button--sm"
                                 :title="$t('Delete')"
                                 :aria-label="$t('Delete')"
                                 @click="$emit('delete-incident', incident)"
@@ -50,8 +50,8 @@
                         </div>
                     </div>
                     <!-- eslint-disable-next-line vue/no-v-html-->
-                    <div class="incident-content mt-1" v-html="getIncidentHTML(incident.content)"></div>
-                    <div class="incident-meta text-muted small mt-2">
+                    <div class="incident-content tw-mt-1" v-html="getIncidentHTML(incident.content)"></div>
+                    <div class="incident-meta tw-text-content-muted small tw-mt-2">
                         <div>{{ $t("createdAt", { date: datetime(incident.createdDate) }) }}</div>
                         <div v-if="incident.lastUpdatedDate">
                             {{ $t("lastUpdatedAt", { date: datetime(incident.lastUpdatedDate) }) }}

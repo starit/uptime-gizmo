@@ -2,20 +2,20 @@
     <!-- Group List -->
     <Draggable v-model="$root.publicGroupList" :disabled="!editMode" item-key="id" :animation="100">
         <template #item="group">
-            <div class="mb-5" data-testid="group">
+            <div class="tw-mb-5" data-testid="group">
                 <!-- Group Title -->
                 <h2 class="group-title">
-                    <font-awesome-icon v-if="editMode && showGroupDrag" icon="arrows-alt-v" class="action drag me-3" />
+                    <font-awesome-icon v-if="editMode && showGroupDrag" icon="arrows-alt-v" class="action drag tw-me-3" />
                     <font-awesome-icon
                         v-if="editMode"
                         icon="times"
-                        class="action remove me-3"
+                        class="action remove tw-me-3"
                         @click="removeGroup(group.index)"
                     />
                     <span class="collapse-toggle" @click="toggleGroup(group.element)">
                         <font-awesome-icon
                             icon="chevron-down"
-                            class="chevron me-2"
+                            class="chevron tw-me-2"
                             :class="{ collapsed: isGroupCollapsed(group.element) }"
                         />
                     </span>
@@ -30,8 +30,8 @@
                 </h2>
 
                 <transition name="slide-fade-up">
-                    <div v-if="!isGroupCollapsed(group.element)" class="shadow-box monitor-list mt-4 position-relative">
-                        <div v-if="group.element.monitorList.length === 0" class="text-center no-monitor-msg">
+                    <div v-if="!isGroupCollapsed(group.element)" class="shadow-box monitor-list tw-mt-4 tw-relative">
+                        <div v-if="group.element.monitorList.length === 0" class="tw-text-center no-monitor-msg">
                             {{ $t("No Monitors") }}
                         </div>
 
@@ -47,26 +47,25 @@
                         >
                             <template #item="monitor">
                                 <div class="item" data-testid="monitor">
-                                    <div class="row">
-                                        <div class="col-9 col-xl-6 small-padding">
+                                    <div class="public-monitor-row">
+                                        <div>
                                             <div class="info">
                                                 <font-awesome-icon
                                                     v-if="editMode"
                                                     icon="arrows-alt-v"
-                                                    class="action drag me-3"
+                                                    class="action drag tw-me-3"
                                                 />
                                                 <font-awesome-icon
                                                     v-if="editMode"
                                                     icon="times"
-                                                    class="action remove me-3"
+                                                    class="action remove tw-me-3"
                                                     @click="removeMonitor(group.index, monitor.index)"
                                                 />
 
                                                 <font-awesome-icon
                                                     v-if="editMode"
                                                     icon="cog"
-                                                    class="action me-3 ms-0"
-                                                    :class="{ 'link-active': true, 'btn-link': true }"
+                                                    class="action tw-me-3 tw-ms-0 monitor-settings-action link-active"
                                                     data-testid="monitor-settings"
                                                     @click="$refs.monitorSettingDialog.show(group, monitor)"
                                                 />
@@ -115,7 +114,7 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <div :key="$root.userHeartbeatBar" class="col-3 col-xl-6">
+                                        <div :key="$root.userHeartbeatBar">
                                             <HeartbeatBar size="mid" :monitor-id="monitor.element.id" />
                                         </div>
                                     </div>
@@ -368,9 +367,25 @@ export default {
     font-weight: 600;
 }
 
-.btn-link {
+/* Renamed from .btn-link: it was always a local rule, and the Bootstrap class
+   of that name contributed nothing to an inline SVG. */
+.monitor-settings-action {
     color: var(--color-text-subtle);
     margin-left: 0.375rem;
+}
+
+/* Was .row with col-9/col-3, widening to 6/6 at Bootstrap's 1200px xl. */
+.public-monitor-row {
+    display: grid;
+    grid-template-columns: minmax(0, 3fr) minmax(0, 1fr);
+    align-items: center;
+    gap: 1.5rem;
+}
+
+@media (min-width: 1200px) {
+    .public-monitor-row {
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    }
 }
 
 .link-active {

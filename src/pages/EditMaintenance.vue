@@ -1,42 +1,42 @@
 <template>
     <transition name="slide-fade" appear>
         <div class="maintenance-editor">
-            <h1 class="maintenance-editor-title mb-3">{{ pageName }}</h1>
+            <h1 class="maintenance-editor-title tw-mb-3">{{ pageName }}</h1>
             <form @submit.prevent="submit">
                 <div class="shadow-box shadow-box-with-fixed-bottom-bar maintenance-editor-surface">
-                    <div class="row">
-                        <div class="col-xl-10">
+                    <div class="maintenance-editor-column">
+                        <div>
                             <!-- Title -->
-                            <div class="mb-3">
-                                <label for="name" class="form-label">{{ $t("Title") }}</label>
+                            <div class="tw-mb-3">
+                                <label for="name" class="gizmo-field-label">{{ $t("Title") }}</label>
                                 <input
                                     id="name"
                                     v-model="maintenance.title"
                                     type="text"
-                                    class="form-control"
+                                    class="gizmo-native-control"
                                     required
                                 />
                             </div>
 
                             <!-- Description -->
-                            <div class="my-3">
-                                <label for="description" class="form-label">{{ $t("Description") }}</label>
+                            <div class="tw-my-3">
+                                <label for="description" class="gizmo-field-label">{{ $t("Description") }}</label>
                                 <textarea
                                     id="description"
                                     v-model="maintenance.description"
-                                    class="form-control"
+                                    class="gizmo-native-control"
                                 ></textarea>
-                                <div class="form-text">
+                                <div class="gizmo-field-help">
                                     {{ $t("markdownSupported") }}
                                 </div>
                             </div>
 
                             <!-- Affected Monitors -->
-                            <h2 class="mt-5">{{ $t("Affected Monitors") }}</h2>
+                            <h2 class="tw-mt-5">{{ $t("Affected Monitors") }}</h2>
 
-                            <div class="my-3">
-                                <div class="d-flex justify-content-between align-items-center mb-2">
-                                    <div class="form-text">{{ $t("affectedMonitorsDescription") }}</div>
+                            <div class="tw-my-3">
+                                <div class="tw-flex tw-justify-between tw-items-center tw-mb-2">
+                                    <div class="gizmo-field-help">{{ $t("affectedMonitorsDescription") }}</div>
                                 </div>
 
                                 <VueMultiselect
@@ -66,19 +66,19 @@
                             </div>
 
                             <!-- Status pages to display maintenance info on -->
-                            <h2 class="mt-5">{{ $t("Status Pages") }}</h2>
+                            <h2 class="tw-mt-5">{{ $t("Status Pages") }}</h2>
                             {{ $t("affectedStatusPages") }}
 
-                            <div class="my-3">
+                            <div class="tw-my-3">
                                 <!-- Show on all pages -->
-                                <div class="form-check mb-2">
+                                <div class="gizmo-native-check tw-mb-2">
                                     <input
                                         id="show-on-all-pages"
                                         v-model="showOnAllPages"
-                                        class="form-check-input"
+                                        class="gizmo-native-check__input"
                                         type="checkbox"
                                     />
-                                    <label class="form-check-label" for="show-powered-by">
+                                    <label class="gizmo-native-check__label" for="show-powered-by">
                                         {{ $t("All Status Pages") }}
                                     </label>
                                 </div>
@@ -102,12 +102,12 @@
                                 </div>
                             </div>
 
-                            <h2 class="mt-5">{{ $t("Date and Time") }}</h2>
+                            <h2 class="tw-mt-5">{{ $t("Date and Time") }}</h2>
 
                             <!-- Strategy -->
-                            <div class="my-3">
-                                <label for="strategy" class="form-label">{{ $t("Strategy") }}</label>
-                                <select id="strategy" v-model="maintenance.strategy" class="form-select">
+                            <div class="tw-my-3">
+                                <label for="strategy" class="gizmo-field-label">{{ $t("Strategy") }}</label>
+                                <select id="strategy" v-model="maintenance.strategy" class="gizmo-native-control gizmo-native-select">
                                     <option value="manual">{{ $t("strategyManual") }}</option>
                                     <option value="single">{{ $t("Single Maintenance Window") }}</option>
                                     <option value="cron">{{ $t("cronExpression") }}</option>
@@ -125,8 +125,8 @@
 
                             <template v-if="maintenance.strategy === 'cron'">
                                 <!-- Cron -->
-                                <div class="my-3">
-                                    <label for="cron" class="form-label">
+                                <div class="tw-my-3">
+                                    <label for="cron" class="gizmo-field-label">
                                         {{ $t("cronExpression") }}
                                     </label>
                                     <p>{{ $t("cronScheduleDescription", { description: cronDescription }) }}</p>
@@ -134,21 +134,21 @@
                                         id="cron"
                                         v-model="maintenance.cron"
                                         type="text"
-                                        class="form-control"
+                                        class="gizmo-native-control"
                                         required
                                     />
                                 </div>
 
-                                <div class="my-3">
+                                <div class="tw-my-3">
                                     <!-- Duration -->
-                                    <label for="duration" class="form-label">
+                                    <label for="duration" class="gizmo-field-label">
                                         {{ $t("Duration (Minutes)") }}
                                     </label>
                                     <input
                                         id="duration"
                                         v-model="maintenance.durationMinutes"
                                         type="number"
-                                        class="form-control"
+                                        class="gizmo-native-control"
                                         required
                                         min="1"
                                         step="1"
@@ -158,8 +158,8 @@
 
                             <!-- Recurring - Interval -->
                             <template v-if="maintenance.strategy === 'recurring-interval'">
-                                <div class="my-3">
-                                    <label for="interval-day" class="form-label">
+                                <div class="tw-my-3">
+                                    <label for="interval-day" class="gizmo-field-label">
                                         {{ $t("recurringInterval") }}
 
                                         <template v-if="maintenance.intervalDay >= 1">
@@ -174,7 +174,7 @@
                                         id="interval-day"
                                         v-model="maintenance.intervalDay"
                                         type="number"
-                                        class="form-control"
+                                        class="gizmo-native-control"
                                         required
                                         min="1"
                                         max="3650"
@@ -185,15 +185,15 @@
 
                             <!-- Recurring - Weekday -->
                             <template v-if="maintenance.strategy === 'recurring-weekday'">
-                                <div class="my-3">
-                                    <label for="interval-day" class="form-label">
+                                <div class="tw-my-3">
+                                    <label for="interval-day" class="gizmo-field-label">
                                         {{ $t("dayOfWeek") }}
                                     </label>
 
                                     <!-- Weekday Picker -->
                                     <div class="weekday-picker">
                                         <div v-for="(weekday, index) in weekdays" :key="index">
-                                            <label class="form-check-label" :for="weekday.id">
+                                            <label class="gizmo-native-check__label" :for="weekday.id">
                                                 {{ $t(weekday.langKey) }}
                                             </label>
                                             <div class="form-check-inline">
@@ -202,7 +202,7 @@
                                                     v-model="maintenance.weekdays"
                                                     type="checkbox"
                                                     :value="weekday.value"
-                                                    class="form-check-input"
+                                                    class="gizmo-native-check__input"
                                                 />
                                             </div>
                                         </div>
@@ -212,38 +212,38 @@
 
                             <!-- Recurring - Day of month -->
                             <template v-if="maintenance.strategy === 'recurring-day-of-month'">
-                                <div class="my-3">
-                                    <label for="interval-day" class="form-label">
+                                <div class="tw-my-3">
+                                    <label for="interval-day" class="gizmo-field-label">
                                         {{ $t("dayOfMonth") }}
                                     </label>
 
                                     <!-- Day Picker -->
                                     <div class="day-picker">
                                         <div v-for="index in 31" :key="index">
-                                            <label class="form-check-label" :for="'day' + index">{{ index }}</label>
+                                            <label class="gizmo-native-check__label" :for="'day' + index">{{ index }}</label>
                                             <div class="form-check-inline">
                                                 <input
                                                     :id="'day' + index"
                                                     v-model="maintenance.daysOfMonth"
                                                     type="checkbox"
                                                     :value="index"
-                                                    class="form-check-input"
+                                                    class="gizmo-native-check__input"
                                                 />
                                             </div>
                                         </div>
                                     </div>
 
-                                    <div class="mt-3 mb-2">{{ $t("lastDay") }}</div>
+                                    <div class="tw-mt-3 tw-mb-2">{{ $t("lastDay") }}</div>
 
-                                    <div v-for="(lastDay, index) in lastDays" :key="index" class="form-check">
+                                    <div v-for="(lastDay, index) in lastDays" :key="index" class="gizmo-native-check">
                                         <input
                                             :id="lastDay.langKey"
                                             v-model="maintenance.daysOfMonth"
                                             type="checkbox"
                                             :value="lastDay.value"
-                                            class="form-check-input"
+                                            class="gizmo-native-check__input"
                                         />
-                                        <label class="form-check-label" :for="lastDay.langKey">
+                                        <label class="gizmo-native-check__label" :for="lastDay.langKey">
                                             {{ $t(lastDay.langKey) }}
                                         </label>
                                     </div>
@@ -258,8 +258,8 @@
                                 "
                             >
                                 <!-- Maintenance Time Window of a Day -->
-                                <div class="my-3">
-                                    <label class="form-label">{{ $t("Maintenance Time Window of a Day") }}</label>
+                                <div class="tw-my-3">
+                                    <label class="gizmo-field-label">{{ $t("Maintenance Time Window of a Day") }}</label>
                                     <Datepicker
                                         v-model="maintenance.timeRange"
                                         :dark="$root.isDark"
@@ -280,11 +280,11 @@
                                 "
                             >
                                 <!-- Timezone -->
-                                <div class="mb-4">
-                                    <label for="timezone" class="form-label">
+                                <div class="tw-mb-4">
+                                    <label for="timezone" class="gizmo-field-label">
                                         {{ $t("Timezone") }}
                                     </label>
-                                    <select id="timezone" v-model="maintenance.timezoneOption" class="form-select">
+                                    <select id="timezone" v-model="maintenance.timezoneOption" class="gizmo-native-control gizmo-native-select">
                                         <option value="SAME_AS_SERVER">{{ $t("sameAsServerTimezone") }}</option>
                                         <option value="UTC">UTC</option>
                                         <option
@@ -298,30 +298,30 @@
                                 </div>
 
                                 <!-- Date Range -->
-                                <div class="my-3">
-                                    <label v-if="maintenance.strategy !== 'single'" class="form-label">
+                                <div class="tw-my-3">
+                                    <label v-if="maintenance.strategy !== 'single'" class="gizmo-field-label">
                                         {{ $t("Effective Date Range") }}
                                     </label>
 
-                                    <div class="row">
-                                        <div class="col">
-                                            <div class="mb-2">{{ $t("startDateTime") }}</div>
+                                    <div class="gizmo-grid gizmo-grid--two">
+                                        <div>
+                                            <div class="tw-mb-2">{{ $t("startDateTime") }}</div>
                                             <input
                                                 v-model="maintenance.dateRange[0]"
                                                 type="datetime-local"
                                                 max="9999-12-31T23:59"
-                                                class="form-control"
+                                                class="gizmo-native-control"
                                                 :required="maintenance.strategy === 'single'"
                                             />
                                         </div>
 
-                                        <div class="col">
-                                            <div class="mb-2">{{ $t("endDateTime") }}</div>
+                                        <div>
+                                            <div class="tw-mb-2">{{ $t("endDateTime") }}</div>
                                             <input
                                                 v-model="maintenance.dateRange[1]"
                                                 type="datetime-local"
                                                 max="9999-12-31T23:59"
-                                                class="form-control"
+                                                class="gizmo-native-control"
                                                 :required="maintenance.strategy === 'single'"
                                             />
                                         </div>
@@ -330,14 +330,12 @@
                             </template>
 
                             <template v-if="maintenance.strategy === 'single'">
-                                <div class="my-3">
-                                    <div class="d-flex gap-2 flex-wrap">
+                                <div class="tw-my-3">
+                                    <div class="tw-flex gap-2 tw-flex-wrap">
                                         <button
                                             type="button"
-                                            class="btn btn-sm"
-                                            :class="
-                                                currentDurationMinutes === 15 ? 'btn-primary' : 'btn-outline-primary'
-                                            "
+                                            class="gizmo-native-button gizmo-native-button--sm"
+                                            :class="currentDurationMinutes === 15 ? 'gizmo-native-button--primary' : 'gizmo-native-button--outline'"
                                             :disabled="currentDurationMinutes === 15"
                                             @click="setQuickDuration(15)"
                                         >
@@ -345,10 +343,8 @@
                                         </button>
                                         <button
                                             type="button"
-                                            class="btn btn-sm"
-                                            :class="
-                                                currentDurationMinutes === 30 ? 'btn-primary' : 'btn-outline-primary'
-                                            "
+                                            class="gizmo-native-button gizmo-native-button--sm"
+                                            :class="currentDurationMinutes === 30 ? 'gizmo-native-button--primary' : 'gizmo-native-button--outline'"
                                             :disabled="currentDurationMinutes === 30"
                                             @click="setQuickDuration(30)"
                                         >
@@ -356,10 +352,8 @@
                                         </button>
                                         <button
                                             type="button"
-                                            class="btn btn-sm"
-                                            :class="
-                                                currentDurationMinutes === 60 ? 'btn-primary' : 'btn-outline-primary'
-                                            "
+                                            class="gizmo-native-button gizmo-native-button--sm"
+                                            :class="currentDurationMinutes === 60 ? 'gizmo-native-button--primary' : 'gizmo-native-button--outline'"
                                             :disabled="currentDurationMinutes === 60"
                                             @click="setQuickDuration(60)"
                                         >
@@ -367,10 +361,8 @@
                                         </button>
                                         <button
                                             type="button"
-                                            class="btn btn-sm"
-                                            :class="
-                                                currentDurationMinutes === 120 ? 'btn-primary' : 'btn-outline-primary'
-                                            "
+                                            class="gizmo-native-button gizmo-native-button--sm"
+                                            :class="currentDurationMinutes === 120 ? 'gizmo-native-button--primary' : 'gizmo-native-button--outline'"
                                             :disabled="currentDurationMinutes === 120"
                                             @click="setQuickDuration(120)"
                                         >
@@ -378,10 +370,8 @@
                                         </button>
                                         <button
                                             type="button"
-                                            class="btn btn-sm"
-                                            :class="
-                                                currentDurationMinutes === 240 ? 'btn-primary' : 'btn-outline-primary'
-                                            "
+                                            class="gizmo-native-button gizmo-native-button--sm"
+                                            :class="currentDurationMinutes === 240 ? 'gizmo-native-button--primary' : 'gizmo-native-button--outline'"
                                             :disabled="currentDurationMinutes === 240"
                                             @click="setQuickDuration(240)"
                                         >
@@ -389,10 +379,8 @@
                                         </button>
                                         <button
                                             type="button"
-                                            class="btn btn-sm"
-                                            :class="
-                                                currentDurationMinutes === 480 ? 'btn-primary' : 'btn-outline-primary'
-                                            "
+                                            class="gizmo-native-button gizmo-native-button--sm"
+                                            :class="currentDurationMinutes === 480 ? 'gizmo-native-button--primary' : 'gizmo-native-button--outline'"
                                             :disabled="currentDurationMinutes === 480"
                                             @click="setQuickDuration(480)"
                                         >
@@ -400,10 +388,8 @@
                                         </button>
                                         <button
                                             type="button"
-                                            class="btn btn-sm"
-                                            :class="
-                                                currentDurationMinutes === 720 ? 'btn-primary' : 'btn-outline-primary'
-                                            "
+                                            class="gizmo-native-button gizmo-native-button--sm"
+                                            :class="currentDurationMinutes === 720 ? 'gizmo-native-button--primary' : 'gizmo-native-button--outline'"
                                             :disabled="currentDurationMinutes === 720"
                                             @click="setQuickDuration(720)"
                                         >
@@ -411,24 +397,22 @@
                                         </button>
                                         <button
                                             type="button"
-                                            class="btn btn-sm"
-                                            :class="
-                                                currentDurationMinutes === 1440 ? 'btn-primary' : 'btn-outline-primary'
-                                            "
+                                            class="gizmo-native-button gizmo-native-button--sm"
+                                            :class="currentDurationMinutes === 1440 ? 'gizmo-native-button--primary' : 'gizmo-native-button--outline'"
                                             :disabled="currentDurationMinutes === 1440"
                                             @click="setQuickDuration(1440)"
                                         >
                                             {{ $t("hours", 24) }}
                                         </button>
                                     </div>
-                                    <div class="form-text">{{ $t("Sets end time based on start time") }}</div>
+                                    <div class="gizmo-field-help">{{ $t("Sets end time based on start time") }}</div>
                                 </div>
                             </template>
                         </div>
                     </div>
 
-                    <div class="fixed-bottom-bar p-3">
-                        <button id="monitor-submit-btn" class="btn btn-primary" type="submit" :disabled="processing">
+                    <div class="fixed-bottom-bar tw-p-3">
+                        <button id="monitor-submit-btn" class="gizmo-native-button gizmo-native-button--primary" type="submit" :disabled="processing">
                             {{ $t("Save") }}
                         </button>
                     </div>
@@ -917,6 +901,18 @@ export default {
 
 .maintenance-editor-surface {
     border: 1px solid var(--color-border);
+}
+
+/* Was col-xl-10. Bootstrap's xl breakpoint is 1200px, not Tailwind's 1280px,
+   so the original breakpoint is kept here rather than approximated. */
+.maintenance-editor-column {
+    width: 100%;
+}
+
+@media (min-width: 1200px) {
+    .maintenance-editor-column {
+        width: 83.3333%;
+    }
 }
 
 textarea {
