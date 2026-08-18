@@ -17,6 +17,9 @@ importers:
       '@louislam/sqlite3':
         specifier: 15.1.6
         version: 15.1.6(encoding@0.1.13)
+      '@themed.js/core':
+        specifier: ^0.2.0
+        version: 0.2.0
       '@vvo/tzdb':
         specifier: ~6.198.0
         version: 6.198.0
@@ -1360,6 +1363,10 @@ packages:
 
   '@testcontainers/rabbitmq@10.28.0':
     resolution: {integrity: sha512-Gl8/gAYfRCsjuhTfAIT7/0e49ozMRe05RDFr2CFQWcZDgB4A7qx2QaUqEIhcQnHqRjfEQTWoV1PovnGNZU+dGQ==}
+
+  '@themed.js/core@0.2.0':
+    resolution: {integrity: sha512-bvZmaSeuILgZhrrtGtEIbPgBCkxwZXW2RD23J5wzlUq0eDnEshyOJgoJcbpLQY+LajNRpDO/3XEVylH8y9e0jQ==}
+    engines: {node: '>=18.0.0'}
 
   '@tootallnate/once@1.1.2':
     resolution: {integrity: sha512-RbzJvlNzmRq5c3O09UipeuXno4tA1FE6ikOjxZK0tuxVv3412l64l5t1W5pj4+rJq9vpkm/kwiR07aZXnsKPxw==}
@@ -6602,6 +6609,8 @@ snapshots:
       - bare-buffer
       - react-native-b4a
       - supports-color
+
+  '@themed.js/core@0.2.0': {}
 
   '@tootallnate/once@1.1.2':
     optional: true

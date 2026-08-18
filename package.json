@@ -78,6 +78,7 @@
         "@grpc/grpc-js": "~1.8.22",
         "@louislam/ping": "~0.4.4-mod.1",
         "@louislam/sqlite3": "15.1.6",
+        "@themed.js/core": "^0.2.0",
         "@vvo/tzdb": "~6.198.0",
         "args-parser": "~1.3.0",
         "axios": "~0.32.0",

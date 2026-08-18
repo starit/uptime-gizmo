@@ -23,6 +23,7 @@
         ]
     },
     "include": [
+        "src/theme/**/*.ts",
         "src/components/APIKeyDialog.vue",
         "src/components/BadgeLinkGeneratorDialog.vue",
         "src/components/Confirm.vue",
