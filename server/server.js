@@ -1496,6 +1496,38 @@ let needSetup = false;
             }
         });
 
+        socket.on("saveCustomThemes", async (themes, callback) => {
+            try {
+                checkLogin(socket);
+
+                if (!Array.isArray(themes)) {
+                    throw new Error("Themes must be a list");
+                }
+
+                // Definitions only. Contrast is enforced in the client before a
+                // theme is offered for saving, and again before one is applied.
+                for (const theme of themes) {
+                    if (!theme?.id || !theme?.name || !theme?.tokens?.colors) {
+                        throw new Error("Each theme needs an id, a name and colour tokens");
+                    }
+                }
+
+                await Settings.set("customThemes", themes, "general");
+                await sendInfo(socket);
+
+                callback({
+                    ok: true,
+                    msg: "Saved.",
+                    msgi18n: true,
+                });
+            } catch (e) {
+                callback({
+                    ok: false,
+                    msg: e.message,
+                });
+            }
+        });
+
         socket.on("setSettings", async (data, currentPassword, callback) => {
             try {
                 checkLogin(socket);

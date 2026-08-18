@@ -1,3 +1,5 @@
+import { applyBridgedTheme, baselineFor } from "../theme/theme-bridge";
+
 export default {
     data() {
         return {
@@ -29,10 +31,44 @@ export default {
 
         document.body.classList.add(this.theme);
         this.updateThemeColorMeta();
+        applyBridgedTheme(this.activeCustomTheme);
     },
 
     computed: {
+        /** Themes defined on this instance, delivered with the boot payload. */
+        customThemes() {
+            return this.info?.customThemes ?? [];
+        },
+
+        /**
+         * The raw selection for the surface currently on screen: one of "light",
+         * "dark", "auto", or the id of a custom theme.
+         */
+        selectedThemeId() {
+            if (this.forceStatusPageTheme) {
+                return this.statusPageTheme;
+            }
+            if (this.path === "") {
+                return "light";
+            }
+            if (this.path.startsWith("/status-page") || this.path.startsWith("/status")) {
+                return this.statusPageTheme;
+            }
+            return this.userTheme;
+        },
+
+        /** The custom theme in effect, or null when a built-in is selected. */
+        activeCustomTheme() {
+            return this.customThemes.find((theme) => theme.id === this.selectedThemeId) ?? null;
+        },
+
         theme() {
+            // A custom theme is an overlay; it still sits on a light or dark
+            // baseline, chosen from its own background rather than declared.
+            if (this.activeCustomTheme) {
+                return baselineFor(this.activeCustomTheme);
+            }
+
             // As entry can be status page now, set forceStatusPageTheme to true to use status page theme
             if (this.forceStatusPageTheme) {
                 if (this.statusPageTheme === "auto") {
@@ -81,6 +117,13 @@ export default {
             document.body.classList.remove(from);
             document.body.classList.add(this.theme);
             this.updateThemeColorMeta();
+        },
+
+        activeCustomTheme: {
+            handler(theme) {
+                applyBridgedTheme(theme);
+            },
+            immediate: false,
         },
 
         userHeartbeatBar(to, from) {

@@ -61,6 +61,9 @@
                         <option value="auto">{{ $t("Auto") }}</option>
                         <option value="light">{{ $t("Light") }}</option>
                         <option value="dark">{{ $t("Dark") }}</option>
+                        <option v-for="theme in $root.info?.customThemes ?? []" :key="theme.id" :value="theme.id">
+                            {{ theme.name }}
+                        </option>
                     </select>
                 </div>
 

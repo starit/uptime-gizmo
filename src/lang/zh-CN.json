@@ -1737,5 +1737,12 @@
     "AI": "AI",
     "aiSettingsIntro": "用于 AI 功能的凭据，例如根据描述生成主题。这些均为可选项；未选择提供商时，本实例不会连接任何 AI 服务。",
     "LLM Model (optional)": "LLM 模型（可选）",
-    "LLM Base URL (optional)": "LLM 接口地址（可选）"
+    "LLM Base URL (optional)": "LLM 接口地址（可选）",
+    "Custom Themes": "自定义主题",
+    "Import Theme": "导入主题",
+    "noCustomThemes": "尚无自定义主题。可在下方导入，或在配置 AI 提供商后根据描述生成。",
+    "importThemePlaceholder": "粘贴 JSON 格式的主题定义",
+    "themeImportInvalidJSON": "不是有效的 JSON。",
+    "themeImportMissingFields": "主题需要包含 id、name 和 tokens.colors。",
+    "themeImportContrastFailed": "已拒绝：该主题不满足本项目要求的对比度（{0}）。"
 }

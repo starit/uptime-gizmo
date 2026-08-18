@@ -147,6 +147,10 @@ async function sendInfo(socket, hideVersion = false) {
         primaryBaseURL: await setting("primaryBaseURL"),
         serverTimezone: await server.getTimezone(),
         serverTimezoneOffset: server.getTimezoneOffset(),
+        // Theme definitions carry no secrets, and both the workspace and the
+        // unauthenticated status page need them at boot, so they ride along
+        // here rather than behind the authenticated settings channel.
+        customThemes: (await setting("customThemes")) ?? [],
     };
     if (!hideVersion) {
         info.version = checkVersion.version;

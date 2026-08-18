@@ -55,6 +55,58 @@
                 </div>
             </div>
         </div>
+        <!-- Custom themes -->
+        <div class="tw-my-4">
+            <label class="gizmo-field-label">{{ $t("Custom Themes") }}</label>
+
+            <ul v-if="customThemes.length" class="gizmo-list-group tw-mb-3">
+                <li v-for="theme in customThemes" :key="theme.id" class="gizmo-list-group__item custom-theme-row">
+                    <div class="gizmo-native-check">
+                        <input
+                            :id="`theme-${theme.id}`"
+                            v-model="$root.userTheme"
+                            type="radio"
+                            class="gizmo-native-check__input"
+                            name="theme"
+                            :value="theme.id"
+                        />
+                        <label class="gizmo-native-check__label" :for="`theme-${theme.id}`">
+                            {{ theme.name }}
+                            <span class="tw-text-content-subtle tw-text-sm">{{ baselineOf(theme) }}</span>
+                        </label>
+                    </div>
+
+                    <button
+                        type="button"
+                        class="gizmo-native-button gizmo-native-button--sm gizmo-native-button--danger-outline"
+                        @click="removeTheme(theme.id)"
+                    >
+                        {{ $t("Delete") }}
+                    </button>
+                </li>
+            </ul>
+
+            <div v-else class="gizmo-field-help tw-mb-3">{{ $t("noCustomThemes") }}</div>
+
+            <details class="custom-theme-import">
+                <summary class="gizmo-field-label">{{ $t("Import Theme") }}</summary>
+                <textarea
+                    v-model="importText"
+                    class="gizmo-native-control tw-mt-2"
+                    rows="5"
+                    :placeholder="$t('importThemePlaceholder')"
+                ></textarea>
+                <div v-if="importError" class="gizmo-native-alert gizmo-native-alert--danger tw-mt-2">
+                    {{ importError }}
+                </div>
+                <div class="gizmo-action-group tw-mt-2">
+                    <button type="button" class="gizmo-native-button gizmo-native-button--primary" @click="importTheme">
+                        {{ $t("Import") }}
+                    </button>
+                </div>
+            </details>
+        </div>
+
         <div class="tw-my-4">
             <label class="gizmo-field-label">{{ $t("Theme - Heartbeat Bar") }}</label>
             <div>
@@ -151,10 +203,104 @@
 </template>
 
 <script>
-export default {};
+import { findContrastFailures, baselineFor } from "../../theme/theme-bridge";
+
+export default {
+    data() {
+        return {
+            importText: "",
+            importError: "",
+        };
+    },
+
+    computed: {
+        customThemes() {
+            return this.$root.info?.customThemes ?? [];
+        },
+    },
+
+    methods: {
+        /**
+         * Describe which baseline a theme layers over.
+         * @param {object} theme themed.js theme
+         * @returns {string} translated baseline name
+         */
+        baselineOf(theme) {
+            return this.$t(baselineFor(theme) === "dark" ? "Dark" : "Light");
+        },
+
+        /**
+         * Persist the instance's theme list.
+         * @param {Array<object>} themes themes to store
+         * @returns {void}
+         */
+        saveThemes(themes) {
+            this.$root.getSocket().emit("saveCustomThemes", themes, (res) => {
+                this.$root.toastRes(res);
+            });
+        },
+
+        /**
+         * Accept a pasted theme, rejecting anything that fails the contrast
+         * floors DESIGN.md sets. A theme that cannot be read is not worth
+         * storing, and one that cannot be read *by a person* is worse.
+         * @returns {void}
+         */
+        importTheme() {
+            this.importError = "";
+
+            let theme;
+            try {
+                theme = JSON.parse(this.importText);
+            } catch (e) {
+                this.importError = this.$t("themeImportInvalidJSON");
+                return;
+            }
+
+            if (!theme?.id || !theme?.name || !theme?.tokens?.colors) {
+                this.importError = this.$t("themeImportMissingFields");
+                return;
+            }
+
+            const failures = findContrastFailures(theme);
+            if (failures.length > 0) {
+                this.importError = this.$t("themeImportContrastFailed", [
+                    failures.map((f) => `${f.label} ${f.ratio.toFixed(2)}:${f.required}`).join(", "),
+                ]);
+                return;
+            }
+
+            this.saveThemes([ ...this.customThemes.filter((t) => t.id !== theme.id), theme ]);
+            this.importText = "";
+        },
+
+        /**
+         * Drop a theme, falling back to the built-ins if it was in use.
+         * @param {string} id theme id
+         * @returns {void}
+         */
+        removeTheme(id) {
+            if (this.$root.userTheme === id) {
+                this.$root.userTheme = "auto";
+            }
+            this.saveThemes(this.customThemes.filter((theme) => theme.id !== id));
+        },
+    },
+};
 </script>
 
 <style lang="scss" scoped>
+.custom-theme-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.custom-theme-import summary {
+    cursor: pointer;
+}
+
 /* DESIGN.md reserves Gold for selected primary actions, so this overrides the
    shared .gizmo-choice-input recipe, which fills with the interaction blue. */
 .gizmo-choice-input:active + .gizmo-native-button,

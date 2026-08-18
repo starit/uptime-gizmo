@@ -1619,5 +1619,12 @@
     "AI": "AI",
     "aiSettingsIntro": "Credentials for AI features such as generating a theme from a description. Nothing here is required, and with no provider selected this instance contacts no AI service.",
     "LLM Model (optional)": "LLM Model (optional)",
-    "LLM Base URL (optional)": "LLM Base URL (optional)"
+    "LLM Base URL (optional)": "LLM Base URL (optional)",
+    "Custom Themes": "Custom Themes",
+    "Import Theme": "Import Theme",
+    "noCustomThemes": "No custom themes yet. Import one below, or generate one from a description once an AI provider is configured.",
+    "importThemePlaceholder": "Paste a theme definition in JSON",
+    "themeImportInvalidJSON": "That is not valid JSON.",
+    "themeImportMissingFields": "A theme needs an id, a name, and tokens.colors.",
+    "themeImportContrastFailed": "Rejected: this theme does not meet the contrast this project requires ({0})."
 }
