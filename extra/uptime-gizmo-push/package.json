@@ -1,7 +1,7 @@
 {
     "scripts": {
-        "build-docker": "npm run build-all && docker buildx build --platform linux/amd64,linux/arm64,linux/arm/v7 -t starit/uptime-gizmo:push . --push --target release",
-        "build-all": "npm run build-win && npm run build-linux-amd64 && npm run build-linux-arm64 && npm run build-linux-armv7 && npm run build-linux-armv6 && npm run build-linux-armv5 && npm run build-linux-riscv64",
+        "build-docker": "pnpm run build-all && docker buildx build --platform linux/amd64,linux/arm64,linux/arm/v7 -t starit/uptime-gizmo:push . --push --target release",
+        "build-all": "pnpm run build-win && pnpm run build-linux-amd64 && pnpm run build-linux-arm64 && pnpm run build-linux-armv7 && pnpm run build-linux-armv6 && pnpm run build-linux-armv5 && pnpm run build-linux-riscv64",
         "build-win": "cross-env GOOS=windows GOARCH=amd64 go build -x -o ./build/uptime-gizmo-push.exe uptime-gizmo-push.go",
         "build-linux-amd64": "cross-env GOOS=linux GOARCH=amd64 go build -x -o ./build/uptime-gizmo-push-amd64 uptime-gizmo-push.go",
         "build-linux-arm64": "cross-env GOOS=linux GOARCH=arm64 go build -x -o ./build/uptime-gizmo-push-arm64 uptime-gizmo-push.go",
