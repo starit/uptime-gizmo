@@ -373,7 +373,7 @@ let needSetup = false;
     app.use(apiRouter);
 
     const v1Router = require("./routers/v1-router");
-    app.use(v1Router);
+    app.use(v1Router.useLifecycle({ startMonitor, restartMonitor }));
 
     // Status Page Router
     const statusPageRouter = require("./routers/status-page-router");

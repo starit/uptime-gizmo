@@ -7,6 +7,26 @@ const { log } = require("../../src/util");
 const router = express.Router();
 
 /*
+ * startMonitor and restartMonitor live in server.js, which requires this
+ * module, so importing them back would be circular. They are injected instead —
+ * explicit about the dependency and safe to load in any order.
+ */
+let lifecycle = {
+    startMonitor: async () => {},
+    restartMonitor: async () => {},
+};
+
+/**
+ * Supply the monitor lifecycle functions this router needs.
+ * @param {object} hooks startMonitor and restartMonitor
+ * @returns {object} the configured router
+ */
+router.useLifecycle = function (hooks) {
+    lifecycle = hooks;
+    return router;
+};
+
+/*
  * Versioned management API.
  *
  * Every route here sits behind apiAuth, which attaches a principal carrying the
@@ -50,26 +70,154 @@ function boundedLimit(value, fallback, max) {
     return Math.min(parsed, max);
 }
 
-/**
- * The monitor fields this API is willing to expose.
+/*
+ * One definition of the monitor contract, used for both directions.
  *
- * An allow-list rather than a redaction list: a new column added to the monitor
- * table must be published deliberately, and cannot leak by being forgotten.
+ * The monitor table has 114 columns, a dozen of which hold secrets. A single
+ * table means a field cannot be readable but not writable by accident, or
+ * writable but invisible, and adding one is a single deliberate edit rather
+ * than two edits that can disagree.
+ *
+ * `column` is the database name; the key is the API name. `secret` fields are
+ * never returned, whatever else they allow.
+ *
+ * This covers the common monitor types — http, keyword, ping, port, dns. The
+ * exotic transports (grpc, kafka, radius, snmp, mqtt) are deliberately absent
+ * from the first release rather than half-supported.
+ */
+const MONITOR_FIELDS = {
+    id: { column: "id", type: "int" },
+    name: { column: "name", type: "string", writable: true, required: true },
+    type: { column: "type", type: "string", writable: true, required: true },
+    active: { column: "active", type: "bool", writable: true },
+    description: { column: "description", type: "string", writable: true },
+    url: { column: "url", type: "string", writable: true },
+    hostname: { column: "hostname", type: "string", writable: true },
+    port: { column: "port", type: "int", writable: true },
+    interval: { column: "interval", type: "int", writable: true },
+    retryInterval: { column: "retry_interval", type: "int", writable: true },
+    resendInterval: { column: "resend_interval", type: "int", writable: true },
+    maxretries: { column: "maxretries", type: "int", writable: true },
+    timeout: { column: "timeout", type: "number", writable: true },
+    method: { column: "method", type: "string", writable: true },
+    maxredirects: { column: "maxredirects", type: "int", writable: true },
+    ignoreTls: { column: "ignore_tls", type: "bool", writable: true },
+    upsideDown: { column: "upside_down", type: "bool", writable: true },
+    keyword: { column: "keyword", type: "string", writable: true },
+    invertKeyword: { column: "invert_keyword", type: "bool", writable: true },
+    acceptedStatuscodes: { column: "accepted_statuscodes_json", type: "jsonArray", writable: true },
+    dnsResolveType: { column: "dns_resolve_type", type: "string", writable: true },
+    dnsResolveServer: { column: "dns_resolve_server", type: "string", writable: true },
+    createdDate: { column: "created_date", type: "string" },
+};
+
+/*
+ * The column default for retry_interval is 0, which Monitor.validate() rejects
+ * because it is below MIN_INTERVAL_SECOND. A create that omitted it would fail
+ * on a rule the caller never saw, so the API supplies a working value.
+ */
+const CREATE_DEFAULTS = {
+    interval: 60,
+    retry_interval: 60,
+};
+
+/**
+ * Coerce a value to the type a field declares.
+ * @param {any} value raw value from the request
+ * @param {string} type declared field type
+ * @param {string} name API field name, for error messages
+ * @returns {any} the coerced value
+ * @throws {Error} when the value cannot be used
+ */
+function coerce(value, type, name) {
+    if (type === "int" || type === "number") {
+        const parsed = type === "int" ? Number.parseInt(value, 10) : Number.parseFloat(value);
+        if (!Number.isFinite(parsed)) {
+            throw new Error(`${name} must be a number`);
+        }
+        return parsed;
+    }
+
+    if (type === "bool") {
+        return value === true || value === 1 || value === "true" || value === "1";
+    }
+
+    if (type === "jsonArray") {
+        if (!Array.isArray(value)) {
+            throw new Error(`${name} must be an array`);
+        }
+        return JSON.stringify(value);
+    }
+
+    if (value === null) {
+        return null;
+    }
+    return String(value);
+}
+
+/**
+ * Project a monitor bean onto the API contract.
  * @param {object} bean monitor bean
  * @returns {object} safe projection
  */
 function monitorToAPI(bean) {
-    return {
-        id: bean.id,
-        name: bean.name,
-        type: bean.type,
-        url: bean.url,
-        hostname: bean.hostname,
-        port: bean.port,
-        interval: bean.interval,
-        active: Boolean(bean.active),
-        description: bean.description,
-    };
+    const out = {};
+    for (const [ name, field ] of Object.entries(MONITOR_FIELDS)) {
+        if (field.secret) {
+            continue;
+        }
+        let value = bean[field.column];
+        if (field.type === "bool") {
+            value = Boolean(value);
+        }
+        if (field.type === "jsonArray" && typeof value === "string") {
+            try {
+                value = JSON.parse(value);
+            } catch (e) {
+                value = null;
+            }
+        }
+        out[name] = value === undefined ? null : value;
+    }
+    return out;
+}
+
+/**
+ * Turn a request body into the columns it is allowed to set.
+ *
+ * An allow-list, so a field absent from MONITOR_FIELDS is dropped rather than
+ * written. That is what stops a caller assigning user_id, or any of the other
+ * hundred columns, by including it in the payload.
+ * @param {object} body request body
+ * @param {boolean} partial true for PATCH, where required fields may be absent
+ * @returns {object} column/value pairs safe to assign
+ * @throws {Error} when a supplied value is unusable or a required one is missing
+ */
+function monitorFromAPI(body, partial) {
+    if (!body || typeof body !== "object") {
+        throw new Error("A JSON object body is required");
+    }
+
+    const columns = {};
+
+    for (const [ name, field ] of Object.entries(MONITOR_FIELDS)) {
+        if (!field.writable) {
+            continue;
+        }
+        if (!(name in body)) {
+            if (!partial && field.required) {
+                throw new Error(`${name} is required`);
+            }
+            continue;
+        }
+        columns[field.column] = coerce(body[name], field.type, name);
+    }
+
+    if (Object.keys(columns).length === 0) {
+        throw new Error("No writable fields were supplied");
+    }
+
+    return columns;
 }
 
 router.get(
@@ -309,6 +457,117 @@ router.get(
                 active: Boolean(row.active),
             })),
         });
+    })
+);
+
+/**
+ * Send a 400 describing why a body was refused.
+ * @param {express.Response} res Express response object
+ * @param {Error} e the validation failure
+ * @returns {void}
+ */
+function badRequest(res, e) {
+    res.status(400).json({
+        ok: false,
+        error: { code: "invalid_request", message: e.message },
+    });
+}
+
+router.post(
+    "/api/v1/monitors",
+    apiAuth,
+    requireWrite,
+    route(async (req, res) => {
+        let columns;
+        try {
+            columns = monitorFromAPI(req.body, false);
+        } catch (e) {
+            badRequest(res, e);
+            return;
+        }
+
+        const bean = R.dispense("monitor");
+        // Column defaults first, so an explicit value always wins.
+        for (const [ column, value ] of Object.entries(CREATE_DEFAULTS)) {
+            bean[column] = value;
+        }
+        for (const [ column, value ] of Object.entries(columns)) {
+            bean[column] = value;
+        }
+        // Ownership comes from the authenticated principal, never the body.
+        bean.user_id = req.principal?.userID ?? null;
+
+        try {
+            // The same domain rules the socket path enforces. Duplicating them
+            // here would let the two drift.
+            bean.validate();
+        } catch (e) {
+            badRequest(res, e);
+            return;
+        }
+
+        await R.store(bean);
+
+        /*
+         * Re-read rather than projecting the in-memory bean. Column defaults —
+         * active, method, maxretries and the rest — are applied by the database
+         * on insert, so the bean in hand does not have them and a response built
+         * from it would report nulls the row does not contain.
+         */
+        const saved = await R.findOne("monitor", " id = ? ", [ bean.id ]);
+
+        if (saved.active) {
+            await lifecycle.startMonitor(saved.user_id, saved.id);
+        }
+
+        res.status(201).json({ ok: true, data: monitorToAPI(saved) });
+    })
+);
+
+router.patch(
+    "/api/v1/monitors/:id",
+    apiAuth,
+    requireWrite,
+    route(async (req, res) => {
+        const bean = await R.findOne("monitor", " id = ? AND user_id = ? ", [
+            req.params.id,
+            req.principal?.userID ?? null,
+        ]);
+
+        if (!bean) {
+            res.status(404).json({
+                ok: false,
+                error: { code: "not_found", message: "No such monitor" },
+            });
+            return;
+        }
+
+        let columns;
+        try {
+            columns = monitorFromAPI(req.body, true);
+        } catch (e) {
+            badRequest(res, e);
+            return;
+        }
+
+        for (const [ column, value ] of Object.entries(columns)) {
+            bean[column] = value;
+        }
+
+        try {
+            bean.validate();
+        } catch (e) {
+            badRequest(res, e);
+            return;
+        }
+
+        await R.store(bean);
+
+        // Restart so the change takes effect rather than waiting for a redeploy.
+        await lifecycle.restartMonitor(bean.user_id, bean.id);
+
+        const saved = await R.findOne("monitor", " id = ? ", [ bean.id ]);
+        res.json({ ok: true, data: monitorToAPI(saved) });
     })
 );
 
