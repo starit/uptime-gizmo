@@ -98,6 +98,19 @@ module.exports = {
         "jsdoc/require-param-description": "warn",
     },
     overrides: [
+        // Vue compiler macros are available only inside single-file components.
+        {
+            files: ["**/*.vue"],
+            globals: {
+                defineEmits: "readonly",
+                defineExpose: "readonly",
+                defineModel: "readonly",
+                defineOptions: "readonly",
+                defineProps: "readonly",
+                defineSlots: "readonly",
+                withDefaults: "readonly",
+            },
+        },
         // Override for TypeScript
         {
             files: ["**/*.ts"],

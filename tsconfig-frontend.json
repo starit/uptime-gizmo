@@ -1,0 +1,33 @@
+{
+    "extends": "./tsconfig.json",
+    "compilerOptions": {
+        "allowJs": true,
+        "checkJs": false,
+        "esModuleInterop": true,
+        "isolatedModules": true,
+        "jsx": "preserve",
+        "lib": ["ES2020", "DOM", "DOM.Iterable"],
+        "module": "ESNext",
+        "moduleResolution": "Bundler",
+        "noEmit": true,
+        "resolveJsonModule": true,
+        "skipLibCheck": true,
+        "target": "ES2020",
+        "types": ["vite/client"]
+    },
+    "include": [
+        "src/components/APIKeyDialog.vue",
+        "src/components/BadgeLinkGeneratorDialog.vue",
+        "src/components/Confirm.vue",
+        "src/components/CreateGroupDialog.vue",
+        "src/components/DockerHostDialog.vue",
+        "src/components/MonitorSettingDialog.vue",
+        "src/components/NotificationFormHost.vue",
+        "src/components/ProxyDialog.vue",
+        "src/components/ScreenshotDialog.vue",
+        "src/components/TwoFADialog.vue",
+        "src/badge-constants.ts",
+        "src/components/gizmo/**/*.vue",
+        "src/types/**/*.d.ts"
+    ]
+}
