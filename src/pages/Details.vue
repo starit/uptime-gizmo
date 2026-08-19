@@ -985,6 +985,31 @@ export default {
     font-size: clamp(1.1rem, 2vw, 1.5rem);
     font-weight: var(--weight-bold);
     font-variant-numeric: tabular-nums;
+
+    /*
+     * Some of these numbers open something — the response time opens its chart,
+     * the certificate its details — and they were link-coloured to say so. In a
+     * row of six figures that reads as a different kind of data rather than as
+     * an affordance: the same 792ms appeared twice, once blue and once not, and
+     * the difference was whether it opened a chart.
+     *
+     * The colour goes back to the data. The invitation is an underline, dotted
+     * until pointed at, which says "there is more here" without claiming the
+     * number means something different.
+     */
+    a {
+        color: inherit;
+        text-decoration: underline;
+        text-decoration-style: dotted;
+        text-decoration-color: var(--color-border-strong);
+        text-underline-offset: 0.2em;
+
+        &:hover,
+        &:focus-visible {
+            text-decoration-style: solid;
+            text-decoration-color: var(--color-interactive);
+        }
+    }
 }
 
 .monitor-screenshot-grid {

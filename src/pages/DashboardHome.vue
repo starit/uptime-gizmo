@@ -54,9 +54,18 @@
             </section>
 
             <GizmoPanel class="event-panel" density="compact">
+                <template #header>
+                    <h2 class="event-panel__title">{{ $t("Events") }}</h2>
+                </template>
                 <template #actions>
+                    <!--
+                        Secondary, not danger. It was the loudest thing in the
+                        panel and it deletes every event on the instance; the red
+                        belongs on the confirmation, which is where the decision
+                        is actually made.
+                    -->
                     <GizmoButton
-                        variant="danger"
+                        variant="secondary"
                         size="sm"
                         :disabled="clearingAllEvents"
                         @click="clearAllEventsDialog"
@@ -346,12 +355,20 @@ export default {
     gap: 1.25rem;
 }
 
+/*
+ * Kept as an h1 for the document, sized like a label.
+ *
+ * At display size it was the loudest thing on the page while carrying no
+ * information — the word was larger than the number beside it. The tiles say
+ * what they are.
+ */
 .dashboard-overview-header h1 {
     margin: 0;
-    color: var(--color-text);
-    font-size: clamp(1.6rem, 3vw, 2.25rem);
+    color: var(--color-text-muted);
+    font-size: 0.78rem;
     font-weight: var(--weight-bold);
-    letter-spacing: -0.04em;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
 }
 
 .stat-grid {
@@ -362,40 +379,66 @@ export default {
 
 .stat-card {
     min-width: 0;
-    padding: 1rem;
+    padding: 0.9rem 1rem;
     background: var(--color-surface);
     border: 1px solid var(--color-border);
-    border-top: 3px solid var(--status-unknown);
     border-radius: var(--radius-md);
     box-shadow: var(--shadow-raised);
 
     h2 {
-        margin: 0 0 0.55rem;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        margin: 0 0 0.5rem;
         color: var(--color-text-muted);
-        font-size: 0.78rem;
+        font-size: 0.74rem;
         font-weight: var(--weight-bold);
         letter-spacing: 0.08em;
         text-transform: uppercase;
+
+        /* The dot carries the status colour beside its own word, where the
+           colour means something, rather than as an edge of the card. */
+        &::before {
+            content: "";
+            flex: none;
+            width: 0.5rem;
+            height: 0.5rem;
+            border-radius: 50%;
+            background: var(--stat-tone, var(--color-border-strong));
+        }
     }
 }
 
+/*
+ * The count takes the status colour when there is something to count.
+ *
+ * Four of these five are usually zero, and a zero here is good news rather than
+ * data worth shouting: five equally weighted tiles made "nothing is down" as
+ * loud as "eight are up". A zero goes quiet and its colour drains, so whatever
+ * is not zero is what the eye lands on.
+ */
 .stat-card-value {
     display: block;
-    color: var(--color-text);
+    color: var(--stat-tone, var(--color-text));
     font-family: "IBM Plex Mono", "Noto Sans Mono", monospace;
-    font-size: clamp(1.75rem, 4vw, 2.6rem);
+    font-size: clamp(1.6rem, 3.4vw, 2.35rem);
     font-weight: var(--weight-bold);
+    font-variant-numeric: tabular-nums;
     line-height: 1;
 }
 
-.stat-card-up { border-top-color: var(--status-up); }
-.stat-card-down { border-top-color: var(--status-down); }
-.stat-card-maintenance { border-top-color: var(--status-maintenance); }
-.stat-card-unknown { border-top-color: var(--status-unknown); }
-.stat-card-pause { border-top-color: var(--color-border-strong); }
+.stat-card-up { --stat-tone: var(--status-up); }
+.stat-card-down { --stat-tone: var(--status-down); }
+.stat-card-maintenance { --stat-tone: var(--status-maintenance); }
+.stat-card-unknown { --stat-tone: var(--status-unknown); }
+.stat-card-pause { --stat-tone: var(--color-text-subtle); }
 
 .stat-card.is-muted {
-    opacity: 0.62;
+    --stat-tone: var(--color-text-subtle);
+
+    .stat-card-value {
+        font-weight: var(--weight-semibold);
+    }
 }
 
 .dashboard-welcome {
