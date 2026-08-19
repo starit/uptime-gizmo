@@ -175,3 +175,50 @@ describe("account management is the only thing gated on the administrator flag",
         );
     });
 });
+
+/*
+ * The same split, on the HTTP side.
+ *
+ * An API key belongs to a person; the instance's resources belong to the estate.
+ * Scoping a resource query to the key's own account showed a non-owner's key an
+ * empty instance while that same person's browser showed them everything — the
+ * API and the interface disagreeing about what exists.
+ */
+describe("the API principal separates the caller from the estate", () => {
+    const router = fs.readFileSync(path.join(SERVER, "routers", "v1-router.js"), "utf8");
+    const auth = fs.readFileSync(path.join(SERVER, "auth.js"), "utf8");
+
+    it("carries both identities under names that cannot be confused", () => {
+        const block = auth.slice(auth.indexOf("req.principal = {"), auth.indexOf("};", auth.indexOf("req.principal = {")));
+
+        assert.match(block, /accountID:/, "the calling account is not recorded");
+        assert.match(block, /estateID:/, "what the resources hang off is not recorded");
+        assert.doesNotMatch(
+            block,
+            /\buserID:/,
+            "userID means two things here; naming them apart is what stops the estate and the account being confused"
+        );
+    });
+
+    it("scopes every resource query to the estate", () => {
+        const strayed = [ ...router.matchAll(/principal\??\.\s*accountID/g) ].length;
+
+        assert.ok(router.includes("principal?.estateID"), "resource queries no longer scope to the estate");
+        assert.strictEqual(
+            strayed,
+            1,
+            "the calling account should appear once, in whoami; anywhere else it would hide the estate from a non-owner's key"
+        );
+    });
+
+    it("answers whoami with the account that holds the key", () => {
+        const start = router.indexOf('"/api/v1/whoami"');
+        const block = router.slice(start, start + 900);
+
+        assert.match(
+            block,
+            /userID: req\.principal\?\.accountID/,
+            "whoami would report what the key can see rather than whose it is"
+        );
+    });
+});

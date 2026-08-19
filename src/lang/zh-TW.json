@@ -1301,15 +1301,13 @@
     "API Documentation": "API 文件",
     "Loading": "載入中",
     "required": "必填",
-    "usersHelp": "能登入的人都可以檢視和管理整個執行個體。管理員額外可以管理這些帳號。",
     "usersAdd": "新增帳號",
-    "usersMakeAdmin": "可以管理帳號",
+    "usersMakeAdmin": "管理員",
     "usersGrantAdmin": "設為管理員",
     "usersRevokeAdmin": "取消管理員",
     "usersResetPassword": "設定密碼",
     "usersResetPasswordFor": "為 {0} 設定新密碼。",
     "usersPasswordHelp": "至少 6 個字元。",
-    "usersScopeNote": "這個帳號將可以檢視和管理整個執行個體。",
     "usersDeleteMsg": "刪除帳號 {0}？該帳號的 API 金鑰會一併刪除。",
     "apiDocsIntro": "每個端點都用 API 金鑰做 HTTP Basic 認證：使用者名稱任意，金鑰作為密碼。可在「API 金鑰」中建立。",
     "apiDocsAuthNote": "金鑰缺失或無效回傳 401。",
@@ -1320,5 +1318,10 @@
     "apiDocsRequestBody": "請求主體",
     "apiDocsResponses": "回應",
     "apiDocsExample": "範例",
-    "apiDocsLoadFailed": "無法載入 API 描述文件：{0}"
+    "apiDocsLoadFailed": "無法載入 API 描述文件：{0}",
+    "usersMakeAdminHelp": "管理員可以新增、停用和刪除帳號。除此之外沒有任何差別——每個帳號本來就管理整個執行個體。",
+    "usersModelTitle": "這裡的帳號是怎麼回事",
+    "usersModelShared": "能登入的人都會看到並管理整個執行個體：同一批監控項、通知管道和狀態頁。帳號的作用是讓每個人有各自的密碼，而不是各自的資料。",
+    "usersModelAdmin": "管理員這個標記只管一件事——誰可以管理這些帳號。",
+    "usersModelReadOnly": "本介面沒有唯讀模式。想讓某人只看不改，發給他一個狀態頁，或者給他一個標記為唯讀的 API 金鑰。"
 }

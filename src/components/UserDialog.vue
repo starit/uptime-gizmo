@@ -40,12 +40,13 @@
                 <div class="gizmo-field-help">{{ $t("usersPasswordHelp") }}</div>
             </div>
 
-            <div v-if="mode === 'create'" class="gizmo-native-check">
-                <input id="user-admin" v-model="draft.admin" class="gizmo-native-check__input" type="checkbox" />
-                <label class="gizmo-native-check__label" for="user-admin">{{ $t("usersMakeAdmin") }}</label>
+            <div v-if="mode === 'create'">
+                <div class="gizmo-native-check">
+                    <input id="user-admin" v-model="draft.admin" class="gizmo-native-check__input" type="checkbox" />
+                    <label class="gizmo-native-check__label" for="user-admin">{{ $t("usersMakeAdmin") }}</label>
+                </div>
+                <div class="gizmo-field-help">{{ $t("usersMakeAdminHelp") }}</div>
             </div>
-
-            <p v-if="mode === 'create'" class="gizmo-field-help">{{ $t("usersScopeNote") }}</p>
         </form>
 
         <template #footer>

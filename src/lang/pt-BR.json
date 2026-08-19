@@ -1728,15 +1728,13 @@
     "API Documentation": "Documentação da API",
     "Loading": "Carregando",
     "required": "obrigatório",
-    "usersHelp": "Todo mundo que consegue entrar vê e gerencia a instância inteira. Um administrador também pode gerenciar estas contas.",
     "usersAdd": "Adicionar conta",
-    "usersMakeAdmin": "Pode gerenciar contas",
+    "usersMakeAdmin": "Administrador",
     "usersGrantAdmin": "Tornar administrador",
     "usersRevokeAdmin": "Remover administrador",
     "usersResetPassword": "Definir senha",
     "usersResetPasswordFor": "Definir uma nova senha para {0}.",
     "usersPasswordHelp": "Pelo menos 6 caracteres.",
-    "usersScopeNote": "Esta conta poderá ver e gerenciar a instância inteira.",
     "usersDeleteMsg": "Excluir a conta {0}? As chaves de API dela são removidas junto.",
     "apiDocsIntro": "Todo endpoint aceita uma chave de API por HTTP Basic: qualquer nome de usuário e a chave como senha. Crie uma em Chaves de API.",
     "apiDocsAuthNote": "Chave ausente ou inválida responde 401.",
@@ -1747,5 +1745,10 @@
     "apiDocsRequestBody": "Corpo da requisição",
     "apiDocsResponses": "Respostas",
     "apiDocsExample": "Exemplo",
-    "apiDocsLoadFailed": "Não foi possível carregar a descrição da API: {0}"
+    "apiDocsLoadFailed": "Não foi possível carregar a descrição da API: {0}",
+    "usersMakeAdminHelp": "Administradores podem adicionar, desativar e remover contas. Não muda mais nada — toda conta já gerencia a instância inteira.",
+    "usersModelTitle": "Como as contas funcionam aqui",
+    "usersModelShared": "Todo mundo que consegue entrar vê e gerencia a instância inteira: os mesmos monitores, canais de notificação e páginas de status. Contas separam senhas, não dados.",
+    "usersModelAdmin": "A marcação de administrador governa uma única coisa: quem pode gerenciar estas contas.",
+    "usersModelReadOnly": "Esta interface não tem acesso somente leitura. Para alguém apenas acompanhar, envie uma página de status ou dê uma chave de API marcada como somente leitura."
 }

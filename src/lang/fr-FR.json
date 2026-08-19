@@ -1767,15 +1767,13 @@
     "API Documentation": "Documentation de l'API",
     "Loading": "Chargement",
     "required": "requis",
-    "usersHelp": "Toute personne pouvant se connecter voit et gère l'instance entière. Un administrateur peut en plus gérer ces comptes.",
     "usersAdd": "Ajouter un compte",
-    "usersMakeAdmin": "Peut gérer les comptes",
+    "usersMakeAdmin": "Administrateur",
     "usersGrantAdmin": "Nommer administrateur",
     "usersRevokeAdmin": "Retirer administrateur",
     "usersResetPassword": "Définir le mot de passe",
     "usersResetPasswordFor": "Définir un nouveau mot de passe pour {0}.",
     "usersPasswordHelp": "Au moins 6 caractères.",
-    "usersScopeNote": "Ce compte verra et gérera l'instance entière.",
     "usersDeleteMsg": "Supprimer le compte {0} ? Ses clés d'API seront supprimées avec lui.",
     "apiDocsIntro": "Chaque point d'accès accepte une clé d'API en authentification HTTP Basic : n'importe quel nom d'utilisateur, la clé comme mot de passe. Créez-en une dans Clés d'API.",
     "apiDocsAuthNote": "Une clé absente ou invalide renvoie 401.",
@@ -1786,5 +1784,10 @@
     "apiDocsRequestBody": "Corps de la requête",
     "apiDocsResponses": "Réponses",
     "apiDocsExample": "Exemple",
-    "apiDocsLoadFailed": "Impossible de charger la description de l'API : {0}"
+    "apiDocsLoadFailed": "Impossible de charger la description de l'API : {0}",
+    "usersMakeAdminHelp": "Les administrateurs peuvent ajouter, désactiver et supprimer des comptes. Cela ne change rien d'autre : chaque compte gère déjà l'instance entière.",
+    "usersModelTitle": "Comment fonctionnent les comptes ici",
+    "usersModelShared": "Toute personne pouvant se connecter voit et gère l'instance entière : les mêmes moniteurs, les mêmes canaux de notification, les mêmes pages de statut. Les comptes séparent les mots de passe, pas les données.",
+    "usersModelAdmin": "L'indicateur administrateur ne régit qu'une chose : qui peut gérer ces comptes.",
+    "usersModelReadOnly": "Cette interface n'a pas de mode lecture seule. Pour laisser quelqu'un regarder sans intervenir, envoyez-lui une page de statut ou donnez-lui une clé d'API en lecture seule."
 }

@@ -1677,14 +1677,17 @@
     "apiDocsLoadFailed": "Could not load the API description: {0}",
     "Users": "Users",
     "Administrator": "Administrator",
-    "usersHelp": "Everyone who can sign in sees and manages the whole instance. An administrator can additionally manage these accounts.",
     "usersAdd": "Add account",
-    "usersMakeAdmin": "May manage accounts",
+    "usersMakeAdmin": "Administrator",
     "usersGrantAdmin": "Make administrator",
     "usersRevokeAdmin": "Remove administrator",
     "usersResetPassword": "Set password",
     "usersDeleteMsg": "Delete the account {0}? Their API keys are removed with it.",
     "usersPasswordHelp": "At least 6 characters.",
     "usersResetPasswordFor": "Set a new password for {0}.",
-    "usersScopeNote": "This account will see and manage the whole instance."
+    "usersMakeAdminHelp": "Administrators can add, disable and remove accounts. It makes no difference to anything else — every account already manages the whole instance.",
+    "usersModelTitle": "How accounts work here",
+    "usersModelShared": "Everyone who can sign in sees and manages the whole instance: the same monitors, notification channels and status pages. Accounts exist so that people have separate passwords, not separate data.",
+    "usersModelAdmin": "The administrator flag governs one thing — who may manage these accounts.",
+    "usersModelReadOnly": "There is no read-only access to this interface. To let someone watch without touching, send them a status page, or give them an API key marked read-only."
 }

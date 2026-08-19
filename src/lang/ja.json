@@ -1334,15 +1334,13 @@
     "API Documentation": "API ドキュメント",
     "Loading": "読み込み中",
     "required": "必須",
-    "usersHelp": "サインインできる人は全員、このインスタンス全体を閲覧・管理できます。管理者はさらにアカウントを管理できます。",
     "usersAdd": "アカウントを追加",
-    "usersMakeAdmin": "アカウントを管理できる",
+    "usersMakeAdmin": "管理者",
     "usersGrantAdmin": "管理者にする",
     "usersRevokeAdmin": "管理者を解除",
     "usersResetPassword": "パスワードを設定",
     "usersResetPasswordFor": "{0} の新しいパスワードを設定します。",
     "usersPasswordHelp": "6 文字以上。",
-    "usersScopeNote": "このアカウントはインスタンス全体を閲覧・管理できるようになります。",
     "usersDeleteMsg": "アカウント {0} を削除しますか？そのアカウントの API キーも一緒に削除されます。",
     "apiDocsIntro": "すべてのエンドポイントは API キーによる HTTP Basic 認証を使います。ユーザー名は任意で、キーをパスワードとして送ります。キーは「API キー」で作成できます。",
     "apiDocsAuthNote": "キーが無い、または無効な場合は 401 を返します。",
@@ -1353,5 +1351,10 @@
     "apiDocsRequestBody": "リクエストボディ",
     "apiDocsResponses": "レスポンス",
     "apiDocsExample": "例",
-    "apiDocsLoadFailed": "API 定義を読み込めませんでした: {0}"
+    "apiDocsLoadFailed": "API 定義を読み込めませんでした: {0}",
+    "usersMakeAdminHelp": "管理者はアカウントの追加・無効化・削除ができます。それ以外に違いはありません。どのアカウントも最初からインスタンス全体を管理します。",
+    "usersModelTitle": "ここでのアカウントについて",
+    "usersModelShared": "サインインできる人は全員、同じモニター・通知チャンネル・ステータスページを見て管理します。アカウントは people ごとにパスワードを分けるためのもので、データを分けるためのものではありません。",
+    "usersModelAdmin": "管理者フラグが決めるのは一つだけ、これらのアカウントを管理できるかどうかです。",
+    "usersModelReadOnly": "この画面に読み取り専用モードはありません。見るだけにしたい相手には、ステータスページを渡すか、読み取り専用の API キーを発行してください。"
 }

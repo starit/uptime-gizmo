@@ -401,7 +401,7 @@ router.get(
         // One extra row tells us whether another page exists without a count.
         const rows = await R.getAll(
             "SELECT * FROM monitor WHERE user_id = ? AND id > ? ORDER BY id LIMIT ?",
-            [ req.principal?.userID ?? null, after, limit + 1 ]
+            [ req.principal?.estateID ?? null, after, limit + 1 ]
         );
 
         const hasMore = rows.length > limit;
@@ -427,7 +427,7 @@ router.get(
     route(async (req, res) => {
         const bean = await R.findOne("monitor", " id = ? AND user_id = ? ", [
             req.params.id,
-            req.principal?.userID ?? null,
+            req.principal?.estateID ?? null,
         ]);
 
         if (!bean) {
@@ -452,7 +452,7 @@ router.get(
     apiAuth,
     route(async (req, res) => {
         const rows = await R.getAll("SELECT * FROM monitor WHERE user_id = ? ORDER BY name", [
-            req.principal?.userID ?? null,
+            req.principal?.estateID ?? null,
         ]);
         const monitors = R.convertToBeans("monitor", rows);
 
@@ -506,7 +506,9 @@ router.get(
         res.json({
             ok: true,
             data: {
-                userID: req.principal?.userID ?? null,
+                // Who is calling, not what they can see. Every resource route
+                // scopes to the estate; this one answers for the credential.
+                userID: req.principal?.accountID ?? null,
                 readOnly: Boolean(req.principal?.readOnly),
             },
         });
@@ -525,7 +527,7 @@ router.get(
              )
              WHERE m.user_id = ? AND m.active = 1 AND h.status IN (0, 2)
              ORDER BY m.name`,
-            [ req.principal?.userID ?? null ]
+            [ req.principal?.estateID ?? null ]
         );
 
         const data = [];
@@ -579,7 +581,7 @@ router.get(
              WHERE m.user_id = ? AND h.important = 1 AND h.time > ?
              ORDER BY h.time DESC
              LIMIT ?`,
-            [ req.principal?.userID ?? null, since, limit ]
+            [ req.principal?.estateID ?? null, since, limit ]
         );
 
         res.json({
@@ -680,7 +682,7 @@ router.get(
     apiAuth,
     route(async (req, res) => {
         const rows = await R.getAll("SELECT * FROM notification WHERE user_id = ? ORDER BY name", [
-            req.principal?.userID ?? null,
+            req.principal?.estateID ?? null,
         ]);
         res.json({ ok: true, data: rows.map(notificationToAPI) });
     })
@@ -691,7 +693,7 @@ router.get(
     apiAuth,
     route(async (req, res) => {
         const rows = await R.getAll("SELECT * FROM proxy WHERE user_id = ? ORDER BY host", [
-            req.principal?.userID ?? null,
+            req.principal?.estateID ?? null,
         ]);
         res.json({ ok: true, data: rows.map(proxyToAPI) });
     })
@@ -702,7 +704,7 @@ router.get(
     apiAuth,
     route(async (req, res) => {
         const rows = await R.getAll("SELECT * FROM docker_host WHERE user_id = ? ORDER BY name", [
-            req.principal?.userID ?? null,
+            req.principal?.estateID ?? null,
         ]);
         res.json({ ok: true, data: rows.map(dockerHostToAPI) });
     })
@@ -713,7 +715,7 @@ router.get(
     apiAuth,
     route(async (req, res) => {
         const rows = await R.getAll("SELECT * FROM remote_browser WHERE user_id = ? ORDER BY name", [
-            req.principal?.userID ?? null,
+            req.principal?.estateID ?? null,
         ]);
         res.json({ ok: true, data: rows.map(remoteBrowserToAPI) });
     })
@@ -739,7 +741,7 @@ router.get(
     route(async (req, res) => {
         const rows = await R.getAll(
             "SELECT id, title, description, strategy, active FROM maintenance WHERE user_id = ? ORDER BY title",
-            [ req.principal?.userID ?? null ]
+            [ req.principal?.estateID ?? null ]
         );
         res.json({
             ok: true,
@@ -825,7 +827,7 @@ router.post(
             bean[column] = value;
         }
         // Ownership comes from the authenticated principal, never the body.
-        bean.user_id = req.principal?.userID ?? null;
+        bean.user_id = req.principal?.estateID ?? null;
 
         try {
             await assertParentAllowed(bean.parent, bean.user_id, null);
@@ -872,7 +874,7 @@ router.patch(
     route(async (req, res) => {
         const bean = await R.findOne("monitor", " id = ? AND user_id = ? ", [
             req.params.id,
-            req.principal?.userID ?? null,
+            req.principal?.estateID ?? null,
         ]);
 
         if (!bean) {
@@ -930,7 +932,7 @@ router.patch(
 async function ownedMonitor(req, res) {
     const bean = await R.findOne("monitor", " id = ? AND user_id = ? ", [
         req.params.id ?? req.params.monitorId,
-        req.principal?.userID ?? null,
+        req.principal?.estateID ?? null,
     ]);
 
     if (!bean) {
@@ -970,7 +972,7 @@ router.delete(
             return;
         }
 
-        const userID = req.principal?.userID ?? null;
+        const userID = req.principal?.estateID ?? null;
         const removed = [ bean.id ];
 
         if (bean.type === "group") {
@@ -1023,7 +1025,7 @@ router.post(
             return;
         }
 
-        const userID = req.principal?.userID ?? null;
+        const userID = req.principal?.estateID ?? null;
 
         if (bean.active) {
             await lifecycle.pauseMonitor(userID, bean.id);
@@ -1045,7 +1047,7 @@ router.post(
             return;
         }
 
-        const userID = req.principal?.userID ?? null;
+        const userID = req.principal?.estateID ?? null;
 
         if (!bean.active) {
             await lifecycle.startMonitor(userID, bean.id);
@@ -1111,7 +1113,7 @@ router.post(
             ]);
         }
 
-        await lifecycle.notifyMonitorChanged(req.principal?.userID ?? null, monitor.id);
+        await lifecycle.notifyMonitorChanged(req.principal?.estateID ?? null, monitor.id);
 
         res.status(existing ? 200 : 201).json({
             ok: true,
@@ -1144,7 +1146,7 @@ router.delete(
         }
 
         await R.trash(link);
-        await lifecycle.notifyMonitorChanged(req.principal?.userID ?? null, monitor.id);
+        await lifecycle.notifyMonitorChanged(req.principal?.estateID ?? null, monitor.id);
 
         res.json({ ok: true, data: { monitorID: monitor.id, tagID: Number(req.params.tagId) } });
     })
@@ -1174,7 +1176,7 @@ router.delete(
         const affected = await R.getAll("SELECT DISTINCT monitor_id FROM monitor_tag WHERE tag_id = ?", [ bean.id ]);
         await R.trash(bean);
 
-        const userID = req.principal?.userID ?? null;
+        const userID = req.principal?.estateID ?? null;
         for (const row of affected) {
             await lifecycle.notifyMonitorChanged(userID, row.monitor_id);
         }

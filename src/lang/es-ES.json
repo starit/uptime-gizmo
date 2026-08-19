@@ -1498,15 +1498,13 @@
     "API Documentation": "Documentación de la API",
     "Loading": "Cargando",
     "required": "obligatorio",
-    "usersHelp": "Cualquiera que pueda iniciar sesión ve y gestiona toda la instancia. Un administrador además puede gestionar estas cuentas.",
     "usersAdd": "Añadir cuenta",
-    "usersMakeAdmin": "Puede gestionar cuentas",
+    "usersMakeAdmin": "Administrador",
     "usersGrantAdmin": "Hacer administrador",
     "usersRevokeAdmin": "Quitar administrador",
     "usersResetPassword": "Establecer contraseña",
     "usersResetPasswordFor": "Establecer una nueva contraseña para {0}.",
     "usersPasswordHelp": "Al menos 6 caracteres.",
-    "usersScopeNote": "Esta cuenta verá y gestionará toda la instancia.",
     "usersDeleteMsg": "¿Eliminar la cuenta {0}? Sus claves de API se eliminan con ella.",
     "apiDocsIntro": "Cada endpoint acepta una clave de API como autenticación HTTP Basic: cualquier usuario y la clave como contraseña. Créala en Claves de API.",
     "apiDocsAuthNote": "Una clave ausente o inválida responde 401.",
@@ -1517,5 +1515,10 @@
     "apiDocsRequestBody": "Cuerpo de la petición",
     "apiDocsResponses": "Respuestas",
     "apiDocsExample": "Ejemplo",
-    "apiDocsLoadFailed": "No se pudo cargar la descripción de la API: {0}"
+    "apiDocsLoadFailed": "No se pudo cargar la descripción de la API: {0}",
+    "usersMakeAdminHelp": "Los administradores pueden añadir, desactivar y eliminar cuentas. No cambia nada más: cada cuenta ya gestiona toda la instancia.",
+    "usersModelTitle": "Cómo funcionan las cuentas aquí",
+    "usersModelShared": "Cualquiera que pueda iniciar sesión ve y gestiona toda la instancia: los mismos monitores, canales de notificación y páginas de estado. Las cuentas separan contraseñas, no datos.",
+    "usersModelAdmin": "La marca de administrador rige una sola cosa: quién puede gestionar estas cuentas.",
+    "usersModelReadOnly": "Esta interfaz no tiene acceso de solo lectura. Para que alguien mire sin tocar, envíale una página de estado o dale una clave de API marcada como de solo lectura."
 }

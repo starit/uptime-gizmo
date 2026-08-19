@@ -88,6 +88,9 @@ export default {
                 general: {
                     title: this.$t("General"),
                 },
+                users: {
+                    title: this.$t("Users"),
+                },
                 appearance: {
                     title: this.$t("Appearance"),
                 },
@@ -117,9 +120,6 @@ export default {
                 },
                 security: {
                     title: this.$t("Security"),
-                },
-                users: {
-                    title: this.$t("Users"),
                 },
                 "api-keys": {
                     title: this.$t("API Keys"),

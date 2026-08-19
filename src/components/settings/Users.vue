@@ -1,6 +1,17 @@
 <template>
     <div>
-        <p class="gizmo-field-help tw-mb-4">{{ $t("usersHelp") }}</p>
+        <!--
+            The model is unusual enough to be worth stating on the page. Someone
+            arriving here reasonably expects accounts to separate people from each
+            other, and these do not: they separate passwords. Saying so before
+            they add anyone is cheaper than them discovering it afterwards.
+        -->
+        <section class="users__model">
+            <h3 class="users__model-title">{{ $t("usersModelTitle") }}</h3>
+            <p>{{ $t("usersModelShared") }}</p>
+            <p>{{ $t("usersModelAdmin") }}</p>
+            <p>{{ $t("usersModelReadOnly") }}</p>
+        </section>
 
         <p v-if="error" class="gizmo-native-alert gizmo-native-alert--danger">{{ error }}</p>
 
@@ -127,6 +138,32 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.users__model {
+    margin-bottom: 1.5rem;
+    padding: 0.9rem 1rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-surface-subtle);
+    color: var(--color-text-muted);
+    font-size: 0.875rem;
+    line-height: 1.55;
+
+    p {
+        margin: 0 0 0.5rem;
+
+        &:last-child {
+            margin-bottom: 0;
+        }
+    }
+}
+
+.users__model-title {
+    margin: 0 0 0.5rem;
+    color: var(--color-text);
+    font-size: 0.875rem;
+    font-weight: var(--weight-semibold);
+}
+
 .users__danger {
     color: var(--status-down-fg);
 }

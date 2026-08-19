@@ -1,6 +1,24 @@
 <template>
     <div class="form-container">
         <div class="form">
+            <!--
+                The one screen everybody sees, and until now the only one with
+                nothing on it but two fields. The mascot is decorative — the
+                heading is the greeting, so the image carries no meaning and is
+                hidden from screen readers.
+            -->
+            <div class="login-greeting">
+                <img
+                    class="login-greeting__mascot"
+                    src="/images/gizmo-mascot-engineer-cutout.webp"
+                    alt=""
+                    width="448"
+                    height="448"
+                    decoding="async"
+                >
+                <p class="login-greeting__slogan">{{ $t("uptimeIsMoney") }}</p>
+            </div>
+
             <form aria-label="Login Form" class="tw-pt-3" @submit.prevent="submit">
                 <div v-if="!tokenRequired" class="gizmo-floating-field">
                     <input
@@ -139,5 +157,38 @@ export default {
     padding: 15px;
     margin: auto;
     text-align: center;
+}
+
+.login-greeting {
+    margin-bottom: 0.5rem;
+}
+
+.login-greeting__mascot {
+    width: clamp(7rem, 30vw, 9.5rem);
+    height: auto;
+
+    /* The cutout carries its own studio shadow; a second one would read as two
+       light sources. */
+    filter: drop-shadow(0 10px 16px rgba(0, 0, 0, 0.16));
+}
+
+.login-greeting__slogan {
+    margin: 0.35rem 0 0;
+    color: var(--color-text);
+    font-size: 1.15rem;
+    font-weight: var(--weight-bold);
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+}
+
+/* On a short window the form matters more than the greeting. */
+@media (max-height: 700px) {
+    .login-greeting__mascot {
+        width: clamp(5rem, 18vw, 6.5rem);
+    }
+
+    .login-greeting__slogan {
+        font-size: 1rem;
+    }
 }
 </style>

@@ -102,6 +102,20 @@ async function verifyAPIKey(key) {
  */
 
 /**
+ * The account the instance's resources hang off.
+ *
+ * Recorded at first login and read here so an API key sees the same estate the
+ * browser does. Falls back to the key's own account, which is correct for an
+ * instance that has only ever had one.
+ * @param {number} fallback account to use when nothing is recorded yet
+ * @returns {Promise<number>} the owning account's id
+ */
+async function estateOwnerID(fallback) {
+    const recorded = await Settings.get("instanceOwnerId");
+    return recorded ? Number(recorded) : fallback;
+}
+
+/**
  * Custom authorizer for express-basic-auth
  * @param {express.Request} req Request the principal is attached to
  * @param {string} username Username to login with
@@ -113,7 +127,7 @@ function apiAuthorizer(req, username, password, callback) {
     // API Rate Limit
     apiRateLimiter.pass(null, 0).then((pass) => {
         if (pass) {
-            resolveAPIKey(password).then((apiKey) => {
+            resolveAPIKey(password).then(async (apiKey) => {
                 const valid = apiKey !== null;
                 if (!valid) {
                     log.warn("api-auth", "Failed API auth attempt: invalid API Key");
@@ -122,8 +136,22 @@ function apiAuthorizer(req, username, password, callback) {
                     // function, so the request is only reachable through a
                     // closure. apiAuth builds this middleware per request, so
                     // capturing req here cannot leak across requests.
+                    /*
+                     * Two identities, named apart on purpose.
+                     *
+                     * accountID is whose key this is. estateID is what the
+                     * instance's resources hang off, which every session in the
+                     * browser also adopts — so a key belonging to someone who is
+                     * not the owner still sees the estate its owner can see, and
+                     * the API agrees with the interface instead of reporting an
+                     * empty instance.
+                     *
+                     * Calling both of them userID is what let a room name mean
+                     * two things at once elsewhere in this change.
+                     */
                     req.principal = {
-                        userID: apiKey.user_id,
+                        accountID: apiKey.user_id,
+                        estateID: await estateOwnerID(apiKey.user_id),
                         apiKeyID: apiKey.id,
                         readOnly: Boolean(apiKey.read_only),
                     };

@@ -1640,15 +1640,13 @@
     "API Documentation": "API-Dokumentation",
     "Loading": "Wird geladen",
     "required": "erforderlich",
-    "usersHelp": "Alle, die sich anmelden können, sehen und verwalten die gesamte Instanz. Administratoren können zusätzlich diese Konten verwalten.",
     "usersAdd": "Konto hinzufügen",
-    "usersMakeAdmin": "Darf Konten verwalten",
+    "usersMakeAdmin": "Administrator",
     "usersGrantAdmin": "Zum Administrator machen",
     "usersRevokeAdmin": "Administrator entziehen",
     "usersResetPassword": "Passwort setzen",
     "usersResetPasswordFor": "Neues Passwort für {0} setzen.",
     "usersPasswordHelp": "Mindestens 6 Zeichen.",
-    "usersScopeNote": "Dieses Konto wird die gesamte Instanz sehen und verwalten können.",
     "usersDeleteMsg": "Konto {0} löschen? Die API-Schlüssel dieses Kontos werden mit entfernt.",
     "apiDocsIntro": "Jeder Endpunkt nimmt einen API-Schlüssel per HTTP-Basic-Auth entgegen – beliebiger Benutzername, der Schlüssel als Passwort. Schlüssel werden unter API-Schlüssel angelegt.",
     "apiDocsAuthNote": "Ein fehlender oder ungültiger Schlüssel führt zu 401.",
@@ -1659,5 +1657,10 @@
     "apiDocsRequestBody": "Anfragekörper",
     "apiDocsResponses": "Antworten",
     "apiDocsExample": "Beispiel",
-    "apiDocsLoadFailed": "Die API-Beschreibung konnte nicht geladen werden: {0}"
+    "apiDocsLoadFailed": "Die API-Beschreibung konnte nicht geladen werden: {0}",
+    "usersMakeAdminHelp": "Administratoren können Konten anlegen, deaktivieren und entfernen. Sonst ändert es nichts – jedes Konto verwaltet ohnehin die gesamte Instanz.",
+    "usersModelTitle": "Wie Konten hier funktionieren",
+    "usersModelShared": "Alle, die sich anmelden können, sehen und verwalten die gesamte Instanz: dieselben Monitore, Benachrichtigungskanäle und Statusseiten. Konten trennen Passwörter, nicht Daten.",
+    "usersModelAdmin": "Die Administrator-Markierung regelt genau eines – wer diese Konten verwalten darf.",
+    "usersModelReadOnly": "Für diese Oberfläche gibt es keinen Nur-Lese-Zugang. Wer nur zuschauen soll, bekommt eine Statusseite oder einen als schreibgeschützt markierten API-Schlüssel."
 }
