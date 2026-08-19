@@ -55,6 +55,15 @@
     flex: 1;
     min-width: 0;
     padding: 0.05rem 0;
+    /* The vendor sets these on the body itself, so setting them on the toast
+       above is not enough — the message stayed at 16px inside a card scaled for
+       14. Its font-family lands here too: a stack of Lato, Helvetica, Roboto and
+       Arial, none of which is the typeface this application uses, and which fell
+       through to an oblique face. Notifications now read in the page's own type,
+       upright. */
+    font-family: inherit;
+    font-size: 0.875rem;
+    line-height: 1.45;
     /* Server messages arrive as one long unbroken token often enough — a URL, a
        certificate subject — that this is the difference between a toast and a
        toast with a horizontal scrollbar. */
@@ -109,7 +118,10 @@
 }
 
 /*
- * The remaining time, as a strip along the very bottom edge.
+ * The remaining time, as a strip along the very bottom edge, in the full status
+ * hue. Held at half opacity the green washed out to about 1.9:1 against a white
+ * card — the one place the "green means this went well" signal had to survive,
+ * and the place it was faintest.
  *
  * Inset from the sides it read as an underline drawn beneath the message rather
  * than as a countdown. Flush to the edges, clipped by the card's own radius, it
@@ -123,26 +135,36 @@
     height: 2px;
     border-radius: 0;
     background: currentcolor;
-    opacity: 0.5;
     transform-origin: left;
 }
 
-/* Tones. Only the icon and the progress line take the status colour. */
-@mixin toast-tone($colour, $tint) {
+/*
+ * Tones. Green still means it went well and red still means it did not; what
+ * changed is that they are carried by the icon and the timer rather than by a
+ * wash over the whole notification.
+ *
+ * The glyph takes the -fg variant, not the base hue. Those exist precisely to be
+ * read against their own tint: on a white card the base green managed 3.07:1
+ * inside its disc, the weakest thing in the set and below the red beside it,
+ * where the -fg green reaches 5.86:1 and the two tones finally match in weight.
+ * The timer strip sits on the card rather than on the tint, so it keeps the base
+ * hue — that is the one place the colour should be unmistakably green or red.
+ */
+@mixin toast-tone($glyph, $tint, $strip) {
     .Vue-Toastification__icon {
         background: var($tint);
-        color: var($colour);
+        color: var($glyph);
     }
 
     .Vue-Toastification__progress-bar {
-        color: var($colour);
+        color: var($strip);
     }
 }
 
-.Vue-Toastification__toast--success { @include toast-tone(--status-up, --status-up-bg); }
-.Vue-Toastification__toast--error { @include toast-tone(--status-down, --status-down-bg); }
-.Vue-Toastification__toast--warning { @include toast-tone(--status-degraded, --status-degraded-bg); }
-.Vue-Toastification__toast--info { @include toast-tone(--color-interactive, --color-interactive-subtle); }
+.Vue-Toastification__toast--success { @include toast-tone(--status-up-fg, --status-up-bg, --status-up); }
+.Vue-Toastification__toast--error { @include toast-tone(--status-down-fg, --status-down-bg, --status-down); }
+.Vue-Toastification__toast--warning { @include toast-tone(--status-degraded-fg, --status-degraded-bg, --status-degraded); }
+.Vue-Toastification__toast--info { @include toast-tone(--color-interactive, --color-interactive-subtle, --color-interactive); }
 
 .Vue-Toastification__toast--default {
     .Vue-Toastification__icon {
