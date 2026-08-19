@@ -28,6 +28,24 @@
     border-radius: var(--radius-sm);
 }
 
+/*
+ * The calendar has to accept clicks while a modal dialog is open.
+ *
+ * A modal dialog sets pointer-events: none on the body and restores it only on
+ * itself, so that nothing behind it can be clicked. The datepicker teleports its
+ * menu to the body, which puts it outside the dialog and therefore inside the
+ * part that was switched off: the calendar rendered, sat above everything, and
+ * passed every click straight through to whatever was beneath it. No error, no
+ * console warning, just a date that could never be chosen — the failure looks
+ * identical to the field being broken.
+ *
+ * Scoped to the menu, so the rest of the page stays inert behind the dialog as
+ * intended.
+ */
+.dp__menu {
+    pointer-events: auto;
+}
+
 /* Fix full input width for inline textInput + inlineWithInput mode. */
 .dp__main > div[aria-label="Datepicker input"] {
     width: 100%;
