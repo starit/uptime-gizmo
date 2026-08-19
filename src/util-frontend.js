@@ -134,8 +134,10 @@ export function colorOptions(self) {
 export function loadToastSettings() {
     return {
         position: POSITION.BOTTOM_RIGHT,
-        containerClassName: "toast-container mb-5",
-        showCloseButtonOnHover: true,
+        containerClassName: "toast-container",
+        // Revealing the dismiss control on hover leaves a keyboard or touch user
+        // with a button they cannot see they have. It is styled quietly instead.
+        showCloseButtonOnHover: false,
 
         filterBeforeCreate: (toast, toasts) => {
             if (toast.timeout === 0) {

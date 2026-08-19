@@ -147,10 +147,12 @@
         <button
             v-if="numActiveToasts != 0"
             type="button"
-            class="gizmo-native-button gizmo-native-button--secondary clear-all-toast-btn"
+            class="clear-all-toast-btn"
+            :aria-label="$t('dismissAllToasts')"
+            :title="$t('dismissAllToasts')"
             @click="clearToasts"
         >
-            <font-awesome-icon icon="times" />
+            <font-awesome-icon icon="times" aria-hidden="true" />
         </button>
     </div>
 </template>
@@ -392,15 +394,39 @@ export default {
     }
 }
 
+/*
+ * Appears only while toasts are on screen, so it reads as part of them: the same
+ * surface, border and shadow the notifications themselves now use, rather than a
+ * filled button competing with them for attention.
+ */
 .clear-all-toast-btn {
     position: fixed;
-    right: 1em;
-    bottom: 1em;
-    font-size: 1.2em;
-    padding: 9px 15px;
-    width: 48px;
-    box-shadow: var(--shadow-float);
+    right: 1rem;
+    bottom: 1rem;
     z-index: 100;
+    display: grid;
+    place-items: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    padding: 0;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-pill);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-float);
+    color: var(--color-text-muted);
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+
+    &:hover {
+        background: var(--color-surface-hover);
+        color: var(--color-text);
+    }
+
+    &:focus-visible {
+        outline: 2px solid var(--color-focus-ring);
+        outline-offset: 2px;
+    }
 }
 
 @media (max-width: 900px) {

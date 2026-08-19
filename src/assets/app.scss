@@ -194,20 +194,9 @@ $shadow-box-padding: 1.25rem;
     backdrop-filter: blur(0.125rem);
 }
 
-@media (max-width: 770px) {
-    .toast-container {
-        margin-bottom: 6.25rem !important;
-    }
-}
-
-@media (max-width: 550px) {
-    .toast-container {
-        margin-bottom: 7.875rem !important;
-    }
-}
-
 .zoom-cursor {
     cursor: zoom-in;
 }
 
+@import "toast.scss";
 @import "localization.scss";
