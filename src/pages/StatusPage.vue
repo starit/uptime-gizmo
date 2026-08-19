@@ -314,70 +314,6 @@
             />
 
             <!-- Active Pinned Incidents -->
-            <template v-for="activeIncident in activeIncidents" :key="activeIncident.id">
-                <!-- Edit mode for this specific incident -->
-                <IncidentEditForm
-                    v-if="editIncidentMode && incident !== null && incident.id === activeIncident.id"
-                    v-model="incident"
-                    @post="postIncident"
-                    @cancel="cancelIncident"
-                />
-
-                <!-- Display mode for this incident -->
-                <div
-                    v-else
-                    class="status-notice tw-mb-4 incident"
-                    role="alert"
-                    :class="incidentClass(activeIncident.style)"
-                    data-testid="incident"
-                >
-                    <h4 class="status-notice__title" data-testid="incident-title">{{ activeIncident.title }}</h4>
-                    <!-- eslint-disable vue/no-v-html -->
-                    <div
-                        class="content"
-                        data-testid="incident-content"
-                        v-html="getIncidentHTML(activeIncident.content)"
-                    ></div>
-                    <!-- eslint-enable vue/no-v-html -->
-
-                    <!-- Incident Date -->
-                    <div class="status-notice__meta date">
-                        {{
-                            $t("dateCreatedAtFromNow", {
-                                date: $root.datetime(activeIncident.createdDate),
-                                fromNow: dateFromNow(activeIncident.createdDate),
-                            })
-                        }}
-                        <br />
-                        <span v-if="activeIncident.lastUpdatedDate">
-                            {{
-                                $t("lastUpdatedAtFromNow", {
-                                    date: $root.datetime(activeIncident.lastUpdatedDate),
-                                    fromNow: dateFromNow(activeIncident.lastUpdatedDate),
-                                })
-                            }}
-                        </span>
-                    </div>
-
-                    <div v-if="editMode" class="tw-mt-3">
-                        <button class="gizmo-native-button gizmo-native-button--light tw-me-2" @click="resolveIncident(activeIncident)">
-                            <font-awesome-icon icon="check" />
-                            {{ $t("Resolve") }}
-                        </button>
-                        <button class="gizmo-native-button gizmo-native-button--light tw-me-2" @click="editIncident(activeIncident)">
-                            <font-awesome-icon icon="edit" />
-                            {{ $t("Edit") }}
-                        </button>
-                        <button
-                            class="gizmo-native-button gizmo-native-button--light tw-me-2"
-                            @click="$refs.incidentManageModal.showDelete(activeIncident)"
-                        >
-                            <font-awesome-icon icon="unlink" />
-                            {{ $t("Delete") }}
-                        </button>
-                    </div>
-                </div>
-            </template>
 
             <!-- Overall Status -->
             <div class="overall-status tw-mb-4">
@@ -446,6 +382,73 @@
                 v-html="descriptionHTML"
             ></div>
             <!-- eslint-enable vue/no-v-html-->
+
+            <!--
+                Incidents come after the headline and its description. Reading
+                about one service before learning whether the platform as a whole
+                is healthy answers the second question first.
+            -->
+            <template v-for="activeIncident in activeIncidents" :key="activeIncident.id">
+                <!-- Edit mode for this specific incident -->
+                <IncidentEditForm
+                    v-if="editIncidentMode && incident !== null && incident.id === activeIncident.id"
+                    v-model="incident"
+                    @post="postIncident"
+                    @cancel="cancelIncident"
+                />
+                <!-- Display mode for this incident -->
+                <div
+                    v-else
+                    class="status-notice tw-mb-4 incident"
+                    role="alert"
+                    :class="incidentClass(activeIncident.style)"
+                    data-testid="incident"
+                >
+                    <h4 class="status-notice__title" data-testid="incident-title">{{ activeIncident.title }}</h4>
+                    <!-- eslint-disable vue/no-v-html -->
+                    <div
+                        class="content"
+                        data-testid="incident-content"
+                        v-html="getIncidentHTML(activeIncident.content)"
+                    ></div>
+                    <!-- eslint-enable vue/no-v-html -->
+                    <!-- Incident Date -->
+                    <div class="status-notice__meta date">
+                        {{
+                            $t("dateCreatedAtFromNow", {
+                                date: $root.datetime(activeIncident.createdDate),
+                                fromNow: dateFromNow(activeIncident.createdDate),
+                            })
+                        }}
+                        <br />
+                        <span v-if="activeIncident.lastUpdatedDate">
+                            {{
+                                $t("lastUpdatedAtFromNow", {
+                                    date: $root.datetime(activeIncident.lastUpdatedDate),
+                                    fromNow: dateFromNow(activeIncident.lastUpdatedDate),
+                                })
+                            }}
+                        </span>
+                    </div>
+                    <div v-if="editMode" class="tw-mt-3">
+                        <button class="gizmo-native-button gizmo-native-button--light tw-me-2" @click="resolveIncident(activeIncident)">
+                            <font-awesome-icon icon="check" />
+                            {{ $t("Resolve") }}
+                        </button>
+                        <button class="gizmo-native-button gizmo-native-button--light tw-me-2" @click="editIncident(activeIncident)">
+                            <font-awesome-icon icon="edit" />
+                            {{ $t("Edit") }}
+                        </button>
+                        <button
+                            class="gizmo-native-button gizmo-native-button--light tw-me-2"
+                            @click="$refs.incidentManageModal.showDelete(activeIncident)"
+                        >
+                            <font-awesome-icon icon="unlink" />
+                            {{ $t("Delete") }}
+                        </button>
+                    </div>
+                </div>
+            </template>
 
             <div v-if="editMode" class="tw-mb-4">
                 <div>

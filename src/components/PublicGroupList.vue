@@ -73,7 +73,6 @@
                                                     v-if="showOnlyLastHeartbeat"
                                                     :status="statusOfLastHeartbeat(monitor.element.id)"
                                                 />
-                                                <Uptime v-else :monitor="monitor.element" type="24" :pill="true" />
                                                 <a
                                                     v-if="showLink(monitor)"
                                                     :href="monitor.element.url"
@@ -87,6 +86,13 @@
                                                 <p v-else class="item-name" data-testid="monitor-name">
                                                     {{ monitor.element.name }}
                                                 </p>
+                                                <Uptime
+                                                    v-if="!showOnlyLastHeartbeat"
+                                                    :monitor="monitor.element"
+                                                    type="24"
+                                                    :pill="true"
+                                                    class="item-uptime"
+                                                />
                                             </div>
                                             <div class="extra-info">
                                                 <div
@@ -402,13 +408,36 @@ export default {
     border-top: 0;
 }
 
+/*
+ * A row, so the figure can sit at the end of it. This was a plain block, which
+ * is why everything in it read as one run of inline content.
+ */
+.info {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+}
+
 .item-name {
-    padding-left: 0.375rem;
+    padding-left: 0;
     padding-right: 0.375rem;
     margin: 0;
-    display: inline-block;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
     color: var(--color-text);
     font-weight: var(--weight-semibold);
+}
+
+/*
+ * After the name, not before it. A visitor scanning this page is looking for a
+ * service; the figure is what they read once they have found it.
+ */
+.item-uptime {
+    margin-left: auto;
+    padding-left: 0.5rem;
+    font-variant-numeric: tabular-nums;
 }
 
 /* Renamed from .btn-link: it was always a local rule, and the Bootstrap class

@@ -528,14 +528,64 @@ export default {
     justify-content: center;
 }
 
+/*
+ * On a phone the events stop being a table.
+ *
+ * Four columns in 390 pixels overflowed by twenty: the message column was cut to
+ * a single letter and the timestamp broke across three lines. The row becomes a
+ * small record instead — what it was and how it ended on one line, then when,
+ * then what the check said.
+ */
 @media (max-width: 550px) {
+    .event-panel thead {
+        display: none;
+    }
+
     .gizmo-mobile-event-row {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 0.15rem 0.5rem;
+        margin-bottom: 0.5rem;
+        padding: 0.6rem 0.7rem;
+        border-radius: var(--radius-md);
         background: var(--color-surface);
         outline: 1px solid var(--color-border);
+
+        td {
+            padding: 0;
+            border: 0;
+            grid-column: 1 / -1;
+        }
+
+        .name-column {
+            min-width: 0;
+            grid-column: 1;
+            font-weight: var(--weight-semibold);
+        }
+
+        /* The status sits beside the name; everything else stacks under them. */
+        td:has(.gizmo-status) {
+            grid-column: 2;
+            grid-row: 1;
+            justify-self: end;
+        }
+
+        /* When it happened, then what the check said — quieter than both. */
+        td:nth-last-child(2) {
+            color: var(--color-text-muted);
+            font-size: 0.8rem;
+            font-variant-numeric: tabular-nums;
+        }
+
+        td:last-child {
+            color: var(--color-text-muted);
+            font-size: 0.8rem;
+            overflow-wrap: anywhere;
+        }
     }
 }
 
-@media screen and (max-width: 1280px) {
+@media screen and (min-width: 551px) and (max-width: 1280px) {
     .name-column {
         min-width: 150px;
     }
