@@ -111,6 +111,37 @@ monitor  (new columns)
 repointed at a different network would otherwise show a plausible balance for the
 wrong chain.
 
+## RPC health is a second type, not a flag on the first
+
+Reachability alone does not need a monitor type: an HTTP check with a JSON body
+already covers it. What it cannot see is a node that has fallen out of consensus,
+lost its peers, or sits behind a load balancer with one stale member. It keeps
+answering every call successfully and keeps returning a block number; the number
+simply stops going up, the application reads a chain minutes behind, transactions
+never land, and every ordinary monitor stays green.
+
+So the check is the age of the newest block, and reachability comes free with it.
+
+It is a separate type rather than an extra field on a balance monitor because one
+network serves many addresses: a stalled node should raise one alert, not turn
+every balance monitor red at once, and the two failures call for different
+responses.
+
+**The limit is per monitor with no default.** Block production differs by orders
+of magnitude — around twelve seconds on Ethereum, two on Polygon, under one on
+some rollups — and some chains only produce a block when there is something to
+put in it, so idleness there is not a fault. Any default would be wrong for most
+chains.
+
+**A block can be newer than now.** Its timestamp is set by whoever produced it,
+and a server whose clock runs slow will see blocks from the future. Age is
+clamped at zero: reported negative it would sail under any limit, and reported as
+a large positive it would alert constantly.
+
+**Block height going backwards is not an alert.** A hosted endpoint is a pool,
+and consecutive requests can land on different members, so a height that dips by
+one or two is ordinary. It is recorded in the message and nothing more.
+
 ## Verification
 
 - A balance above and below its floor, for both native and ERC-20.

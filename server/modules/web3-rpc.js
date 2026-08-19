@@ -51,7 +51,7 @@ function encodeAddress(address) {
  * @param {string} method JSON-RPC method
  * @param {Array} params method parameters
  * @param {number} timeoutMs how long to wait
- * @returns {Promise<string>} the result, which is always a hex quantity here
+ * @returns {Promise<any>} the result, whose shape depends on the method
  * @throws {Error} on transport failure, a JSON-RPC error, or an unusable body
  */
 async function rpcCall(rpcUrl, method, params, timeoutMs) {
@@ -89,7 +89,13 @@ async function rpcCall(rpcUrl, method, params, timeoutMs) {
         throw new Error(`RPC error: ${message}`);
     }
 
-    if (typeof body.result !== "string") {
+    /*
+     * Presence rather than type: most calls here answer with a hex quantity but
+     * a block is an object, and callers validate the shape they asked for. `in`
+     * rather than a truthiness check because false and null are real answers
+     * from some methods.
+     */
+    if (!("result" in body)) {
         throw new Error(`RPC returned no result for ${method}`);
     }
 
@@ -194,6 +200,44 @@ async function getChainId(rpcUrl, timeoutMs) {
 }
 
 /**
+ * The newest block the endpoint knows about.
+ * @param {string} rpcUrl endpoint to call
+ * @param {number} timeoutMs how long to wait
+ * @returns {Promise<{number: bigint, timestamp: bigint}>} height and when it was produced
+ * @throws {Error} when the endpoint answers with something that is not a block
+ */
+async function getLatestBlock(rpcUrl, timeoutMs) {
+    // false: headers only. The transaction list of a full block is megabytes
+    // that nothing here reads.
+    const block = await rpcCall(rpcUrl, "eth_getBlockByNumber", [ "latest", false ], timeoutMs);
+
+    if (!block || typeof block !== "object") {
+        throw new Error("The endpoint returned no latest block");
+    }
+
+    return {
+        number: toBigInt(block.number, "Block number"),
+        timestamp: toBigInt(block.timestamp, "Block timestamp"),
+    };
+}
+
+/**
+ * How old a block is, in seconds.
+ *
+ * Clamped at zero. A block timestamp is set by whoever produced the block, not
+ * by the machine reading it, so it can sit slightly ahead of local time — and a
+ * server whose own clock is behind would otherwise report a negative age and,
+ * depending on how it was compared, a permanently stale chain.
+ * @param {bigint} blockTimestamp seconds since the epoch, from the block
+ * @param {number} nowSeconds seconds since the epoch, locally
+ * @returns {number} age in seconds, never negative
+ */
+function blockAgeSeconds(blockTimestamp, nowSeconds) {
+    const age = Math.floor(nowSeconds) - Number(blockTimestamp);
+    return age < 0 ? 0 : age;
+}
+
+/**
  * Scale a decimal string into the integer the chain works in.
  *
  * "0.05" with 18 decimals becomes 50000000000000000n. Done by moving the point
@@ -236,6 +280,8 @@ function formatUnits(value, decimals) {
 }
 
 module.exports = {
+    getLatestBlock,
+    blockAgeSeconds,
     getNativeBalance,
     getTokenBalance,
     getTokenDecimals,

@@ -94,8 +94,12 @@
                                         <option v-if="!$root.info.isContainer" value="tailscale-ping">
                                             Tailscale Ping
                                         </option>
-                                        <option value="web3-balance">{{ $t("Web3 Balance") }}</option>
                                         <option value="websocket-upgrade">Websocket Upgrade</option>
+                                    </optgroup>
+
+                                    <optgroup :label="$t('monitorTypeWeb3')">
+                                        <option value="web3-balance">{{ $t("Web3 Balance") }}</option>
+                                        <option value="web3-rpc">{{ $t("Web3 RPC Health") }}</option>
                                     </optgroup>
 
                                     <!-- Should sort from A to Z in this category -->
@@ -271,8 +275,8 @@
                                 </button>
                             </div>
 
-                            <!-- Web3 balance -->
-                            <template v-if="monitor.type === 'web3-balance'">
+                            <!-- Web3 -->
+                            <template v-if="monitor.type === 'web3-balance' || monitor.type === 'web3-rpc'">
                                 <div class="tw-my-3">
                                     <label for="web3-network" class="gizmo-field-label">{{ $t("Web3 Network") }}</label>
                                     <select
@@ -290,7 +294,7 @@
                                     </div>
                                 </div>
 
-                                <div class="tw-my-3">
+                                <div v-if="monitor.type === 'web3-balance'" class="tw-my-3">
                                     <label for="web3-address" class="gizmo-field-label">{{ $t("Address") }}</label>
                                     <input
                                         id="web3-address"
@@ -303,7 +307,7 @@
                                     />
                                 </div>
 
-                                <div class="tw-my-3">
+                                <div v-if="monitor.type === 'web3-balance'" class="tw-my-3">
                                     <label for="web3-contract" class="gizmo-field-label">
                                         {{ $t("Token Contract") }} ({{ $t("optional") }})
                                     </label>
@@ -319,7 +323,7 @@
                                     <div class="gizmo-field-help">{{ $t("web3TokenContractHelp") }}</div>
                                 </div>
 
-                                <div v-if="monitor.web3TokenContract" class="tw-my-3">
+                                <div v-if="monitor.type === 'web3-balance' && monitor.web3TokenContract" class="tw-my-3">
                                     <label for="web3-decimals" class="gizmo-field-label">{{ $t("Decimals") }}</label>
                                     <input
                                         id="web3-decimals"
@@ -334,7 +338,7 @@
                                     <div class="gizmo-field-help">{{ $t("web3DecimalsHelp") }}</div>
                                 </div>
 
-                                <div class="tw-my-3">
+                                <div v-if="monitor.type === 'web3-balance'" class="tw-my-3">
                                     <label for="web3-min-balance" class="gizmo-field-label">
                                         {{ $t("Minimum Balance") }} ({{ $t("optional") }})
                                     </label>
@@ -348,6 +352,22 @@
                                         placeholder="0.05"
                                     />
                                     <div class="gizmo-field-help">{{ $t("web3MinBalanceHelp") }}</div>
+                                </div>
+
+                                <div v-if="monitor.type === 'web3-rpc'" class="tw-my-3">
+                                    <label for="web3-max-block-age" class="gizmo-field-label">
+                                        {{ $t("Maximum Block Age") }} ({{ $t("optional") }})
+                                    </label>
+                                    <input
+                                        id="web3-max-block-age"
+                                        v-model.number="monitor.web3MaxBlockAge"
+                                        type="number"
+                                        class="gizmo-native-control"
+                                        min="1"
+                                        step="1"
+                                        placeholder="120"
+                                    />
+                                    <div class="gizmo-field-help">{{ $t("web3MaxBlockAgeHelp") }}</div>
                                 </div>
                             </template>
 
@@ -3409,6 +3429,9 @@ const monitorDefaults = {
     // Most ERC-20s use 18; read from the contract when one is entered.
     web3TokenDecimals: 18,
     web3MinBalance: "",
+    // No default: block production differs by orders of magnitude between
+    // chains, so any number here would be wrong for most of them.
+    web3MaxBlockAge: null,
 };
 
 export default {

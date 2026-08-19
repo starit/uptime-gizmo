@@ -124,6 +124,7 @@ class UptimeGizmoServer {
         UptimeGizmoServer.monitorTypeList["rabbitmq"] = new RabbitMqMonitorType();
         UptimeGizmoServer.monitorTypeList["sip-options"] = new SIPMonitorType();
         UptimeGizmoServer.monitorTypeList["web3-balance"] = new Web3BalanceMonitorType();
+        UptimeGizmoServer.monitorTypeList["web3-rpc"] = new Web3RpcMonitorType();
         UptimeGizmoServer.monitorTypeList["gamedig"] = new GameDigMonitorType();
         UptimeGizmoServer.monitorTypeList["steam"] = new SteamMonitorType();
         UptimeGizmoServer.monitorTypeList["port"] = new TCPMonitorType();
@@ -580,6 +581,7 @@ const { MongodbMonitorType } = require("./monitor-types/mongodb");
 const { RabbitMqMonitorType } = require("./monitor-types/rabbitmq");
 const { SIPMonitorType } = require("./monitor-types/sip-options");
 const { Web3BalanceMonitorType } = require("./monitor-types/web3-balance");
+const { Web3RpcMonitorType } = require("./monitor-types/web3-rpc");
 const { GameDigMonitorType } = require("./monitor-types/gamedig");
 const { SteamMonitorType } = require("./monitor-types/steam");
 const { TCPMonitorType } = require("./monitor-types/tcp.js");

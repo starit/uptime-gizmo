@@ -1,6 +1,6 @@
 const { describe, it } = require("node:test");
 const assert = require("node:assert");
-const { scaleToInteger, formatUnits, isAddress } = require("../../server/modules/web3-rpc");
+const { scaleToInteger, formatUnits, isAddress, blockAgeSeconds } = require("../../server/modules/web3-rpc");
 
 /*
  * The arithmetic, which is where this feature can be wrong without saying so.
@@ -97,5 +97,39 @@ describe("web3 addresses", () => {
         ]) {
             assert.strictEqual(isAddress(bad), false, `accepted ${JSON.stringify(bad)}`);
         }
+    });
+});
+
+describe("block age", () => {
+    const now = 1_760_000_000;
+
+    it("measures how far behind the newest block is", () => {
+        assert.strictEqual(blockAgeSeconds(BigInt(now), now), 0);
+        assert.strictEqual(blockAgeSeconds(BigInt(now - 12), now), 12);
+        assert.strictEqual(blockAgeSeconds(BigInt(now - 3600), now), 3600);
+    });
+
+    /*
+     * A block timestamp is set by whoever produced the block, not by the machine
+     * reading it, so a block can legitimately be a second or two ahead of local
+     * time — and a server whose own clock runs slow can see it much further
+     * ahead. Reported as a negative age it would sail under any limit; reported
+     * as a large positive one it would alert constantly. Zero is the only honest
+     * answer to "how old is something that has not happened yet".
+     */
+    it("treats a block from the future as new rather than as ancient", () => {
+        assert.strictEqual(blockAgeSeconds(BigInt(now + 2), now), 0);
+        assert.strictEqual(blockAgeSeconds(BigInt(now + 86400), now), 0);
+    });
+
+    it("handles a fractional local clock", () => {
+        assert.strictEqual(blockAgeSeconds(BigInt(now - 5), now + 0.9), 5);
+    });
+
+    it("survives a block height past what a double holds", () => {
+        // Timestamps are small, but the same conversion path carries heights,
+        // and nothing should silently round on the way through.
+        const far = 2n ** 60n;
+        assert.strictEqual(blockAgeSeconds(far, now), 0);
     });
 });

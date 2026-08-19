@@ -980,6 +980,7 @@ let needSetup = false;
                 bean.web3_token_contract = monitor.web3TokenContract || null;
                 bean.web3_token_decimals = monitor.web3TokenDecimals ?? 18;
                 bean.web3_min_balance = monitor.web3MinBalance ?? null;
+                bean.web3_max_block_age = monitor.web3MaxBlockAge || null;
 
                 // ping advanced options
                 bean.ping_numeric = monitor.ping_numeric;

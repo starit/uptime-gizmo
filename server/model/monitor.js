@@ -207,6 +207,7 @@ class Monitor extends BeanModel {
             web3TokenContract: this.web3_token_contract,
             web3TokenDecimals: this.web3_token_decimals,
             web3MinBalance: this.web3_min_balance,
+            web3MaxBlockAge: this.web3_max_block_age,
             ntpTimeOffsetThreshold: this.ntp_time_offset_threshold,
             ntpRootDispersionThreshold: this.ntp_root_dispersion_threshold,
             ipFamily: this.ipFamily,

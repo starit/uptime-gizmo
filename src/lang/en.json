@@ -1655,5 +1655,9 @@
     "web3DecimalsHelp": "Read from the contract. Change it only if you know the contract reports a value at odds with how the token is used.",
     "web3MinBalanceHelp": "The monitor goes down below this. Leave empty to record the balance without alerting on it.",
     "web3NetworkInUse": "{0} monitor(s) referenced this network and will stop working until you point them at another.",
-    "deleteWeb3NetworkMsg": "Are you sure you want to delete this network? Monitors using it will stop working."
+    "deleteWeb3NetworkMsg": "Are you sure you want to delete this network? Monitors using it will stop working.",
+    "monitorTypeWeb3": "Web3",
+    "Web3 RPC Health": "Web3 RPC Health",
+    "Maximum Block Age": "Maximum Block Age",
+    "web3MaxBlockAgeHelp": "Seconds. The monitor goes down when the newest block is older than this, which is how a node that answers but has stopped following the chain is caught. Pick it from the chain's block time — around 12s on Ethereum, 2s on Polygon — and leave room for a slow block. Leave empty to record height and age without alerting on them."
 }
