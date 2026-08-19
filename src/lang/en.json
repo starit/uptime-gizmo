@@ -1660,5 +1660,19 @@
     "Web3 RPC Health": "Web3 RPC Health",
     "Maximum Block Age": "Maximum Block Age",
     "web3MaxBlockAgeHelp": "Seconds. The monitor goes down when the newest block is older than this, which is how a node that answers but has stopped following the chain is caught. Pick it from the chain's block time — around 12s on Ethereum, 2s on Polygon — and leave room for a slow block. Leave empty to record height and age without alerting on them.",
-    "optional": "optional"
+    "optional": "optional",
+    "API Documentation": "API Documentation",
+    "Loading": "Loading",
+    "Copy": "Copy",
+    "required": "required",
+    "apiDocsIntro": "Every endpoint takes an API key as HTTP Basic auth, with any username and the key as the password. Create one under API Keys.",
+    "apiDocsAuthNote": "A missing or invalid key answers 401.",
+    "apiDocsReadOnlyNote": "A key marked read-only is refused with 403 on every endpoint that changes something.",
+    "apiDocsNotFoundNote": "404 means the resource does not exist or belongs to another user; the two are deliberately indistinguishable.",
+    "apiDocsSpecLink": "This page is rendered from {0}, which the server generates from its own definitions.",
+    "apiDocsParameters": "Parameters",
+    "apiDocsRequestBody": "Request body",
+    "apiDocsResponses": "Responses",
+    "apiDocsExample": "Example",
+    "apiDocsLoadFailed": "Could not load the API description: {0}"
 }

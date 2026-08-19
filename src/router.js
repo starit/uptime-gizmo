@@ -134,6 +134,10 @@ const routes = [
                                 component: Security,
                             },
                             {
+                                path: "api-docs",
+                                component: () => import("./components/settings/ApiDocs.vue"),
+                            },
+                            {
                                 path: "api-keys",
                                 component: APIKeys,
                             },
