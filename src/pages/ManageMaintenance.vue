@@ -22,10 +22,10 @@
 
                 <div v-for="(item, index) in sortedMaintenanceList" :key="index" class="item" :class="item.status">
                     <div class="left-part">
-                        <div class="circle"></div>
                         <div class="info">
                             <div class="title">{{ item.title }}</div>
                             <div class="status">
+                                <span class="circle"></span>
                                 {{ $t("maintenanceStatus-" + item.status) }}
                             </div>
 
@@ -73,8 +73,14 @@
                                 {{ $t("Edit") }}
                             </router-link>
 
+                            <!--
+                                A variant rather than a colour laid over the
+                                normal button. btn-normal sets a colour of its own
+                                and lands later in the stylesheet, so the red was
+                                overwritten and delete looked exactly like clone.
+                            -->
                             <button
-                                class="gizmo-native-button btn-normal tw-text-status-down-fg"
+                                class="gizmo-native-button gizmo-native-button--danger-outline"
                                 :aria-label="$t('ariaDeleteMaintenance')"
                                 @click="deleteDialog(item.id)"
                             >
@@ -305,20 +311,28 @@ export default {
         gap: 12px;
         align-items: center;
 
-        .circle {
-            width: 25px;
-            height: 25px;
-            border-radius: var(--radius-pill);
-        }
-
         .info {
             .title {
                 font-weight: var(--weight-bold);
                 font-size: 20px;
             }
 
+            /* The dot sits beside the word it qualifies. At 25px it was taller
+               than the title and a line away from "Scheduled", so the colour
+               said one thing alone and the word repeated it below. */
             .status {
+                display: flex;
+                align-items: center;
+                gap: 0.4rem;
+                color: var(--color-text-muted);
                 font-size: 14px;
+            }
+
+            .circle {
+                flex: none;
+                width: 0.5rem;
+                height: 0.5rem;
+                border-radius: var(--radius-pill);
             }
         }
     }
