@@ -1,5 +1,11 @@
 <template>
-    <div>
+    <!--
+        A form, for the same reason the AI section is one: the Cloudflare tunnel
+        fields hold credentials, and a password input outside a form has the
+        browser complain that it can neither save nor fill it. type="submit"
+        outside a form also did nothing on Enter.
+    -->
+    <form @submit.prevent="saveSettings()">
         <h4 class="tw-mt-4">Cloudflare Tunnel</h4>
 
         <div class="tw-my-3">
@@ -147,11 +153,11 @@
         </div>
 
         <div>
-            <button class="gizmo-native-button gizmo-native-button--primary" type="submit" @click="saveSettings()">
+            <button class="gizmo-native-button gizmo-native-button--primary" type="submit">
                 {{ $t("Save") }}
             </button>
         </div>
-    </div>
+    </form>
 </template>
 
 <script>

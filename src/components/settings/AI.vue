@@ -1,5 +1,11 @@
 <template>
-    <div>
+    <!--
+        A form, because one of these fields holds a credential. A password input
+        outside a form makes the browser warn that it cannot offer to save or fill
+        it, which is a fair complaint — and pressing Enter did nothing, since the
+        only way to save was the button.
+    -->
+    <form @submit.prevent="saveSettings()">
         <p class="gizmo-field-help tw-mb-4">{{ $t("aiSettingsIntro") }}</p>
 
             <!-- LLM Provider -->
@@ -62,11 +68,11 @@
             </template>
 
         <div class="gizmo-action-bar tw-mt-4">
-            <GizmoButton variant="primary" @click="saveSettings()">
+            <GizmoButton variant="primary" type="submit">
                 {{ $t("Save") }}
             </GizmoButton>
         </div>
-    </div>
+    </form>
 </template>
 
 <script>

@@ -86,6 +86,12 @@
                                 </router-link>
                             </GizmoMenuItem>
                             <GizmoMenuItem as-child>
+                                <router-link to="/settings/api-docs">
+                                    <font-awesome-icon icon="book" />
+                                    {{ $t("API Documentation") }}
+                                </router-link>
+                            </GizmoMenuItem>
+                            <GizmoMenuItem as-child>
                                 <a
                                     href="https://github.com/starit/uptime-gizmo/wiki"
                                     target="_blank"

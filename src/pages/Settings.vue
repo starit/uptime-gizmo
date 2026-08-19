@@ -20,6 +20,7 @@
                 <div v-if="showSubMenu" class="settings-menu">
                     <router-link v-for="(item, key) in subMenus" :key="key" :to="`/settings/${key}`">
                         <div class="menu-item">
+                            <font-awesome-icon :icon="item.icon" class="menu-item__icon" fixed-width />
                             {{ item.title }}
                         </div>
                     </router-link>
@@ -87,51 +88,67 @@ export default {
             return {
                 general: {
                     title: this.$t("General"),
+                    icon: "cog",
                 },
                 users: {
                     title: this.$t("Users"),
+                    icon: "users",
                 },
                 appearance: {
                     title: this.$t("Appearance"),
+                    icon: "palette",
                 },
                 ai: {
                     title: this.$t("AI"),
+                    icon: "robot",
                 },
                 web3: {
                     title: this.$t("Web3 Networks"),
+                    icon: "cubes",
                 },
                 notifications: {
                     title: this.$t("Notifications"),
+                    icon: "bullhorn",
                 },
                 "reverse-proxy": {
                     title: this.$t("Reverse Proxy"),
+                    icon: "network-wired",
                 },
                 tags: {
                     title: this.$t("Tags"),
+                    icon: "tags",
                 },
                 "monitor-history": {
                     title: this.$t("Monitor History"),
+                    icon: "heartbeat",
                 },
                 "docker-hosts": {
                     title: this.$t("Docker Hosts"),
+                    icon: "cubes",
                 },
                 "remote-browsers": {
                     title: this.$t("Remote Browsers"),
+                    icon: "desktop",
                 },
                 security: {
                     title: this.$t("Security"),
+                    icon: "lock",
                 },
                 "api-keys": {
                     title: this.$t("API Keys"),
+                    icon: "key",
                 },
                 "api-docs": {
                     title: this.$t("API Documentation"),
+                    icon: "book",
                 },
                 proxies: {
                     title: this.$t("Proxies"),
+                    icon: "network-wired",
                 },
                 about: {
                     title: this.$t("About"),
+                    icon: "info-circle",
                 },
             };
         },
@@ -297,6 +314,9 @@ export default {
     }
 
     .menu-item {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
         color: var(--color-text-muted);
         border-radius: var(--radius-sm);
         margin: 0.5em;
@@ -304,6 +324,17 @@ export default {
         cursor: pointer;
         border-left-width: 0;
         transition: background-color 160ms ease, color 160ms ease, border-color 160ms ease;
+    }
+
+    /* Quieter than the label it accompanies: it is there to make the list
+       scannable, not to be read. */
+    .menu-item__icon {
+        flex: none;
+        color: var(--color-text-subtle);
+    }
+
+    .active .menu-item .menu-item__icon {
+        color: var(--color-interactive);
     }
 
     .menu-item:hover {
