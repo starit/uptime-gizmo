@@ -93,7 +93,7 @@ const READ_TOOLS = [
     {
         name: "get_active_incidents",
         description:
-            "Only the monitors that are down or degraded right now, with how long they have been that way. Use this for \"is anything broken\". Side effects: none.",
+            "Only the monitors that are down or degraded right now. Each carries `since`, the time it entered that state — a timestamp, not a duration. Use this for \"is anything broken\". Side effects: none.",
         inputSchema: { type: "object", properties: {} },
         run: () => api("/api/v1/incidents/active"),
     },

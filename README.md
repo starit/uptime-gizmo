@@ -83,6 +83,12 @@ planned. What each is, and where it stands:
 - Webhooks and structured event streams.
 - Multiple users, with a deliberately minimal admin/non-admin split.
 
+Two Claude Code skills ship with the repository, under
+[.claude/skills](.claude/skills): `uptime-gizmo-status` reads an instance, and
+`uptime-gizmo-sync` creates and updates monitors from a project during
+development. Both talk to `/api/v1` with an API key and need no local checkout of
+this repository.
+
 Design and guardrails: [REST API plan](docs/plans/rest-api.md),
 [MCP and agent-facing API plan](docs/plans/mcp-and-agent-api.md),
 [multi-user plan](docs/plans/multi-user.md).
