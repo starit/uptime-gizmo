@@ -22,7 +22,7 @@ module.exports.apiKeySocketHandler = (socket) => {
             let clearKey = nanoid(40);
             let hashedKey = await passwordHash.generate(clearKey);
             key["key"] = hashedKey;
-            let bean = await APIKey.save(key, socket.userID);
+            let bean = await APIKey.save(key, socket.loginUserID);
 
             log.debug("apikeys", "Added API Key");
             log.debug("apikeys", key);
@@ -71,9 +71,9 @@ module.exports.apiKeySocketHandler = (socket) => {
         try {
             checkLogin(socket);
 
-            log.debug("apikeys", `Deleted API Key: ${keyID} User ID: ${socket.userID}`);
+            log.debug("apikeys", `Deleted API Key: ${keyID} User ID: ${socket.loginUserID}`);
 
-            await R.exec("DELETE FROM api_key WHERE id = ? AND user_id = ? ", [keyID, socket.userID]);
+            await R.exec("DELETE FROM api_key WHERE id = ? AND user_id = ? ", [keyID, socket.loginUserID]);
 
             apicache.clear();
 
@@ -96,7 +96,7 @@ module.exports.apiKeySocketHandler = (socket) => {
         try {
             checkLogin(socket);
 
-            log.debug("apikeys", `Disabled Key: ${keyID} User ID: ${socket.userID}`);
+            log.debug("apikeys", `Disabled Key: ${keyID} User ID: ${socket.loginUserID}`);
 
             await R.exec("UPDATE api_key SET active = 0 WHERE id = ? ", [keyID]);
 
@@ -121,7 +121,7 @@ module.exports.apiKeySocketHandler = (socket) => {
         try {
             checkLogin(socket);
 
-            log.debug("apikeys", `Enabled Key: ${keyID} User ID: ${socket.userID}`);
+            log.debug("apikeys", `Enabled Key: ${keyID} User ID: ${socket.loginUserID}`);
 
             await R.exec("UPDATE api_key SET active = 1 WHERE id = ? ", [keyID]);
 

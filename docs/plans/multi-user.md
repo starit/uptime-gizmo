@@ -1,96 +1,126 @@
-# Multi-user plan
+# Multiple logins
 
 ## Objective
 
-Let more than one person sign in to an Uptime Gizmo instance, with their own
-password, and distinguish administrators from everyone else.
+Let more than one person sign in to an Uptime Gizmo instance with their own
+password, without sharing an account.
 
-**Deliberately minimal.** This is not a permissions system. Teams that need
-per-resource access control, groups, SSO, or audited delegation should use a
-platform built for that; trying to grow one here would cost more than it is
-worth and would complicate every route in the product.
+**This is multi-login, not multi-tenancy.** Everyone who can sign in sees and
+manages the whole estate, exactly as the single account does today. The name
+matters: calling it multi-user invites the assumption that it isolates people
+from each other, and it does not.
 
-## Current state
+## What replaced the earlier plan, and why
 
-`user` exists as a table and `User` as a model, but there is no way to create a
-second account: no `addUser` or `listUsers` socket handler, no user management
-UI, and no role column. Every authenticated session has full authority.
+An earlier version of this plan defined an admin flag that governed resources:
+administrators could manage notification channels, proxies, integrations and
+other people's API keys, and everyone else could not. It opened by saying "this
+is not a permissions system" and then described one.
 
-The API-key table hangs off `user_id` already, so keys are per user in the
-schema even though there is only ever one user.
+That tension was the reason to change it. A resource-level split is not free
+once, it is a tax forever: every feature added afterwards has to answer "can a
+non-admin do this?", and forgetting to ask produces no error. Adding the two Web3
+monitor types introduced four socket events that never had to consider it. Under
+that plan, each would have.
 
-## The whole model
+What the tax buys is worth naming precisely: **not** read-only access for a
+person. That plan could not have delivered "this contractor may look but not
+touch" — it said so itself — so it paid the cost of a permission system and
+still left the case that motivates permission systems unsolved.
 
-Two flags. Nothing else.
+Read-only access already exists twice over, without accounts: a status page shows
+a chosen set of monitors, optionally behind a password, and an API key marked
+`read_only` is refused on every mutating route.
+
+So the admin flag keeps one job, and only one: **who may manage accounts.**
+
+## The model
 
 | Carried by | Flag | Meaning |
 | --- | --- | --- |
-| User | `admin` | May manage users, notifications, integrations, and API keys |
-| API key | `read_only` | The key may issue `GET` requests and nothing else |
+| User | `admin` | May create, disable and delete accounts |
+| API key | `read_only` | The key may read and nothing else |
 
-Effective authority is the intersection. A key never exceeds its owner; a
-read-only key is read-only whoever owns it.
+An account is a way to sign in. It owns nothing except its own password, its own
+two-factor settings, and its own API keys.
 
-That is the complete permission model, and it is the same one
-[the MCP plan](mcp-and-agent-api.md) depends on.
+Monitors, tags, notification channels, proxies, Docker hosts, remote browsers,
+Web3 networks, maintenance windows and status pages belong to **the instance**.
+Every signed-in person sees all of them and may change all of them, which is what
+the single account can do today and therefore introduces no new question about
+any existing feature.
 
-### What an admin can do that a non-admin cannot
+## How the estate stays shared
 
-- Create, disable and delete users
-- Change another user's password
-- Manage notification channels, proxies, Docker hosts and remote browsers
-- Manage API keys belonging to other users
-- Change instance settings, including the AI credentials
+The resource tables carry `user_id`, and roughly ninety places filter on it. The
+change does not touch them.
 
-### What every signed-in user can do
+`socket.userID` is assigned in exactly one place, at login. It becomes the
+**instance owner** — one account, recorded in settings — for every session. Every
+existing query and every existing broadcast then refers to the same estate
+without being edited, which is what keeps this change small enough to review.
 
-- Create and manage monitors, tags, maintenance windows and status pages
-- Manage their own password and their own API keys
-- See everything the instance monitors
+The session's real account is kept beside it as `socket.loginUserID`, and only
+the handful of genuinely personal paths use it:
 
-**Monitors are not partitioned by user.** An instance watches one estate, and
-everyone signed in can see all of it. Hiding monitors between colleagues is the
-kind of requirement that belongs on a different platform.
+- API keys, which are per account
+- Changing one's own password
+- Two-factor settings
+
+Rooms follow the same split. A socket joins the instance owner's room, so every
+broadcast keyed on a resource's owner reaches everyone; it also joins its own
+account's room, so anything addressed to one person still reaches only them.
+
+**The direction of failure matters here.** Sending a personal list to the shared
+room would leak it; sending a shared list to one room would only mean somebody's
+screen stops updating. The personal paths are therefore enumerated explicitly and
+covered by a test that connects two sessions and asserts, per event, who receives
+it.
+
+### Deleting the instance owner
+
+Resources point at that account, so it cannot simply disappear. Deleting it
+reassigns every resource to another administrator first, and is refused when
+there is no other administrator — which is the same rule that stops the last
+administrator being removed.
 
 ## Migration
 
-- Add `admin` to `user`, defaulting to false.
-- The existing account becomes an admin, since it is the only one and has always
-  had full authority.
-- An instance must always keep at least one admin; the last one cannot be
-  demoted or deleted.
+- `user.admin` and `api_key.read_only` already exist.
+- Record the existing account as the instance owner. It already owns everything,
+  so nothing is reassigned.
 
-## UI
+## What an administrator does
 
-A Users section under Settings, visible to admins only:
+Create an account, set its initial password, toggle its administrator flag,
+disable it, delete it, and reset someone else's password. That is the whole list,
+and those are the only events that check the flag.
 
-- List of users with their admin flag and active state
-- Create a user with a username and initial password
-- Toggle admin, disable, delete
-- Reset another user's password
+Everyone, administrator or not, keeps the existing Security page for their own
+password and two-factor settings, and their own API keys.
 
-Every user, admin or not, keeps the existing Security page for their own
-password and two-factor settings.
+## A disabled account's API keys
 
-## What this plan explicitly does not add
+`resolveAPIKey` checks that the key is active and unexpired. It does not check
+that the account behind it still is, so disabling someone today leaves their keys
+working. With one account that is invisible; with several it is a way back in
+after access was withdrawn. Authentication has to consider both.
+
+## What this explicitly does not add
 
 - Per-monitor or per-status-page access control
-- Groups, teams, or roles beyond the admin flag
+- Read-only access to the web interface
+- Groups, teams, or roles beyond the administrator flag
 - SSO, LDAP, OAuth or SCIM
 - An audit log
 - Email invitations or self-registration
 
-Each of these is a reasonable thing to want and none of them is reasonable to
-bolt onto this model. If one becomes necessary, it should be designed as its own
-change with its own justification, not smuggled in as an extension of the admin
-flag.
+Resource-level access control was costed against this codebase: forty-six query
+sites, seventeen public HTTP entry points, and — the part that dominates — a
+broadcast layer that would have to move from a room per account to a room per
+monitor, with sockets re-subscribing whenever permissions change. It is a
+separate project with its own design, not an extension of this one.
 
-## Open questions
-
-- **Whether a non-admin should be able to delete a monitor someone else made.**
-  Consistent with "one estate, everyone sees it" they should; the risk is that
-  it is unrecoverable and unattributed without an audit log.
-- **What happens to a disabled user's API keys.** Disabling the key alongside
-  the account is the safe default, but it should be stated rather than implied.
-- **Whether 2FA should be enforceable by an admin,** or remain each user's own
-  choice.
+The case for it is narrower than it first appears. It is needed only when someone
+must sign in, may change part of the estate, and must be kept away from the rest.
+"Let this person see these services" is a status page.

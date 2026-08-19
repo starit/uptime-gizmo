@@ -4,6 +4,7 @@
 const { TimeLogger } = require("../src/util");
 const { R } = require("redbean-node");
 const { UptimeGizmoServer } = require("./uptime-gizmo-server");
+const { personalRoom } = require("./util-server");
 const server = UptimeGizmoServer.getInstance();
 const io = server.io;
 const { setting } = require("./util-server");
@@ -124,13 +125,14 @@ async function sendAPIKeyList(socket) {
     const timeLogger = new TimeLogger();
 
     let result = [];
-    const list = await R.find("api_key", "user_id=?", [socket.userID]);
+    const list = await R.find("api_key", "user_id=?", [socket.loginUserID]);
 
     for (let bean of list) {
         result.push(bean.toPublicJSON());
     }
 
-    io.to(socket.userID).emit("apiKeyList", result);
+    // To the account's own room, never the estate's: these are credentials.
+    io.to(personalRoom(socket.loginUserID)).emit("apiKeyList", result);
     timeLogger.print("Sent API Key List");
 
     return list;

@@ -17,6 +17,7 @@ import AddStatusPage from "./pages/AddStatusPage.vue";
 import NotFound from "./pages/NotFound.vue";
 import DockerHosts from "./components/settings/Docker.vue";
 import Web3 from "./components/settings/Web3.vue";
+import Users from "./components/settings/Users.vue";
 import ManageMaintenance from "./pages/ManageMaintenance.vue";
 import APIKeys from "./components/settings/APIKeys.vue";
 import SetupDatabase from "./pages/SetupDatabase.vue";
@@ -132,6 +133,10 @@ const routes = [
                             {
                                 path: "security",
                                 component: Security,
+                            },
+                            {
+                                path: "users",
+                                component: Users,
                             },
                             {
                                 path: "api-docs",

@@ -1674,5 +1674,15 @@
     "apiDocsRequestBody": "Request body",
     "apiDocsResponses": "Responses",
     "apiDocsExample": "Example",
-    "apiDocsLoadFailed": "Could not load the API description: {0}"
+    "apiDocsLoadFailed": "Could not load the API description: {0}",
+    "Users": "Users",
+    "Administrator": "Administrator",
+    "usersHelp": "Everyone who can sign in sees and manages the whole instance. An administrator can additionally manage these accounts.",
+    "usersAdd": "Add account",
+    "usersMakeAdmin": "May manage accounts",
+    "usersGrantAdmin": "Make administrator",
+    "usersRevokeAdmin": "Remove administrator",
+    "usersResetPassword": "Set password",
+    "usersResetPasswordPrompt": "New password for {0}",
+    "usersDeleteMsg": "Delete the account {0}? Their API keys are removed with it."
 }

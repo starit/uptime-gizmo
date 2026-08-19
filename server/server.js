@@ -123,7 +123,9 @@ log.debug("server", "Importing Settings");
 const {
     getSettings,
     setSettings,
+    setSetting,
     setting,
+    personalRoom,
     initJWTSecret,
     checkLogin,
     doubleCheckPassword,
@@ -193,6 +195,7 @@ const { statusPageSocketHandler } = require("./socket-handlers/status-page-socke
 const { databaseSocketHandler } = require("./socket-handlers/database-socket-handler");
 const { remoteBrowserSocketHandler } = require("./socket-handlers/remote-browser-socket-handler");
 const { web3SocketHandler } = require("./socket-handlers/web3-socket-handler");
+const { userSocketHandler } = require("./socket-handlers/user-socket-handler");
 const TwoFA = require("./2fa");
 const StatusPage = require("./model/status_page");
 const {
@@ -566,7 +569,7 @@ let needSetup = false;
                 checkLogin(socket);
                 await doubleCheckPassword(socket, currentPassword);
 
-                let user = await R.findOne("user", " id = ? AND active = 1 ", [socket.userID]);
+                let user = await R.findOne("user", " id = ? AND active = 1 ", [socket.loginUserID]);
 
                 if (user.twofa_status === 0) {
                     let newSecret = genSecret();
@@ -579,7 +582,7 @@ let needSetup = false;
 
                     let uri = `otpauth://totp/Uptime%20Kuma:${user.username}?secret=${encodedSecret}`;
 
-                    await R.exec("UPDATE `user` SET twofa_secret = ? WHERE id = ? ", [newSecret, socket.userID]);
+                    await R.exec("UPDATE `user` SET twofa_secret = ? WHERE id = ? ", [newSecret, socket.loginUserID]);
 
                     callback({
                         ok: true,
@@ -611,7 +614,7 @@ let needSetup = false;
                 checkLogin(socket);
                 await doubleCheckPassword(socket, currentPassword);
 
-                await R.exec("UPDATE `user` SET twofa_status = 1 WHERE id = ? ", [socket.userID]);
+                await R.exec("UPDATE `user` SET twofa_status = 1 WHERE id = ? ", [socket.loginUserID]);
 
                 log.info("auth", `Saved 2FA token. IP=${clientIP}`);
 
@@ -640,7 +643,7 @@ let needSetup = false;
 
                 checkLogin(socket);
                 await doubleCheckPassword(socket, currentPassword);
-                await TwoFA.disable2FA(socket.userID);
+                await TwoFA.disable2FA(socket.loginUserID);
 
                 log.info("auth", `Disabled 2FA token. IP=${clientIP}`);
 
@@ -664,7 +667,7 @@ let needSetup = false;
                 checkLogin(socket);
                 await doubleCheckPassword(socket, currentPassword);
 
-                let user = await R.findOne("user", " id = ? AND active = 1 ", [socket.userID]);
+                let user = await R.findOne("user", " id = ? AND active = 1 ", [socket.loginUserID]);
 
                 let verify = notp.totp.verify(token, user.twofa_secret, twoFAVerifyOptions);
 
@@ -693,7 +696,7 @@ let needSetup = false;
             try {
                 checkLogin(socket);
 
-                let user = await R.findOne("user", " id = ? AND active = 1 ", [socket.userID]);
+                let user = await R.findOne("user", " id = ? AND active = 1 ", [socket.loginUserID]);
 
                 if (user.twofa_status === 1) {
                     callback({
@@ -1841,6 +1844,7 @@ let needSetup = false;
         apiKeySocketHandler(socket);
         remoteBrowserSocketHandler(socket);
         web3SocketHandler(socket);
+        userSocketHandler(socket);
         generalSocketHandler(socket, server);
         chartSocketHandler(socket);
 
@@ -1922,6 +1926,26 @@ async function checkOwner(userID, monitorID) {
 }
 
 /**
+ * The account the estate belongs to.
+ *
+ * Recorded once and reused, so an instance that later gains accounts keeps
+ * pointing its resources at the same place. An instance set up before this
+ * existed records the account signing in, which is the one that owns everything.
+ * @param {object} user the account signing in, used only to seed an empty setting
+ * @returns {Promise<number>} the owning account's id
+ */
+async function instanceOwnerId(user) {
+    const recorded = await Settings.get("instanceOwnerId");
+
+    if (recorded) {
+        return Number(recorded);
+    }
+
+    await setSetting("instanceOwnerId", String(user.id), "general");
+    return user.id;
+}
+
+/**
  * Function called after user login
  * This function is used to send the heartbeat list of a monitor.
  * @param {Socket} socket Socket.io instance
@@ -1929,8 +1953,28 @@ async function checkOwner(userID, monitorID) {
  * @returns {Promise<void>}
  */
 async function afterLogin(socket, user) {
-    socket.userID = user.id;
-    socket.join(user.id);
+    /*
+     * Two identities, deliberately.
+     *
+     * socket.userID is the estate: every resource query and every broadcast
+     * already keys on it, and pointing all sessions at the same account is what
+     * makes the whole instance visible to everyone without rewriting ninety
+     * call sites.
+     *
+     * socket.loginUserID is the person. Only their password, their two-factor
+     * settings and their API keys use it — enumerated in docs/plans/multi-user.md
+     * and pinned by test-session-identity.js, because sending a personal list to
+     * the shared room would leak it while the reverse would only stop a screen
+     * updating.
+     */
+    socket.loginUserID = user.id;
+    socket.userID = await instanceOwnerId(user);
+
+    // The estate, shared by every session, and this account's own room. The
+    // second is namespaced: unprefixed, the owner's personal room would be the
+    // estate itself.
+    socket.join(socket.userID);
+    socket.join(personalRoom(socket.loginUserID));
 
     let monitorList = await server.sendMonitorList(socket);
     await Promise.allSettled([

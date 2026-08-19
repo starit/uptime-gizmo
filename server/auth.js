@@ -64,6 +64,20 @@ async function resolveAPIKey(key) {
         return null;
     }
 
+    /*
+     * And the account behind it has to still be allowed in.
+     *
+     * A key was only ever checked for being active and unexpired. With one
+     * account that made no difference; with several, disabling someone would
+     * take away their password and leave their keys working — a way back in
+     * after access was withdrawn.
+     */
+    const owner = await R.findOne("user", " id = ? ", [ hash.user_id ]);
+    if (!owner || !owner.active) {
+        log.warn("api-auth", `API key ${hash.id} belongs to an account that cannot sign in`);
+        return null;
+    }
+
     if (!passwordHash.verify(clear, hash.key)) {
         return null;
     }

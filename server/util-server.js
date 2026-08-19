@@ -648,6 +648,42 @@ exports.checkLogin = (socket) => {
 };
 
 /**
+ * The room only this account is in.
+ *
+ * Namespaced, and that is the whole point. Rooms are keyed by account id, and the
+ * estate is keyed by the id of the account that owns it — so an unprefixed
+ * personal room for the owner is the same room as the estate, and every session
+ * is in it. Alice's API keys reached Bob that way. A prefix cannot collide with a
+ * numeric id, so the two meanings can never be the same room again.
+ * @param {number} loginUserID the signed-in account
+ * @returns {string} room name
+ */
+exports.personalRoom = (loginUserID) => `user:${loginUserID}`;
+
+/**
+ * Throw unless the signed-in account may manage accounts.
+ *
+ * Managing accounts is the only thing the administrator flag governs. Everything
+ * else about the instance — monitors, integrations, status pages — is open to
+ * anyone who can sign in, exactly as it is with a single account. See
+ * docs/plans/multi-user.md for why the flag was not extended to resources.
+ * @param {Socket} socket Socket.io instance
+ * @returns {Promise<void>} resolves when the account may manage accounts
+ * @throws {Error} when it may not, or is not signed in
+ */
+exports.checkAdmin = async (socket) => {
+    exports.checkLogin(socket);
+
+    // Read now rather than trusting anything cached on the socket: an
+    // administrator demoted mid-session should stop being one immediately.
+    const user = await R.findOne("user", " id = ? AND active = 1 ", [ socket.loginUserID ]);
+
+    if (!user?.admin) {
+        throw new Error("You are not allowed to manage accounts.");
+    }
+};
+
+/**
  * For logged-in users, double-check the password
  * @param {Socket} socket Socket.io instance
  * @param {string} currentPassword Password to validate
@@ -660,7 +696,12 @@ exports.doubleCheckPassword = async (socket, currentPassword) => {
         throw new Error("Wrong data type?");
     }
 
-    let user = await R.findOne("user", " id = ? AND active = 1 ", [socket.userID]);
+    /*
+     * The person signed in, not the estate's owner. socket.userID is the account
+     * every session shares so that the whole instance is visible; confirming a
+     * password against it would ask everyone for the owner's password.
+     */
+    let user = await R.findOne("user", " id = ? AND active = 1 ", [socket.loginUserID]);
 
     if (!user || !passwordHash.verify(currentPassword, user.password)) {
         throw new Error("Incorrect current password");
