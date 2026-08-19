@@ -165,7 +165,7 @@ curl -s -u "api:$KEY" -X POST -H 'Content-Type: application/json' \
   -d '{"name":"production","color":"#2f9e68"}' "$URL/api/v1/tags"
 
 curl -s -u "api:$KEY" -X POST -H 'Content-Type: application/json' \
-  -d '{"tagId":4,"value":"eu-west"}' "$URL/api/v1/monitors/137/tags"
+  -d '{"tagID":4,"value":"eu-west"}' "$URL/api/v1/monitors/137/tags"
 ```
 
 Attaching is idempotent on the pair: `201` the first time, `200` and an updated

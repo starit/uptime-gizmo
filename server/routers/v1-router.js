@@ -1080,9 +1080,11 @@ router.post(
             return;
         }
 
-        const tagID = Number(req.body?.tagId);
+        // tagID rather than tagId: whoami answers userID and changes answers
+        // monitorID, so this is the convention the rest of the API already uses.
+        const tagID = Number(req.body?.tagID);
         if (!Number.isInteger(tagID)) {
-            badRequest(res, new Error("tagId is required and must be an integer"));
+            badRequest(res, new Error("tagID is required and must be an integer"));
             return;
         }
 
@@ -1113,7 +1115,7 @@ router.post(
 
         res.status(existing ? 200 : 201).json({
             ok: true,
-            data: { monitorId: monitor.id, tagId: tagID, value },
+            data: { monitorID: monitor.id, tagID, value },
         });
     })
 );
@@ -1144,7 +1146,7 @@ router.delete(
         await R.trash(link);
         await lifecycle.notifyMonitorChanged(req.principal?.userID ?? null, monitor.id);
 
-        res.json({ ok: true, data: { monitorId: monitor.id, tagId: Number(req.params.tagId) } });
+        res.json({ ok: true, data: { monitorID: monitor.id, tagID: Number(req.params.tagId) } });
     })
 );
 
@@ -1350,7 +1352,7 @@ function buildOpenAPI() {
                     summary: "Attach a tag to a monitor",
                     parameters: [ monitorIdParam ],
                     description:
-                        "Body takes tagId and an optional value. Idempotent on the pair: attaching a tag already present updates its value instead of adding a second row.",
+                        "Body takes tagID and an optional value. Idempotent on the pair: attaching a tag already present updates its value instead of adding a second row.",
                     security: authed,
                     responses: {
                         200: { description: "The tag was already attached; its value was updated" },
