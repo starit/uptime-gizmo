@@ -1797,5 +1797,6 @@
     "usersEnableConfirm": "Laisser {0} se reconnecter ? Ses clés d'API restent désactivées jusqu'à ce que vous les réactiviez.",
     "apiDocsSchemas": "Structures",
     "apiDocsFieldCount": "{0} champs",
-    "apiDocsLink": "Voir la documentation de l'API"
+    "apiDocsLink": "Voir la documentation de l'API",
+    "Saving...": "Enregistrement…"
 }

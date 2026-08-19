@@ -4,13 +4,25 @@ Uptime Gizmo is actively evolving toward a more modern, extensible, and
 agent-friendly monitoring platform. The following items describe the current
 areas of planned work and may change as the project develops.
 
+## Done
+
+- The interface is built with Tailwind CSS; Bootstrap is gone.
+- Multiple people can sign in with their own passwords. Everyone manages the
+  whole instance — see [the plan](docs/plans/multi-user.md) for what that does
+  and does not mean.
+- An HTTP API at `/api/v1`, with a reference in the product that renders the
+  generated description.
+- An MCP server, in [mcp-server](mcp-server), and two Claude Code skills under
+  [.claude/skills](.claude/skills).
+- Themes generated with Themed.js, including from a description.
+- Web3 monitoring: address balances, native and ERC-20, and RPC endpoint health.
+
 ## Short-term
 
-- Build the user interface with Tailwind CSS and Themed.js.
-- Add support for multiple users.
-- Provide an HTTP API.
-- Add MCP integration.
-- Support multiple themes.
+- Finish the write side of the HTTP API: maintenance windows, status-page
+  incidents, and the resources whose configuration carries credentials.
+- Notification channels, proxies and integrations over the API, once there is a
+  decided answer for accepting a credential through it.
 
 ## Long-term
 

@@ -1528,5 +1528,6 @@
     "usersEnableConfirm": "¿Dejar que {0} vuelva a iniciar sesión? Sus claves de API siguen desactivadas hasta que las actives de nuevo.",
     "apiDocsSchemas": "Estructuras",
     "apiDocsFieldCount": "{0} campos",
-    "apiDocsLink": "Ver la documentación de la API"
+    "apiDocsLink": "Ver la documentación de la API",
+    "Saving...": "Guardando…"
 }

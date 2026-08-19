@@ -1758,5 +1758,6 @@
     "usersEnableConfirm": "Deixar {0} entrar de novo? As chaves de API seguem desativadas até você reativá-las.",
     "apiDocsSchemas": "Estruturas",
     "apiDocsFieldCount": "{0} campos",
-    "apiDocsLink": "Ver a documentação da API"
+    "apiDocsLink": "Ver a documentação da API",
+    "Saving...": "Salvando…"
 }

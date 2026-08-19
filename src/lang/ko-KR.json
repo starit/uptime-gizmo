@@ -1049,5 +1049,6 @@
     "usersEnableConfirm": "{0}이(가) 다시 로그인하도록 할까요? API 키는 직접 다시 켜기 전까지 비활성 상태입니다.",
     "apiDocsSchemas": "데이터 구조",
     "apiDocsFieldCount": "필드 {0}개",
-    "apiDocsLink": "API 문서 보기"
+    "apiDocsLink": "API 문서 보기",
+    "Saving...": "저장 중…"
 }

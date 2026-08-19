@@ -1697,5 +1697,6 @@
     "usersEnableConfirm": "Let {0} sign in again? Their API keys stay disabled until you turn them back on.",
     "apiDocsSchemas": "Shapes",
     "apiDocsFieldCount": "{0} fields",
-    "apiDocsLink": "See the API documentation"
+    "apiDocsLink": "See the API documentation",
+    "Saving...": "Saving..."
 }

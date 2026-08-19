@@ -1670,5 +1670,6 @@
     "usersEnableConfirm": "{0} wieder anmelden lassen? Die API-Schlüssel bleiben deaktiviert, bis du sie wieder einschaltest.",
     "apiDocsSchemas": "Datenstrukturen",
     "apiDocsFieldCount": "{0} Felder",
-    "apiDocsLink": "API-Dokumentation ansehen"
+    "apiDocsLink": "API-Dokumentation ansehen",
+    "Saving...": "Wird gespeichert …"
 }

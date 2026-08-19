@@ -1331,5 +1331,6 @@
     "usersEnableConfirm": "讓 {0} 重新登入？在你手動啟用之前，其 API 金鑰仍處於停用狀態。",
     "apiDocsSchemas": "資料形狀",
     "apiDocsFieldCount": "{0} 個欄位",
-    "apiDocsLink": "檢視 API 文件"
+    "apiDocsLink": "檢視 API 文件",
+    "Saving...": "儲存中…"
 }

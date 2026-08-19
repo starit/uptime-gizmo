@@ -38,6 +38,21 @@ Uptime Gizmo builds on a broad monitoring foundation while working toward richer
 
 Planned improvements include more monitoring types, stronger HTTP/API validation, latency tracking, SSL/TLS and domain checks, infrastructure monitoring, flexible alert conditions, dependency context, and better history and analytics.
 
+### On-chain monitoring
+
+Two monitor types for teams running anything on a chain, configured against RPC
+endpoints that are set up once and shared:
+
+- **Balances**, native or ERC-20, against a floor you set. A relayer, paymaster or
+  deployer running dry is slow, predictable and usually noticed only when
+  transactions stop landing.
+- **RPC health**, measured as the age of the newest block. A node that has fallen
+  out of consensus keeps answering every call and keeps returning a block number —
+  it just stops going up, which no ordinary HTTP check can see.
+
+Amounts are compared as integers throughout, because a chain counts in units of
+10^-18 and a rounded comparison reports a drained account as funded.
+
 ### Built for AI agents
 
 AI integration should not depend on browser automation. Uptime Gizmo is being designed so agents can work with monitoring as a first-class system:

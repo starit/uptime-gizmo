@@ -1814,5 +1814,6 @@
     "usersEnableConfirm": "让 {0} 重新登录？在你手动启用之前，其 API 密钥仍处于停用状态。",
     "apiDocsSchemas": "数据形状",
     "apiDocsFieldCount": "{0} 个字段",
-    "apiDocsLink": "查看 API 文档"
+    "apiDocsLink": "查看 API 文档",
+    "Saving...": "保存中…"
 }
