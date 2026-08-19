@@ -282,7 +282,10 @@ POST   /api/v1/monitors/:monitorId/tags
 DELETE /api/v1/monitors/:monitorId/tags/:tagId
 ```
 
-Tag attachment and removal must validate both the monitor and tag ownership.
+Tag attachment validates the monitor's ownership. It cannot validate the tag's:
+the `tag` table has no `user_id` column, so tags are instance-wide here in the
+same way status pages are. Requiring the tag to exist is the whole of what can
+be checked. See [Decisions taken during implementation](#decisions-taken-during-implementation).
 
 ### Maintenance windows
 
@@ -429,6 +432,78 @@ Log at minimum:
 - Validation, authorization, and unexpected failure categories.
 
 Do not log request bodies for endpoints that can contain passwords, tokens, notification credentials, monitor authentication, private status-page content, or uploaded data.
+
+## Implementation status
+
+Counted against the inventory above, as of the second write batch.
+
+| Resource | Done | Not yet |
+| --- | --- | --- |
+| Monitors | list, get, create, update, delete, pause, resume | heartbeats, statistics, events, clearing events, clearing heartbeats |
+| Tags | list, create, update, delete, attach, detach | — |
+| Maintenance | list | get, create, update, delete, pause, resume, monitor and status-page links |
+| Status pages | list | get, create, update, delete, all incident routes |
+| Notifications | list | create, update, delete, test |
+| API keys | — | all five |
+| Proxies, Docker hosts, remote browsers | list | create, update, delete, test |
+
+Four routes exist that this plan did not ask for, added for the agent-facing
+work in [the MCP plan](mcp-and-agent-api.md): `overview`, `incidents/active`,
+`changes` and `whoami`.
+
+## Decisions taken during implementation
+
+Recorded here because each one departs from, or resolves something left open by,
+the sections above.
+
+**Secrets are not always a whole column.** The field tables mark columns, which
+covers `monitor.basic_auth_pass` or `proxy.password`. It cannot express
+`notification.config`, a single JSON blob that for most of the hundred-odd
+providers *is* the credential, or `docker_host.docker_daemon`, which may be a
+socket path or may embed a user and password, or `remote_browser.url`, which
+commonly carries a token. Those four resources expose only the fields that are
+safe whatever the value holds. The excluded columns are declared and marked
+secret rather than omitted, so adding one back is a visible edit. A proxy's
+username is returned; only the password is withheld.
+
+**Deleting a group asks what to do with its children.** `?children=unlink` is
+the default, matching the socket path, and leaves them parentless. `delete`
+removes the subtree. Deleting a group without saying which should not silently
+destroy monitors the caller was not thinking about. The response lists every id
+removed.
+
+**`parent` is writable, with checks the field table cannot express.** A group
+has to exist and belong to the caller — otherwise a key could file its monitors
+under someone else's group — and cannot be the monitor itself or one of its
+descendants, which would make a cycle that hangs the first tree walk to run.
+
+**Pause and resume are idempotent.** Pausing an already paused monitor returns
+its state without stopping it again, so a retry after a dropped response cannot
+do anything the first call did not.
+
+**Attaching a tag is idempotent on the pair.** A second attach with a different
+value updates it rather than adding a second row, because a monitor carrying the
+same tag twice is not a state the UI can represent.
+
+**Deleting a tag detaches it everywhere.** `monitor_tag` cascades on the foreign
+key. This matches the socket path and the UI rather than inventing a safer
+behaviour the rest of the product does not have.
+
+**Mutations notify open browsers.** Each write emits the same monitor-list
+update the socket handlers do, so a dashboard open in another window reflects an
+API change immediately rather than at the next refresh.
+
+**Writes re-read the stored row.** Column defaults are applied by the database
+on insert, so a response projected from the in-memory bean reported nulls the
+row did not contain.
+
+**Unknown paths under the prefix answer 404 in JSON.** They previously fell
+through to the single-page-app catch-all and returned 200 with a page of HTML,
+which a program cannot distinguish from success.
+
+**The OpenAPI document is generated from the field tables**, so it cannot
+describe a field the code lacks or miss one it has. A test compares its paths
+against the registered routes in both directions.
 
 ## Implementation phases
 

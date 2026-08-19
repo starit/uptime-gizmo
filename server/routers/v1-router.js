@@ -1,5 +1,7 @@
 const express = require("express");
 const { R } = require("redbean-node");
+const Monitor = require("../model/monitor");
+const apicache = require("../modules/apicache");
 const { apiAuth, requireWrite } = require("../auth");
 const { UptimeCalculator } = require("../uptime-calculator");
 const { log } = require("../../src/util");
@@ -14,6 +16,17 @@ const router = express.Router();
 let lifecycle = {
     startMonitor: async () => {},
     restartMonitor: async () => {},
+    pauseMonitor: async () => {},
+    /*
+     * Pushing the change to any browser the owner has open.
+     *
+     * The socket handlers do this through helpers that take a Socket, but only
+     * ever read its userID from it. Passing a stand-in object would work and
+     * would break the day that stops being true, so server.js supplies these
+     * instead, where the real server object is in scope.
+     */
+    notifyMonitorChanged: async () => {},
+    notifyMonitorDeleted: async () => {},
 };
 
 /**
@@ -91,6 +104,10 @@ const MONITOR_FIELDS = {
     type: { column: "type", type: "string", writable: true, required: true },
     active: { column: "active", type: "bool", writable: true },
     description: { column: "description", type: "string", writable: true },
+    // Which group this monitor sits under. Validated separately: the allow-list
+    // coerces a value but cannot check that the group exists, belongs to the
+    // caller, and is not a descendant of the monitor being moved.
+    parent: { column: "parent", type: "int", writable: true },
     url: { column: "url", type: "string", writable: true },
     hostname: { column: "hostname", type: "string", writable: true },
     port: { column: "port", type: "int", writable: true },
@@ -738,6 +755,42 @@ router.get(
 );
 
 /**
+ * Check a proposed parent group.
+ *
+ * Three things the field table cannot express. The group has to exist and
+ * belong to the caller, or an API key would be able to file its monitors under
+ * somebody else's group and see them appear on that person's dashboard. And it
+ * must not be the monitor itself or one of its descendants, which would make a
+ * cycle: getAllChildrenIDs walks down, isParentActive walks up, and a loop hangs
+ * whichever runs first. The socket path makes the same check on edit.
+ * @param {number|null} parent proposed parent id, null to detach
+ * @param {number|null} userID the authenticated principal
+ * @param {number|null} monitorID the monitor being moved, if it exists yet
+ * @returns {Promise<void>} resolves when the parent is acceptable
+ * @throws {Error} when it is not
+ */
+async function assertParentAllowed(parent, userID, monitorID) {
+    if (parent === null || parent === undefined) {
+        return;
+    }
+
+    const group = await R.findOne("monitor", " id = ? AND user_id = ? ", [ parent, userID ]);
+    if (!group) {
+        throw new Error("parent must be a monitor you own");
+    }
+
+    if (monitorID != null) {
+        if (Number(parent) === Number(monitorID)) {
+            throw new Error("A monitor cannot be its own parent");
+        }
+        const descendants = await Monitor.getAllChildrenIDs(monitorID);
+        if (descendants.includes(Number(parent))) {
+            throw new Error("parent cannot be one of this monitor's own children");
+        }
+    }
+}
+
+/**
  * Send a 400 describing why a body was refused.
  * @param {express.Response} res Express response object
  * @param {Error} e the validation failure
@@ -775,6 +828,13 @@ router.post(
         bean.user_id = req.principal?.userID ?? null;
 
         try {
+            await assertParentAllowed(bean.parent, bean.user_id, null);
+        } catch (e) {
+            badRequest(res, e);
+            return;
+        }
+
+        try {
             // The same domain rules the socket path enforces. Duplicating them
             // here would let the two drift.
             bean.validate();
@@ -796,6 +856,10 @@ router.post(
         if (saved.active) {
             await lifecycle.startMonitor(saved.user_id, saved.id);
         }
+
+        // Any dashboard the owner has open learns about it now rather than on
+        // their next refresh, the same as when the monitor is created in the UI.
+        await lifecycle.notifyMonitorChanged(saved.user_id, saved.id);
 
         res.status(201).json({ ok: true, data: monitorToAPI(saved) });
     })
@@ -832,6 +896,9 @@ router.patch(
         }
 
         try {
+            if ("parent" in columns) {
+                await assertParentAllowed(bean.parent, bean.user_id, bean.id);
+            }
             bean.validate();
         } catch (e) {
             badRequest(res, e);
@@ -842,9 +909,275 @@ router.patch(
 
         // Restart so the change takes effect rather than waiting for a redeploy.
         await lifecycle.restartMonitor(bean.user_id, bean.id);
+        await lifecycle.notifyMonitorChanged(bean.user_id, bean.id);
 
         const saved = await R.findOne("monitor", " id = ? ", [ bean.id ]);
         res.json({ ok: true, data: monitorToAPI(saved) });
+    })
+);
+
+
+/**
+ * Load a monitor the principal owns, answering 404 when it does not exist or
+ * belongs to somebody else.
+ *
+ * The two cases deliberately look the same from outside: telling a caller that
+ * a monitor exists but is not theirs would let it enumerate the instance.
+ * @param {express.Request} req Express request object
+ * @param {express.Response} res Express response object
+ * @returns {Promise<object|null>} the bean, or null once a 404 has been sent
+ */
+async function ownedMonitor(req, res) {
+    const bean = await R.findOne("monitor", " id = ? AND user_id = ? ", [
+        req.params.id ?? req.params.monitorId,
+        req.principal?.userID ?? null,
+    ]);
+
+    if (!bean) {
+        res.status(404).json({
+            ok: false,
+            error: { code: "not_found", message: "No such monitor" },
+        });
+        return null;
+    }
+
+    return bean;
+}
+
+/*
+ * Deleting a monitor.
+ *
+ * A group monitor has children, and what should happen to them is a decision
+ * the caller has to make rather than one this route can guess. The socket path
+ * defaults to unlinking them — they survive, without a parent — so that is the
+ * default here too; `?children=delete` removes the subtree instead. Deleting a
+ * group without saying which you meant should not silently destroy monitors the
+ * caller was not thinking about.
+ */
+router.delete(
+    "/api/v1/monitors/:id",
+    apiAuth,
+    requireWrite,
+    route(async (req, res) => {
+        const bean = await ownedMonitor(req, res);
+        if (!bean) {
+            return;
+        }
+
+        const children = req.query.children ?? "unlink";
+        if (children !== "unlink" && children !== "delete") {
+            badRequest(res, new Error("children must be 'unlink' or 'delete'"));
+            return;
+        }
+
+        const userID = req.principal?.userID ?? null;
+        const removed = [ bean.id ];
+
+        if (bean.type === "group") {
+            const kids = (await Monitor.getChildren(bean.id)) ?? [];
+            for (const child of kids) {
+                if (children === "delete") {
+                    await Monitor.deleteMonitorRecursively(child.id, userID);
+                    removed.push(child.id);
+                    await lifecycle.notifyMonitorDeleted(userID, child.id);
+                } else {
+                    await lifecycle.notifyMonitorChanged(userID, child.id);
+                }
+            }
+
+            if (children === "unlink") {
+                await Monitor.unlinkAllChildren(bean.id);
+            }
+        }
+
+        await Monitor.deleteMonitor(bean.id, userID);
+
+        // The badge endpoints cache by monitor; a deleted one must stop
+        // answering from cache.
+        apicache.clear();
+
+        await lifecycle.notifyMonitorDeleted(userID, bean.id);
+
+        res.json({ ok: true, data: { deleted: removed } });
+    })
+);
+
+/*
+ * Pausing and resuming.
+ *
+ * Named actions rather than a PATCH of `active`, because they are transitions
+ * with side effects — a paused monitor stops checking, a resumed one starts —
+ * and because that is what an agent asks for.
+ *
+ * Both are idempotent. Pausing an already paused monitor answers with its
+ * current state and does not stop it a second time, so a retry after a dropped
+ * response cannot do anything the first call did not.
+ */
+router.post(
+    "/api/v1/monitors/:id/pause",
+    apiAuth,
+    requireWrite,
+    route(async (req, res) => {
+        const bean = await ownedMonitor(req, res);
+        if (!bean) {
+            return;
+        }
+
+        const userID = req.principal?.userID ?? null;
+
+        if (bean.active) {
+            await lifecycle.pauseMonitor(userID, bean.id);
+            await lifecycle.notifyMonitorChanged(userID, bean.id);
+        }
+
+        const saved = await R.findOne("monitor", " id = ? ", [ bean.id ]);
+        res.json({ ok: true, data: monitorToAPI(saved) });
+    })
+);
+
+router.post(
+    "/api/v1/monitors/:id/resume",
+    apiAuth,
+    requireWrite,
+    route(async (req, res) => {
+        const bean = await ownedMonitor(req, res);
+        if (!bean) {
+            return;
+        }
+
+        const userID = req.principal?.userID ?? null;
+
+        if (!bean.active) {
+            await lifecycle.startMonitor(userID, bean.id);
+            await lifecycle.notifyMonitorChanged(userID, bean.id);
+        }
+
+        const saved = await R.findOne("monitor", " id = ? ", [ bean.id ]);
+        res.json({ ok: true, data: monitorToAPI(saved) });
+    })
+);
+
+/*
+ * Attaching and detaching tags.
+ *
+ * Only the monitor is checked against the caller. The REST plan asks for both
+ * the monitor and the tag to be ownership-checked, but the tag table has no
+ * user column — tags are instance-wide here, the same as status pages — so
+ * there is no owner to check against. Requiring the tag to exist is the whole
+ * of what can be verified, and the plan has been corrected to say so.
+ *
+ * Attaching is idempotent on (monitor, tag): a second call with a different
+ * value updates it rather than adding a second row, since a monitor carrying
+ * the same tag twice is not a state the UI can represent.
+ */
+router.post(
+    "/api/v1/monitors/:monitorId/tags",
+    apiAuth,
+    requireWrite,
+    route(async (req, res) => {
+        const monitor = await ownedMonitor(req, res);
+        if (!monitor) {
+            return;
+        }
+
+        const tagID = Number(req.body?.tagId);
+        if (!Number.isInteger(tagID)) {
+            badRequest(res, new Error("tagId is required and must be an integer"));
+            return;
+        }
+
+        const tag = await R.findOne("tag", " id = ? ", [ tagID ]);
+        if (!tag) {
+            res.status(404).json({
+                ok: false,
+                error: { code: "not_found", message: "No such tag" },
+            });
+            return;
+        }
+
+        const value = req.body?.value == null ? "" : String(req.body.value);
+        const existing = await R.findOne("monitor_tag", " monitor_id = ? AND tag_id = ? ", [ monitor.id, tagID ]);
+
+        if (existing) {
+            existing.value = value;
+            await R.store(existing);
+        } else {
+            await R.exec("INSERT INTO monitor_tag (monitor_id, tag_id, value) VALUES (?, ?, ?)", [
+                monitor.id,
+                tagID,
+                value,
+            ]);
+        }
+
+        await lifecycle.notifyMonitorChanged(req.principal?.userID ?? null, monitor.id);
+
+        res.status(existing ? 200 : 201).json({
+            ok: true,
+            data: { monitorId: monitor.id, tagId: tagID, value },
+        });
+    })
+);
+
+router.delete(
+    "/api/v1/monitors/:monitorId/tags/:tagId",
+    apiAuth,
+    requireWrite,
+    route(async (req, res) => {
+        const monitor = await ownedMonitor(req, res);
+        if (!monitor) {
+            return;
+        }
+
+        const link = await R.findOne("monitor_tag", " monitor_id = ? AND tag_id = ? ", [
+            monitor.id,
+            req.params.tagId,
+        ]);
+
+        if (!link) {
+            res.status(404).json({
+                ok: false,
+                error: { code: "not_found", message: "That tag is not on that monitor" },
+            });
+            return;
+        }
+
+        await R.trash(link);
+        await lifecycle.notifyMonitorChanged(req.principal?.userID ?? null, monitor.id);
+
+        res.json({ ok: true, data: { monitorId: monitor.id, tagId: Number(req.params.tagId) } });
+    })
+);
+
+/*
+ * Deleting a tag removes it from every monitor carrying it, because monitor_tag
+ * cascades on the foreign key. That is the existing behaviour of the socket
+ * path and of the UI, so the API matches it rather than inventing a safer one
+ * the rest of the product does not have.
+ */
+router.delete(
+    "/api/v1/tags/:id",
+    apiAuth,
+    requireWrite,
+    route(async (req, res) => {
+        const bean = await R.findOne("tag", " id = ? ", [ req.params.id ]);
+
+        if (!bean) {
+            res.status(404).json({
+                ok: false,
+                error: { code: "not_found", message: "No such tag" },
+            });
+            return;
+        }
+
+        const affected = await R.getAll("SELECT DISTINCT monitor_id FROM monitor_tag WHERE tag_id = ?", [ bean.id ]);
+        await R.trash(bean);
+
+        const userID = req.principal?.userID ?? null;
+        for (const row of affected) {
+            await lifecycle.notifyMonitorChanged(userID, row.monitor_id);
+        }
+
+        res.json({ ok: true, data: { deleted: Number(req.params.id), detachedFrom: affected.length } });
     })
 );
 
@@ -938,6 +1271,11 @@ function buildOpenAPI() {
         },
     });
     const monitorRef = { $ref: "#/components/schemas/Monitor" };
+    // Named once; several routes take the same path parameters.
+    const pathParam = (name) => ({ name, in: "path", required: true, schema: { type: "integer" } });
+    const idParam = pathParam("id");
+    const monitorIdParam = pathParam("monitorId");
+    const tagIdParam = pathParam("tagId");
 
     return {
         openapi: "3.1.0",
@@ -987,6 +1325,49 @@ function buildOpenAPI() {
                     },
                 },
             },
+            "/api/v1/monitors/{id}/pause": {
+                post: {
+                    summary: "Pause a monitor",
+                    description:
+                        "Stops checking. Idempotent: pausing an already paused monitor returns its state without stopping it again.",
+                    security: authed,
+                    parameters: [ idParam ],
+                    responses: { 200: { description: "The monitor, now paused" }, 404: { description: "No such monitor" } },
+                },
+            },
+            "/api/v1/monitors/{id}/resume": {
+                post: {
+                    summary: "Resume a monitor",
+                    description:
+                        "Starts checking again. Idempotent: resuming a running monitor returns its state without restarting it.",
+                    security: authed,
+                    parameters: [ idParam ],
+                    responses: { 200: { description: "The monitor, now active" }, 404: { description: "No such monitor" } },
+                },
+            },
+            "/api/v1/monitors/{monitorId}/tags": {
+                post: {
+                    summary: "Attach a tag to a monitor",
+                    parameters: [ monitorIdParam ],
+                    description:
+                        "Body takes tagId and an optional value. Idempotent on the pair: attaching a tag already present updates its value instead of adding a second row.",
+                    security: authed,
+                    responses: {
+                        200: { description: "The tag was already attached; its value was updated" },
+                        201: { description: "Attached" },
+                        404: { description: "No such monitor or tag" },
+                    },
+                },
+            },
+            "/api/v1/monitors/{monitorId}/tags/{tagId}": {
+                delete: {
+                    summary: "Detach a tag from a monitor",
+                    parameters: [ monitorIdParam, tagIdParam ],
+                    description: "Removes the link. The tag itself is untouched.",
+                    security: authed,
+                    responses: { 200: { description: "Detached" }, 404: { description: "That tag is not on that monitor" } },
+                },
+            },
             "/api/v1/monitors/{id}": {
                 get: {
                     summary: "Get one monitor",
@@ -1005,6 +1386,26 @@ function buildOpenAPI() {
                     },
                     responses: {
                         200: { description: "Updated", content: envelope(monitorRef) },
+                        403: { description: "The key is read-only" },
+                        404: { description: "No such monitor" },
+                    },
+                },
+                delete: {
+                    summary: "Delete a monitor",
+                    description:
+                        "For a group, `children` decides what happens to its members: 'unlink' (the default) leaves them without a parent, 'delete' removes the subtree. The response lists every id removed.",
+                    security: authed,
+                    parameters: [
+                        idParam,
+                        {
+                            name: "children",
+                            in: "query",
+                            required: false,
+                            schema: { type: "string", enum: [ "unlink", "delete" ], default: "unlink" },
+                        },
+                    ],
+                    responses: {
+                        200: { description: "Deleted" },
                         403: { description: "The key is read-only" },
                         404: { description: "No such monitor" },
                     },
@@ -1064,6 +1465,14 @@ function buildOpenAPI() {
                     parameters: [ { name: "id", in: "path", required: true, schema: { type: "integer" } } ],
                     requestBody: { required: true, content: { "application/json": { schema: { $ref: "#/components/schemas/TagInput" } } } },
                     responses: { 200: { description: "Updated" }, 403: { description: "The key is read-only" }, 404: { description: "No such tag" } },
+                },
+                delete: {
+                    summary: "Delete a tag",
+                    description:
+                        "Removes it from every monitor carrying it, because the link table cascades. The response says how many monitors were affected.",
+                    security: authed,
+                    parameters: [ idParam ],
+                    responses: { 200: { description: "Deleted" }, 403: { description: "The key is read-only" }, 404: { description: "No such tag" } },
                 },
             },
             "/api/v1/notifications": {

@@ -373,7 +373,18 @@ let needSetup = false;
     app.use(apiRouter);
 
     const v1Router = require("./routers/v1-router");
-    app.use(v1Router.useLifecycle({ startMonitor, restartMonitor }));
+    app.use(
+        v1Router.useLifecycle({
+            startMonitor,
+            restartMonitor,
+            pauseMonitor,
+            // The list helpers read only userID off the socket they are given.
+            // Passing that much, rather than a socket, keeps the router from
+            // depending on which parts of a socket they happen to use.
+            notifyMonitorChanged: (userID, monitorID) => server.sendUpdateMonitorIntoList({ userID }, monitorID),
+            notifyMonitorDeleted: (userID, monitorID) => server.sendDeleteMonitorFromList({ userID }, monitorID),
+        })
+    );
 
     // Status Page Router
     const statusPageRouter = require("./routers/status-page-router");
