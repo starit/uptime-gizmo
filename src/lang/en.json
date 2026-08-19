@@ -1659,5 +1659,6 @@
     "monitorTypeWeb3": "Web3",
     "Web3 RPC Health": "Web3 RPC Health",
     "Maximum Block Age": "Maximum Block Age",
-    "web3MaxBlockAgeHelp": "Seconds. The monitor goes down when the newest block is older than this, which is how a node that answers but has stopped following the chain is caught. Pick it from the chain's block time — around 12s on Ethereum, 2s on Polygon — and leave room for a slow block. Leave empty to record height and age without alerting on them."
+    "web3MaxBlockAgeHelp": "Seconds. The monitor goes down when the newest block is older than this, which is how a node that answers but has stopped following the chain is caught. Pick it from the chain's block time — around 12s on Ethereum, 2s on Polygon — and leave room for a slow block. Leave empty to record height and age without alerting on them.",
+    "optional": "optional"
 }

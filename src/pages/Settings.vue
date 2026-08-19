@@ -94,6 +94,9 @@ export default {
                 ai: {
                     title: this.$t("AI"),
                 },
+                web3: {
+                    title: this.$t("Web3 Networks"),
+                },
                 notifications: {
                     title: this.$t("Notifications"),
                 },
@@ -111,9 +114,6 @@ export default {
                 },
                 "remote-browsers": {
                     title: this.$t("Remote Browsers"),
-                },
-                web3: {
-                    title: this.$t("Web3 Networks"),
                 },
                 security: {
                     title: this.$t("Security"),
