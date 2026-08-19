@@ -17,7 +17,7 @@
                 class="incident-item"
                 :class="{ resolved: !incident.active }"
             >
-                <div class="incident-style-indicator" :class="`bg-${incident.style}`"></div>
+                <div class="incident-style-indicator" :class="indicatorClass(incident.style)"></div>
                 <div class="incident-body">
                     <div class="incident-header tw-flex tw-justify-between tw-items-start">
                         <h5 class="incident-title tw-mb-0">{{ incident.title }}</h5>
@@ -88,6 +88,27 @@ export default {
     emits: ["edit-incident", "delete-incident", "resolve-incident"],
     methods: {
         /**
+         * The colour strip for an incident's style.
+         *
+         * These used to be bg-warning and friends — Bootstrap utilities, removed
+         * with Bootstrap, so the strip has been colourless ever since. Written
+         * out rather than built from the value, for the same reason the banner
+         * is: a class the build cannot see is a class the build removes.
+         * @param {string} style the style stored on the incident
+         * @returns {string} a class defined in this component
+         */
+        indicatorClass(style) {
+            return {
+                info: "incident-style-indicator--info",
+                warning: "incident-style-indicator--warning",
+                danger: "incident-style-indicator--danger",
+                primary: "incident-style-indicator--info",
+                light: "incident-style-indicator--light",
+                dark: "incident-style-indicator--dark",
+            }[style] ?? "incident-style-indicator--info";
+        },
+
+        /**
          * Get sanitized HTML for incident content
          * @param {string} content - Markdown content
          * @returns {string} Sanitized HTML
@@ -130,11 +151,18 @@ export default {
             }
 
             .incident-style-indicator {
+                background: var(--color-border-strong);
                 width: 6px;
                 min-height: 100%;
                 border-radius: var(--radius-pill);
                 flex-shrink: 0;
                 margin-right: 0.75rem;
+
+                &--info { background: var(--color-interactive); }
+                &--warning { background: var(--status-degraded); }
+                &--danger { background: var(--status-down); }
+                &--light { background: var(--color-border-strong); }
+                &--dark { background: var(--color-text); }
             }
 
             .incident-body {

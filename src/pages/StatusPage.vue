@@ -328,7 +328,7 @@
                     v-else
                     class="status-notice tw-mb-4 incident"
                     role="alert"
-                    :class="'status-notice--' + activeIncident.style"
+                    :class="incidentClass(activeIncident.style)"
                     data-testid="incident"
                 >
                     <h4 class="status-notice__title" data-testid="incident-title">{{ activeIncident.title }}</h4>
@@ -1035,6 +1035,29 @@ export default {
         }
     },
     methods: {
+        /**
+         * The banner class for an incident's chosen style.
+         *
+         * Written out rather than built from the value. The class used to be
+         * concatenated, so the build never saw the literal name and dropped the
+         * rule for every style except maintenance — which survived only because
+         * a different element happens to spell it out. Incident banners reached
+         * the public status page with no colour at all, and only in a production
+         * build, where the unused-class sweep runs.
+         * @param {string} style the style stored on the incident
+         * @returns {string} a class the build can see
+         */
+        incidentClass(style) {
+            return {
+                info: "status-notice--info",
+                warning: "status-notice--warning",
+                danger: "status-notice--danger",
+                primary: "status-notice--primary",
+                light: "status-notice--light",
+                dark: "status-notice--dark",
+            }[style] ?? "status-notice--info";
+        },
+
         /**
          * Get status page data
          * It should be preloaded in window.preloadData
