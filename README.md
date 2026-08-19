@@ -163,6 +163,20 @@ To run only the backend:
 pnpm start
 ```
 
+### Backing up
+
+There is no backup feature in the interface: backing Uptime Gizmo up means
+copying its data directory. One way of doing that loses recent data without
+reporting anything, so read [Backing up and restoring](docs/backup-and-restore.md)
+before relying on a copy.
+
+The short version, safe while the instance is running:
+
+```bash
+sqlite3 data/kuma.db "VACUUM INTO '/path/to/backup-$(date +%F).db'"
+tar czf uploads-$(date +%F).tar.gz -C data upload screenshots docker-tls
+```
+
 Uptime Gizmo is under active development. Docker images, migration guidance, and upgrade documentation will be added as release practices are established.
 
 ## Contributing
