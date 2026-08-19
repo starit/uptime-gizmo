@@ -40,6 +40,76 @@ optgroup {
     }
 }
 
+/*
+ * Pagination.
+ *
+ * v-pagination-3 emits Bootstrap's markup — .pagination, .page-item, .page-link
+ * — and took all of its appearance from Bootstrap's stylesheet. Removing
+ * Bootstrap left the component with nothing: Preflight strips the list, so the
+ * pages rendered as a bare column of numbers. Keyed on the component's own
+ * classes rather than on a wrapper, so it holds wherever the component is used.
+ */
+.VuePagination__pagination {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.25rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.VuePagination__pagination-item .page-link {
+    display: grid;
+    place-items: center;
+    min-width: 2rem;
+    height: 2rem;
+    padding: 0 0.5rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: var(--color-surface);
+    color: var(--color-text);
+    font-size: 0.875rem;
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+
+    /*
+     * :not(.active) is load-bearing. A hover rule with two pseudo-classes
+     * outranks the single class below it, so hovering the current page replaced
+     * its brand background with the plain one while keeping the light-on-brand
+     * text — leaving the number you are standing on the hardest to read.
+     */
+    &:hover:not(:disabled):not(.active) {
+        border-color: var(--color-border-strong);
+        background: var(--color-surface-hover);
+    }
+
+    &:focus-visible {
+        outline: 2px solid var(--color-focus-ring);
+        outline-offset: 1px;
+    }
+
+    &.active {
+        border-color: var(--color-brand);
+        background: var(--color-brand);
+        color: var(--color-brand-contrast);
+        font-weight: var(--weight-semibold);
+
+        &:hover {
+            border-color: var(--color-brand-hover);
+            background: var(--color-brand-hover);
+        }
+    }
+
+    /* The chunk and page arrows at the ends of the row. */
+    &:disabled {
+        opacity: 0.45;
+        cursor: default;
+    }
+}
+
 .VuePagination__count {
     color: var(--color-text-muted);
     font-size: 0.8125rem;

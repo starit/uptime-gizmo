@@ -108,7 +108,7 @@
                 </GizmoTable>
 
                 <template #footer>
-                    <div class="gizmo-pagination kuma_pagination">
+                    <div class="gizmo-pagination">
                     <pagination
                         v-model="page"
                         :records="importantHeartBeatListLength"

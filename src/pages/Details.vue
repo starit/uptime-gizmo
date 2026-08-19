@@ -356,7 +356,7 @@
                     </tbody>
                 </table>
 
-                <div class="tw-flex tw-justify-center kuma_pagination">
+                <div class="tw-flex tw-justify-center">
                     <pagination
                         v-model="page"
                         :records="importantHeartBeatListLength"
