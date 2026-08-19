@@ -26,6 +26,13 @@ COPY --chown=node:node pnpm-lock.yaml pnpm-lock.yaml
 # release stage does not depend on pnpm's symlink layout surviving COPY.
 RUN pnpm install --prod --frozen-lockfile --config.node-linker=hoisted
 COPY . .
+# dist is gitignored and this stage does not build it — the release script runs
+# `pnpm run build` on the host first and this COPY picks it up. Building by hand
+# without that step used to produce an image that started, served no interface,
+# and reported no error, so say so here instead.
+RUN test -f ./dist/index.html || ( \
+    echo "ERROR: ./dist is missing. Run 'pnpm run build' before building this image." >&2 && \
+    exit 1 )
 COPY --chown=node:node --from=build_healthcheck /app/extra/healthcheck /app/extra/healthcheck
 RUN mkdir ./data
 

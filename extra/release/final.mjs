@@ -59,24 +59,24 @@ if (!dryRun) {
     // Build slim image (rootless)
     buildImage(
         repoNames,
-        ["2-slim-rootless", ver(version, "slim-rootless")],
+        ["3-slim-rootless", ver(version, "slim-rootless")],
         "rootless",
         "BASE_IMAGE=starit/uptime-gizmo:base2-slim"
     );
 
     // Build full image (rootless)
-    buildImage(repoNames, ["next-rootless", "2-rootless", ver(version, "rootless")], "rootless");
+    buildImage(repoNames, ["next-rootless", "3-rootless", ver(version, "rootless")], "rootless");
 
     // Build slim image
     buildImage(
         repoNames,
-        ["next-slim", "2-slim", ver(version, "slim")],
+        ["next-slim", "3-slim", ver(version, "slim")],
         "release",
         "BASE_IMAGE=starit/uptime-gizmo:base2-slim"
     );
 
     // Build full image
-    buildImage(repoNames, ["next", "2", version], "release");
+    buildImage(repoNames, ["next", "3", version], "release");
 } else {
     console.log("Dry run mode - skipping image build and push.");
 }
