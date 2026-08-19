@@ -52,6 +52,7 @@ export default {
             domainInfoList: {},
             notificationList: [],
             dockerHostList: [],
+            web3NetworkList: [],
             remoteBrowserList: [],
             statusPageListLoaded: false,
             statusPageList: [],
@@ -191,6 +192,10 @@ export default {
 
                     return item;
                 });
+            });
+
+            socket.on("web3NetworkList", (data) => {
+                this.web3NetworkList = data;
             });
 
             socket.on("dockerHostList", (data) => {

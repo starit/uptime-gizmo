@@ -112,6 +112,9 @@ export default {
                 "remote-browsers": {
                     title: this.$t("Remote Browsers"),
                 },
+                web3: {
+                    title: this.$t("Web3 Networks"),
+                },
                 security: {
                     title: this.$t("Security"),
                 },

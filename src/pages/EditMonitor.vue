@@ -94,6 +94,7 @@
                                         <option v-if="!$root.info.isContainer" value="tailscale-ping">
                                             Tailscale Ping
                                         </option>
+                                        <option value="web3-balance">{{ $t("Web3 Balance") }}</option>
                                         <option value="websocket-upgrade">Websocket Upgrade</option>
                                     </optgroup>
 
@@ -269,6 +270,86 @@
                                     {{ $t("Reset Token") }}
                                 </button>
                             </div>
+
+                            <!-- Web3 balance -->
+                            <template v-if="monitor.type === 'web3-balance'">
+                                <div class="tw-my-3">
+                                    <label for="web3-network" class="gizmo-field-label">{{ $t("Web3 Network") }}</label>
+                                    <select
+                                        id="web3-network"
+                                        v-model="monitor.web3NetworkId"
+                                        class="gizmo-native-control gizmo-native-select"
+                                        required
+                                    >
+                                        <option v-for="net in $root.web3NetworkList" :key="net.id" :value="net.id">
+                                            {{ net.name }}
+                                        </option>
+                                    </select>
+                                    <div v-if="$root.web3NetworkList.length === 0" class="gizmo-field-help">
+                                        <router-link to="/settings/web3">{{ $t("web3NoNetworks") }}</router-link>
+                                    </div>
+                                </div>
+
+                                <div class="tw-my-3">
+                                    <label for="web3-address" class="gizmo-field-label">{{ $t("Address") }}</label>
+                                    <input
+                                        id="web3-address"
+                                        v-model="monitor.web3Address"
+                                        type="text"
+                                        class="gizmo-native-control"
+                                        placeholder="0x…"
+                                        pattern="0x[0-9a-fA-F]{40}"
+                                        required
+                                    />
+                                </div>
+
+                                <div class="tw-my-3">
+                                    <label for="web3-contract" class="gizmo-field-label">
+                                        {{ $t("Token Contract") }} ({{ $t("optional") }})
+                                    </label>
+                                    <input
+                                        id="web3-contract"
+                                        v-model="monitor.web3TokenContract"
+                                        type="text"
+                                        class="gizmo-native-control"
+                                        placeholder="0x…"
+                                        pattern="0x[0-9a-fA-F]{40}"
+                                        @change="lookUpDecimals"
+                                    />
+                                    <div class="gizmo-field-help">{{ $t("web3TokenContractHelp") }}</div>
+                                </div>
+
+                                <div v-if="monitor.web3TokenContract" class="tw-my-3">
+                                    <label for="web3-decimals" class="gizmo-field-label">{{ $t("Decimals") }}</label>
+                                    <input
+                                        id="web3-decimals"
+                                        v-model.number="monitor.web3TokenDecimals"
+                                        type="number"
+                                        class="gizmo-native-control"
+                                        min="0"
+                                        max="36"
+                                        step="1"
+                                        required
+                                    />
+                                    <div class="gizmo-field-help">{{ $t("web3DecimalsHelp") }}</div>
+                                </div>
+
+                                <div class="tw-my-3">
+                                    <label for="web3-min-balance" class="gizmo-field-label">
+                                        {{ $t("Minimum Balance") }} ({{ $t("optional") }})
+                                    </label>
+                                    <input
+                                        id="web3-min-balance"
+                                        v-model="monitor.web3MinBalance"
+                                        type="text"
+                                        class="gizmo-native-control"
+                                        inputmode="decimal"
+                                        pattern="\d+(\.\d+)?"
+                                        placeholder="0.05"
+                                    />
+                                    <div class="gizmo-field-help">{{ $t("web3MinBalanceHelp") }}</div>
+                                </div>
+                            </template>
 
                             <!-- Keyword -->
                             <div v-if="monitor.type === 'keyword' || monitor.type === 'grpc-keyword'" class="tw-my-3">
@@ -3322,6 +3403,12 @@ const monitorDefaults = {
     ntpStratumThreshold: 5,
     ntpTimeOffsetThreshold: 1000,
     ntpRootDispersionThreshold: 500,
+    web3NetworkId: null,
+    web3Address: "",
+    web3TokenContract: "",
+    // Most ERC-20s use 18; read from the contract when one is entered.
+    web3TokenDecimals: 18,
+    web3MinBalance: "",
 };
 
 export default {
@@ -4009,6 +4096,33 @@ message HealthCheckResponse {
          * Initialize the edit monitor form
          * @returns {void}
          */
+        /**
+         * Ask the chain how many decimals the token uses.
+         *
+         * Filled in rather than left to the operator because getting it wrong is
+         * silent: a threshold off by a factor of ten either alerts constantly or
+         * never at all, and nothing in the result would say which. It stays
+         * editable for the contracts that do not answer, or answer oddly.
+         * @returns {void}
+         */
+        lookUpDecimals() {
+            const contract = (this.monitor.web3TokenContract || "").trim();
+
+            if (!contract || !this.monitor.web3NetworkId) {
+                return;
+            }
+
+            this.$root.getSocket().emit("web3TokenDecimals", this.monitor.web3NetworkId, contract, (res) => {
+                if (res.ok) {
+                    this.monitor.web3TokenDecimals = res.decimals;
+                } else {
+                    // Not fatal: the field is still there to be filled in by
+                    // hand, so say what happened rather than block the form.
+                    this.$root.toastError(res.msg);
+                }
+            });
+        },
+
         init() {
             if (this.isAdd) {
                 this.monitor = {

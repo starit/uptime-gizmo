@@ -170,6 +170,29 @@ async function sendInfo(socket, hideVersion = false) {
 }
 
 /**
+ * Send the Web3 networks to the client.
+ *
+ * Through the model's toJSON, which omits the RPC URL: a hosted endpoint carries
+ * its key in the path, so the URL is a credential rather than a setting. The
+ * edit form asks for it separately.
+ * @param {Socket} socket Socket.io socket instance
+ * @returns {Promise<Bean[]>} List of networks
+ */
+async function sendWeb3NetworkList(socket) {
+    const timeLogger = new TimeLogger();
+
+    const list = await R.find("web3_network", " user_id = ? ORDER BY name ", [ socket.userID ]);
+    io.to(socket.userID).emit(
+        "web3NetworkList",
+        list.map((bean) => bean.toJSON())
+    );
+
+    timeLogger.print("Send Web3 Network List");
+
+    return list;
+}
+
+/**
  * Send list of docker hosts to client
  * @param {Socket} socket Socket.io socket instance
  * @returns {Promise<Bean[]>} List of docker hosts
@@ -251,5 +274,6 @@ module.exports = {
     sendInfo,
     sendDockerHostList,
     sendRemoteBrowserList,
+    sendWeb3NetworkList,
     sendMonitorTypeList,
 };

@@ -186,11 +186,13 @@ const {
     sendDockerHostList,
     sendAPIKeyList,
     sendRemoteBrowserList,
+    sendWeb3NetworkList,
     sendMonitorTypeList,
 } = require("./client");
 const { statusPageSocketHandler } = require("./socket-handlers/status-page-socket-handler");
 const { databaseSocketHandler } = require("./socket-handlers/database-socket-handler");
 const { remoteBrowserSocketHandler } = require("./socket-handlers/remote-browser-socket-handler");
+const { web3SocketHandler } = require("./socket-handlers/web3-socket-handler");
 const TwoFA = require("./2fa");
 const StatusPage = require("./model/status_page");
 const {
@@ -969,6 +971,15 @@ let needSetup = false;
                 bean.ntp_stratum_threshold = monitor.ntpStratumThreshold;
                 bean.ntp_time_offset_threshold = monitor.ntpTimeOffsetThreshold;
                 bean.ntp_root_dispersion_threshold = monitor.ntpRootDispersionThreshold;
+
+                // Web3 balance. The minimum stays a string all the way to the
+                // comparison; a chain counts in units of 10^-18 and a float
+                // would round the threshold before it was ever used.
+                bean.web3_network_id = monitor.web3NetworkId || null;
+                bean.web3_address = monitor.web3Address;
+                bean.web3_token_contract = monitor.web3TokenContract || null;
+                bean.web3_token_decimals = monitor.web3TokenDecimals ?? 18;
+                bean.web3_min_balance = monitor.web3MinBalance ?? null;
 
                 // ping advanced options
                 bean.ping_numeric = monitor.ping_numeric;
@@ -1828,6 +1839,7 @@ let needSetup = false;
         maintenanceSocketHandler(socket);
         apiKeySocketHandler(socket);
         remoteBrowserSocketHandler(socket);
+        web3SocketHandler(socket);
         generalSocketHandler(socket, server);
         chartSocketHandler(socket);
 
@@ -1928,6 +1940,7 @@ async function afterLogin(socket, user) {
         sendDockerHostList(socket),
         sendAPIKeyList(socket),
         sendRemoteBrowserList(socket),
+            sendWeb3NetworkList(socket),
         sendMonitorTypeList(socket),
     ]);
 
