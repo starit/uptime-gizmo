@@ -19,40 +19,18 @@
                         {{ user.active ? $t("Disable") : $t("Enable") }}
                     </a>
                     <span class="tw-mx-2">·</span>
-                    <a href="#" @click.prevent="askPassword(user)">{{ $t("usersResetPassword") }}</a>
+                    <a href="#" @click.prevent="$refs.dialog.showPassword(user)">{{ $t("usersResetPassword") }}</a>
                     <span class="tw-mx-2">·</span>
-                    <a href="#" class="api-users__danger" @click.prevent="askDelete(user)">{{ $t("Delete") }}</a>
+                    <a href="#" class="users__danger" @click.prevent="askDelete(user)">{{ $t("Delete") }}</a>
                 </li>
             </ul>
 
-            <form class="gizmo-form-stack tw-mb-3" @submit.prevent="add">
-                <div>
-                    <label for="new-username" class="gizmo-field-label">{{ $t("Username") }}</label>
-                    <input id="new-username" v-model="draft.username" type="text" class="gizmo-native-control" required />
-                </div>
-                <div>
-                    <label for="new-password" class="gizmo-field-label">{{ $t("Password") }}</label>
-                    <input
-                        id="new-password"
-                        v-model="draft.password"
-                        type="password"
-                        class="gizmo-native-control"
-                        minlength="6"
-                        autocomplete="new-password"
-                        required
-                    />
-                </div>
-                <div class="gizmo-native-check">
-                    <input id="new-admin" v-model="draft.admin" class="gizmo-native-check__input" type="checkbox" />
-                    <label class="gizmo-native-check__label" for="new-admin">{{ $t("usersMakeAdmin") }}</label>
-                </div>
-                <div>
-                    <button type="submit" class="gizmo-native-button gizmo-native-button--primary" :disabled="processing">
-                        {{ $t("usersAdd") }}
-                    </button>
-                </div>
-            </form>
+            <button class="gizmo-native-button gizmo-native-button--primary" type="button" @click="$refs.dialog.show()">
+                {{ $t("usersAdd") }}
+            </button>
         </template>
+
+        <UserDialog ref="dialog" @saved="load" />
 
         <Confirm ref="confirmDelete" btn-style="btn-danger" :yes-text="$t('Yes')" :no-text="$t('No')" @yes="doDelete">
             {{ $t("usersDeleteMsg", [ pending?.username ]) }}
@@ -62,18 +40,18 @@
 
 <script>
 import Confirm from "../Confirm.vue";
+import UserDialog from "../UserDialog.vue";
 
 export default {
     components: {
         Confirm,
+        UserDialog,
     },
     data() {
         return {
             users: [],
             error: "",
-            processing: false,
             pending: null,
-            draft: { username: "", password: "", admin: false },
         };
     },
     mounted() {
@@ -101,25 +79,10 @@ export default {
          * @returns {void}
          */
         settle(res) {
-            this.processing = false;
             this.$root.toastRes(res);
             if (res.ok) {
                 this.load();
             }
-        },
-
-        /**
-         * Create an account.
-         * @returns {void}
-         */
-        add() {
-            this.processing = true;
-            this.$root.getSocket().emit("addUser", this.draft, (res) => {
-                this.settle(res);
-                if (res.ok) {
-                    this.draft = { username: "", password: "", admin: false };
-                }
-            });
         },
 
         /**
@@ -140,20 +103,6 @@ export default {
          */
         setActive(user, isActive) {
             this.$root.getSocket().emit("setUserActive", user.id, isActive, (res) => this.settle(res));
-        },
-
-        /**
-         * Set someone else's password.
-         * @param {object} user the account
-         * @returns {void}
-         */
-        askPassword(user) {
-            // eslint-disable-next-line no-alert
-            const next = prompt(this.$t("usersResetPasswordPrompt", [ user.username ]));
-            if (!next) {
-                return;
-            }
-            this.$root.getSocket().emit("resetUserPassword", user.id, next, (res) => this.settle(res));
         },
 
         /**
@@ -178,7 +127,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.api-users__danger {
+.users__danger {
     color: var(--status-down-fg);
 }
 </style>

@@ -1683,6 +1683,8 @@
     "usersGrantAdmin": "Make administrator",
     "usersRevokeAdmin": "Remove administrator",
     "usersResetPassword": "Set password",
-    "usersResetPasswordPrompt": "New password for {0}",
-    "usersDeleteMsg": "Delete the account {0}? Their API keys are removed with it."
+    "usersDeleteMsg": "Delete the account {0}? Their API keys are removed with it.",
+    "usersPasswordHelp": "At least 6 characters.",
+    "usersResetPasswordFor": "Set a new password for {0}.",
+    "usersScopeNote": "This account will see and manage the whole instance."
 }
