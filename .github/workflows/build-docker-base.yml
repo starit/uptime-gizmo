@@ -44,8 +44,16 @@ jobs:
       - name: Enable pnpm
         run: corepack enable pnpm
 
+      # Order matters: base2 is built FROM the pushed base2-slim, so slim has to
+      # exist in the registry before base2 is built.
       - name: Build and push base2-slim image
         run: pnpm run build-docker-base-slim
 
       - name: Build and push base2 image
         run: pnpm run build-docker-base
+
+      # The main image builds its healthcheck FROM this one. It was never built
+      # here, so a registry with only the base2 pair still could not build the
+      # product.
+      - name: Build and push builder-go image
+        run: pnpm run build-docker-builder-go
