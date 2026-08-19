@@ -16,7 +16,7 @@
                 </li>
             </ul>
 
-            <button class="gizmo-native-button gizmo-native-button--primary tw-me-2" type="button" @click="$refs.notificationDialog.show()">
+            <button class="gizmo-native-button gizmo-native-button--secondary tw-me-2" type="button" @click="$refs.notificationDialog.show()">
                 {{ $t("Setup Notification") }}
             </button>
         </div>
@@ -67,7 +67,7 @@
                     <span>{{ $t("days", day) }}</span>
                     <button
                         type="button"
-                        class="btn-rm-expiry gizmo-native-button gizmo-native-button--danger-outline tw-ms-2 tw-py-1"
+                        class="btn-rm-expiry gizmo-native-button gizmo-native-button--secondary gizmo-native-button--sm tw-ms-2"
                         :aria-label="$t('Remove the expiry notification')"
                         @click="removeTlsExpiryNotifDay(day)"
                     >
@@ -105,7 +105,7 @@
                     <span>{{ $t("days", day) }}</span>
                     <button
                         type="button"
-                        class="btn-rm-expiry gizmo-native-button gizmo-native-button--danger-outline tw-ms-2 tw-py-1"
+                        class="btn-rm-expiry gizmo-native-button gizmo-native-button--secondary gizmo-native-button--sm tw-ms-2"
                         :aria-label="$t('Remove the expiry notification')"
                         @click="removeDomainExpiryNotifDay(day)"
                     >

@@ -270,7 +270,7 @@
                                     <br />
                                     {{ $t("pushOptionalParams", ["status, msg, ping"]) }}
                                 </div>
-                                <button class="gizmo-native-button gizmo-native-button--primary" type="button" @click="resetToken">
+                                <button class="gizmo-native-button gizmo-native-button--secondary" type="button" @click="resetToken">
                                     {{ $t("Reset Token") }}
                                 </button>
                             </div>
@@ -2327,7 +2327,7 @@
                                 </span>
                             </div>
 
-                            <button class="gizmo-native-button gizmo-native-button--primary tw-me-2" type="button" @click="$refs.notificationDialog.show()">
+                            <button class="gizmo-native-button gizmo-native-button--secondary tw-me-2" type="button" @click="$refs.notificationDialog.show()">
                                 {{ $t("Setup Notification") }}
                             </button>
 
@@ -2561,7 +2561,7 @@
                                     </span>
                                 </div>
 
-                                <button class="gizmo-native-button gizmo-native-button--primary tw-me-2" type="button" @click="$refs.proxyDialog.show()">
+                                <button class="gizmo-native-button gizmo-native-button--secondary tw-me-2" type="button" @click="$refs.proxyDialog.show()">
                                     {{ $t("Setup Proxy") }}
                                 </button>
                             </div>

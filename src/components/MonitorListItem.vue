@@ -23,10 +23,14 @@
 
             <router-link :to="monitorURL(monitor.id)" class="item" :class="{ disabled: !monitor.active }">
                 <div class="monitor-row" :class="monitorStyle">
+                    <!--
+                        Reading order for a monitoring tool: what state is it in,
+                        what is it, what has it been doing, and only then the
+                        reference figure. The percentage used to come first, which
+                        put the least changeable number where the eye lands.
+                    -->
                     <div class="monitor-row__identity small-padding tw-flex tw-gap-2 tw-items-center">
-                        <div class="tw-me-1">
-                            <Uptime :monitor="monitor" type="24" :pill="true" />
-                        </div>
+                        <span class="monitor-row__state" :class="`monitor-row__state--${stateTone}`" :title="stateLabel" />
                         <div class="tw-flex tw-items-center tw-gap-2 tw-flex-1" style="min-width: 0">
                             <span v-if="hasChildren" class="collapse-padding" @click.prevent="changeCollapsed">
                                 <font-awesome-icon
@@ -55,6 +59,15 @@
                         class="monitor-row__heartbeat"
                     >
                         <HeartbeatBar ref="heartbeatBar" size="small" :monitor-id="monitor.id" />
+                    </div>
+                    <!--
+                        pill=false, so the figure takes this column's colour
+                        rather than the monitor's state colour. A green 27% beside
+                        a green dot said "fine" about a number that was not; the
+                        dot says the state, this says how much.
+                    -->
+                    <div v-show="$root.userHeartbeatBar == 'normal'" class="monitor-row__uptime">
+                        <Uptime :monitor="monitor" type="24" />
                     </div>
                 </div>
 
@@ -168,6 +181,33 @@ export default {
                 marginLeft: `${20 * this.depth}px`,
             };
         },
+        /**
+         * The state to show at the start of the row.
+         * @returns {string} a tone name matching the status tokens
+         */
+        stateTone() {
+            if (!this.monitor.active) {
+                return "paused";
+            }
+            const beat = this.$root.lastHeartbeatList?.[this.monitor.id];
+            return { 0: "down", 1: "up", 2: "pending", 3: "maintenance" }[beat?.status] ?? "unknown";
+        },
+
+        /**
+         * The same state in words, for anyone not reading the colour.
+         * @returns {string} translated status name
+         */
+        stateLabel() {
+            return {
+                up: this.$t("Up"),
+                down: this.$t("Down"),
+                pending: this.$t("Pending"),
+                maintenance: this.$t("statusMaintenance"),
+                paused: this.$t("pauseDashboardHome"),
+                unknown: this.$t("Unknown"),
+            }[this.stateTone];
+        },
+
         monitorStyle() {
             const isFullWidth = this.$root.userHeartbeatBar === "bottom" || this.$root.userHeartbeatBar === "none";
             return {
@@ -348,7 +388,48 @@ export default {
  * 1200px — regardless of how narrow the rail itself was — leaving the name
  * about 80px and truncating all but the shortest.
  */
-.monitor-row--split { grid-template-columns: minmax(0, 1fr) 5rem; }
+/*
+ * The heartbeat bar is this product's signature and it had five rems — about
+ * eight beats, against forty on the monitor page. It takes what the name does
+ * not need now, and the percentage sits after it as a quiet reference figure.
+ */
+.monitor-row--split {
+    /*
+     * The name has a floor. Giving the bar all it would take squeezed names to
+     * about six characters — "api.exa…", "checko…" — and a row you cannot
+     * identify is worse than one with fewer beats in it.
+     */
+    grid-template-columns: minmax(8rem, 1fr) minmax(3.5rem, 7rem) auto;
+    gap: 0.55rem;
+}
+
+.monitor-row__uptime {
+    color: var(--color-text-muted);
+    font-size: 0.8rem;
+    font-variant-numeric: tabular-nums;
+    text-align: end;
+
+}
+
+/* Current state, before the name: the first thing a monitoring list should say. */
+.monitor-row__state {
+    flex: none;
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background: var(--color-border-strong);
+}
+
+.monitor-row__state--up { background: var(--status-up); }
+.monitor-row__state--down { background: var(--status-down); }
+.monitor-row__state--pending { background: var(--status-degraded); }
+.monitor-row__state--maintenance { background: var(--status-maintenance); }
+.monitor-row__state--unknown { background: var(--status-unknown); }
+
+.monitor-row__state--paused {
+    background: transparent;
+    box-shadow: inset 0 0 0 2px var(--color-border-strong);
+}
 
 .monitor-row__identity,
 .monitor-row__heartbeat { min-width: 0; }
@@ -356,11 +437,15 @@ export default {
 
 
 .tags {
-    margin-top: 0.25rem;
-    padding-left: 0.25rem;
+    margin-top: 0.15rem;
+    padding-left: 0;
     display: flex;
     flex-wrap: wrap;
-    gap: 0;
+    gap: 0.2rem;
+    overflow: hidden;
+
+    /* Quieter than the name they belong to. */
+    font-size: 0.68rem;
 }
 
 .collapsed {
