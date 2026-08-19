@@ -1021,8 +1021,6 @@
     "required": "필수",
     "usersAdd": "계정 추가",
     "usersMakeAdmin": "관리자",
-    "usersGrantAdmin": "관리자로 지정",
-    "usersRevokeAdmin": "관리자 해제",
     "usersResetPassword": "비밀번호 설정",
     "usersResetPasswordFor": "{0}의 새 비밀번호를 설정합니다.",
     "usersPasswordHelp": "6자 이상.",
@@ -1041,5 +1039,12 @@
     "usersModelTitle": "여기서 계정이 작동하는 방식",
     "usersModelShared": "로그인할 수 있는 사람은 모두 같은 모니터, 알림 채널, 상태 페이지를 보고 관리합니다. 계정은 사람마다 비밀번호를 분리하기 위한 것이지 데이터를 분리하기 위한 것이 아닙니다.",
     "usersModelAdmin": "관리자 표시는 한 가지만 결정합니다. 이 계정들을 관리할 수 있는지 여부입니다.",
-    "usersModelReadOnly": "이 화면에는 읽기 전용 모드가 없습니다. 보기만 하게 하려면 상태 페이지를 보내거나 읽기 전용으로 표시된 API 키를 주세요."
+    "usersModelReadOnly": "이 화면에는 읽기 전용 모드가 없습니다. 보기만 하게 하려면 상태 페이지를 보내거나 읽기 전용으로 표시된 API 키를 주세요.",
+    "usersYou": "본인",
+    "usersPromote": "관리 권한 부여",
+    "usersDemote": "관리 권한 회수",
+    "usersPromoteConfirm": "{0}에게 계정 관리를 허용할까요? 당신의 계정을 포함해 계정을 추가·비활성화·삭제할 수 있게 됩니다.",
+    "usersDemoteConfirm": "{0}의 계정 관리 권한을 회수할까요? 인스턴스가 감시하는 모든 것에는 계속 접근할 수 있습니다.",
+    "usersDisableConfirm": "{0}을(를) 비활성화할까요? 로그인할 수 없게 되고 API 키도 작동을 멈춥니다.",
+    "usersEnableConfirm": "{0}이(가) 다시 로그인하도록 할까요? API 키는 직접 다시 켜기 전까지 비활성 상태입니다."
 }

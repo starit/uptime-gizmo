@@ -1500,8 +1500,6 @@
     "required": "obligatorio",
     "usersAdd": "Añadir cuenta",
     "usersMakeAdmin": "Administrador",
-    "usersGrantAdmin": "Hacer administrador",
-    "usersRevokeAdmin": "Quitar administrador",
     "usersResetPassword": "Establecer contraseña",
     "usersResetPasswordFor": "Establecer una nueva contraseña para {0}.",
     "usersPasswordHelp": "Al menos 6 caracteres.",
@@ -1520,5 +1518,12 @@
     "usersModelTitle": "Cómo funcionan las cuentas aquí",
     "usersModelShared": "Cualquiera que pueda iniciar sesión ve y gestiona toda la instancia: los mismos monitores, canales de notificación y páginas de estado. Las cuentas separan contraseñas, no datos.",
     "usersModelAdmin": "La marca de administrador rige una sola cosa: quién puede gestionar estas cuentas.",
-    "usersModelReadOnly": "Esta interfaz no tiene acceso de solo lectura. Para que alguien mire sin tocar, envíale una página de estado o dale una clave de API marcada como de solo lectura."
+    "usersModelReadOnly": "Esta interfaz no tiene acceso de solo lectura. Para que alguien mire sin tocar, envíale una página de estado o dale una clave de API marcada como de solo lectura.",
+    "usersYou": "tú",
+    "usersPromote": "Dar permisos de admin",
+    "usersDemote": "Quitar permisos de admin",
+    "usersPromoteConfirm": "¿Dejar que {0} gestione cuentas? Podrá añadir, desactivar y eliminar cuentas, incluida la tuya.",
+    "usersDemoteConfirm": "¿Quitar a {0} la gestión de cuentas? Mantiene el acceso completo a todo lo que la instancia monitoriza.",
+    "usersDisableConfirm": "¿Desactivar a {0}? No podrá iniciar sesión y sus claves de API dejarán de funcionar.",
+    "usersEnableConfirm": "¿Dejar que {0} vuelva a iniciar sesión? Sus claves de API siguen desactivadas hasta que las actives de nuevo."
 }

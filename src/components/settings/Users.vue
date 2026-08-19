@@ -16,35 +16,53 @@
         <p v-if="error" class="gizmo-native-alert gizmo-native-alert--danger">{{ error }}</p>
 
         <template v-else>
-            <ul class="gizmo-list-group tw-mb-3">
-                <li v-for="user in users" :key="user.id" class="gizmo-list-group__item">
-                    <strong>{{ user.username }}</strong>
-                    <span v-if="user.admin" class="gizmo-field-help tw-ms-2">{{ $t("Administrator") }}</span>
-                    <span v-if="!user.active" class="gizmo-field-help tw-ms-2">{{ $t("Disabled") }}</span>
-                    <br />
-                    <a href="#" @click.prevent="setAdmin(user, !user.admin)">
-                        {{ user.admin ? $t("usersRevokeAdmin") : $t("usersGrantAdmin") }}
-                    </a>
-                    <span class="tw-mx-2">·</span>
-                    <a href="#" @click.prevent="setActive(user, !user.active)">
-                        {{ user.active ? $t("Disable") : $t("Enable") }}
-                    </a>
-                    <span class="tw-mx-2">·</span>
-                    <a href="#" @click.prevent="$refs.dialog.showPassword(user)">{{ $t("usersResetPassword") }}</a>
-                    <span class="tw-mx-2">·</span>
-                    <a href="#" class="users__danger" @click.prevent="askDelete(user)">{{ $t("Delete") }}</a>
+            <ul class="users__list">
+                <li v-for="user in users" :key="user.id" class="users__row" :class="{ 'users__row--off': !user.active }">
+                    <div class="users__identity">
+                        <span class="users__name">{{ user.username }}</span>
+                        <span v-if="user.username === $root.username" class="users__tag">{{ $t("usersYou") }}</span>
+                        <span v-if="user.admin" class="users__tag users__tag--admin">{{ $t("Administrator") }}</span>
+                        <span v-if="!user.active" class="users__tag users__tag--off">{{ $t("Disabled") }}</span>
+                    </div>
+
+                    <!--
+                        Named for the state they produce rather than the switch
+                        they flip. "Make administrator" and "Remove administrator"
+                        differ by one word in the middle and read as the same
+                        control at a glance, which is a poor thing for a pair
+                        whose two halves do opposite things.
+                    -->
+                    <div class="users__actions">
+                        <button type="button" class="gizmo-native-button gizmo-native-button--secondary gizmo-native-button--sm" @click="askAdmin(user)">
+                            {{ user.admin ? $t("usersDemote") : $t("usersPromote") }}
+                        </button>
+                        <button type="button" class="gizmo-native-button gizmo-native-button--secondary gizmo-native-button--sm" @click="askActive(user)">
+                            {{ user.active ? $t("Disable") : $t("Enable") }}
+                        </button>
+                        <button type="button" class="gizmo-native-button gizmo-native-button--secondary gizmo-native-button--sm" @click="$refs.dialog.showPassword(user)">
+                            {{ $t("usersResetPassword") }}
+                        </button>
+                        <button type="button" class="gizmo-native-button gizmo-native-button--danger-outline gizmo-native-button--sm" @click="askDelete(user)">
+                            {{ $t("Delete") }}
+                        </button>
+                    </div>
                 </li>
             </ul>
 
-            <button class="gizmo-native-button gizmo-native-button--primary" type="button" @click="$refs.dialog.show()">
+            <button class="gizmo-native-button gizmo-native-button--primary tw-mt-3" type="button" @click="$refs.dialog.show()">
                 {{ $t("usersAdd") }}
             </button>
         </template>
 
         <UserDialog ref="dialog" @saved="load" />
 
-        <Confirm ref="confirmDelete" btn-style="btn-danger" :yes-text="$t('Yes')" :no-text="$t('No')" @yes="doDelete">
-            {{ $t("usersDeleteMsg", [ pending?.username ]) }}
+        <!--
+            Every one of these changes what somebody else can do, and three of
+            them cannot be undone by the person they happen to. Each says what
+            will happen rather than asking "are you sure".
+        -->
+        <Confirm ref="confirm" :btn-style="pending?.danger ? 'btn-danger' : 'btn-primary'" :yes-text="$t('Yes')" :no-text="$t('No')" @yes="doPending">
+            {{ pending?.message }}
         </Confirm>
     </div>
 </template>
@@ -97,41 +115,58 @@ export default {
         },
 
         /**
-         * Grant or revoke the administrator flag.
-         * @param {object} user the account
-         * @param {boolean} isAdmin what it should become
+         * Hold an action until it is confirmed.
+         * @param {string} message what will happen, in the user's language
+         * @param {boolean} danger whether to colour the confirmation as destructive
+         * @param {Function} run what to do when confirmed
          * @returns {void}
          */
-        setAdmin(user, isAdmin) {
-            this.$root.getSocket().emit("setUserAdmin", user.id, isAdmin, (res) => this.settle(res));
+        ask(message, danger, run) {
+            this.pending = { message, danger, run };
+            this.$refs.confirm.show();
+        },
+
+        /**
+         * Carry out whatever was confirmed.
+         * @returns {void}
+         */
+        doPending() {
+            this.pending?.run();
+        },
+
+        /**
+         * Grant or revoke the administrator flag.
+         * @param {object} user the account
+         * @returns {void}
+         */
+        askAdmin(user) {
+            const key = user.admin ? "usersDemoteConfirm" : "usersPromoteConfirm";
+            this.ask(this.$t(key, [ user.username ]), user.admin, () => {
+                this.$root.getSocket().emit("setUserAdmin", user.id, !user.admin, (res) => this.settle(res));
+            });
         },
 
         /**
          * Enable or disable an account.
          * @param {object} user the account
-         * @param {boolean} isActive what it should become
          * @returns {void}
          */
-        setActive(user, isActive) {
-            this.$root.getSocket().emit("setUserActive", user.id, isActive, (res) => this.settle(res));
+        askActive(user) {
+            const key = user.active ? "usersDisableConfirm" : "usersEnableConfirm";
+            this.ask(this.$t(key, [ user.username ]), user.active, () => {
+                this.$root.getSocket().emit("setUserActive", user.id, !user.active, (res) => this.settle(res));
+            });
         },
 
         /**
-         * Ask before removing an account.
+         * Remove an account.
          * @param {object} user the account
          * @returns {void}
          */
         askDelete(user) {
-            this.pending = user;
-            this.$refs.confirmDelete.show();
-        },
-
-        /**
-         * Remove the account.
-         * @returns {void}
-         */
-        doDelete() {
-            this.$root.getSocket().emit("deleteUser", this.pending.id, (res) => this.settle(res));
+            this.ask(this.$t("usersDeleteMsg", [ user.username ]), true, () => {
+                this.$root.getSocket().emit("deleteUser", user.id, (res) => this.settle(res));
+            });
         },
     },
 };
@@ -164,7 +199,76 @@ export default {
     font-weight: var(--weight-semibold);
 }
 
-.users__danger {
-    color: var(--status-down-fg);
+.users__list {
+    display: grid;
+    gap: 0.5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.users__row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.6rem;
+    padding: 0.7rem 0.85rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+}
+
+/* A disabled account stays legible; it is the state that recedes, not the name. */
+.users__row--off .users__name {
+    color: var(--color-text-muted);
+}
+
+.users__identity {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.4rem;
+    min-width: 0;
+}
+
+.users__name {
+    color: var(--color-text);
+    font-weight: var(--weight-semibold);
+    overflow-wrap: anywhere;
+}
+
+.users__tag {
+    padding: 0.1rem 0.4rem;
+    border-radius: var(--radius-sm);
+    background: var(--color-surface-hover);
+    color: var(--color-text-muted);
+    font-size: 0.7rem;
+    font-weight: var(--weight-medium);
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+}
+
+.users__tag--admin {
+    background: var(--color-interactive-subtle);
+    color: var(--color-interactive);
+}
+
+.users__tag--off {
+    background: var(--status-unknown-bg);
+    color: var(--status-unknown-fg);
+}
+
+.users__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+}
+
+@media (max-width: 620px) {
+    .users__row {
+        align-items: flex-start;
+        flex-direction: column;
+    }
 }
 </style>

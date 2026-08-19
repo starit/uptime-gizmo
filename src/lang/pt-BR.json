@@ -1730,8 +1730,6 @@
     "required": "obrigatório",
     "usersAdd": "Adicionar conta",
     "usersMakeAdmin": "Administrador",
-    "usersGrantAdmin": "Tornar administrador",
-    "usersRevokeAdmin": "Remover administrador",
     "usersResetPassword": "Definir senha",
     "usersResetPasswordFor": "Definir uma nova senha para {0}.",
     "usersPasswordHelp": "Pelo menos 6 caracteres.",
@@ -1750,5 +1748,12 @@
     "usersModelTitle": "Como as contas funcionam aqui",
     "usersModelShared": "Todo mundo que consegue entrar vê e gerencia a instância inteira: os mesmos monitores, canais de notificação e páginas de status. Contas separam senhas, não dados.",
     "usersModelAdmin": "A marcação de administrador governa uma única coisa: quem pode gerenciar estas contas.",
-    "usersModelReadOnly": "Esta interface não tem acesso somente leitura. Para alguém apenas acompanhar, envie uma página de status ou dê uma chave de API marcada como somente leitura."
+    "usersModelReadOnly": "Esta interface não tem acesso somente leitura. Para alguém apenas acompanhar, envie uma página de status ou dê uma chave de API marcada como somente leitura.",
+    "usersYou": "você",
+    "usersPromote": "Conceder admin",
+    "usersDemote": "Revogar admin",
+    "usersPromoteConfirm": "Deixar {0} gerenciar contas? Poderá adicionar, desativar e remover contas, inclusive a sua.",
+    "usersDemoteConfirm": "Tirar de {0} o gerenciamento de contas? O acesso a tudo que a instância monitora continua.",
+    "usersDisableConfirm": "Desativar {0}? Não conseguirá entrar, e as chaves de API dela param de funcionar.",
+    "usersEnableConfirm": "Deixar {0} entrar de novo? As chaves de API seguem desativadas até você reativá-las."
 }

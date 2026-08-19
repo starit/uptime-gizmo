@@ -1769,8 +1769,6 @@
     "required": "requis",
     "usersAdd": "Ajouter un compte",
     "usersMakeAdmin": "Administrateur",
-    "usersGrantAdmin": "Nommer administrateur",
-    "usersRevokeAdmin": "Retirer administrateur",
     "usersResetPassword": "Définir le mot de passe",
     "usersResetPasswordFor": "Définir un nouveau mot de passe pour {0}.",
     "usersPasswordHelp": "Au moins 6 caractères.",
@@ -1789,5 +1787,12 @@
     "usersModelTitle": "Comment fonctionnent les comptes ici",
     "usersModelShared": "Toute personne pouvant se connecter voit et gère l'instance entière : les mêmes moniteurs, les mêmes canaux de notification, les mêmes pages de statut. Les comptes séparent les mots de passe, pas les données.",
     "usersModelAdmin": "L'indicateur administrateur ne régit qu'une chose : qui peut gérer ces comptes.",
-    "usersModelReadOnly": "Cette interface n'a pas de mode lecture seule. Pour laisser quelqu'un regarder sans intervenir, envoyez-lui une page de statut ou donnez-lui une clé d'API en lecture seule."
+    "usersModelReadOnly": "Cette interface n'a pas de mode lecture seule. Pour laisser quelqu'un regarder sans intervenir, envoyez-lui une page de statut ou donnez-lui une clé d'API en lecture seule.",
+    "usersYou": "vous",
+    "usersPromote": "Donner les droits admin",
+    "usersDemote": "Retirer les droits admin",
+    "usersPromoteConfirm": "Laisser {0} gérer les comptes ? Cette personne pourra ajouter, désactiver et supprimer des comptes, y compris le vôtre.",
+    "usersDemoteConfirm": "Retirer la gestion des comptes à {0} ? Son accès à tout ce que l'instance surveille reste inchangé.",
+    "usersDisableConfirm": "Désactiver {0} ? Cette personne ne pourra plus se connecter et ses clés d'API cesseront de fonctionner.",
+    "usersEnableConfirm": "Laisser {0} se reconnecter ? Ses clés d'API restent désactivées jusqu'à ce que vous les réactiviez."
 }

@@ -164,6 +164,12 @@ export default {
 }
 
 .login-greeting__mascot {
+    /*
+     * Preflight makes images display:block, so the form's text-align does not
+     * reach them and the mascot sat against the left edge while everything else
+     * was centred.
+     */
+    margin-inline: auto;
     width: clamp(7rem, 30vw, 9.5rem);
     height: auto;
 

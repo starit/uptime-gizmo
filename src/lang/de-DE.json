@@ -1642,8 +1642,6 @@
     "required": "erforderlich",
     "usersAdd": "Konto hinzufügen",
     "usersMakeAdmin": "Administrator",
-    "usersGrantAdmin": "Zum Administrator machen",
-    "usersRevokeAdmin": "Administrator entziehen",
     "usersResetPassword": "Passwort setzen",
     "usersResetPasswordFor": "Neues Passwort für {0} setzen.",
     "usersPasswordHelp": "Mindestens 6 Zeichen.",
@@ -1662,5 +1660,12 @@
     "usersModelTitle": "Wie Konten hier funktionieren",
     "usersModelShared": "Alle, die sich anmelden können, sehen und verwalten die gesamte Instanz: dieselben Monitore, Benachrichtigungskanäle und Statusseiten. Konten trennen Passwörter, nicht Daten.",
     "usersModelAdmin": "Die Administrator-Markierung regelt genau eines – wer diese Konten verwalten darf.",
-    "usersModelReadOnly": "Für diese Oberfläche gibt es keinen Nur-Lese-Zugang. Wer nur zuschauen soll, bekommt eine Statusseite oder einen als schreibgeschützt markierten API-Schlüssel."
+    "usersModelReadOnly": "Für diese Oberfläche gibt es keinen Nur-Lese-Zugang. Wer nur zuschauen soll, bekommt eine Statusseite oder einen als schreibgeschützt markierten API-Schlüssel.",
+    "usersYou": "du",
+    "usersPromote": "Adminrechte geben",
+    "usersDemote": "Adminrechte entziehen",
+    "usersPromoteConfirm": "{0} Konten verwalten lassen? Damit können Konten angelegt, deaktiviert und entfernt werden – auch deines.",
+    "usersDemoteConfirm": "{0} die Kontenverwaltung entziehen? Der Zugriff auf alles, was die Instanz überwacht, bleibt bestehen.",
+    "usersDisableConfirm": "{0} deaktivieren? Anmeldung ist dann nicht mehr möglich, und die API-Schlüssel hören auf zu funktionieren.",
+    "usersEnableConfirm": "{0} wieder anmelden lassen? Die API-Schlüssel bleiben deaktiviert, bis du sie wieder einschaltest."
 }

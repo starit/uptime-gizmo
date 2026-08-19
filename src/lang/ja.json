@@ -1336,8 +1336,6 @@
     "required": "必須",
     "usersAdd": "アカウントを追加",
     "usersMakeAdmin": "管理者",
-    "usersGrantAdmin": "管理者にする",
-    "usersRevokeAdmin": "管理者を解除",
     "usersResetPassword": "パスワードを設定",
     "usersResetPasswordFor": "{0} の新しいパスワードを設定します。",
     "usersPasswordHelp": "6 文字以上。",
@@ -1356,5 +1354,12 @@
     "usersModelTitle": "ここでのアカウントについて",
     "usersModelShared": "サインインできる人は全員、同じモニター・通知チャンネル・ステータスページを見て管理します。アカウントは people ごとにパスワードを分けるためのもので、データを分けるためのものではありません。",
     "usersModelAdmin": "管理者フラグが決めるのは一つだけ、これらのアカウントを管理できるかどうかです。",
-    "usersModelReadOnly": "この画面に読み取り専用モードはありません。見るだけにしたい相手には、ステータスページを渡すか、読み取り専用の API キーを発行してください。"
+    "usersModelReadOnly": "この画面に読み取り専用モードはありません。見るだけにしたい相手には、ステータスページを渡すか、読み取り専用の API キーを発行してください。",
+    "usersYou": "あなた",
+    "usersPromote": "管理権限を付与",
+    "usersDemote": "管理権限を解除",
+    "usersPromoteConfirm": "{0} にアカウント管理を許可しますか？あなたのものを含め、アカウントの追加・無効化・削除ができるようになります。",
+    "usersDemoteConfirm": "{0} のアカウント管理を解除しますか？インスタンスが監視するものへのアクセスはそのまま残ります。",
+    "usersDisableConfirm": "{0} を無効にしますか？サインインできなくなり、API キーも停止します。",
+    "usersEnableConfirm": "{0} が再びサインインできるようにしますか？API キーは手動で有効にするまで停止したままです。"
 }

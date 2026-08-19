@@ -1303,8 +1303,6 @@
     "required": "必填",
     "usersAdd": "新增帳號",
     "usersMakeAdmin": "管理員",
-    "usersGrantAdmin": "設為管理員",
-    "usersRevokeAdmin": "取消管理員",
     "usersResetPassword": "設定密碼",
     "usersResetPasswordFor": "為 {0} 設定新密碼。",
     "usersPasswordHelp": "至少 6 個字元。",
@@ -1323,5 +1321,12 @@
     "usersModelTitle": "這裡的帳號是怎麼回事",
     "usersModelShared": "能登入的人都會看到並管理整個執行個體：同一批監控項、通知管道和狀態頁。帳號的作用是讓每個人有各自的密碼，而不是各自的資料。",
     "usersModelAdmin": "管理員這個標記只管一件事——誰可以管理這些帳號。",
-    "usersModelReadOnly": "本介面沒有唯讀模式。想讓某人只看不改，發給他一個狀態頁，或者給他一個標記為唯讀的 API 金鑰。"
+    "usersModelReadOnly": "本介面沒有唯讀模式。想讓某人只看不改，發給他一個狀態頁，或者給他一個標記為唯讀的 API 金鑰。",
+    "usersYou": "你",
+    "usersPromote": "授予管理權",
+    "usersDemote": "收回管理權",
+    "usersPromoteConfirm": "讓 {0} 管理帳號？他將可以新增、停用和刪除帳號，包括你的。",
+    "usersDemoteConfirm": "收回 {0} 的帳號管理權？他仍然可以完整存取執行個體監控的一切。",
+    "usersDisableConfirm": "停用 {0}？他將無法登入，其 API 金鑰也會停止運作。",
+    "usersEnableConfirm": "讓 {0} 重新登入？在你手動啟用之前，其 API 金鑰仍處於停用狀態。"
 }
