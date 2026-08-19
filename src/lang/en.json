@@ -1694,5 +1694,8 @@
     "usersPromoteConfirm": "Let {0} manage accounts? They will be able to add, disable and remove accounts, including yours.",
     "usersDemoteConfirm": "Stop {0} managing accounts? They keep full access to everything the instance monitors.",
     "usersDisableConfirm": "Disable {0}? They will not be able to sign in, and their API keys stop working.",
-    "usersEnableConfirm": "Let {0} sign in again? Their API keys stay disabled until you turn them back on."
+    "usersEnableConfirm": "Let {0} sign in again? Their API keys stay disabled until you turn them back on.",
+    "apiDocsSchemas": "Shapes",
+    "apiDocsFieldCount": "{0} fields",
+    "apiDocsLink": "See the API documentation"
 }

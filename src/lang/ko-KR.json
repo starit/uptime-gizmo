@@ -1046,5 +1046,8 @@
     "usersPromoteConfirm": "{0}에게 계정 관리를 허용할까요? 당신의 계정을 포함해 계정을 추가·비활성화·삭제할 수 있게 됩니다.",
     "usersDemoteConfirm": "{0}의 계정 관리 권한을 회수할까요? 인스턴스가 감시하는 모든 것에는 계속 접근할 수 있습니다.",
     "usersDisableConfirm": "{0}을(를) 비활성화할까요? 로그인할 수 없게 되고 API 키도 작동을 멈춥니다.",
-    "usersEnableConfirm": "{0}이(가) 다시 로그인하도록 할까요? API 키는 직접 다시 켜기 전까지 비활성 상태입니다."
+    "usersEnableConfirm": "{0}이(가) 다시 로그인하도록 할까요? API 키는 직접 다시 켜기 전까지 비활성 상태입니다.",
+    "apiDocsSchemas": "데이터 구조",
+    "apiDocsFieldCount": "필드 {0}개",
+    "apiDocsLink": "API 문서 보기"
 }

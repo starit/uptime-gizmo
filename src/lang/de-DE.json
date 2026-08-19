@@ -1667,5 +1667,8 @@
     "usersPromoteConfirm": "{0} Konten verwalten lassen? Damit können Konten angelegt, deaktiviert und entfernt werden – auch deines.",
     "usersDemoteConfirm": "{0} die Kontenverwaltung entziehen? Der Zugriff auf alles, was die Instanz überwacht, bleibt bestehen.",
     "usersDisableConfirm": "{0} deaktivieren? Anmeldung ist dann nicht mehr möglich, und die API-Schlüssel hören auf zu funktionieren.",
-    "usersEnableConfirm": "{0} wieder anmelden lassen? Die API-Schlüssel bleiben deaktiviert, bis du sie wieder einschaltest."
+    "usersEnableConfirm": "{0} wieder anmelden lassen? Die API-Schlüssel bleiben deaktiviert, bis du sie wieder einschaltest.",
+    "apiDocsSchemas": "Datenstrukturen",
+    "apiDocsFieldCount": "{0} Felder",
+    "apiDocsLink": "API-Dokumentation ansehen"
 }

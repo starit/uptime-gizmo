@@ -1328,5 +1328,8 @@
     "usersPromoteConfirm": "讓 {0} 管理帳號？他將可以新增、停用和刪除帳號，包括你的。",
     "usersDemoteConfirm": "收回 {0} 的帳號管理權？他仍然可以完整存取執行個體監控的一切。",
     "usersDisableConfirm": "停用 {0}？他將無法登入，其 API 金鑰也會停止運作。",
-    "usersEnableConfirm": "讓 {0} 重新登入？在你手動啟用之前，其 API 金鑰仍處於停用狀態。"
+    "usersEnableConfirm": "讓 {0} 重新登入？在你手動啟用之前，其 API 金鑰仍處於停用狀態。",
+    "apiDocsSchemas": "資料形狀",
+    "apiDocsFieldCount": "{0} 個欄位",
+    "apiDocsLink": "檢視 API 文件"
 }

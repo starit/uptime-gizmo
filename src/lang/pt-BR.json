@@ -1755,5 +1755,8 @@
     "usersPromoteConfirm": "Deixar {0} gerenciar contas? Poderá adicionar, desativar e remover contas, inclusive a sua.",
     "usersDemoteConfirm": "Tirar de {0} o gerenciamento de contas? O acesso a tudo que a instância monitora continua.",
     "usersDisableConfirm": "Desativar {0}? Não conseguirá entrar, e as chaves de API dela param de funcionar.",
-    "usersEnableConfirm": "Deixar {0} entrar de novo? As chaves de API seguem desativadas até você reativá-las."
+    "usersEnableConfirm": "Deixar {0} entrar de novo? As chaves de API seguem desativadas até você reativá-las.",
+    "apiDocsSchemas": "Estruturas",
+    "apiDocsFieldCount": "{0} campos",
+    "apiDocsLink": "Ver a documentação da API"
 }

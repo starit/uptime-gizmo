@@ -67,7 +67,10 @@
                         <dl class="api-docs__fields">
                             <template v-for="r in op.responses" :key="r.status">
                                 <dt><code>{{ r.status }}</code></dt>
-                                <dd>{{ r.description }}</dd>
+                                <dd>
+                                    {{ r.description }}
+                                    <span v-if="r.schema" class="api-docs__meta">{{ r.schema }}</span>
+                                </dd>
                             </template>
                         </dl>
 
@@ -78,6 +81,34 @@
                                 {{ $t("Copy") }}
                             </button>
                         </div>
+                    </div>
+                </details>
+            </section>
+
+            <!--
+                The shapes the responses refer to. Without these the reference
+                describes every request and none of the answers: a reader can see
+                that GET /monitors returns a Monitor and nowhere find out what a
+                Monitor contains.
+            -->
+            <section v-if="schemas.length" class="api-docs__group">
+                <h3 class="api-docs__group-title">{{ $t("apiDocsSchemas") }}</h3>
+
+                <details v-for="schema in schemas" :key="schema.name" class="api-docs__op">
+                    <summary class="api-docs__summary">
+                        <code class="api-docs__path">{{ schema.name }}</code>
+                        <span class="api-docs__title">{{ $t("apiDocsFieldCount", [ schema.fields.length ]) }}</span>
+                    </summary>
+                    <div class="api-docs__body">
+                        <dl class="api-docs__fields">
+                            <template v-for="f in schema.fields" :key="f.name">
+                                <dt>
+                                    <code>{{ f.name }}</code>
+                                    <span v-if="f.required" class="api-docs__meta">{{ $t("required") }}</span>
+                                </dt>
+                                <dd>{{ describeSchema(f.schema) }}</dd>
+                            </template>
+                        </dl>
                     </div>
                 </details>
             </section>
@@ -145,6 +176,24 @@ export default {
 
             return [ ...groups.entries() ].map(([ name, operations ]) => ({ name, operations }));
         },
+
+        /**
+         * The named shapes, so a reader can find out what a response contains.
+         * @returns {Array<object>} each schema with its fields
+         */
+        schemas() {
+            return Object.entries(this.spec.components?.schemas ?? {}).map(([ name, schema ]) => {
+                const required = new Set(schema.required ?? []);
+                return {
+                    name,
+                    fields: Object.entries(schema.properties ?? {}).map(([ field, sub ]) => ({
+                        name: field,
+                        schema: sub,
+                        required: required.has(field),
+                    })),
+                };
+            });
+        },
     },
     mounted() {
         this.load();
@@ -178,6 +227,17 @@ export default {
             }
             const name = schema.$ref.split("/").pop();
             return this.spec.components?.schemas?.[name] ?? {};
+        },
+
+        /**
+         * The name a response's shape refers to, if it refers to one.
+         * @param {object} schema the response schema, wrapped in the envelope
+         * @returns {string} the schema name, or an empty string
+         */
+        schemaName(schema) {
+            const data = schema?.properties?.data ?? schema;
+            const ref = data?.$ref ?? data?.items?.$ref;
+            return ref ? ref.split("/").pop() : "";
         },
 
         /**
@@ -247,6 +307,9 @@ export default {
                 responses: Object.entries(operation.responses ?? {}).map(([ status, r ]) => ({
                     status,
                     description: r.description ?? "",
+                    // The envelope wraps the shape in { ok, data }; naming the
+                    // shape is what the reader needs to look it up below.
+                    schema: this.schemaName(r.content?.["application/json"]?.schema),
                 })),
                 curl: this.buildCurl(path, method, bodyFields),
             };

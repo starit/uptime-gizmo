@@ -9,6 +9,11 @@
                     <font-awesome-icon icon="plus" />
                     {{ $t("Add API Key") }}
                 </button>
+                <!-- Whoever just made a key is about to want to know what to do
+                     with it, and this is the only page that says. -->
+                <router-link to="/settings/api-docs" class="gizmo-field-help tw-ms-2">
+                    {{ $t("apiDocsLink") }}
+                </router-link>
             </div>
 
             <div>

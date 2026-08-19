@@ -1811,5 +1811,8 @@
     "usersPromoteConfirm": "让 {0} 管理账号？他将可以添加、停用和删除账号，包括你的。",
     "usersDemoteConfirm": "收回 {0} 的账号管理权？他仍然可以完整访问实例监控的一切。",
     "usersDisableConfirm": "停用 {0}？他将无法登录，其 API 密钥也会停止工作。",
-    "usersEnableConfirm": "让 {0} 重新登录？在你手动启用之前，其 API 密钥仍处于停用状态。"
+    "usersEnableConfirm": "让 {0} 重新登录？在你手动启用之前，其 API 密钥仍处于停用状态。",
+    "apiDocsSchemas": "数据形状",
+    "apiDocsFieldCount": "{0} 个字段",
+    "apiDocsLink": "查看 API 文档"
 }

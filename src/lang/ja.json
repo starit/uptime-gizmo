@@ -1361,5 +1361,8 @@
     "usersPromoteConfirm": "{0} にアカウント管理を許可しますか？あなたのものを含め、アカウントの追加・無効化・削除ができるようになります。",
     "usersDemoteConfirm": "{0} のアカウント管理を解除しますか？インスタンスが監視するものへのアクセスはそのまま残ります。",
     "usersDisableConfirm": "{0} を無効にしますか？サインインできなくなり、API キーも停止します。",
-    "usersEnableConfirm": "{0} が再びサインインできるようにしますか？API キーは手動で有効にするまで停止したままです。"
+    "usersEnableConfirm": "{0} が再びサインインできるようにしますか？API キーは手動で有効にするまで停止したままです。",
+    "apiDocsSchemas": "データ構造",
+    "apiDocsFieldCount": "{0} 個のフィールド",
+    "apiDocsLink": "API ドキュメントを見る"
 }

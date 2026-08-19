@@ -1794,5 +1794,8 @@
     "usersPromoteConfirm": "Laisser {0} gérer les comptes ? Cette personne pourra ajouter, désactiver et supprimer des comptes, y compris le vôtre.",
     "usersDemoteConfirm": "Retirer la gestion des comptes à {0} ? Son accès à tout ce que l'instance surveille reste inchangé.",
     "usersDisableConfirm": "Désactiver {0} ? Cette personne ne pourra plus se connecter et ses clés d'API cesseront de fonctionner.",
-    "usersEnableConfirm": "Laisser {0} se reconnecter ? Ses clés d'API restent désactivées jusqu'à ce que vous les réactiviez."
+    "usersEnableConfirm": "Laisser {0} se reconnecter ? Ses clés d'API restent désactivées jusqu'à ce que vous les réactiviez.",
+    "apiDocsSchemas": "Structures",
+    "apiDocsFieldCount": "{0} champs",
+    "apiDocsLink": "Voir la documentation de l'API"
 }

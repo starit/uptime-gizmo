@@ -1525,5 +1525,8 @@
     "usersPromoteConfirm": "¿Dejar que {0} gestione cuentas? Podrá añadir, desactivar y eliminar cuentas, incluida la tuya.",
     "usersDemoteConfirm": "¿Quitar a {0} la gestión de cuentas? Mantiene el acceso completo a todo lo que la instancia monitoriza.",
     "usersDisableConfirm": "¿Desactivar a {0}? No podrá iniciar sesión y sus claves de API dejarán de funcionar.",
-    "usersEnableConfirm": "¿Dejar que {0} vuelva a iniciar sesión? Sus claves de API siguen desactivadas hasta que las actives de nuevo."
+    "usersEnableConfirm": "¿Dejar que {0} vuelva a iniciar sesión? Sus claves de API siguen desactivadas hasta que las actives de nuevo.",
+    "apiDocsSchemas": "Estructuras",
+    "apiDocsFieldCount": "{0} campos",
+    "apiDocsLink": "Ver la documentación de la API"
 }
