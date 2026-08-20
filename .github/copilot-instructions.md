@@ -1,179 +1,115 @@
-# Copilot Instructions for Uptime Kuma
+# Copilot instructions for Uptime Gizmo
 
-Warning: Only maintainers of Uptime Kuma can use this instructions, for other contributors, must read AGENTS.md and CLAUDE.md to avoid to get banned because of AI slop.
+Read [AGENTS.md](../AGENTS.md) and [CLAUDE.md](../CLAUDE.md) first. They are the
+contribution and code-agent guide for this repository, and they win wherever
+this file disagrees with them. What follows is the short orientation and the
+handful of things that are easy to get wrong.
 
-## Copilot's Goals/Tasks
+## Review behaviour
 
-- Check spelling
-- Do not show "Pull Request Overview"
-- You do not have to reply if there are no issues
+- Check spelling.
+- Do not print a "Pull Request Overview" section.
+- Say nothing if there is nothing wrong.
 
-## Repository Overview
+## What this is
 
-**Uptime Kuma** is a self-hosted monitoring tool for HTTP(s), TCP, DNS, Docker, etc. Built with Vue 3 (frontend) and Node.js/Express (backend), using Socket.IO for real-time communication.
+A self-hosted monitoring platform, forked from
+[Uptime Kuma](https://github.com/louislam/uptime-kuma). Vue 3 frontend, Node.js
+and Express backend, Socket.IO for live updates, SQLite by default with MariaDB
+and MySQL supported.
 
-- **Languages**: JavaScript, Vue 3, TypeScript (limited), HTML, CSS/SCSS
-- **Backend**: Node.js >= 20.4, Express.js, Socket.IO, SQLite
-- **Frontend**: Vue 3, Vite, Bootstrap 5, Chart.js
-- **Package Manager**: pnpm, pinned by the `packageManager` field in `package.json` (see `.npmrc` for peer-dependency and release-age policy)
+The fork adds a REST API under `/api/v1`, an MCP server in `mcp-server/`,
+on-chain monitors, and a rebuilt interface. Most backend logic still arrives
+over Socket.IO rather than REST, so look in `server/socket-handlers/` before
+assuming an endpoint exists.
 
-## Build & Validation Commands
+- **Frontend**: Vue 3, Vite, Tailwind, Chart.js. Bootstrap has been removed;
+  do not reintroduce it or any of its class names.
+- **Styling**: design tokens only. [DESIGN.md](../DESIGN.md) is the source of
+  truth for colour, radius, weight, status palette, density and accessibility.
+  A hard-coded hex in a component is a review comment.
+- **Package manager**: pnpm, pinned by `packageManager` in `package.json`. Never
+  npm or yarn. `.npmrc` also sets a minimum release age on dependencies; adding
+  an exemption is a decision to raise in review, not a fix for a failing
+  install.
 
-### Prerequisites
-
-- Node.js >= 20.4.0, pnpm >= 10, Git
-
-### Essential Command Sequence
-
-1. **Install Dependencies**:
-
-   ```bash
-   corepack enable pnpm
-   pnpm install --frozen-lockfile  # Do not use plain `pnpm install` in CI (~60-90 seconds)
-   ```
-
-2. **Linting** (required before committing):
-
-   ```bash
-   pnpm run lint         # Both linters (~15-30 seconds)
-   pnpm run lint:prod    # For production (zero warnings)
-   ```
-
-3. **Build Frontend**:
-
-   ```bash
-   pnpm run build  # Takes ~90-120 seconds, builds to dist/
-   ```
-
-4. **Run Tests**:
-   ```bash
-   pnpm run test-backend  # Backend tests (~50-60 seconds)
-   pnpm test             # All tests
-   ```
-
-### Development Workflow
+## Commands
 
 ```bash
-pnpm run dev  # Starts frontend (port 3000) and backend (port 3001)
+corepack enable pnpm
+pnpm install --frozen-lockfile   # always --frozen-lockfile, in CI and locally
+
+pnpm run dev                     # frontend :3000, backend :3001
+pnpm run lint                    # eslint + stylelint
+pnpm run tsc                     # must pass; it is clean today
+pnpm run build                   # writes dist/
+pnpm run test-backend            # run pnpm run build first
 ```
 
-## Project Architecture
-
-### Directory Structure
+## Layout
 
 ```
-/
-├── server/              Backend source code
-│   ├── model/          Database models (auto-mapped to tables)
-│   ├── monitor-types/  Monitor type implementations
-│   ├── notification-providers/  Notification integrations
-│   ├── routers/        Express routers
-│   ├── socket-handlers/  Socket.IO event handlers
-│   ├── server.js       Server entry point
-│   └── uptime-kuma-server.js  Main server logic
-├── src/                Frontend source code (Vue 3 SPA)
-│   ├── components/     Vue components
-│   ├── pages/          Page components
-│   ├── lang/          i18n translations
-│   ├── router.js      Vue Router configuration
-│   └── main.js        Frontend entry point
-├── db/                 Database related
-│   ├── knex_migrations/  Knex migration files
-│   └── kuma.db        SQLite database (gitignored)
-├── test/               Test files
-│   ├── backend-test/  Backend unit tests
-│   └── e2e/           Playwright E2E tests
-├── config/             Build configuration
-│   ├── vite.config.js    Vite build config
-│   └── playwright.config.js  Playwright test config
-├── dist/               Frontend build output (gitignored)
-├── data/               App data directory (gitignored)
-├── public/             Static frontend assets (dev only)
-├── docker/             Docker build files
-└── extra/              Utility scripts
+server/                  Backend
+  model/                 Database models, auto-mapped to tables
+  monitor-types/         One file per monitor type
+  notification-providers/
+  routers/               Express routers, including the REST API
+  socket-handlers/       Socket.IO handlers, where most logic lives
+  uptime-gizmo-server.js Main server logic
+src/                     Vue 3 frontend
+  components/gizmo/      The shared design-system components
+  pages/, components/, lang/
+  assets/tokens.scss     The design tokens DESIGN.md documents
+  theme/theme-bridge.ts  The only file that knows themed.js exists
+db/knex_migrations/      Migrations
+mcp-server/              MCP server, its own package and process
+docs/plans/              Design notes for the larger pieces
+test/backend-test/, test/e2e/
 ```
 
-### Key Configuration Files
+## Code style
 
-- **package.json**: Scripts, dependencies, Node.js version requirement
-- **.eslintrc.js**: ESLint rules (4 spaces, double quotes, unix line endings, JSDoc required)
-- **.stylelintrc**: Stylelint rules (4 spaces indentation)
-- **.editorconfig**: Editor settings (4 spaces, LF, UTF-8)
-- **tsconfig-backend.json**: TypeScript config for backend (only src/util.ts)
-- **.npmrc**: `legacy-peer-deps=true` (required for dependency resolution)
-- **.gitignore**: Excludes node_modules, dist, data, tmp, private
+Enforced by `.eslintrc.js` and `.stylelintrc`, so run the linters rather than
+arguing from memory. Four spaces, double quotes, LF, semicolons. JSDoc on every
+function. camelCase in JS and TS, snake_case in SQLite, kebab-case in CSS.
 
-### Code Style (strictly enforced by linters)
-
-- 4 spaces indentation, double quotes, Unix line endings (LF), semicolons required
-- **Naming**: JavaScript/TypeScript (camelCase), SQLite (snake_case), CSS/SCSS (kebab-case)
-- JSDoc required for all functions/methods
-
-## CI/CD Workflows
-
-**auto-test.yml** (runs on PR/push to master/1.23.X):
-
-- Linting, building, backend tests on multiple OS/Node versions (15 min timeout)
-- E2E Playwright tests
-
-**validate.yml**: Validates JSON/YAML files, language files, knex migrations
-
-**PR Requirements**: All linters pass, tests pass, code follows style guidelines
-
-## Common Issues
-
-1. **pnpm install vs --frozen-lockfile**: Always pass `--frozen-lockfile` for reproducible builds
-2. **TypeScript errors**: `pnpm run tsc` shows 1400+ errors - ignore them, they don't affect builds
-3. **Stylelint warnings**: Deprecation warnings are expected, ignore them
-4. **Test failures**: Always run `pnpm run build` before running tests
-5. **Port conflicts**: Dev server uses ports 3000 and 3001
-6. **First run**: Server shows "db-config.json not found" - this is expected, starts setup wizard
+Prefer TypeScript for new modules and for Vue component logic. Existing
+JavaScript migrates incrementally; do not convert a file as a side effect of an
+unrelated change.
 
 ## Translations
 
-- Managed via Weblate. Add keys to `src/lang/en.json` only
-- Don't include other languages in PRs
-- Use `$t("key")` in Vue templates
+This fork has no Weblate. Add keys to `src/lang/en.json`, and translate them by
+hand in the same change for the languages the fork carries its own strings in:
+`zh-CN`, `zh-TW`, `fr-FR`, `de-DE`, `es-ES`, `pt-BR`, `ru-RU`, `ja`, `ko-KR`.
 
-## Database
+Check placeholders against the English source. Several strings carry `{0}` and
+`{1}`, and a dropped one renders as literal braces in front of a user.
 
-- Primary: SQLite (also supports MariaDB/MySQL)
-- Migrations in `db/knex_migrations/` using Knex.js
-- Filename format validated by CI: `node ./extra/check-knex-filenames.mjs`
+## Adding a monitor type
 
-## Testing
+1. `server/monitor-types/TYPE.js`
+2. Register it in `server/uptime-gizmo-server.js`
+3. `src/pages/EditMonitor.vue` for the form
+4. `src/lang/en.json`, plus the translations above
 
-- **Backend**: Node.js test runner, fast unit tests
-- **E2E**: Playwright (requires `npx playwright install` first time)
-- Test data in `data/playwright-test`
+## Adding a notification provider
 
-## Adding New Features
+1. `server/notification-providers/PROVIDER.js`
+2. Register in `server/notification.js`
+3. `src/components/notifications/PROVIDER.vue`
+4. Register in `src/components/notifications/index.js`
+5. Add it to `src/components/NotificationDialog.vue`
+6. `src/lang/en.json`, plus the translations above
 
-### New Notification Provider
+## Things that catch people out
 
-Files to modify:
-
-1. `server/notification-providers/PROVIDER_NAME.js` (backend logic)
-2. `server/notification.js` (register provider)
-3. `src/components/notifications/PROVIDER_NAME.vue` (frontend UI)
-4. `src/components/notifications/index.js` (register frontend)
-5. `src/components/NotificationDialog.vue` (add to list)
-6. `src/lang/en.json` (add translation keys)
-
-### New Monitor Type
-
-Files to modify:
-
-1. `server/monitor-types/MONITORING_TYPE.js` (backend logic)
-2. `server/uptime-kuma-server.js` (register monitor type)
-3. `src/pages/EditMonitor.vue` (frontend UI)
-4. `src/lang/en.json` (add translation keys)
-
-## Important Notes
-
-1. **Trust these instructions** - based on testing. Search only if incomplete/incorrect
-2. **Dependencies**: 5 known vulnerabilities (3 moderate, 2 high) - acknowledged, don't fix without discussion
-3. **Git Branches**: `master` (v2 development), `1.23.X` (v1 maintenance)
-4. **Node Version**: >= 20.4.0 required
-5. **Socket.IO**: Most backend logic in `server/socket-handlers/`, not REST
-6. **Never commit**: `data/`, `dist/`, `tmp/`, `private/`, `node_modules/`
+- The Docker image does not build the frontend. `docker/dockerfile` expects
+  `dist/` to exist in the build context, so run `pnpm run build` on the host
+  first. It fails with a message rather than shipping an interface-less image.
+- `pnpm run test-backend` has one pre-existing failure, an IDN punycode test in
+  `test/backend-test/test-util-server.js`. It is not yours.
+- `pnpm run lint:style` has one pre-existing error in `MonitorListItem.vue`.
+- Never commit `data/`, `dist/`, `tmp/`, `private/` or `node_modules/`.
+- Backing up means copying the data directory, and one way of doing it loses
+  data silently. See [docs/backup-and-restore.md](../docs/backup-and-restore.md).
