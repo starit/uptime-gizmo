@@ -162,21 +162,21 @@ class Database {
     }
 
     /**
-     * Development + non-master branch + no custom only
+     * Development + non-default branch + no custom only
      * To avoid database migration issue during different pull request testing.
      * Path: ./data/dev-data/<git branch name>/
-     * @returns {string} The dev data dir, empty string if not in dev mode or in master branch
+     * @returns {string} The dev data dir, empty string if not in dev mode or on the default branch
      */
     static getDevDataDir() {
         if (isDev) {
             const gitBranch = this.getCurrentGitBranch();
 
             // HEAD means detached head. Don't handle this case, becasuse it is not common.
-            if (gitBranch !== "" && gitBranch !== "master" && gitBranch !== "HEAD") {
+            if (gitBranch !== "" && gitBranch !== "main" && gitBranch !== "HEAD") {
                 log.info("server", `Using development data directory for branch ${gitBranch}`);
                 return path.join("./data/dev-data/", gitBranch, "/");
             } else {
-                log.debug("server", "Do not use development data directory because it is master branch");
+                log.debug("server", "Do not use development data directory because it is the default branch");
             }
         }
         return "";

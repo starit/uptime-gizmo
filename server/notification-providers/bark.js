@@ -12,7 +12,7 @@ const { default: axios } = require("axios");
 
 // bark is an APN bridge that sends notifications to Apple devices.
 
-const barkNotificationAvatar = "https://github.com/starit/uptime-gizmo/raw/master/public/icon.png";
+const barkNotificationAvatar = "https://github.com/starit/uptime-gizmo/raw/main/public/icon.png";
 const successMessage = "Successes!";
 
 class Bark extends NotificationProvider {

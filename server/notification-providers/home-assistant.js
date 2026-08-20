@@ -32,7 +32,7 @@ class HomeAssistant extends NotificationProvider {
                             name: monitorJSON?.name,
                             status: heartbeatJSON?.status,
                             channel: "Uptime Gizmo",
-                            icon_url: "https://github.com/starit/uptime-gizmo/blob/master/public/icon.png?raw=true",
+                            icon_url: "https://github.com/starit/uptime-gizmo/blob/main/public/icon.png?raw=true",
                         },
                     }),
                 },

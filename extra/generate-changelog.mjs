@@ -281,7 +281,7 @@ export async function getPullRequestList(previousVersion, removeAuthor = false) 
             "--state",
             "merged",
             "--base",
-            "master",
+            "main",
             "--search",
             `merged:>=${previousVersionDate}`,
             "--json",

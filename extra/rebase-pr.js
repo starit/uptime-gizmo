@@ -1,7 +1,7 @@
 const { execSync } = require("child_process");
 
 /**
- * Rebase a PR onto such as 1.23.X or master
+ * Rebase a PR onto a base branch, such as main
  * @returns {Promise<void>}
  */
 async function main() {

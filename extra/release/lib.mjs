@@ -337,7 +337,7 @@ The \`dist.tar.gz\` archive will be available as an artifact in the [workflow ru
         "--body",
         body,
         "--base",
-        "master",
+        "main",
         "--head",
         branchName,
         "--draft",
