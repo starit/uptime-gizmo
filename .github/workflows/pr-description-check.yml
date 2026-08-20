@@ -54,6 +54,6 @@ jobs:
             } else {
               core.info("PR description contains required phrase; no action taken.");
 
-              const commentBody = `Thanks for the PR! If anyone would like to help with testing, run: \`npx kuma-pr ${pr.user.login}:${pr.head.ref}\` (requires Node.js and Docker)`;
+              const commentBody = `Thanks for the PR! If anyone would like to help with testing, check the branch out with \`gh pr checkout ${number}\`, then \`pnpm install && pnpm run dev\`.`;
               await github.rest.issues.createComment({ owner, repo, issue_number: number, body: commentBody });
             }

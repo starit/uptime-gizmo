@@ -62,7 +62,6 @@ jobs:
       - run: pnpm run test-backend
         env:
           HEADLESS_TEST: 1
-          JUST_FOR_TEST: ${{ secrets.JUST_FOR_TEST }}
 
   # As a lot of dev dependencies are not supported on ARMv7, we have to test it separately and just test if `pnpm install --prod` works
   armv7-simple-test:
