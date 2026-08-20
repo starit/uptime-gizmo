@@ -2,7 +2,8 @@ import "dotenv/config";
 import * as childProcess from "child_process";
 import semver from "semver";
 import fs from "fs";
-import tar from "tar";
+// tar 7 dropped the ESM default export; only named ones remain.
+import { create as tarCreate } from "tar";
 
 export const dryRun = process.env.RELEASE_DRY_RUN === "1";
 
@@ -283,7 +284,7 @@ export async function createDistTarGz() {
     console.log(`Creating ${outputPath} from ${distPath}...`);
 
     try {
-        await tar.create(
+        await tarCreate(
             {
                 gzip: true,
                 file: outputPath,
