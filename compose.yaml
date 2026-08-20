@@ -1,6 +1,6 @@
 services:
   uptime-gizmo:
-    image: starit/uptime-gizmo:2
+    image: starit/uptime-gizmo:3
     restart: unless-stopped
     volumes:
       - ./data:/app/data
