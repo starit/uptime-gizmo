@@ -1,16 +1,30 @@
 ARG BASE_IMAGE=starit/uptime-gizmo:base2
 
 ############################################
-# Build in Golang
-# Run pnpm run build-healthcheck-armv7 in the host first, otherwise it will be super slow where it is building the armv7 healthcheck
-# Check file: builder-go.dockerfile
+# Build the healthcheck in Golang
 ############################################
-FROM starit/uptime-gizmo:builder-go AS build_healthcheck
+# --platform=$BUILDPLATFORM keeps this stage on whatever the machine running the
+# build actually is, and Go cross-compiles to the target from there. Without it,
+# a linux/arm/v7 build runs the Go compiler itself under QEMU — which is the
+# only reason this was ever slow enough to be worth publishing as a prebuilt
+# image, or to need a healthcheck binary built on the host beforehand.
+FROM --platform=$BUILDPLATFORM golang:1-alpine AS build_healthcheck
+WORKDIR /src
+ARG TARGETOS
+ARG TARGETARCH
+ARG TARGETVARIANT
+COPY ./extra/healthcheck.go ./healthcheck.go
+# healthcheck.go imports nothing outside the standard library, so there is no
+# module to resolve and no network to reach. CGO off makes the binary static, so
+# it does not care what the base image ships. GOARM comes from the variant
+# ("v7" -> "7") and is ignored on every architecture that has no variant.
+RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} GOARM=${TARGETVARIANT#v} \
+    go build -trimpath -ldflags="-s -w" -o /app/extra/healthcheck ./healthcheck.go
 
 ############################################
 # Build in Node.js
 ############################################
-FROM starit/uptime-gizmo:base2 AS build
+FROM ${BASE_IMAGE} AS build
 # corepack installs its shims into the Node prefix, so it must run before the
 # switch to the unprivileged user.
 RUN corepack enable pnpm
@@ -39,7 +53,7 @@ RUN mkdir ./data
 ############################################
 # ⭐ Main Image
 ############################################
-FROM $BASE_IMAGE AS release
+FROM ${BASE_IMAGE} AS release
 WORKDIR /app
 
 LABEL org.opencontainers.image.source="https://github.com/starit/uptime-gizmo"
@@ -74,7 +88,7 @@ USER node
 ############################################
 # Build an image for testing pr
 ############################################
-FROM starit/uptime-gizmo:base2 AS pr-test2
+FROM ${BASE_IMAGE} AS pr-test2
 WORKDIR /app
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=1
 
@@ -109,7 +123,7 @@ CMD ["pnpm", "run", "start-pr-test"]
 ############################################
 # Upload the artifact to Github
 ############################################
-FROM starit/uptime-gizmo:base2 AS upload-artifact
+FROM ${BASE_IMAGE} AS upload-artifact
 WORKDIR /
 RUN apt update && \
     apt --yes install curl file

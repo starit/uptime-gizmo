@@ -51,9 +51,3 @@ jobs:
 
       - name: Build and push base2 image
         run: pnpm run build-docker-base
-
-      # The main image builds its healthcheck FROM this one. It was never built
-      # here, so a registry with only the base2 pair still could not build the
-      # product.
-      - name: Build and push builder-go image
-        run: pnpm run build-docker-builder-go
