@@ -2,16 +2,52 @@ name: Nightly Release
 
 on:
   schedule:
-    # Runs at 2:00 AM UTC every day
-    - cron: "0 2 * * *"
+    # Every other day at 2:00 AM UTC. Day-of-month stepping means the 31st and
+    # the 1st fall a day apart rather than two, which the window below covers.
+    - cron: "0 2 */2 * *"
   workflow_dispatch: # Allow manual trigger
 
 permissions: {}
 
 jobs:
-  release-nightly:
+  # A nightly of yesterday's nightly is not worth publishing. mark-as-nightly
+  # stamps the version with the build time, so an unchanged tree still produces
+  # a different image every day, and anything watching the tag pulls it.
+  check:
     # Only run on the original repository, not on forks
     if: github.repository == 'starit/uptime-gizmo'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    outputs:
+      build: ${{ steps.recent.outputs.build }}
+
+    steps:
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          persist-credentials: false
+          # The default shallow clone holds one commit, which would make the
+          # window below look empty on every run.
+          fetch-depth: 100
+
+      - name: Look for commits since the last nightly
+        id: recent
+        run: |
+          # One day longer than the gap between runs, so the window always
+          # overlaps the previous one. Scheduled runs are queued and start late,
+          # and a window equal to the interval would drop whatever landed in the
+          # drift. If the schedule changes, this has to change with it.
+          if [ -n "$(git log --since='3 days ago' --oneline)" ]; then
+            echo "build=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "build=false" >> "$GITHUB_OUTPUT"
+            echo "No commits in the last three days, so there is nothing to publish." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+  release-nightly:
+    needs: check
+    if: github.repository == 'starit/uptime-gizmo' && (needs.check.outputs.build == 'true' || github.event_name == 'workflow_dispatch')
     runs-on: ubuntu-latest
     timeout-minutes: 120
     permissions:
