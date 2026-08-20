@@ -1663,6 +1663,8 @@
     "Decimals": "Decimals",
     "Minimum Balance": "Minimum Balance",
     "Disabled": "Disabled",
+    "web3NetworksIntro": "A network here is one chain, named and pointed at an RPC endpoint. Saving it probes the endpoint for its chain ID and records it, so a later check can tell if the URL starts serving a different chain. Two monitor types then use it: Web3 Balance reads an address's native or ERC-20 balance and goes down below a floor you set, and Web3 RPC Health goes down when the newest block stops being recent — which is how a node that answers every call but has fallen out of consensus gets caught.",
+    "web3NetworksSupported": "Ethereum-style chains only. Every call this makes is Ethereum JSON-RPC — eth_chainId, eth_getBalance, eth_getBlockByNumber, and eth_call for ERC-20 balanceOf and decimals — so any EVM chain works: Ethereum, Polygon, BSC, Arbitrum, Optimism, Base, testnets, and a local node. Chains that do not speak that API, such as Bitcoin, Solana, or Cosmos, are not supported.",
     "web3NetworksHelp": "An RPC endpoint is shared by every monitor that watches this chain. Configure it once here.",
     "web3RpcUrlHelp": "Hosted endpoints carry an API key in the URL, so this is stored as a credential and is never returned by the API.",
     "web3ChainIdHelp": "The endpoint reports chain {0}. A check fails if it later starts serving a different chain.",

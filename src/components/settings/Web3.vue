@@ -1,9 +1,19 @@
 <template>
     <div>
+        <!--
+            The page listed endpoints without ever saying what one is for, which
+            chains can go in it, or what the two monitor types do with it. The
+            EVM-only limit in particular was only discoverable by adding a
+            Solana endpoint and watching every call fail.
+        -->
+        <p class="gizmo-field-help tw-mb-2">{{ $t("web3NetworksIntro") }}</p>
+        <p class="gizmo-field-help tw-mb-2">{{ $t("web3NetworksSupported") }}</p>
         <p class="gizmo-field-help tw-mb-4">{{ $t("web3NetworksHelp") }}</p>
 
         <div class="tw-my-4">
-            <p v-if="$root.web3NetworkList.length === 0">
+            <!-- Body size made this line louder than the three paragraphs of
+                 explanation above it, for a sentence that only says "empty". -->
+            <p v-if="$root.web3NetworkList.length === 0" class="gizmo-field-help">
                 {{ $t("Not available, please setup.") }}
             </p>
 

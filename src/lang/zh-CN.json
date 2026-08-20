@@ -1784,6 +1784,8 @@
     "Maximum Block Age": "最大区块延迟",
     "Disabled": "已禁用",
     "monitorTypeWeb3": "Web3",
+    "web3NetworksIntro": "这里的一个网络代表一条链：一个名称加一个 RPC 接口地址。保存时会探测该接口的 chain ID 并记录下来，日后若该地址开始服务另一条链，检查就能发现。有两种监控类型会用到它：Web3 Balance 读取某个地址的原生代币或 ERC-20 余额，低于你设定的下限即判定为故障；Web3 RPC Health 在最新区块不再更新时判定为故障 —— 这正是识别那种「每个请求都正常响应、但已脱离共识」的节点的方式。",
+    "web3NetworksSupported": "仅支持以太坊类型的链。这里发出的全部是以太坊 JSON-RPC 调用 —— eth_chainId、eth_getBalance、eth_getBlockByNumber，以及用于 ERC-20 balanceOf 和 decimals 的 eth_call —— 因此任何 EVM 链都可以：Ethereum、Polygon、BSC、Arbitrum、Optimism、Base、各类测试网，以及本地节点。不使用该 API 的链（如 Bitcoin、Solana、Cosmos）不受支持。",
     "web3NetworksHelp": "同一条链上的所有监控项共用一个 RPC 端点，在这里配置一次即可。",
     "web3RpcUrlHelp": "托管服务的端点会把 API 密钥带在地址里，因此这里按凭据存储，API 不会返回它。",
     "web3ChainIdHelp": "端点报告的链 ID 为 {0}。如果它之后开始服务另一条链，检测会失败。",
