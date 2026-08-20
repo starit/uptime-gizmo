@@ -11,7 +11,7 @@ permissions: {}
 jobs:
   build-docker-pr-test:
     # Only run on the original repository, not on forks
-    if: github.repository == 'louislam/uptime-kuma'
+    if: github.repository == 'starit/uptime-gizmo'
     runs-on: ubuntu-latest
     timeout-minutes: 120
     permissions:

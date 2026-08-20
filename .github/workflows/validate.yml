@@ -2,11 +2,10 @@ name: validate
 on:
   push:
     branches:
-      - master
+      - main
   pull_request:
     branches:
-      - master
-      - 1.23.X
+      - main
   workflow_dispatch:
 permissions: {}
 

@@ -8,17 +8,17 @@ name: Merge Conflict Labeler
 on: # zizmor: ignore[dangerous-triggers]
   push:
     branches:
-      - master
+      - main
   pull_request_target:
     branches:
-      - master
+      - main
     types: [synchronize]
 
 jobs:
   label:
     name: Labeling
     runs-on: ubuntu-latest
-    if: ${{ github.repository == 'louislam/uptime-kuma' }}
+    if: ${{ github.repository == 'starit/uptime-gizmo' }}
     permissions:
       contents: read
       pull-requests: write

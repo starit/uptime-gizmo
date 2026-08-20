@@ -2,16 +2,16 @@ name: "CodeQL"
 
 on:
   push:
-    branches: ["master", "1.23.X"]
+    branches: ["main"]
   pull_request:
-    branches: ["master", "1.23.X"]
+    branches: ["main"]
   schedule:
     - cron: "16 22 * * 0"
 
 jobs:
   analyze:
     # Only run scheduled analysis on the original repository, not on forks
-    if: github.event_name != 'schedule' || github.repository == 'louislam/uptime-kuma'
+    if: github.event_name != 'schedule' || github.repository == 'starit/uptime-gizmo'
     name: Analyze
     runs-on: ubuntu-latest
     timeout-minutes: 360
@@ -45,7 +45,7 @@ jobs:
           category: "/language:${{matrix.language}}"
   zizmor:
     # Only run scheduled analysis on the original repository, not on forks
-    if: github.event_name != 'schedule' || github.repository == 'louislam/uptime-kuma'
+    if: github.event_name != 'schedule' || github.repository == 'starit/uptime-gizmo'
     runs-on: ubuntu-latest
     permissions:
       security-events: write

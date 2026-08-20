@@ -9,7 +9,7 @@ permissions: {}
 jobs:
   stale:
     # Only run on the original repository, not on forks
-    if: github.repository == 'louislam/uptime-kuma'
+    if: github.repository == 'starit/uptime-gizmo'
     runs-on: ubuntu-latest
     permissions:
       actions: write
@@ -25,7 +25,7 @@ jobs:
           days-before-pr-stale: -1
           days-before-pr-close: -1
           exempt-issue-labels: "News,discussion,bug,doc,feature-request"
-          exempt-issue-assignees: "louislam"
+          exempt-issue-assignees: "starit"
           operations-per-run: 200
       - uses: actions/stale@997185467fa4f803885201cee163a9f38240193d # v10.1.1
         with:

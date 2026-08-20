@@ -6,7 +6,7 @@ concurrency:
 
 on:
   push:
-    branches: [master, 1.23.X, 3.0.0]
+    branches: [main]
   pull_request:
 permissions: {}
 
@@ -56,7 +56,7 @@ jobs:
 
       - name: Rebuild native modules for ARM64
         if: matrix.os == 'ubuntu-22.04-arm'
-        run: ppnpm rebuild @louislam/sqlite3
+        run: pnpm rebuild @louislam/sqlite3
 
       - run: pnpm run build
       - run: pnpm run test-backend
@@ -148,7 +148,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
 
       - name: Rebuild native modules for ARM64
-        run: ppnpm rebuild @louislam/sqlite3
+        run: pnpm rebuild @louislam/sqlite3
 
       - name: Install Playwright ${{ env.PLAYWRIGHT_VERSION }}
         run: npx playwright@${{ env.PLAYWRIGHT_VERSION }} install

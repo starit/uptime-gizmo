@@ -12,7 +12,7 @@ permissions: {}
 
 jobs:
   handle-deleted:
-    if: github.event.label.name == 'deleted' && github.repository == 'louislam/uptime-kuma'
+    if: github.event.label.name == 'deleted' && github.repository == 'starit/uptime-gizmo'
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write

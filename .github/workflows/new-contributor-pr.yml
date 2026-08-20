@@ -8,14 +8,14 @@ on:
   pull_request_target: # zizmor: ignore[dangerous-triggers]
     types: [opened, closed]
     branches:
-      - master
+      - main
 
 permissions:
   pull-requests: write
 
 jobs:
   build:
-    if: github.repository == 'louislam/uptime-kuma'
+    if: github.repository == 'starit/uptime-gizmo'
     name: Hello new contributor
     runs-on: ubuntu-latest
     timeout-minutes: 60
@@ -26,7 +26,7 @@ jobs:
           pr-opened-msg: >
             Hello and thanks for lending a paw to Uptime Kuma! 🐻👋
 
-            As this is your first contribution, please be sure to check out our [Pull Request guidelines](https://github.com/louislam/uptime-kuma/blob/master/CONTRIBUTING.md#can-i-create-a-pull-request-for-uptime-kuma).
+            As this is your first contribution, please be sure to check out our [Pull Request guidelines](https://github.com/starit/uptime-gizmo/blob/main/CONTRIBUTING.md#pull-requests).
 
             In particular:
             - Mark your PR as Draft while you’re still making changes
@@ -37,4 +37,4 @@ jobs:
             @{fc-author} congrats on your first contribution to Uptime Kuma! 🐻
 
             We hope you enjoy contributing to our project and look forward to seeing more of your work in the future!
-            If you want to see your contribution in action, please see our [nightly builds here](https://hub.docker.com/layers/louislam/uptime-kuma/nightly2).
+            If you want to see your contribution in action, please see our [nightly builds here](https://hub.docker.com/layers/starit/uptime-gizmo/nightly2).
