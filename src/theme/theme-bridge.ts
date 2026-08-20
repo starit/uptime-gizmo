@@ -22,6 +22,49 @@ import type { Theme } from "@themed.js/core";
 export type GizmoVars = Record<string, string>;
 
 /**
+ * Extra colours a theme may carry in themed.js's `custom` field.
+ *
+ * `tokens.colors` is a fixed sixteen-key interface with no slot for a
+ * monitoring product's states, but a theme's `custom` object is arbitrary JSON
+ * that survives storage, export and import, and the AI can be asked to fill it
+ * in the same call that produces the palette. So the two hues this project
+ * needs and themed.js has no name for are requested rather than guessed at.
+ *
+ * Optional throughout: a hand-written or imported theme carries none of this,
+ * and every one falls back to the derivation it always used.
+ */
+interface GizmoCustom {
+    /** Scheduled maintenance. Otherwise borrowed from `secondary`. */
+    statusMaintenance?: unknown;
+    /** Unknown or no data. Otherwise borrowed from `textSecondary`. */
+    statusUnknown?: unknown;
+}
+
+/** Three- or six-digit hex, which is all the colour helpers accept. */
+const HEX_COLOUR = /^#([\da-f]{3}|[\da-f]{6})$/i;
+
+/**
+ * Read one of the extra hues, falling back when a theme does not carry it.
+ *
+ * `custom` is untyped by design, so nothing in it is trusted: a value that is
+ * not a hex colour would be passed straight to the colour helpers and produce
+ * either an exception or, worse, a silently wrong palette.
+ * @param theme themed.js theme to read from
+ * @param key which extra hue to look for
+ * @param fallback colour to use when the theme does not carry a usable one
+ * @returns a hex colour
+ */
+function customHue(theme: Theme, key: keyof GizmoCustom, fallback: string): string {
+    const value = (theme.custom as GizmoCustom | undefined)?.[key];
+
+    if (typeof value === "string" && HEX_COLOUR.test(value.trim())) {
+        return value.trim();
+    }
+
+    return fallback;
+}
+
+/**
  * Whether a theme should sit on the light or the dark baseline.
  * Derived from the background rather than declared, so an AI-generated theme
  * lands correctly without having to know about this project's conventions.
@@ -92,16 +135,17 @@ export function themeToGizmoVars(theme: Theme): GizmoVars {
         "--color-interactive-subtle": tint(c.accent),
         "--color-focus-ring": c.accent,
 
-        // Monitoring status. themed.js has no maintenance concept, so that one
-        // comes from the secondary colour, which is the closest thing it has to
-        // a second brand hue.
+        // Monitoring status. Three of these map onto colours themed.js already
+        // names. The other two have no equivalent, so they come from the theme's
+        // `custom` field when it carries them, and from the nearest thing in the
+        // palette when it does not: `secondary` is the closest to a second brand
+        // hue, and the muted text colour is legible by definition where
+        // `borderDark` is too pale to clear the 3:1 floor on a light page.
         ...status(c.success, "up"),
         ...status(c.warning, "degraded"),
         ...status(c.error, "down"),
-        ...status(c.secondary, "maintenance"),
-        // borderDark is too pale against a light page to clear the 3:1 floor for
-        // a UI component; the muted text colour is legible by definition.
-        ...status(c.textSecondary, "unknown"),
+        ...status(customHue(theme, "statusMaintenance", c.secondary), "maintenance"),
+        ...status(customHue(theme, "statusUnknown", c.textSecondary), "unknown"),
     };
 }
 

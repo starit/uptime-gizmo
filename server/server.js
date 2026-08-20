@@ -1552,9 +1552,26 @@ let needSetup = false;
                     },
                 });
 
+                /*
+                 * themed.js models a palette as sixteen colours, and two of the
+                 * states this product shows have no slot among them. Rather than
+                 * derive them from whatever is nearest — maintenance used to be
+                 * whatever `secondary` happened to be — they are asked for in the
+                 * same call, through the `custom` field, which is arbitrary JSON
+                 * the generator fills alongside the tokens and which survives
+                 * storage and export. The bridge falls back to the old derivation
+                 * for any theme that arrives without them.
+                 */
+                const customSchema = JSON.stringify({
+                    statusMaintenance:
+                        "hex colour for a scheduled-maintenance state, clearly distinct from the warning and error colours and readable against the background",
+                    statusUnknown:
+                        "hex colour for an unknown or no-data state, a neutral that is readable against the background",
+                });
+
                 // ThemeManager.generate resolves to a full Theme, unlike the
                 // orchestrator's generateTheme, which returns tokens only.
-                const theme = await themed.generate(prompt.trim());
+                const theme = await themed.generate(prompt.trim(), { customSchema });
 
                 callback({
                     ok: true,
