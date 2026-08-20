@@ -1,22 +1,39 @@
 <template>
     <div>
-        <GizmoMenu align="end" class="period-options">
-            <template #trigger>
-                <button type="button" class="gizmo-native-button gizmo-native-button--light btn-period-toggle">
-                    {{ chartPeriodOptions[chartPeriodHrs] }}
-                </button>
-            </template>
-            <GizmoMenuItem
-                v-for="(item, key) in chartPeriodOptions"
-                :key="key"
-                :class="{ active: chartPeriodHrs == key }"
-                @select="chartPeriodHrs = key"
-            >
-                {{ item }}
-            </GizmoMenuItem>
-        </GizmoMenu>
+        <!--
+            A segmented control instead of a dropdown floated over the plot. Five
+            ranges is few enough to show at once, so switching costs one click
+            rather than two, and the current range is readable without opening
+            anything.
+        -->
+        <div class="chart-toolbar">
+            <div class="gizmo-action-group chart-period" role="group" :aria-label="$t('chartPeriodLabel')">
+                <template v-for="(item, key) in chartPeriodOptions" :key="key">
+                    <input
+                        :id="`chart-period-${monitorId}-${key}`"
+                        v-model="chartPeriodHrs"
+                        type="radio"
+                        class="gizmo-choice-input"
+                        :name="`chart-period-${monitorId}`"
+                        :value="String(key)"
+                    />
+                    <label
+                        class="gizmo-native-button gizmo-native-button--sm gizmo-native-button--light"
+                        :for="`chart-period-${monitorId}-${key}`"
+                    >
+                        {{ item }}
+                    </label>
+                </template>
+            </div>
+        </div>
+
         <div class="chart-wrapper" :class="{ loading: loading }">
             <Line :data="chartData" :options="chartOptions" />
+            <!-- The plot used to blur itself while fetching, which read as a
+                 rendering fault rather than as work in progress. -->
+            <div v-if="loading" class="chart-loading">
+                <GizmoLoadingIndicator>{{ $t("Loading") }}</GizmoLoadingIndicator>
+            </div>
         </div>
     </div>
 </template>
@@ -38,8 +55,13 @@ import {
 import "chartjs-adapter-dayjs-4";
 import { Line } from "vue-chartjs";
 import { UP, DOWN, PENDING, MAINTENANCE } from "../util.ts";
-import GizmoMenu from "./gizmo/GizmoMenu.vue";
-import GizmoMenuItem from "./gizmo/GizmoMenuItem.vue";
+import GizmoLoadingIndicator from "./gizmo/GizmoLoadingIndicator.vue";
+
+/* The chart draws on a canvas, so it cannot inherit the page's type. */
+const CHART_FONT = {
+    family: "'IBM Plex Sans', 'Noto Sans', sans-serif",
+    size: 11,
+};
 
 Chart.register(
     LineController,
@@ -55,7 +77,7 @@ Chart.register(
 );
 
 export default {
-    components: { GizmoMenu, GizmoMenuItem, Line },
+    components: { GizmoLoadingIndicator, Line },
     props: {
         /** ID of monitor */
         monitorId: {
@@ -84,7 +106,28 @@ export default {
         };
     },
     computed: {
+        /**
+         * Chart colours, read from the live token values rather than branched on
+         * the theme name, so a custom themed.js theme repaints the plot too.
+         * @returns {object} resolved canvas colours
+         */
+        chartPalette() {
+            // Touched so the palette recomputes when either changes.
+            void this.$root.theme;
+            void this.$root.userTheme;
+
+            return {
+                grid: this.canvasColor("--color-border"),
+                text: this.canvasColor("--color-text"),
+                muted: this.canvasColor("--color-text-muted"),
+                subtle: this.canvasColor("--color-text-subtle"),
+                surface: this.canvasColor("--color-surface"),
+            };
+        },
+
         chartOptions() {
+            const palette = this.chartPalette;
+
             return {
                 responsive: true,
                 maintainAspectRatio: false,
@@ -102,11 +145,17 @@ export default {
                 },
                 layout: {
                     padding: {
-                        left: 10,
-                        right: 30,
-                        top: 30,
-                        bottom: 10,
+                        left: 0,
+                        right: 8,
+                        top: 4,
+                        bottom: 0,
                     },
+                },
+
+                interaction: {
+                    mode: "nearest",
+                    axis: "x",
+                    intersect: false,
                 },
 
                 elements: {
@@ -114,6 +163,11 @@ export default {
                         // Hide points on chart unless mouse-over
                         radius: 0,
                         hitRadius: 100,
+                        hoverRadius: 4,
+                        hoverBorderWidth: 0,
+                    },
+                    line: {
+                        borderWidth: 2,
                     },
                 },
                 scales: {
@@ -132,21 +186,35 @@ export default {
                             sampleSize: 3,
                             maxRotation: 0,
                             autoSkipPadding: 30,
-                            padding: 3,
+                            padding: 6,
+                            color: palette.subtle,
+                            font: CHART_FONT,
                         },
+                        // Time is already read left to right; vertical rules only
+                        // add ink. The horizontal ones stay, because they are what
+                        // makes a latency figure readable off the axis.
+                        border: { display: false },
                         grid: {
-                            color: this.$root.theme === "light" ? "rgba(0,0,0,0.1)" : "rgba(255,255,255,0.1)",
+                            display: false,
                             offset: false,
                         },
                     },
                     y: {
-                        title: {
-                            display: true,
-                            text: this.$t("respTime"),
-                        },
+                        beginAtZero: true,
                         offset: false,
+                        border: { display: false },
                         grid: {
-                            color: this.$root.theme === "light" ? "rgba(0,0,0,0.1)" : "rgba(255,255,255,0.1)",
+                            color: palette.grid,
+                            drawTicks: false,
+                        },
+                        // The unit rides on the ticks instead of a rotated axis
+                        // title, which cost a column of width to say one word.
+                        ticks: {
+                            color: palette.subtle,
+                            font: CHART_FONT,
+                            padding: 8,
+                            maxTicksLimit: 5,
+                            callback: (value) => `${new Intl.NumberFormat().format(value)} ms`,
                         },
                     },
                     y1: {
@@ -166,9 +234,18 @@ export default {
                         mode: "nearest",
                         intersect: false,
                         padding: 10,
-                        backgroundColor: this.$root.theme === "light" ? "rgba(212,232,222,1.0)" : "rgba(32,42,38,1.0)",
-                        bodyColor: this.$root.theme === "light" ? "rgba(12,12,18,1.0)" : "rgba(220,220,220,1.0)",
-                        titleColor: this.$root.theme === "light" ? "rgba(12,12,18,1.0)" : "rgba(220,220,220,1.0)",
+                        cornerRadius: 8,
+                        usePointStyle: true,
+                        boxWidth: 8,
+                        boxHeight: 8,
+                        boxPadding: 4,
+                        backgroundColor: palette.surface,
+                        borderColor: palette.grid,
+                        borderWidth: 1,
+                        bodyColor: palette.muted,
+                        titleColor: palette.text,
+                        titleFont: { ...CHART_FONT, weight: 600 },
+                        bodyFont: CHART_FONT,
                         // No longer rely solely on datasetIndex === 0; we want to hide tooltips only for the bars
                         filter: function (tooltipItem) {
                             const ds = tooltipItem?.chart?.data?.datasets?.[tooltipItem.datasetIndex];
@@ -198,7 +275,13 @@ export default {
                             }
                         },
                         labels: {
-                            color: this.$root.theme === "light" ? "rgba(12,12,18,1.0)" : "rgba(220,220,220,1.0)",
+                            color: palette.muted,
+                            font: CHART_FONT,
+                            usePointStyle: true,
+                            pointStyle: "circle",
+                            boxWidth: 8,
+                            boxHeight: 8,
+                            padding: 12,
                             // Filter to display only the lines in the legend
                             filter: function (legendItem, data) {
                                 const ds = data.datasets[legendItem.datasetIndex];
@@ -609,28 +692,32 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.period-options {
-    padding: 0.1em 1em;
-    margin-bottom: -1.2em;
-    float: right;
-    position: relative;
-    z-index: 10;
+.chart-toolbar {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 0.5rem;
+}
 
-    .btn-period-toggle {
-        padding: 2px 15px;
-        background: transparent;
-        border: 0;
-        color: var(--color-interactive);
-        opacity: 0.7;
-        font-size: 0.9em;
-    }
+.chart-period label {
+    min-width: 3rem;
+    font-variant-numeric: tabular-nums;
 }
 
 .chart-wrapper {
+    position: relative;
     margin-bottom: 0.5em;
 
     &.loading {
-        filter: blur(10px);
+        // Dimmed, not blurred: the plot stays legible while the next range loads.
+        opacity: 0.45;
     }
+}
+
+.chart-loading {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    pointer-events: none;
 }
 </style>

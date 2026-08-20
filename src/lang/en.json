@@ -185,6 +185,7 @@
     "Export": "Export",
     "Import": "Import",
     "respTime": "Resp. Time (ms)",
+    "chartPeriodLabel": "Chart period",
     "notAvailableShort": "N/A",
     "Default enabled": "Default enabled",
     "Apply on all existing monitors": "Apply on all existing monitors",

@@ -150,6 +150,7 @@
     "Export": "导出",
     "Import": "导入",
     "respTime": "响应时间（毫秒）",
+    "chartPeriodLabel": "图表时间范围",
     "notAvailableShort": "N/A",
     "Default enabled": "默认开启",
     "Apply on all existing monitors": "应用到所有现有监控项",
