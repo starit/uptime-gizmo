@@ -1345,6 +1345,7 @@
     "importThemePlaceholder": "貼上 JSON 格式的主題定義",
     "themeImportInvalidJSON": "這不是有效的 JSON。",
     "themeImportMissingFields": "主題需要包含 id、name 與 tokens.colors。",
+    "themeImportInvalidColours": "已拒絕：以下不是顏色（{0}）。每個值都必須是十六進位顏色，因為它們會被寫進樣式表。",
     "themeImportContrastFailed": "已拒絕：此主題未達本專案要求的對比度（{0}）。",
     "Generate Theme": "產生主題",
     "Generating...": "產生中…",

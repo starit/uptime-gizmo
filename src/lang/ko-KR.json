@@ -1063,6 +1063,7 @@
     "importThemePlaceholder": "JSON 형식의 테마 정의를 붙여 넣으세요",
     "themeImportInvalidJSON": "올바른 JSON이 아닙니다.",
     "themeImportMissingFields": "테마에는 id, name, tokens.colors가 필요합니다.",
+    "themeImportInvalidColours": "거부됨: 색상이 아닙니다({0}). 각 값은 스타일시트에 기록되므로 16진수 색상이어야 합니다.",
     "themeImportContrastFailed": "거부됨: 이 테마는 이 프로젝트가 요구하는 명도 대비를 충족하지 않습니다({0}).",
     "Generate Theme": "테마 생성",
     "Generating...": "생성 중…",

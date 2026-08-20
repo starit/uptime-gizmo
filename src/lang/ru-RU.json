@@ -1809,6 +1809,7 @@
     "importThemePlaceholder": "Вставьте определение темы в формате JSON",
     "themeImportInvalidJSON": "Это некорректный JSON.",
     "themeImportMissingFields": "Теме нужны id, name и tokens.colors.",
+    "themeImportInvalidColours": "Отклонено: это не цвета ({0}). Каждое значение должно быть шестнадцатеричным цветом, потому что попадает в таблицу стилей.",
     "themeImportContrastFailed": "Отклонено: эта тема не обеспечивает контраст, которого требует проект ({0}).",
     "Generate Theme": "Сгенерировать тему",
     "Generating...": "Генерация…",

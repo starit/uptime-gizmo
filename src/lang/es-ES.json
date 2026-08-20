@@ -1542,6 +1542,7 @@
     "importThemePlaceholder": "Pega una definición de tema en JSON",
     "themeImportInvalidJSON": "Eso no es JSON válido.",
     "themeImportMissingFields": "Un tema necesita un id, un name y tokens.colors.",
+    "themeImportInvalidColours": "Rechazado: esto no son colores ({0}). Cada valor debe ser un color hexadecimal, porque acaba escrito en una hoja de estilos.",
     "themeImportContrastFailed": "Rechazado: este tema no alcanza el contraste que exige este proyecto ({0}).",
     "Generate Theme": "Generar tema",
     "Generating...": "Generando…",

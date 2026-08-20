@@ -40,8 +40,47 @@ interface GizmoCustom {
     statusUnknown?: unknown;
 }
 
-/** Three- or six-digit hex, which is all the colour helpers accept. */
-const HEX_COLOUR = /^#([\da-f]{3}|[\da-f]{6})$/i;
+/**
+ * Hex, in the three lengths the colour helpers emit, and nothing else.
+ *
+ * This is a gate, not a convenience. Every value this module writes goes into a
+ * stylesheet as `--token: value;`, so a value carrying a semicolon and a brace
+ * closes the rule early and everything after it becomes CSS of the author's
+ * choosing. Custom themes are stored instance-wide and travel in the boot
+ * payload, which the public status page also receives, so that CSS would render
+ * for visitors who never signed in.
+ *
+ * themed.js does not stop this on its own: getContrastRatio returns 21 for a
+ * string that is not a colour at all, which reads as perfect contrast, and
+ * darken and mix hand such a string straight back. A palette of arbitrary text
+ * therefore passes every check this project had.
+ */
+const HEX_COLOUR = /^#([\da-f]{3}|[\da-f]{4}|[\da-f]{6}|[\da-f]{8})$/i;
+
+/** The sixteen colour tokens themed.js carries. */
+const COLOUR_TOKENS = [
+    "primary", "secondary", "accent", "background", "surface",
+    "error", "warning", "success", "info",
+    "textPrimary", "textSecondary", "textDisabled", "textInverse",
+    "border", "borderLight", "borderDark",
+] as const;
+
+/**
+ * Name every colour in a theme that is not a colour.
+ *
+ * Checked before a theme is stored, so a person importing one is told which
+ * token is wrong rather than having it silently dropped later.
+ * @param theme themed.js theme to check
+ * @returns the names of the offending tokens, empty when all are usable
+ */
+export function findInvalidColours(theme: Theme): string[] {
+    const colours = (theme?.tokens?.colors ?? {}) as unknown as Record<string, unknown>;
+
+    return COLOUR_TOKENS.filter((name) => {
+        const value = colours[name];
+        return typeof value !== "string" || !HEX_COLOUR.test(value.trim());
+    });
+}
 
 /**
  * Read one of the extra hues, falling back when a theme does not carry it.
@@ -169,7 +208,14 @@ export function applyBridgedTheme(theme: Theme | null): void {
     }
 
     const vars = themeToGizmoVars(theme);
+    /*
+     * Last line of defence. A theme stored before this check existed, or one
+     * that arrived by some path that skipped it, drops the offending variable
+     * and inherits tokens.scss for that one rather than writing whatever it
+     * holds into the document.
+     */
     const body = Object.entries(vars)
+        .filter(([ , value ]) => HEX_COLOUR.test(value))
         .map(([ name, value ]) => `    ${name}: ${value};`)
         .join("\n");
 

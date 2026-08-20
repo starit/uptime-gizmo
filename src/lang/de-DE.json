@@ -1684,6 +1684,7 @@
     "importThemePlaceholder": "Designdefinition als JSON einfügen",
     "themeImportInvalidJSON": "Das ist kein gültiges JSON.",
     "themeImportMissingFields": "Ein Design braucht eine id, einen name und tokens.colors.",
+    "themeImportInvalidColours": "Abgelehnt: Das sind keine Farben ({0}). Jeder Wert muss eine Hex-Farbe sein, denn jeder landet in einem Stylesheet.",
     "themeImportContrastFailed": "Abgelehnt: Dieses Design erreicht den von diesem Projekt geforderten Kontrast nicht ({0}).",
     "Generate Theme": "Design erzeugen",
     "Generating...": "Wird erzeugt…",

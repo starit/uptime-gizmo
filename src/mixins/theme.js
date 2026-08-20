@@ -31,7 +31,7 @@ export default {
 
         document.body.classList.add(this.theme);
         this.updateThemeColorMeta();
-        applyBridgedTheme(this.activeCustomTheme);
+        this.applyCustomTheme(this.activeCustomTheme);
     },
 
     computed: {
@@ -121,7 +121,7 @@ export default {
 
         activeCustomTheme: {
             handler(theme) {
-                applyBridgedTheme(theme);
+                this.applyCustomTheme(theme);
             },
             immediate: false,
         },
@@ -137,6 +137,25 @@ export default {
     },
 
     methods: {
+        /**
+         * Apply a custom theme, or fall back to the built-ins if it cannot be.
+         *
+         * The bridge derives around forty variables from sixteen colours, and a
+         * stored theme it cannot read would otherwise throw from a watcher and
+         * take the render with it. That happens on the public status page too,
+         * in front of visitors who have no way to fix the theme.
+         * @param {?object} theme themed.js theme to apply, or null
+         * @returns {void}
+         */
+        applyCustomTheme(theme) {
+            try {
+                applyBridgedTheme(theme);
+            } catch (e) {
+                console.error("Could not apply the custom theme, using the built-in one:", e);
+                applyBridgedTheme(null);
+            }
+        },
+
         /**
          * Update the theme color meta tag
          * @returns {void}

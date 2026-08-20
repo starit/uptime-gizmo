@@ -365,7 +365,7 @@
 
 <script>
 import { defineAsyncComponent } from "vue";
-import { findContrastFailures, baselineFor, themeToGizmoVars } from "../../theme/theme-bridge";
+import { findContrastFailures, findInvalidColours, baselineFor, themeToGizmoVars } from "../../theme/theme-bridge";
 import GizmoButton from "../gizmo/GizmoButton.vue";
 import GizmoDialog from "../gizmo/GizmoDialog.vue";
 import ToggleSection from "../ToggleSection.vue";
@@ -478,6 +478,16 @@ export default {
         themeRejection(theme) {
             if (!theme?.id || !theme?.name || !theme?.tokens?.colors) {
                 return this.$t("themeImportMissingFields");
+            }
+
+            /*
+             * Before contrast, because a value that is not a colour scores 21
+             * against anything and would sail through the check below. Every
+             * one of these ends up in a stylesheet.
+             */
+            const invalid = findInvalidColours(theme);
+            if (invalid.length > 0) {
+                return this.$t("themeImportInvalidColours", [ invalid.join(", ") ]);
             }
 
             const failures = findContrastFailures(theme);

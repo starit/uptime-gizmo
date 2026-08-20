@@ -1378,6 +1378,7 @@
     "importThemePlaceholder": "JSON 形式のテーマ定義を貼り付け",
     "themeImportInvalidJSON": "有効な JSON ではありません。",
     "themeImportMissingFields": "テーマには id、name、tokens.colors が必要です。",
+    "themeImportInvalidColours": "拒否されました：これらは色ではありません（{0}）。各値はスタイルシートに書き込まれるため、16 進数の色である必要があります。",
     "themeImportContrastFailed": "拒否されました：このテーマは本プロジェクトが要求するコントラストを満たしていません（{0}）。",
     "Generate Theme": "テーマを生成",
     "Generating...": "生成中…",
