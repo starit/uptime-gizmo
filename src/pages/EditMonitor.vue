@@ -2128,13 +2128,11 @@
                                             {{ $t("saveErrorResponseForNotifications") }}
                                         </label>
                                     </div>
-                                    <div class="gizmo-field-help">
-                                        <i18n-t keypath="saveResponseDescription" tag="div" class="gizmo-field-help">
-                                            <template #templateVariable>
-                                                <code>heartbeatJSON.response</code>
-                                            </template>
-                                        </i18n-t>
-                                    </div>
+                                    <i18n-t keypath="saveResponseDescription" tag="div" class="gizmo-field-help">
+                                        <template #templateVariable>
+                                            <code>heartbeatJSON.response</code>
+                                        </template>
+                                    </i18n-t>
                                 </div>
 
                                 <div
@@ -2157,13 +2155,11 @@
                                             {{ $t("saveResponseForNotifications") }}
                                         </label>
                                     </div>
-                                    <div class="gizmo-field-help">
-                                        <i18n-t keypath="saveResponseDescription" tag="div" class="gizmo-field-help">
-                                            <template #templateVariable>
-                                                <code>heartbeatJSON.response</code>
-                                            </template>
-                                        </i18n-t>
-                                    </div>
+                                    <i18n-t keypath="saveResponseDescription" tag="div" class="gizmo-field-help">
+                                        <template #templateVariable>
+                                            <code>heartbeatJSON.response</code>
+                                        </template>
+                                    </i18n-t>
                                 </div>
 
                                 <div
@@ -4714,5 +4710,38 @@ message HealthCheckResponse {
 
 textarea {
     min-height: 200px;
+}
+
+/*
+ * Checkbox help text belongs under its label, not beside it.
+ *
+ * The shared .gizmo-native-check recipe is a flex row, and most of the toggles
+ * on this form put their help text in as a third child. That made every one of
+ * them a two-column strip — the label squeezed into a narrow ragged column with
+ * the explanation in another beside it, and "Domain Name Expiry Notification"
+ * became three columns because it carries two help lines. Wrapping the help
+ * onto its own full-width line gives the label the row it needs and lines the
+ * explanation up under the words it explains.
+ *
+ * Only .gizmo-field-help is moved. Anything else a row carries inline — the
+ * "default" badge and Edit link on a proxy row — keeps sitting beside the label.
+ */
+.gizmo-native-check {
+    flex-wrap: wrap;
+}
+
+.gizmo-native-check > .gizmo-field-help {
+    /* Clears the checkbox: 1rem box plus the recipe's 0.625rem gap. */
+    flex-basis: 100%;
+    margin-left: 1.625rem;
+}
+
+/*
+ * A few toggles already put their help outside the row rather than inside it.
+ * Both spellings should land in the same place, or the section gets two left
+ * edges for the same kind of text.
+ */
+.gizmo-native-check + .gizmo-field-help {
+    margin-left: 1.625rem;
 }
 </style>
