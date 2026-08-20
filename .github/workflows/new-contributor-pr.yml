@@ -23,18 +23,18 @@ jobs:
       - uses: plbstl/first-contribution@4b2b042fffa26792504a18e49aa9543a87bec077 # v4.1.0
         with:
           pr-reactions: rocket
-          pr-opened-msg: >
-            Hello and thanks for lending a paw to Uptime Kuma! 🐻👋
+          pr-opened-msg: |
+            Thanks for the pull request, and welcome. ⚙️
 
-            As this is your first contribution, please be sure to check out our [Pull Request guidelines](https://github.com/starit/uptime-gizmo/blob/main/CONTRIBUTING.md#pull-requests).
+            Since this is your first one here, the [Pull Request guidelines](https://github.com/starit/uptime-gizmo/blob/main/CONTRIBUTING.md#pull-requests) are worth a look. The two things that save the most back and forth:
 
-            In particular:
-            - Mark your PR as Draft while you’re still making changes
-            - Mark it as Ready for review once it’s fully ready
+            - Keep it as a Draft while you are still working, and mark it Ready for review when it is done.
+            - Run `pnpm run lint` before pushing.
 
-            If you have any design or process questions, feel free to ask them right here in this pull request - unclear documentation is a bug too.
-          pr-merged-msg: >
-            @{fc-author} congrats on your first contribution to Uptime Kuma! 🐻
+            If anything about the design or the process is unclear, ask right here. Unclear documentation is a bug too.
+          pr-merged-msg: |
+            @{fc-author} your first contribution is merged. ⚙️ Thank you.
 
-            We hope you enjoy contributing to our project and look forward to seeing more of your work in the future!
-            If you want to see your contribution in action, please see our [nightly builds here](https://hub.docker.com/layers/starit/uptime-gizmo/nightly2).
+            It ships in the next nightly image, which you can find under [tags on Docker Hub](https://hub.docker.com/r/starit/uptime-gizmo/tags).
+
+            Uptime is money, friend.
