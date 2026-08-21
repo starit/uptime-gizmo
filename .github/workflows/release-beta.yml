@@ -87,7 +87,9 @@ jobs:
           RELEASE_BETA_VERSION: ${{ inputs.version }}
           RELEASE_PREVIOUS_VERSION: ${{ inputs.previous_version }}
           DRY_RUN: ${{ inputs.dry_run }}
-          GH_TOKEN: ${{ secrets.RELEASE_PAT }}
+          # RELEASE_PAT is optional. A PAT can merge through branch protection
+          # and trigger later workflows; github.token is enough to open the PR.
+          GH_TOKEN: ${{ secrets.RELEASE_PAT || github.token }}
           GITHUB_RUN_ID: ${{ github.run_id }}
           OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
         run: pnpm run release-beta
