@@ -456,6 +456,8 @@ class StatusPage extends BeanModel {
             showCertificateExpiry: !!this.show_certificate_expiry,
             showOnlyLastHeartbeat: !!this.show_only_last_heartbeat,
             rssTitle: this.rss_title,
+            iconSize: StatusPage.normalizeLogoSize(this.icon_size),
+            iconPosition: StatusPage.normalizeLogoPosition(this.icon_position),
         };
     }
 
@@ -483,7 +485,56 @@ class StatusPage extends BeanModel {
             showCertificateExpiry: !!this.show_certificate_expiry,
             showOnlyLastHeartbeat: !!this.show_only_last_heartbeat,
             rssTitle: this.rss_title,
+            iconSize: StatusPage.normalizeLogoSize(this.icon_size),
+            iconPosition: StatusPage.normalizeLogoPosition(this.icon_position),
         };
+    }
+
+    /**
+     * Allowed display sizes for the public status-page logo.
+     * @type {readonly string[]}
+     */
+    static LOGO_SIZES = Object.freeze(["sm", "md", "lg"]);
+
+    /**
+     * Allowed placements for the public status-page logo.
+     * @type {readonly string[]}
+     */
+    static LOGO_POSITIONS = Object.freeze(["left", "above", "hidden"]);
+
+    static LOGO_SIZE_DEFAULT = "md";
+    static LOGO_POSITION_DEFAULT = "left";
+
+    /**
+     * Keep a stored or submitted logo size in the known set.
+     * @param {unknown} value Candidate size
+     * @param {unknown} [fallback] Value to use when `value` is not allowed
+     * @returns {string} A value from LOGO_SIZES
+     */
+    static normalizeLogoSize(value, fallback = StatusPage.LOGO_SIZE_DEFAULT) {
+        if (StatusPage.LOGO_SIZES.includes(value)) {
+            return value;
+        }
+        if (StatusPage.LOGO_SIZES.includes(fallback)) {
+            return fallback;
+        }
+        return StatusPage.LOGO_SIZE_DEFAULT;
+    }
+
+    /**
+     * Keep a stored or submitted logo placement in the known set.
+     * @param {unknown} value Candidate position
+     * @param {unknown} [fallback] Value to use when `value` is not allowed
+     * @returns {string} A value from LOGO_POSITIONS
+     */
+    static normalizeLogoPosition(value, fallback = StatusPage.LOGO_POSITION_DEFAULT) {
+        if (StatusPage.LOGO_POSITIONS.includes(value)) {
+            return value;
+        }
+        if (StatusPage.LOGO_POSITIONS.includes(fallback)) {
+            return fallback;
+        }
+        return StatusPage.LOGO_POSITION_DEFAULT;
     }
 
     /**

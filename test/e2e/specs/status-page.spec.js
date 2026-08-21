@@ -79,6 +79,8 @@ test.describe("Status Page", () => {
         await page.getByTestId("footer-text-input").fill(footerText);
         await page.getByTestId("refresh-interval-input").fill(String(refreshInterval));
         await page.getByTestId("theme-select").selectOption(theme);
+        await page.getByTestId("logo-size-select").selectOption("lg");
+        await page.getByTestId("logo-position-select").selectOption("above");
         await page.getByTestId("show-tags-checkbox").uncheck();
         await page.getByTestId("show-powered-by-checkbox").uncheck();
         await page.getByTestId("show-certificate-expiry-checkbox").uncheck();
@@ -122,6 +124,8 @@ test.describe("Status Page", () => {
         await expect(page.getByTestId("incident-content")).toContainText(incidentContent);
         await expect(page.getByTestId("group-name")).toContainText(groupName);
         await expect(page.getByTestId("powered-by")).toHaveCount(0);
+        await expect(page.getByTestId("status-page-title")).toHaveClass(/title-flex--logo-lg/);
+        await expect(page.getByTestId("status-page-title")).toHaveClass(/title-flex--above/);
 
         await expect(page.getByTestId("monitor-name")).toHaveAttribute("href", monitorCustomUrl);
 
@@ -165,6 +169,10 @@ test.describe("Status Page", () => {
 
         await expect(page.getByTestId("edit-sidebar")).toHaveCount(0);
         await expect(page.getByTestId("powered-by")).toContainText("Powered by");
+        await expect(page.getByTestId("powered-by").locator("a")).toHaveAttribute(
+            "href",
+            "https://github.com/starit/uptime-gizmo"
+        );
 
         // Modified tag verification to check both tags
         await expect(page.getByTestId("monitor-tag").filter({ hasText: tagValue })).toBeVisible();

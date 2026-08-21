@@ -45,6 +45,36 @@ describe("StatusPage", () => {
         });
     });
 
+    describe("normalizeLogoSize()", () => {
+        test("keeps allowed sizes", () => {
+            assert.strictEqual(StatusPage.normalizeLogoSize("sm"), "sm");
+            assert.strictEqual(StatusPage.normalizeLogoSize("md"), "md");
+            assert.strictEqual(StatusPage.normalizeLogoSize("lg"), "lg");
+        });
+
+        test("falls back to medium, then to the supplied stored value", () => {
+            assert.strictEqual(StatusPage.normalizeLogoSize(undefined), "md");
+            assert.strictEqual(StatusPage.normalizeLogoSize("huge"), "md");
+            assert.strictEqual(StatusPage.normalizeLogoSize("huge", "sm"), "sm");
+            assert.strictEqual(StatusPage.normalizeLogoSize("huge", "nope"), "md");
+        });
+    });
+
+    describe("normalizeLogoPosition()", () => {
+        test("keeps allowed positions", () => {
+            assert.strictEqual(StatusPage.normalizeLogoPosition("left"), "left");
+            assert.strictEqual(StatusPage.normalizeLogoPosition("above"), "above");
+            assert.strictEqual(StatusPage.normalizeLogoPosition("hidden"), "hidden");
+        });
+
+        test("falls back to left, then to the supplied stored value", () => {
+            assert.strictEqual(StatusPage.normalizeLogoPosition(undefined), "left");
+            assert.strictEqual(StatusPage.normalizeLogoPosition("center"), "left");
+            assert.strictEqual(StatusPage.normalizeLogoPosition("center", "above"), "above");
+            assert.strictEqual(StatusPage.normalizeLogoPosition("center", "nope"), "left");
+        });
+    });
+
     describe("renderRSS()", () => {
         const MOCK_FEED_URL = "http://localhost:3001/status/test";
 

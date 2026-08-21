@@ -16,6 +16,34 @@
                     <input id="title" v-model="config.title" type="text" class="gizmo-native-control" />
                 </div>
 
+                <div class="tw-my-3">
+                    <label for="logo-size" class="gizmo-field-label">{{ $t("statusPageLogoSize") }}</label>
+                    <select
+                        id="logo-size"
+                        v-model="config.iconSize"
+                        class="gizmo-native-control gizmo-native-select"
+                        data-testid="logo-size-select"
+                    >
+                        <option value="sm">{{ $t("statusPageLogoSizeSmall") }}</option>
+                        <option value="md">{{ $t("statusPageLogoSizeMedium") }}</option>
+                        <option value="lg">{{ $t("statusPageLogoSizeLarge") }}</option>
+                    </select>
+                </div>
+
+                <div class="tw-my-3">
+                    <label for="logo-position" class="gizmo-field-label">{{ $t("statusPageLogoPosition") }}</label>
+                    <select
+                        id="logo-position"
+                        v-model="config.iconPosition"
+                        class="gizmo-native-control gizmo-native-select"
+                        data-testid="logo-position-select"
+                    >
+                        <option value="left">{{ $t("statusPageLogoPositionLeft") }}</option>
+                        <option value="above">{{ $t("statusPageLogoPositionAbove") }}</option>
+                        <option value="hidden">{{ $t("statusPageLogoPositionHidden") }}</option>
+                    </select>
+                </div>
+
                 <!-- Description -->
                 <div class="tw-my-3">
                     <label for="description" class="gizmo-field-label">{{ $t("Description") }}</label>
@@ -242,9 +270,9 @@
         <!-- Main Status Page -->
         <div :class="{ edit: enableEditMode }" class="main">
             <!-- Logo & Title -->
-            <h1 class="tw-mb-4 title-flex">
+            <h1 class="tw-mb-4 title-flex" :class="titleFlexClass" data-testid="status-page-title">
                 <!-- Logo -->
-                <span class="logo-wrapper" @click="showImageCropUploadMethod">
+                <span v-if="showStatusLogo" class="logo-wrapper" :class="logoWrapperClass" @click="showImageCropUploadMethod">
                     <button
                         v-if="editMode"
                         type="button"
@@ -253,7 +281,7 @@
                     >
                         <font-awesome-icon icon="times" class="tw-text-status-down-fg" />
                     </button>
-                    <img :src="logoURL" alt class="logo tw-me-2" :class="logoClass" />
+                    <img :src="logoURL" alt class="logo" :class="logoClass" />
                     <font-awesome-icon v-if="enableEditMode" class="icon-upload" icon="upload" />
                 </span>
 
@@ -262,8 +290,8 @@
                 <ImageCropUpload
                     v-model="showImageCropUpload"
                     field="img"
-                    :width="128"
-                    :height="128"
+                    :width="256"
+                    :height="256"
                     :langType="$i18n.locale"
                     img-format="png"
                     :noCircle="true"
@@ -371,12 +399,12 @@
                 v-model="config.description"
                 :contenteditable="editMode"
                 tag="div"
-                class="tw-mb-4 description"
+                class="status-page-description"
                 data-testid="description-editable"
             />
             <!-- eslint-disable vue/no-v-html-->
             <div
-                v-if="!enableEditMode"
+                v-if="!enableEditMode && descriptionHTML"
                 class="status-page-description"
                 data-testid="description"
                 v-html="descriptionHTML"
@@ -568,7 +596,7 @@
                 />
                 <!-- eslint-disable vue/no-v-html-->
                 <div
-                    v-if="!enableEditMode"
+                    v-if="!enableEditMode && footerHTML"
                     class="status-page-footer-text"
                     data-testid="footer-text"
                     v-html="footerHTML"
@@ -577,7 +605,11 @@
 
                 <p v-if="config.showPoweredBy" data-testid="powered-by">
                     {{ $t("Powered by") }}
-                    {{ $root.appName }}
+                    <a
+                        href="https://github.com/starit/uptime-gizmo"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >{{ $root.appName }}</a>
                 </p>
 
                 <div class="refresh-info tw-mb-2">
@@ -695,6 +727,8 @@ export default {
             hasToken: false,
             config: {
                 analyticsType: null,
+                iconSize: "md",
+                iconPosition: "left",
             },
             selectedMonitor: null,
             incident: null,
@@ -787,6 +821,48 @@ export default {
             return {};
         },
 
+        /**
+         * Display size for the header logo. Unknown values fall back to medium.
+         * @returns {"sm"|"md"|"lg"}
+         */
+        logoSize() {
+            const size = this.config.iconSize;
+            return size === "sm" || size === "lg" ? size : "md";
+        },
+
+        /**
+         * Placement for the header logo. Unknown values fall back to left of the title.
+         * @returns {"left"|"above"|"hidden"}
+         */
+        logoPosition() {
+            const position = this.config.iconPosition;
+            return position === "above" || position === "hidden" ? position : "left";
+        },
+
+        /**
+         * Hide the logo for visitors when the operator chose Hidden; keep it
+         * visible in edit mode so they can still replace it.
+         * @returns {boolean}
+         */
+        showStatusLogo() {
+            return this.logoPosition !== "hidden" || this.editMode;
+        },
+
+        titleFlexClass() {
+            return {
+                "title-flex--logo-sm": this.logoSize === "sm",
+                "title-flex--logo-md": this.logoSize === "md",
+                "title-flex--logo-lg": this.logoSize === "lg",
+                "title-flex--above": this.logoPosition === "above",
+            };
+        },
+
+        logoWrapperClass() {
+            return {
+                "logo-wrapper--preview-hidden": this.logoPosition === "hidden" && this.editMode,
+            };
+        },
+
         overallStatus() {
             if (Object.keys(this.$root.publicLastHeartbeatList).length === 0) {
                 return -1;
@@ -839,19 +915,17 @@ export default {
         },
 
         descriptionHTML() {
-            if (this.config.description != null) {
-                return DOMPurify.sanitize(marked(this.config.description));
-            } else {
+            if (this.config.description == null || !String(this.config.description).trim()) {
                 return "";
             }
+            return DOMPurify.sanitize(marked(this.config.description));
         },
 
         footerHTML() {
-            if (this.config.footerText != null) {
-                return DOMPurify.sanitize(marked(this.config.footerText));
-            } else {
+            if (this.config.footerText == null || !String(this.config.footerText).trim()) {
                 return "";
             }
+            return DOMPurify.sanitize(marked(this.config.footerText));
         },
 
         lastUpdateTimeDisplay() {
@@ -902,11 +976,7 @@ export default {
             if (loggedIn) {
                 this.$root.getSocket().emit("getStatusPage", this.slug, (res) => {
                     if (res.ok) {
-                        this.config = res.config;
-
-                        if (!this.config.customCSS) {
-                            this.config.customCSS = "body {\n" + "  \n" + "}\n";
-                        }
+                        this.applyStatusPageConfig(res.config, { editor: true });
                     } else {
                         this.$root.toastError(res.msg);
                     }
@@ -983,11 +1053,7 @@ export default {
 
         this.getData()
             .then((res) => {
-                this.config = res.data.config;
-
-                if (!this.config.domainNameList) {
-                    this.config.domainNameList = [];
-                }
+                this.applyStatusPageConfig(res.data.config);
 
                 if (this.config.icon) {
                     this.imgDataUrl = this.config.icon;
@@ -1038,6 +1104,30 @@ export default {
         }
     },
     methods: {
+        /**
+         * Apply a status-page config payload and fill in display defaults.
+         * @param {object} config Status page config from the API or socket
+         * @param {{ editor?: boolean }} [options] When `editor` is set, empty custom CSS becomes a starter snippet
+         * @returns {void}
+         */
+        applyStatusPageConfig(config, options = {}) {
+            this.config = config || {};
+
+            if (!this.config.domainNameList) {
+                this.config.domainNameList = [];
+            }
+
+            if (options.editor && !this.config.customCSS) {
+                this.config.customCSS = "body {\n" + "  \n" + "}\n";
+            }
+
+            const size = this.config.iconSize;
+            this.config.iconSize = size === "sm" || size === "lg" ? size : "md";
+
+            const position = this.config.iconPosition;
+            this.config.iconPosition = position === "above" || position === "hidden" ? position : "left";
+        },
+
         /**
          * The banner class for an incident's chosen style.
          *
@@ -1568,8 +1658,9 @@ export default {
 h1 {
     img {
         vertical-align: middle;
-        height: 3.75rem;
-        width: 3.75rem;
+        height: var(--status-logo-size, 3.75rem);
+        width: var(--status-logo-size, 3.75rem);
+        object-fit: contain;
     }
 }
 
@@ -1624,28 +1715,84 @@ h1 {
 }
 
 .status-page-description {
-    max-width: 60ch;
-    margin-bottom: 1.5rem;
+    max-width: 40rem;
+    margin: 0 0 1.75rem;
     color: var(--color-text-muted);
     font-size: 0.9375rem;
-    line-height: 1.6;
+    font-weight: var(--weight-normal);
+    line-height: 1.55;
+
+    :deep(p) {
+        margin: 0 0 0.5em;
+    }
+
+    :deep(p:last-child) {
+        margin-bottom: 0;
+    }
+
+    :deep(h1),
+    :deep(h2),
+    :deep(h3) {
+        color: var(--color-text);
+        font-size: 1rem;
+        font-weight: var(--weight-semibold);
+        letter-spacing: -0.01em;
+        line-height: 1.35;
+        margin: 0.7em 0 0.35em;
+    }
+
+    :deep(ul),
+    :deep(ol) {
+        margin: 0.35em 0 0.5em;
+        padding-inline-start: 1.25rem;
+    }
 }
 
 .status-page-footer-text {
-    color: var(--color-text-muted);
-    font-size: 0.875rem;
-    line-height: 1.6;
+    max-width: 36rem;
+    margin: 0 auto 0.85rem;
+    color: var(--color-text-subtle);
+    font-size: 0.8125rem;
+    line-height: 1.55;
+
+    :deep(p) {
+        margin: 0 0 0.4em;
+    }
+
+    :deep(p:last-child) {
+        margin-bottom: 0;
+    }
 }
 
 /* The page title names the page; the overall status carries the message, so
    the title steps back rather than competing with it. */
 .title-flex {
+    --status-logo-size: 3.75rem;
     display: flex;
     align-items: center;
     gap: 0.625rem;
     font-size: 1.125rem;
     font-weight: var(--weight-semibold);
     letter-spacing: -0.01em;
+}
+
+.title-flex--logo-sm {
+    --status-logo-size: 2.5rem;
+}
+
+.title-flex--logo-md {
+    --status-logo-size: 3.75rem;
+}
+
+.title-flex--logo-lg {
+    --status-logo-size: 6rem;
+}
+
+.title-flex--above {
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    text-align: center;
 }
 
 .logo-wrapper {
@@ -1656,6 +1803,10 @@ h1 {
         .icon-upload {
             transform: scale(1.2);
         }
+    }
+
+    &--preview-hidden {
+        opacity: 0.45;
     }
 
     .icon-upload {

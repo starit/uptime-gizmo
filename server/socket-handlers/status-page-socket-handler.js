@@ -333,6 +333,8 @@ module.exports.statusPageSocketHandler = (socket) => {
             statusPage.footer_text = config.footerText;
             statusPage.custom_css = config.customCSS;
             statusPage.show_powered_by = config.showPoweredBy;
+            statusPage.icon_size = StatusPage.normalizeLogoSize(config.iconSize, statusPage.icon_size);
+            statusPage.icon_position = StatusPage.normalizeLogoPosition(config.iconPosition, statusPage.icon_position);
             statusPage.rss_title = config.rssTitle;
             statusPage.show_only_last_heartbeat = config.showOnlyLastHeartbeat;
             statusPage.show_certificate_expiry = config.showCertificateExpiry;
