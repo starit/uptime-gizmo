@@ -39,6 +39,12 @@ jobs:
         with:
           node-version: 24
 
+      - name: Check that this token can open a pull request
+        env:
+          GH_TOKEN: ${{ secrets.RELEASE_PAT || github.token }}
+          HAS_RELEASE_PAT: ${{ secrets.RELEASE_PAT != '' }}
+        run: bash extra/release/check-github-pr-permission.sh
+
       - name: Create release branch
         env:
           VERSION: ${{ inputs.version }}
@@ -87,8 +93,10 @@ jobs:
           RELEASE_VERSION: ${{ inputs.version }}
           RELEASE_PREVIOUS_VERSION: ${{ inputs.previous_version }}
           DRY_RUN: ${{ inputs.dry_run }}
-          # RELEASE_PAT is optional. A PAT can merge through branch protection
-          # and trigger later workflows; github.token is enough to open the PR.
+          # github.token can open a PR only if the repo allows Actions to create
+          # pull requests (Settings → Actions → General). RELEASE_PAT is a PAT
+          # with contents + pull-requests write; finish.mjs also needs it to
+          # merge with --admin when main is protected.
           GH_TOKEN: ${{ secrets.RELEASE_PAT || github.token }}
           GITHUB_RUN_ID: ${{ github.run_id }}
           OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}

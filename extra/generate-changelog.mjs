@@ -10,7 +10,6 @@ const ignoreList = [
     "UptimeGizmoBot",
     "weblate",
     "Copilot",
-    "autofix-ci[bot]",
     "app/copilot-swe-agent",
     "app/github-actions",
     "github-actions[bot]",

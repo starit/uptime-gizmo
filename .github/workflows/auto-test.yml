@@ -89,10 +89,11 @@ jobs:
       - name: Test on ARMv7 using Docker with QEMU
         run: |
           docker run --rm --platform linux/arm/v7 \
-            -v $PWD:/workspace \
+            -e COREPACK_ENABLE_DOWNLOAD_PROMPT=0 \
+            -v "$PWD":/workspace \
             -w /workspace \
             arm32v7/node:${{ matrix.node }} \
-            corepack enable pnpm && pnpm install --frozen-lockfile --prod
+            sh -c 'corepack enable pnpm && pnpm install --frozen-lockfile --prod'
 
   check-linters:
     runs-on: ubuntu-latest

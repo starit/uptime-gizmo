@@ -2,10 +2,8 @@
  * Prettier Configuration for Uptime Kuma
  *
  * Usage:
- *   pnpm run fmt             - Format all files (auto-runs in CI via autofix workflow)
+ *   pnpm run fmt             - Format all files
  *   pnpm run fmt --check     - Check formatting without making changes
- *
- * TIP: This formatter is automatically run in CI, so no need to worry about it
  */
 module.exports = {
     // Core formatting options - matching original ESLint rules
