@@ -356,16 +356,21 @@ export default {
     padding: 1.25rem;
 
     .settings-content-header {
-        width: calc(100% + 20px);
+        width: calc(100% + 1.25rem);
         border-bottom: 1px solid var(--color-border);
         border-radius: 0 var(--radius-md) 0 0;
-        margin-top: -20px;
-        margin-right: -20px;
-        padding: 12.5px 1em;
-        font-size: 26px;
+        margin-top: -1.25rem;
+        margin-inline-end: -1.25rem;
+        padding: 0.75rem 1rem;
+        font-size: 1.25rem;
+        font-weight: var(--weight-bold);
+        letter-spacing: -0.015em;
+        line-height: 1.25;
 
         .mobile & {
-            padding: 15px 0 0 0;
+            width: auto;
+            margin: 0;
+            padding: 0.75rem 0 0;
         }
     }
 }
@@ -377,13 +382,19 @@ export default {
     }
     .settings-menu { border-inline-end: 0; }
     .settings-content { padding: 0.75rem; }
+
+    .settings-content .settings-content-header {
+        width: calc(100% + 0.75rem);
+        margin-top: -0.75rem;
+        margin-inline-end: -0.75rem;
+    }
 }
 
 footer {
     color: var(--color-text-muted);
-    font-size: 13px;
-    margin-top: 20px;
-    padding-bottom: 30px;
+    font-size: 0.8125rem;
+    margin-top: 1.25rem;
+    padding-bottom: 1.875rem;
     text-align: center;
 }
 

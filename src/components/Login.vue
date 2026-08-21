@@ -147,14 +147,14 @@ export default {
 .form-container {
     display: flex;
     align-items: center;
-    padding-top: 40px;
-    padding-bottom: 40px;
+    padding-top: 2.5rem;
+    padding-bottom: 2.5rem;
 }
 
 .form {
     width: 100%;
-    max-width: 330px;
-    padding: 15px;
+    max-width: 20.625rem;
+    padding: 0.9375rem;
     margin: auto;
     text-align: center;
 }

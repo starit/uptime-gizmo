@@ -31,7 +31,7 @@ export default {
         },
         variant: {
             type: String,
-            default: "outline",
+            default: "ghost",
         },
         size: {
             type: String,

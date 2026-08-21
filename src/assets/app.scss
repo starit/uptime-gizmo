@@ -260,8 +260,7 @@ $shadow-box-padding: 1.25rem;
     bottom: 0;
     margin-inline: -$shadow-box-padding;
     border-radius: 0 0 var(--radius-md) var(--radius-md);
-    background-color: color-mix(in srgb, var(--color-surface) 88%, transparent);
-    backdrop-filter: blur(0.125rem);
+    background-color: var(--color-surface);
 }
 
 .zoom-cursor {

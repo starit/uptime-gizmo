@@ -41,13 +41,10 @@
     --weight-medium: 500;
     --weight-semibold: 600;
     --weight-bold: 700;
-    --shadow-raised:
-        0 1px 2px -1px rgb(10 21 30 / 10%),
-        0 1px 3px rgb(10 21 30 / 8%);
-    --shadow-panel:
-        0 0 0 1px rgb(10 21 30 / 4%),
-        0 2px 4px -2px rgb(10 21 30 / 8%),
-        0 4px 12px -4px rgb(10 21 30 / 10%);
+    /* In-page chrome is flat: borders do the work. These two stay none so
+       existing panel/card call sites do not reintroduce elevation. */
+    --shadow-raised: none;
+    --shadow-panel: none;
     --shadow-float:
         0 0 0 1px rgb(10 21 30 / 5%),
         0 4px 8px -4px rgb(10 21 30 / 12%),
@@ -119,13 +116,8 @@
     --color-interactive-subtle: #132e5c;
     --color-focus-ring: #75a7ff;
     --color-overlay: rgb(2 8 13 / 78%);
-    --shadow-raised:
-        inset 0 1px 0 rgb(255 255 255 / 4%),
-        0 1px 3px rgb(0 0 0 / 40%);
-    --shadow-panel:
-        inset 0 1px 0 rgb(255 255 255 / 5%),
-        0 2px 4px -2px rgb(0 0 0 / 45%),
-        0 4px 12px -4px rgb(0 0 0 / 45%);
+    --shadow-raised: none;
+    --shadow-panel: none;
     --shadow-float:
         inset 0 1px 0 rgb(255 255 255 / 6%),
         0 4px 8px -4px rgb(0 0 0 / 50%),

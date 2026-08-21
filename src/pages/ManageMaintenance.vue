@@ -92,7 +92,7 @@
                 </div>
             </div>
 
-            <div class="tw-text-center tw-mt-3" style="font-size: 13px">
+            <div class="tw-text-center tw-mt-3 gizmo-field-help">
                 <a href="https://github.com/starit/uptime-gizmo/wiki/Maintenance" target="_blank">
                     {{ $t("Learn More") }}
                 </a>
@@ -308,13 +308,13 @@ export default {
 
     .left-part {
         display: flex;
-        gap: 12px;
+        gap: 0.75rem;
         align-items: center;
 
         .info {
             .title {
                 font-weight: var(--weight-bold);
-                font-size: 20px;
+                font-size: 1.25rem;
             }
 
             /* The dot sits beside the word it qualifies. At 25px it was taller
@@ -325,7 +325,7 @@ export default {
                 align-items: center;
                 gap: 0.4rem;
                 color: var(--color-text-muted);
-                font-size: 14px;
+                font-size: 0.875rem;
             }
 
             .circle {
@@ -339,7 +339,7 @@ export default {
 
     .buttons {
         display: flex;
-        gap: 8px;
+        gap: 0.5rem;
         flex-direction: row-reverse;
 
         @media (max-width: 550px) {

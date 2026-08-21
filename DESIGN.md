@@ -184,6 +184,14 @@ Density does not excuse inaccessible UI: keyboard focus, labels, contrast, error
 - Keep most surfaces Cloud White or neutral gray. The mascot may be expressive; the interface should remain simple.
 - Do not use Gold for small body text on a light surface. Use Navy or a suitable neutral instead.
 
+### Chrome and elevation
+
+Authenticated product chrome is flat. In-page panels, tables, rails, and headers use a 1px `--color-border` and no drop shadow. `--shadow-raised` and `--shadow-panel` are intentionally empty so those surfaces stay level with the page.
+
+Reserve `--shadow-float` and `--shadow-overlay` for menus, dialogs, toasts, and tooltips — surfaces that leave the page. Do not use backdrop blur or brand-color washes on the private workspace header, shell, or sticky action bars.
+
+Secondary actions are ghost controls (transparent until hover). Gold remains the filled primary call to action; status colors stay semantic.
+
 ### Monitoring status
 
 - Use status tokens only for their semantic meaning; do not repurpose them as decorative accent colors.

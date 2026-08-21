@@ -1039,7 +1039,7 @@ export default {
 }
 
 .detail-card-health {
-    background: linear-gradient(135deg, var(--color-surface), var(--color-surface-subtle));
+    background: var(--color-surface);
 }
 
 .monitor-detail-actions {
@@ -1048,11 +1048,11 @@ export default {
 
 .word {
     color: var(--color-text-muted);
-    font-size: 14px;
+    font-size: 0.875rem;
 }
 
 table {
-    font-size: 14px;
+    font-size: 0.875rem;
 
     tr {
         transition: all ease-in-out 0.2ms;
@@ -1060,12 +1060,12 @@ table {
 }
 
 .stats p {
-    font-size: 13px;
+    font-size: 0.8125rem;
     color: var(--color-text-muted);
 }
 
 .stats {
-    padding: 10px;
+    padding: 0.625rem;
 }
 
 .keyword {

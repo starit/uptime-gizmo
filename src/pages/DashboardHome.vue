@@ -383,7 +383,6 @@ export default {
     background: var(--color-surface);
     border: 1px solid var(--color-border);
     border-radius: var(--radius-md);
-    box-shadow: var(--shadow-raised);
 
     h2 {
         display: flex;
@@ -450,7 +449,6 @@ export default {
     background: var(--color-surface);
     border: 1px solid var(--color-border);
     border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-panel);
 }
 
 .dashboard-welcome-mascot {

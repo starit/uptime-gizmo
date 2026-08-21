@@ -171,7 +171,7 @@ export default {
             }
 
             .incident-meta {
-                font-size: 12px;
+                font-size: 0.75rem;
             }
         }
     }

@@ -98,8 +98,8 @@ table {
 }
 
 .link-icon {
-    font-size: 20px;
-    margin-left: 50px !important;
+    font-size: 1.25rem;
+    margin-inline-start: 3.125rem !important;
     color: var(--color-interactive);
     opacity: 0.5;
 }

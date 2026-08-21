@@ -111,8 +111,8 @@ a {
 }
 
 :focus-visible {
-    outline: 3px solid var(--color-focus-ring) !important;
-    outline-offset: 3px;
+    outline: 2px solid var(--color-focus-ring) !important;
+    outline-offset: 2px;
 }
 
 /*
@@ -123,17 +123,16 @@ a {
     background-color: var(--color-surface);
     border: 1px solid var(--color-border);
     border-radius: var(--radius-md);
-    box-shadow: var(--shadow-panel);
 }
 
 .btn-normal {
-    background-color: var(--color-surface-subtle);
-    border: 1px solid var(--color-border);
+    background-color: transparent;
+    border: 1px solid transparent;
     color: var(--color-text);
 
     &:hover {
         background-color: var(--color-surface-hover);
-        border-color: var(--color-border-strong);
+        border-color: transparent;
         color: var(--color-text);
     }
 }

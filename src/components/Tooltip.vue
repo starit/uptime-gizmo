@@ -122,7 +122,6 @@ export default {
 
     .tooltip-content {
         background: var(--color-surface);
-        backdrop-filter: blur(8px);
         border: 1px solid var(--color-border);
         border-radius: var(--radius-sm);
         padding: 8px 12px;
@@ -143,11 +142,11 @@ export default {
         }
 
         .tooltip-status {
-            font-size: 16px;
+            font-size: 1rem;
             font-weight: var(--weight-semibold);
-            margin-bottom: 4px;
+            margin-bottom: 0.25rem;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.03em;
 
             &.status-up {
                 color: var(--status-up-fg);
@@ -172,15 +171,15 @@ export default {
 
         .tooltip-time {
             color: var(--color-text-muted);
-            font-size: 13px;
-            margin-bottom: 2px;
+            font-size: 0.8125rem;
+            margin-bottom: 0.125rem;
         }
 
         .tooltip-message {
             color: var(--color-text);
-            font-size: 12px;
-            margin-top: 4px;
-            padding-top: 4px;
+            font-size: 0.75rem;
+            margin-top: 0.25rem;
+            padding-top: 0.25rem;
             border-top: 1px solid var(--color-border);
         }
     }

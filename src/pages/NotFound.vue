@@ -93,13 +93,13 @@ export default {
     padding-top: 2rem;
 
     strong {
-        font-size: 24px;
+        font-size: 1.5rem;
     }
 }
 
 .guide {
-    max-width: 800px;
-    font-size: 14px;
+    max-width: 50rem;
+    font-size: 0.875rem;
 }
 
 .title {

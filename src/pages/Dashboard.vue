@@ -46,15 +46,14 @@ export default {
 
 .monitor-rail {
     position: sticky;
-    top: 6.5rem;
+    top: 4.5rem;
     align-self: start;
-    max-height: calc(100vh - 8rem);
+    max-height: calc(100vh - 5.5rem);
     padding: 1rem;
     overflow: hidden;
     background: var(--color-surface);
     border: 1px solid var(--color-border);
     border-radius: var(--radius-md);
-    box-shadow: var(--shadow-panel);
 }
 
 .monitor-rail-action {

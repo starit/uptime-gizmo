@@ -831,7 +831,7 @@ export default {
 
 .word {
     color: var(--color-text-muted);
-    font-size: 12px;
+    font-size: 0.75rem;
 }
 
 .connecting-line {

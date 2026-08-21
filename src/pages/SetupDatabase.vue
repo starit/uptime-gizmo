@@ -274,9 +274,7 @@ export default {
     justify-content: center;
     min-height: 100vh;
     padding: clamp(2rem, 8vh, 7rem) 1rem;
-    background:
-        radial-gradient(circle at 85% 15%, color-mix(in srgb, var(--color-brand) 18%, transparent), transparent 22rem),
-        var(--color-bg);
+    background: var(--color-bg);
 }
 
 .onboarding-card {
@@ -285,7 +283,6 @@ export default {
     background: var(--color-surface);
     border: 1px solid var(--color-border);
     border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-overlay);
 }
 
 .onboarding-brand {

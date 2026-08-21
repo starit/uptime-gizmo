@@ -67,7 +67,7 @@
             </div>
         </div>
 
-        <div class="tw-text-center tw-mt-3" style="font-size: 13px">
+        <div class="tw-text-center tw-mt-3 gizmo-field-help">
             <a href="https://github.com/starit/uptime-gizmo/wiki/Prometheus-API-Keys" target="_blank">
                 {{ $t("Learn More") }}
             </a>
@@ -237,7 +237,7 @@ export default {
             }
 
             .status {
-                font-size: 14px;
+                font-size: 0.875rem;
             }
         }
     }
@@ -256,7 +256,7 @@ export default {
 .date {
     margin-top: 0.375rem;
     display: block;
-    font-size: 14px;
+    font-size: 0.875rem;
     color: var(--color-text-muted);
     background-color: var(--color-surface-subtle);
     border-radius: var(--radius-pill);

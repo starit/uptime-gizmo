@@ -227,7 +227,7 @@
 
             <!-- Sidebar Footer -->
             <div class="sidebar-footer">
-                <button class="gizmo-native-button gizmo-native-button--success tw-me-2" :disabled="loading" data-testid="save-button" @click="save">
+                <button class="gizmo-native-button gizmo-native-button--primary tw-me-2" :disabled="loading" data-testid="save-button" @click="save">
                     <font-awesome-icon icon="save" />
                     {{ $t("Save") }}
                 </button>
@@ -1566,12 +1566,10 @@ export default {
 }
 
 h1 {
-    font-size: 30px;
-
     img {
         vertical-align: middle;
-        height: 60px;
-        width: 60px;
+        height: 3.75rem;
+        width: 3.75rem;
     }
 }
 
@@ -1596,11 +1594,11 @@ h1 {
 
     .danger-zone {
         border-top: 1px solid var(--color-border);
-        padding-top: 15px;
+        padding-top: 0.9375rem;
     }
 
     .sidebar-body {
-        padding: 0 10px 10px 10px;
+        padding: 0 0.625rem 0.625rem;
         overflow-x: hidden;
         overflow-y: auto;
         height: calc(100% - 70px);
@@ -1609,7 +1607,7 @@ h1 {
     .sidebar-footer {
         border-top: 1px solid var(--color-border);
         border-right: 1px solid var(--color-border);
-        padding: 10px;
+        padding: 0.625rem;
         width: 300px;
         height: 70px;
         position: fixed;
@@ -1644,7 +1642,7 @@ h1 {
 .title-flex {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 0.625rem;
     font-size: 1.125rem;
     font-weight: var(--weight-semibold);
     letter-spacing: -0.01em;
@@ -1663,11 +1661,11 @@ h1 {
     .icon-upload {
         transition: transform 200ms ease;
         position: absolute;
-        bottom: 6px;
-        font-size: 20px;
-        left: -14px;
+        bottom: 0.375rem;
+        font-size: 1.25rem;
+        left: -0.875rem;
         background-color: var(--color-surface);
-        padding: 5px;
+        padding: 0.3125rem;
         border-radius: var(--radius-md);
         cursor: pointer;
         box-shadow: var(--shadow-float);
@@ -1679,9 +1677,9 @@ h1 {
             transform 180ms ease,
             box-shadow 180ms ease,
             background-color 180ms ease;
-        font-size: 18px;
-        width: 18px;
-        height: 18px;
+        font-size: 1.125rem;
+        width: 1.125rem;
+        height: 1.125rem;
         padding: 0;
         display: inline-flex;
         align-items: center;
@@ -1709,9 +1707,9 @@ h1 {
             transform 180ms ease,
             box-shadow 180ms ease,
             background-color 180ms ease;
-        font-size: 18px;
-        width: 18px;
-        height: 18px;
+        font-size: 1.125rem;
+        width: 1.125rem;
+        height: 1.125rem;
         padding: 0;
         display: inline-flex;
         align-items: center;
@@ -1744,25 +1742,25 @@ h1 {
 .incident {
     .content {
         &[contenteditable="true"] {
-            min-height: 60px;
+            min-height: 3.75rem;
         }
     }
 
     .date {
-        font-size: 12px;
+        font-size: 0.75rem;
     }
 }
 
 .status-maintenance {
     color: var(--status-maintenance-fg);
-    margin-right: 5px;
+    margin-inline-end: 0.3125rem;
 }
 
 .domain-name-list {
     li {
         display: flex;
         align-items: center;
-        padding: 10px 0 10px 10px;
+        padding: 0.625rem 0 0.625rem 0.625rem;
 
         .domain-input {
             flex-grow: 1;
@@ -1798,8 +1796,9 @@ footer {
 }
 
 .past-incidents-title {
-    font-size: 26px;
-    font-weight: var(--weight-normal);
+    font-size: 1.25rem;
+    font-weight: var(--weight-semibold);
+    letter-spacing: -0.015em;
 }
 
 .past-incidents-section {

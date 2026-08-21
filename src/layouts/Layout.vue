@@ -244,9 +244,7 @@ export default {
 <style lang="scss" scoped>
 .app-shell {
     min-height: 100vh;
-    background:
-        linear-gradient(135deg, color-mix(in srgb, var(--color-brand) 8%, transparent), transparent 28rem),
-        var(--color-bg);
+    background: var(--color-bg);
 }
 
 .app-header {
@@ -255,16 +253,15 @@ export default {
     z-index: 1000;
     display: flex;
     align-items: center;
-    min-height: 76px;
-    padding: 0.75rem clamp(1rem, 3vw, 3rem);
-    background: color-mix(in srgb, var(--color-surface) 90%, transparent);
+    min-height: 3.5rem;
+    padding: 0.5rem clamp(1rem, 3vw, 2rem);
+    background: var(--color-bg);
     border-bottom: 1px solid var(--color-border);
-    backdrop-filter: blur(18px);
 }
 
 .app-header-mobile {
     justify-content: center;
-    min-height: 64px;
+    min-height: 3.5rem;
 
     .app-brand {
         margin-right: 0;
@@ -316,8 +313,8 @@ export default {
 }
 
 .app-main {
-    min-height: calc(100vh - 76px);
-    padding: clamp(1rem, 2vw, 2rem) 0;
+    min-height: calc(100vh - 3.5rem);
+    padding: clamp(0.75rem, 1.5vw, 1.25rem) 0;
 }
 
 .lost-connection {
@@ -337,12 +334,13 @@ export default {
     .profile-menu-trigger {
         cursor: pointer;
         display: flex;
-        gap: 6px;
+        gap: 0.375rem;
         align-items: center;
         border: 0;
-        background-color: var(--color-surface-subtle);
+        background-color: transparent;
         color: var(--color-text);
-        padding: 0.5rem 0.8rem;
+        padding: 0.5rem 0.75rem;
+        border-radius: var(--radius-sm);
 
         &:hover {
             background-color: var(--color-surface-hover);
@@ -355,12 +353,12 @@ export default {
         justify-content: center;
         color: var(--color-brand-contrast);
         background-color: var(--color-brand);
-        width: 24px;
-        height: 24px;
-        margin-right: 5px;
+        width: 1.75rem;
+        height: 1.75rem;
+        margin-inline-end: 0.25rem;
         border-radius: var(--radius-pill);
         font-weight: var(--weight-bold);
-        font-size: 10px;
+        font-size: 0.75rem;
     }
 }
 
@@ -374,9 +372,8 @@ export default {
     grid-template-columns: repeat(4, 1fr);
     height: calc(64px + env(safe-area-inset-bottom));
     padding: 0.35rem 0.5rem env(safe-area-inset-bottom);
-    background: color-mix(in srgb, var(--color-surface) 94%, transparent);
+    background: var(--color-bg);
     border-top: 1px solid var(--color-border);
-    backdrop-filter: blur(18px);
 }
 
 .bottom-nav-link {
