@@ -1769,7 +1769,7 @@
     "poweredByThemedJs": "自定义主题与 AI 生成由 {0} 提供支持。",
     "Read-only": "只读",
     "apiKeyReadOnlyDescription": "该密钥只能读取，不能做任何修改。除非持有者需要创建或修改监控项，否则请保持开启——自动化脚本或 AI Agent 通常应使用只读密钥。",
-    "uptimeIsMoney": "正常运行就是钱，朋友！",
+    "uptimeIsMoney": "正常运行时间就是金钱，我的朋友！",
     "uptimeIsMoneySub": "还没有监控任何东西。添加第一个监控项，Gizmo 会全天候帮你盯着。",
     "dismissAllToasts": "关闭所有通知",
     "Web3 Networks": "Web3 网络",

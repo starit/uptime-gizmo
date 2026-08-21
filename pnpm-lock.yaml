@@ -21,7 +21,7 @@ importers:
         specifier: 15.1.6
         version: 15.1.6(encoding@0.1.13)
       '@themed.js/core':
-        specifier: ^0.2.0
+        specifier: ~0.2.0
         version: 0.2.0
       '@vvo/tzdb':
         specifier: ~6.198.0
