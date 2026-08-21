@@ -7,6 +7,7 @@
     -->
     <form @submit.prevent="saveSettings()">
         <p class="gizmo-field-help tw-mb-4">{{ $t("aiSettingsIntro") }}</p>
+        <p v-if="!canEdit" class="gizmo-field-help tw-mb-4">{{ $t("aiSettingsAdminOnly") }}</p>
 
             <!-- LLM Provider -->
             <div class="tw-mb-4">
@@ -17,6 +18,7 @@
                     id="llmProvider"
                     v-model="settings.llmProvider"
                     class="gizmo-native-control gizmo-native-select"
+                    :disabled="!canEdit"
                 >
                     <option :value="null">{{ $t("None") }}</option>
                     <option v-for="provider in llmProviders" :key="provider.value" :value="provider.value">
@@ -32,7 +34,7 @@
                     <label class="gizmo-field-label" for="llmApiKey">
                         {{ $t("LLM API Key") }}
                     </label>
-                    <HiddenInput id="llmApiKey" v-model="settings.llmApiKey" autocomplete="new-password" />
+                    <HiddenInput id="llmApiKey" v-model="settings.llmApiKey" autocomplete="new-password" :disabled="!canEdit" />
                     <div class="gizmo-field-help">{{ $t("llmApiKeyDescription") }}</div>
                 </div>
 
@@ -47,6 +49,7 @@
                         type="text"
                         class="gizmo-native-control"
                         :placeholder="selectedProvider?.defaultModel ?? $t('llmModelPlaceholder')"
+                        :disabled="!canEdit"
                     />
                     <div class="gizmo-field-help">{{ $t("llmModelDescription") }}</div>
                 </div>
@@ -62,12 +65,13 @@
                         type="url"
                         class="gizmo-native-control"
                         placeholder="https://"
+                        :disabled="!canEdit"
                     />
                     <div class="gizmo-field-help">{{ $t("llmBaseUrlDescription") }}</div>
                 </div>
             </template>
 
-        <div class="gizmo-action-bar tw-mt-4">
+        <div v-if="canEdit" class="gizmo-action-bar tw-mt-4">
             <GizmoButton variant="primary" type="submit">
                 {{ $t("Save") }}
             </GizmoButton>
@@ -111,6 +115,9 @@ export default {
         },
         selectedProvider() {
             return this.llmProviders.find((p) => p.value === this.settings.llmProvider) ?? null;
+        },
+        canEdit() {
+            return Boolean(this.$root.info?.isAdmin);
         },
     },
 };

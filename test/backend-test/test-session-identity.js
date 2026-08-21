@@ -135,6 +135,37 @@ describe("a session's two identities stay separate", () => {
             "the session would not receive its own, or would join a room that is also the estate's"
         );
     });
+
+    it("leaves the previous person's room before the next login on the same socket", () => {
+        const { leaveSession, personalRoom } = require("../../server/util-server");
+        const left = [];
+        const socket = {
+            loginUserID: 7,
+            userID: 1,
+            leave(room) {
+                left.push(room);
+            },
+        };
+
+        leaveSession(socket);
+
+        assert.deepStrictEqual(left, [ personalRoom(7), 1 ], "both rooms have to be left, not only the estate");
+        assert.strictEqual(socket.loginUserID, null);
+        assert.strictEqual(socket.userID, null);
+
+        const server = fs.readFileSync(path.join(SERVER, "server.js"), "utf8");
+        const logout = server.slice(server.indexOf('socket.on("logout"'), server.indexOf('socket.on("prepare2FA"'));
+        assert.match(logout, /leaveSession\(socket\)/, "logout would leave only the estate, as before");
+
+        const after = server.slice(server.indexOf("async function afterLogin"));
+        const body = after.slice(0, after.indexOf("sendMonitorList"));
+        const leaveAt = body.indexOf("leaveSession(socket)");
+        const assignAt = body.indexOf("socket.loginUserID = user.id");
+        assert.ok(
+            leaveAt !== -1 && leaveAt < assignAt,
+            "joining without leaving keeps the previous person's room on this socket"
+        );
+    });
 });
 
 /*

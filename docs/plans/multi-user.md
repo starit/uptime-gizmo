@@ -70,6 +70,8 @@ the handful of genuinely personal paths use it:
 Rooms follow the same split. A socket joins the instance owner's room, so every
 broadcast keyed on a resource's owner reaches everyone; it also joins its own
 account's room, so anything addressed to one person still reaches only them.
+Logout — and the start of the next login on the same socket — leaves both, so
+the next person does not inherit the previous account's personal room.
 
 **The direction of failure matters here.** Sending a personal list to the shared
 room would leak it; sending a shared list to one room would only mean somebody's
@@ -93,8 +95,15 @@ administrator being removed.
 ## What an administrator does
 
 Create an account, set its initial password, toggle its administrator flag,
-disable it, delete it, and reset someone else's password. That is the whole list,
-and those are the only events that check the flag.
+disable it, delete it, and reset someone else's password. Those are the account
+events that check the flag.
+
+The other thing the flag governs is the LLM credential bag (`llmProvider`,
+`llmApiKey`, `llmModel`, `llmBaseUrl`). Generating a theme sends the API key to
+the base URL as a Bearer token, so anyone who can change that URL can send the
+key to a host they control. Only an administrator may write those settings.
+Generating a theme also refuses a stored URL that is not HTTPS (HTTP is allowed
+only on localhost) or that points at a link-local or cloud-metadata address.
 
 Everyone, administrator or not, keeps the existing Security page for their own
 password and two-factor settings, and their own API keys.

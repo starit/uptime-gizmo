@@ -157,6 +157,10 @@ async function sendInfo(socket, hideVersion = false) {
         // the server; the client only needs to know it exists.
         aiConfigured: Boolean((await setting("llmProvider")) && (await setting("llmApiKey"))),
     };
+    if (socket.loginUserID) {
+        const user = await R.findOne("user", " id = ? AND active = 1 ", [ socket.loginUserID ]);
+        info.isAdmin = Boolean(user?.admin);
+    }
     if (!hideVersion) {
         info.version = checkVersion.version;
         info.latestVersion = checkVersion.latestVersion;

@@ -661,12 +661,33 @@ exports.checkLogin = (socket) => {
 exports.personalRoom = (loginUserID) => `user:${loginUserID}`;
 
 /**
+ * Drop both identities and leave both rooms.
+ *
+ * Logout used to leave only the estate. The personal room stayed joined, so a
+ * later login on the same socket still received the previous account's API key
+ * list. afterLogin calls this first for the same reason: a token login without
+ * an explicit logout would otherwise stack rooms.
+ * @param {Socket} socket Socket.io instance
+ * @returns {void}
+ */
+exports.leaveSession = (socket) => {
+    if (socket.loginUserID != null) {
+        socket.leave(exports.personalRoom(socket.loginUserID));
+        socket.loginUserID = null;
+    }
+
+    if (socket.userID != null) {
+        socket.leave(socket.userID);
+        socket.userID = null;
+    }
+};
+
+/**
  * Throw unless the signed-in account may manage accounts.
  *
- * Managing accounts is the only thing the administrator flag governs. Everything
- * else about the instance — monitors, integrations, status pages — is open to
- * anyone who can sign in, exactly as it is with a single account. See
- * docs/plans/multi-user.md for why the flag was not extended to resources.
+ * Managing accounts is what this helper is for. The administrator flag also
+ * governs LLM credentials (see `isAdmin`); those use a boolean branch rather
+ * than this exception, because a save of unrelated settings must still succeed.
  * @param {Socket} socket Socket.io instance
  * @returns {Promise<void>} resolves when the account may manage accounts
  * @throws {Error} when it may not, or is not signed in
@@ -681,6 +702,24 @@ exports.checkAdmin = async (socket) => {
     if (!user?.admin) {
         throw new Error("You are not allowed to manage accounts.");
     }
+};
+
+/**
+ * Whether the signed-in account is currently an administrator.
+ *
+ * Read from the database, not from anything cached on the socket. Used where a
+ * branch is needed rather than an exception — LLM credentials are writable
+ * only by an administrator, because the base URL receives the API key.
+ * @param {Socket} socket Socket.io instance
+ * @returns {Promise<boolean>} true when the account may administer the instance
+ */
+exports.isAdmin = async (socket) => {
+    if (!socket.loginUserID) {
+        return false;
+    }
+
+    const user = await R.findOne("user", " id = ? AND active = 1 ", [ socket.loginUserID ]);
+    return Boolean(user?.admin);
 };
 
 /**

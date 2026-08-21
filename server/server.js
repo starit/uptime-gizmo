@@ -126,14 +126,17 @@ const {
     setSetting,
     setting,
     personalRoom,
+    leaveSession,
     initJWTSecret,
     checkLogin,
     doubleCheckPassword,
+    isAdmin,
     shake256,
     SHAKE256_LENGTH,
     allowDevAllOrigin,
     printServerUrls,
 } = require("./util-server");
+const { LLM_SETTING_KEYS, assertSafeLlmBaseUrl } = require("./utils/llm-base-url");
 
 log.debug("server", "Importing Notification");
 const { Notification } = require("./notification");
@@ -552,8 +555,7 @@ let needSetup = false;
                 return;
             }
 
-            socket.leave(socket.userID);
-            socket.userID = null;
+            leaveSession(socket);
 
             if (typeof callback === "function") {
                 callback();
@@ -736,6 +738,7 @@ let needSetup = false;
                 let user = R.dispense("user");
                 user.username = username;
                 user.password = await passwordHash.generate(password);
+                user.admin = 1;
                 await R.store(user);
 
                 needSetup = false;
@@ -1513,6 +1516,14 @@ let needSetup = false;
                     data.serverTimezone = await server.getTimezone();
                 }
 
+                // The API key is an instance credential. Anyone who can sign in
+                // used to receive it in this payload, then could point llmBaseUrl
+                // at a host they control and generate a theme — the server would
+                // send the key there as a Bearer token.
+                if (!(await isAdmin(socket))) {
+                    delete data.llmApiKey;
+                }
+
                 callback({
                     ok: true,
                     data: data,
@@ -1540,6 +1551,11 @@ let needSetup = false;
                     throw new Error("No AI provider is configured");
                 }
 
+                // Checked here, not only at save: a URL stored before this
+                // existed, or one written around the settings form, must not
+                // receive the key either.
+                const baseURL = assertSafeLlmBaseUrl(await Settings.get("llmBaseUrl"));
+
                 // Generation runs here rather than in the browser so the key
                 // never leaves the server.
                 const { createThemed } = await import("@themed.js/core");
@@ -1548,7 +1564,7 @@ let needSetup = false;
                         provider,
                         apiKey,
                         model: (await Settings.get("llmModel")) || undefined,
-                        baseURL: (await Settings.get("llmBaseUrl")) || undefined,
+                        baseURL,
                     },
                 });
 
@@ -1621,6 +1637,23 @@ let needSetup = false;
         socket.on("setSettings", async (data, currentPassword, callback) => {
             try {
                 checkLogin(socket);
+
+                if (!data || typeof data !== "object") {
+                    throw new Error("Invalid settings");
+                }
+
+                // The LLM base URL is a request destination that receives the
+                // API key. Anyone who can sign in used to be able to point it
+                // at a host they control. Drop the whole credential bag unless
+                // this account is an administrator, so a save of some other
+                // page cannot wipe or replace it either.
+                if (!(await isAdmin(socket))) {
+                    for (const key of LLM_SETTING_KEYS) {
+                        delete data[key];
+                    }
+                } else if (Object.prototype.hasOwnProperty.call(data, "llmBaseUrl")) {
+                    data.llmBaseUrl = assertSafeLlmBaseUrl(data.llmBaseUrl) ?? "";
+                }
 
                 // If currently is disabled auth, don't need to check
                 // Disabled Auth + Want to Disable Auth => No Check
@@ -1984,6 +2017,7 @@ async function afterLogin(socket, user) {
      * the shared room would leak it while the reverse would only stop a screen
      * updating.
      */
+    leaveSession(socket);
     socket.loginUserID = user.id;
     socket.userID = await instanceOwnerId(user);
 

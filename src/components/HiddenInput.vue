@@ -9,12 +9,13 @@
             :autocomplete="autocomplete"
             :required="required"
             :readonly="readonly"
+            :disabled="disabled"
         />
 
-        <GizmoIconButton v-if="visibility == 'password'" :label="$t('Reveal')" @click="showInput()">
+        <GizmoIconButton v-if="visibility == 'password'" :label="$t('Reveal')" :disabled="disabled" @click="showInput()">
             <font-awesome-icon icon="eye" />
         </GizmoIconButton>
-        <GizmoIconButton v-if="visibility == 'text'" :label="$t('Password')" @click="hideInput()">
+        <GizmoIconButton v-if="visibility == 'text'" :label="$t('Password')" :disabled="disabled" @click="hideInput()">
             <font-awesome-icon icon="eye-slash" />
         </GizmoIconButton>
     </div>
@@ -64,6 +65,11 @@ export default {
         readonly: {
             type: String,
             default: undefined,
+        },
+        /** Whether the field and its reveal control are disabled */
+        disabled: {
+            type: Boolean,
+            default: false,
         },
     },
     emits: ["update:modelValue"],
