@@ -388,6 +388,7 @@ export default {
  * 1200px — regardless of how narrow the rail itself was — leaving the name
  * about 80px and truncating all but the shortest.
  */
+
 /*
  * The heartbeat bar is this product's signature and it had five rems — about
  * eight beats, against forty on the monitor page. It takes what the name does

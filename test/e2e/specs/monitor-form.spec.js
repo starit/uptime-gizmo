@@ -115,11 +115,11 @@ test.describe("Monitor Form", () => {
         await page.getByTestId("friendly-name-input").fill(friendlyName);
         await page.getByTestId("url-input").fill("https://www.example.com/");
 
-        // Expect error response save enabled by default
+        // Error responses are saved by default; the success checkbox and the
+        // length field only appear while that is on.
         await expect(page.getByLabel("Save HTTP Error Response for Notifications")).toBeChecked();
 
         await page.getByLabel("Save HTTP Success Response for Notifications").check();
-        await page.getByLabel("Save HTTP Error Response for Notifications").uncheck();
         await page.getByLabel("Response Max Length (bytes)").fill("2048");
 
         await screenshot(testInfo, page);
@@ -129,8 +129,8 @@ test.describe("Monitor Form", () => {
         await page.getByRole("link", { name: "Edit" }).click();
         await page.waitForURL("/edit/*");
 
-        await expect(page.getByLabel("Save HTTP Success Response for Notifications")).toBeHidden();
-        await expect(page.getByLabel("Save HTTP Error Response for Notifications")).not.toBeChecked();
+        await expect(page.getByLabel("Save HTTP Error Response for Notifications")).toBeChecked();
+        await expect(page.getByLabel("Save HTTP Success Response for Notifications")).toBeChecked();
         await expect(page.getByLabel("Response Max Length (bytes)")).toHaveValue("2048");
 
         await screenshot(testInfo, page);

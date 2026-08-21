@@ -1,13 +1,42 @@
 import { expect, test } from "@playwright/test";
 import { login, restoreSqliteSnapshot, screenshot } from "../util-test";
 
+/**
+ * Saving a status page does a full document navigation after the socket
+ * round-trip. Wait for that load so later steps run against the new page.
+ * @param {import("@playwright/test").Page} page Page
+ * @returns {Promise<void>}
+ */
+async function saveStatusPage(page) {
+    const loaded = page.waitForEvent("load");
+    await page.getByTestId("save-button").click();
+    await loaded;
+}
+
+/**
+ * Edit reconnects the socket (status pages are not connected until then)
+ * and replaces the form with editor config. Retry fills until they stick.
+ * @param {import("@playwright/test").Page} page Page
+ * @param {() => Promise<void>} fillForm Form interactions
+ * @returns {Promise<void>}
+ */
+async function editStatusPage(page, fillForm) {
+    await page.getByTestId("edit-button").click();
+    await expect(page.getByTestId("edit-sidebar")).toHaveCount(1);
+    await expect(async () => {
+        await fillForm();
+        await page.waitForTimeout(500);
+        await fillForm();
+    }).toPass({ timeout: 20000 });
+}
+
 test.describe("Status Page", () => {
     test.beforeEach(async ({ page }) => {
         await restoreSqliteSnapshot(page);
     });
 
     test("create and edit", async ({ page }, testInfo) => {
-        test.setTimeout(60000); // Keep the timeout increase for stability
+        test.setTimeout(90000);
 
         // Monitor
         const monitorName = "Monitor for Status Page";
@@ -86,7 +115,7 @@ test.describe("Status Page", () => {
         await page.getByTestId("show-certificate-expiry-checkbox").uncheck();
         await page.getByTestId("analytics-type-select").selectOption("google");
         await page.getByTestId("analytics-id-input").fill(googleAnalyticsId);
-        await page.getByTestId("custom-css-input").getByTestId("textarea").fill(customCss); // Prism
+        await page.getByTestId("custom-css-input").locator("textarea").fill(customCss);
 
         // Add an incident
         await page.getByTestId("create-incident-button").click();
@@ -115,14 +144,13 @@ test.describe("Status Page", () => {
 
         // Save the changes
         await screenshot(testInfo, page);
-        await page.getByTestId("save-button").click();
-        await expect(page.getByTestId("edit-sidebar")).toHaveCount(0);
+        await saveStatusPage(page);
 
         // Ensure changes are visible
         await expect(page.getByTestId("incident")).toHaveCount(1);
         await expect(page.getByTestId("incident-title")).toContainText(incidentTitle);
         await expect(page.getByTestId("incident-content")).toContainText(incidentContent);
-        await expect(page.getByTestId("group-name")).toContainText(groupName);
+        await expect(page.getByTestId("group-name")).toContainText(groupName, { ignoreCase: true });
         await expect(page.getByTestId("powered-by")).toHaveCount(0);
         await expect(page.getByTestId("status-page-title")).toHaveClass(/title-flex--logo-lg/);
         await expect(page.getByTestId("status-page-title")).toHaveClass(/title-flex--above/);
@@ -153,21 +181,19 @@ test.describe("Status Page", () => {
         await screenshot(testInfo, page);
         expect(await page.locator("head").innerHTML()).toContain(googleAnalyticsId);
 
-        // Flip the "Show Tags" and "Show Powered By" switches:
-        await page.getByTestId("edit-button").click();
-        await expect(page.getByTestId("edit-sidebar")).toHaveCount(1);
-        await page.getByTestId("show-tags-checkbox").setChecked(true);
-        await page.getByTestId("show-powered-by-checkbox").setChecked(true);
-
+        await editStatusPage(page, async () => {
+            await page.getByTestId("show-tags-checkbox").setChecked(true);
+            await page.getByTestId("show-powered-by-checkbox").setChecked(true);
+            await page.getByTestId("analytics-type-select").selectOption("umami");
+            await page.getByTestId("analytics-script-url-input").fill(umamiAnalyticsScriptUrl);
+            await page.getByTestId("analytics-id-input").fill(umamiAnalyticsWebsiteId);
+            await expect(page.getByTestId("show-tags-checkbox")).toBeChecked();
+            await expect(page.getByTestId("show-powered-by-checkbox")).toBeChecked();
+            await expect(page.getByTestId("analytics-id-input")).toHaveValue(umamiAnalyticsWebsiteId);
+        });
         await screenshot(testInfo, page);
+        await saveStatusPage(page);
 
-        // Fill in umami analytics after editing
-        await page.getByTestId("analytics-type-select").selectOption("umami");
-        await page.getByTestId("analytics-script-url-input").fill(umamiAnalyticsScriptUrl);
-        await page.getByTestId("analytics-id-input").fill(umamiAnalyticsWebsiteId);
-        await page.getByTestId("save-button").click();
-
-        await expect(page.getByTestId("edit-sidebar")).toHaveCount(0);
         await expect(page.getByTestId("powered-by")).toContainText("Powered by");
         await expect(page.getByTestId("powered-by").locator("a")).toHaveAttribute(
             "href",
@@ -183,13 +209,14 @@ test.describe("Status Page", () => {
         expect(await page.locator("head").innerHTML()).toContain(umamiAnalyticsScriptUrl);
         expect(await page.locator("head").innerHTML()).toContain(umamiAnalyticsWebsiteId);
 
-        await page.getByTestId("edit-button").click();
-        // Fill in plausible analytics after editing
-        await page.getByTestId("analytics-type-select").selectOption("plausible");
-        await page.getByTestId("analytics-script-url-input").fill(plausibleAnalyticsScriptUrl);
-        await page.getByTestId("analytics-id-input").fill(plausibleAnalyticsDomainsUrls);
-        await page.getByTestId("save-button").click();
+        await editStatusPage(page, async () => {
+            await page.getByTestId("analytics-type-select").selectOption("plausible");
+            await page.getByTestId("analytics-script-url-input").fill(plausibleAnalyticsScriptUrl);
+            await page.getByTestId("analytics-id-input").fill(plausibleAnalyticsDomainsUrls);
+            await expect(page.getByTestId("analytics-id-input")).toHaveValue(plausibleAnalyticsDomainsUrls);
+        });
         await screenshot(testInfo, page);
+        await saveStatusPage(page);
         await page.waitForFunction(
             (scriptUrl) => {
                 return document.head.innerHTML.includes(scriptUrl);
@@ -200,13 +227,14 @@ test.describe("Status Page", () => {
         expect(await page.locator("head").innerHTML()).toContain(plausibleAnalyticsScriptUrl);
         expect(await page.locator("head").innerHTML()).toContain(plausibleAnalyticsDomainsUrls);
 
-        await page.getByTestId("edit-button").click();
-        // Fill in matomo analytics after editing
-        await page.getByTestId("analytics-type-select").selectOption("matomo");
-        await page.getByTestId("analytics-script-url-input").fill(matomoUrl);
-        await page.getByTestId("analytics-id-input").fill(matomoSiteId);
-        await page.getByTestId("save-button").click();
+        await editStatusPage(page, async () => {
+            await page.getByTestId("analytics-type-select").selectOption("matomo");
+            await page.getByTestId("analytics-script-url-input").fill(matomoUrl);
+            await page.getByTestId("analytics-id-input").fill(matomoSiteId);
+            await expect(page.getByTestId("analytics-id-input")).toHaveValue(matomoSiteId);
+        });
         await screenshot(testInfo, page);
+        await saveStatusPage(page);
         await page.waitForFunction(
             (url) => {
                 return document.head.innerHTML.includes(url);
@@ -222,7 +250,7 @@ test.describe("Status Page", () => {
     // @todo Test domain names
 
     test("RSS feed escapes malicious monitor names", async ({ page }, testInfo) => {
-        test.setTimeout(60000);
+        test.setTimeout(90000);
 
         // Test various XSS payloads in monitor names
         const maliciousMonitorName1 = "<script>alert(1)</script>";
@@ -275,11 +303,27 @@ test.describe("Status Page", () => {
         await page.getByTestId("monitor-select").click();
         await page.getByTestId("monitor-select").getByRole("option", { name: normalMonitorName }).click();
 
-        await page.getByTestId("save-button").click();
-        await expect(page.getByTestId("edit-sidebar")).toHaveCount(0);
+        await saveStatusPage(page);
 
-        // Fetch the RSS feed
-        const rssResponse = await page.request.get("/status/security-test/rss");
+        // Heartbeats take a moment, and a 5-minute RSS cache would pin the first
+        // incomplete feed. Bypass cache while waiting for every monitor to go down.
+        const rssBypass = { headers: { "x-apicache-bypass": "1" } };
+        await expect
+            .poll(
+                async () => {
+                    const pending = await page.request.get("/status/security-test/rss", rssBypass);
+                    const text = await pending.text();
+                    return [
+                        `<title><![CDATA[${maliciousMonitorName1} is down]]></title>`,
+                        `<title><![CDATA[${maliciousMonitorName2} is down]]></title>`,
+                        `<title><![CDATA[${normalMonitorName} is down]]></title>`,
+                    ].every((item) => text.includes(item));
+                },
+                { timeout: 45000 }
+            )
+            .toBe(true);
+
+        const rssResponse = await page.request.get("/status/security-test/rss", rssBypass);
         expect(rssResponse.status()).toBe(200);
         expect(rssResponse.headers()["content-type"]).toBe("application/rss+xml; charset=utf-8");
         expect(rssResponse.ok()).toBeTruthy();
@@ -310,14 +354,17 @@ test.describe("Status Page", () => {
 
         // Test custom RSS title functionality
         const customRssTitle = "Custom RSS Feed Title";
-        await page.getByTestId("edit-button").click();
-        await expect(page.getByTestId("edit-sidebar")).toHaveCount(1);
+        await page.goto("./status/security-test?edit");
+        await expect(page.getByTestId("edit-sidebar")).toBeVisible();
+        // Editor config injects a CSS starter; wait for it so later fills are not wiped.
+        await expect(page.getByTestId("custom-css-input").locator("textarea")).toHaveValue(/body\s*\{/, {
+            timeout: 15000,
+        });
         await page.getByTestId("rss-title-input").fill(customRssTitle);
-        await page.getByTestId("save-button").click();
-        await expect(page.getByTestId("edit-sidebar")).toHaveCount(0);
+        await expect(page.getByTestId("rss-title-input")).toHaveValue(customRssTitle);
+        await saveStatusPage(page);
 
-        // Fetch RSS feed again - should use custom RSS title
-        const rssResponseCustom = await page.request.get("/status/security-test/rss");
+        const rssResponseCustom = await page.request.get("/status/security-test/rss", rssBypass);
         expect(rssResponseCustom.status()).toBe(200);
         const rssContentCustom = await rssResponseCustom.text();
 

@@ -4,8 +4,16 @@ import { login, restoreSqliteSnapshot } from "../util-test";
 test.describe("Dialog primitives", () => {
     test.beforeEach(async ({ page }) => {
         await restoreSqliteSnapshot(page);
-        await page.goto("./dashboard");
+        await page.goto("./add");
         await login(page);
+        // Clear All Events lives on the overview that only renders once
+        // something is being watched.
+        await page.getByTestId("monitor-type-select").selectOption("http");
+        await page.getByTestId("friendly-name-input").fill("Dialog probe");
+        await page.getByTestId("url-input").fill("https://www.example.com/");
+        await page.getByTestId("save-button").click();
+        await page.waitForURL("/dashboard/*");
+        await page.goto("./dashboard");
     });
 
     test("confirmation dialog manages keyboard focus and dismissals", async ({ page }) => {

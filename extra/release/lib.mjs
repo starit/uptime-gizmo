@@ -352,7 +352,6 @@ The \`dist.tar.gz\` archive will be available as an artifact in the [workflow ru
 
     if (result.status !== 0) {
         console.error(result.stderr);
-        explainPullRequestCreateFailure(result.stderr);
         console.error("Failed to create pull request");
         process.exit(1);
     }
@@ -374,40 +373,6 @@ The \`dist.tar.gz\` archive will be available as an artifact in the [workflow ru
 
     console.log("Successfully created draft pull request");
     return prNumber;
-}
-
-/**
- * GITHUB_TOKEN cannot open a PR unless the repo allows it, which is off by
- * default. That error is easy to misread as a missing workflow permission.
- * @param {string} stderr gh output
- * @returns {void}
- */
-function explainPullRequestCreateFailure(stderr) {
-    if (!/not permitted to create or approve pull requests/i.test(String(stderr || ""))) {
-        return;
-    }
-
-    const repo = process.env.GITHUB_REPOSITORY || "starit/uptime-gizmo";
-    const settingsUrl = `https://github.com/${repo}/settings/actions`;
-
-    console.error(`
-GitHub blocked GITHUB_TOKEN from opening a pull request.
-
-The workflow already has pull-requests: write. What is missing is a repository
-setting that is off by default on new repos:
-
-  ${settingsUrl}
-
-  Workflow permissions → enable
-  "Allow GitHub Actions to create and approve pull requests"
-
-If the checkbox is greyed out, an organization or enterprise policy owns it.
-
-A personal access token in the RELEASE_PAT secret also works (contents + pull
-requests: write), and is what \`gh pr merge --admin\` needs when main is
-protected. The release branch is already on the remote; enable the setting or
-add RELEASE_PAT, then re-run this workflow.
-`);
 }
 
 /**

@@ -19,7 +19,7 @@ test.describe("Friendly Name Tests", () => {
         await page.getByTestId("save-button").click();
         await page.waitForURL("/dashboard/*");
 
-        expect(page.getByTestId("monitor-list")).toContainText("example.com");
+        await expect(page.getByTestId("monitor-list")).toContainText("example.com");
         await screenshot(testInfo, page);
     });
 
@@ -36,7 +36,7 @@ test.describe("Friendly Name Tests", () => {
         await page.getByTestId("save-button").click();
         await page.waitForURL("/dashboard/*");
 
-        expect(page.getByTestId("monitor-list")).toContainText("www.example.com");
+        await expect(page.getByTestId("monitor-list")).toContainText("www.example.com");
         await screenshot(testInfo, page);
     });
 
@@ -51,7 +51,7 @@ test.describe("Friendly Name Tests", () => {
 
         // Check if the friendly name placeholder is set to the hostname
         const friendlyNameInput = page.getByTestId("friendly-name-input");
-        expect(friendlyNameInput).toHaveAttribute("placeholder", "www.example.com");
+        await expect(friendlyNameInput).toHaveAttribute("placeholder", "www.example.com");
         await screenshot(testInfo, page);
 
         const customName = "Example Monitor";
@@ -61,7 +61,7 @@ test.describe("Friendly Name Tests", () => {
         await page.getByTestId("save-button").click();
         await page.waitForURL("/dashboard/*");
 
-        expect(page.getByTestId("monitor-list")).toContainText(customName);
+        await expect(page.getByTestId("monitor-list")).toContainText(customName);
         await screenshot(testInfo, page);
     });
 
@@ -77,7 +77,7 @@ test.describe("Friendly Name Tests", () => {
         await page.getByTestId("save-button").click();
         await page.waitForURL("/dashboard/*");
 
-        expect(page.getByTestId("monitor-list")).toContainText("New Monitor");
+        await expect(page.getByTestId("monitor-list")).toContainText("New Monitor");
         await screenshot(testInfo, page);
     });
 });

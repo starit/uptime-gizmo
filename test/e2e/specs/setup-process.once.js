@@ -43,9 +43,7 @@ test.describe("Uptime Gizmo Setup", () => {
     test("logout", async ({ page }) => {
         await page.goto("./dashboard");
         await login(page);
-        await page.getByText("A", { exact: true }).click();
-        // The profile menu is a real ARIA menu now, so its entries are
-        // menuitems rather than the plain buttons the Bootstrap markup used.
+        await page.getByRole("button", { name: "User" }).click();
         await page.getByRole("menuitem", { name: "Log out" }).click();
     });
 

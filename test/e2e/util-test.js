@@ -22,14 +22,13 @@ export async function screenshot(testInfo, page) {
  * @returns {Promise<void>}
  */
 export async function login(page) {
-    // Login
-    await page.getByPlaceholder("Username").click();
     await page.getByPlaceholder("Username").fill("admin");
-    await page.getByPlaceholder("Username").press("Tab");
-    await page.getByPlaceholder("Password").fill("admin123");
+    await page.getByPlaceholder("Password", { exact: true }).fill("admin123");
     await page.getByLabel("Remember me").check();
     await page.getByRole("button", { name: "Log in" }).click();
-    await page.isVisible("text=Add New Monitor");
+    // page.isVisible() was removed in Playwright; the sidebar link is what
+    // appears once the session is actually in the app.
+    await page.getByRole("link", { name: "Add New Monitor" }).first().waitFor();
 }
 
 /**
