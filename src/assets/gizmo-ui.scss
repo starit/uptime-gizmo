@@ -100,7 +100,7 @@ pre code {
     background: none;
 }
 
-a {
+a:not(.gizmo-native-button) {
     color: var(--color-interactive);
     text-decoration-color: color-mix(in srgb, currentColor 35%, transparent);
     text-underline-offset: 0.15em;
@@ -134,6 +134,51 @@ a {
         background-color: var(--color-surface-hover);
         border-color: transparent;
         color: var(--color-text);
+    }
+}
+
+/*
+ * Native / Gizmo secondary chrome is unlayered on purpose. Tailwind Preflight
+ * sets `border-width: 0` on every element inside `@layer base`; recipes that
+ * only set `border-color` inside `@layer components` can lose the stroke.
+ * Fill is `--color-surface-subtle` so the control still reads on a white
+ * `--color-surface` panel, and the stroke is `--color-border-strong` so it
+ * does not vanish into Cloud White.
+ */
+.gizmo-native-button--secondary,
+.gizmo-button--secondary {
+    border: 1px solid var(--color-border-strong);
+    background: var(--color-surface-subtle);
+    color: var(--color-text);
+
+    &:hover:not(:disabled) {
+        border: 1px solid var(--color-border-strong);
+        background: var(--color-surface-hover);
+        color: var(--color-text);
+    }
+}
+
+.gizmo-native-button--light {
+    border: 1px solid var(--color-border-strong);
+    background: var(--color-surface-subtle);
+    color: var(--color-text);
+
+    &:hover:not(:disabled) {
+        border: 1px solid var(--color-border-strong);
+        background: var(--color-surface-hover);
+        color: var(--color-text);
+    }
+}
+
+.gizmo-native-button--danger-outline {
+    border: 1px solid var(--status-down);
+    background: var(--status-down-bg);
+    color: var(--status-down-fg);
+
+    &:hover:not(:disabled) {
+        border: 1px solid var(--status-down-fg);
+        background: var(--status-down-bg);
+        color: var(--status-down-fg);
     }
 }
 

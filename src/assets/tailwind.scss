@@ -82,13 +82,13 @@
     }
 
     .gizmo-button--secondary {
-        background: transparent;
-        border-color: transparent;
+        background: var(--color-surface-subtle);
+        border: 1px solid var(--color-border-strong);
         color: var(--color-text);
 
         &:not(:disabled):hover {
             background: var(--color-surface-hover);
-            border-color: transparent;
+            border: 1px solid var(--color-border-strong);
         }
     }
 
@@ -785,18 +785,21 @@
         text-decoration: none;
         cursor: pointer;
     }
-    .gizmo-native-button:hover:not(:disabled) { border-color: transparent; background: var(--color-surface-hover); color: var(--color-text); }
+    .gizmo-native-button:hover:not(:disabled) { background: var(--color-surface-hover); color: var(--color-text); }
     .gizmo-native-button:focus-visible { outline: 2px solid var(--color-focus-ring); outline-offset: 2px; }
     .gizmo-native-button:disabled { cursor: not-allowed; opacity: 0.55; }
     .gizmo-native-button--sm { min-height: 2rem; padding: 0.3rem 0.625rem; border-radius: var(--radius-sm); font-size: 0.8125rem; }
     .gizmo-native-button--primary { border-color: var(--color-brand); background: var(--color-brand); color: var(--color-brand-contrast); }
     .gizmo-native-button--primary:hover:not(:disabled) { border-color: var(--color-brand-hover); background: var(--color-brand-hover); color: var(--color-brand-contrast); }
-    .gizmo-native-button--secondary { border-color: transparent; background: transparent; }
-    .gizmo-native-button--outline { border-color: var(--color-interactive); background: transparent; color: var(--color-interactive); }
-    .gizmo-native-button--success { border-color: var(--status-up); background: var(--status-up); color: var(--color-text-inverse); }
-    .gizmo-native-button--danger { border-color: var(--status-down); background: var(--status-down); color: var(--color-text-inverse); }
-    .gizmo-native-button--danger-outline { border-color: var(--status-down); background: transparent; color: var(--status-down-fg); }
-    .gizmo-native-button--light { border-color: var(--color-border); background: var(--color-surface); color: var(--color-text); }
+    .gizmo-native-button--secondary { border: 1px solid var(--color-border-strong); background: var(--color-surface-subtle); color: var(--color-text); }
+    .gizmo-native-button--secondary:hover:not(:disabled) { border: 1px solid var(--color-border-strong); background: var(--color-surface-hover); color: var(--color-text); }
+    .gizmo-native-button--outline { border: 1px solid var(--color-interactive); background: transparent; color: var(--color-interactive); }
+    .gizmo-native-button--success { border: 1px solid var(--status-up); background: var(--status-up); color: var(--color-text-inverse); }
+    .gizmo-native-button--danger { border: 1px solid var(--status-down); background: var(--status-down); color: var(--color-text-inverse); }
+    .gizmo-native-button--danger-outline { border: 1px solid var(--status-down); background: var(--status-down-bg); color: var(--status-down-fg); }
+    .gizmo-native-button--danger-outline:hover:not(:disabled) { border: 1px solid var(--status-down-fg); background: var(--status-down-bg); color: var(--status-down-fg); }
+    .gizmo-native-button--light { border: 1px solid var(--color-border-strong); background: var(--color-surface-subtle); color: var(--color-text); }
+    .gizmo-native-button--light:hover:not(:disabled) { border: 1px solid var(--color-border-strong); background: var(--color-surface-hover); color: var(--color-text); }
 
     .gizmo-native-alert { padding: 0.75rem 0.875rem; border: 1px solid; border-radius: var(--radius-sm); font-size: 0.875rem; }
     .gizmo-native-alert--success { border-color: var(--status-up-border); background: var(--status-up-bg); color: var(--status-up-fg); }

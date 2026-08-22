@@ -190,7 +190,7 @@ Authenticated product chrome is flat. In-page panels, tables, rails, and headers
 
 Reserve `--shadow-float` and `--shadow-overlay` for menus, dialogs, toasts, and tooltips — surfaces that leave the page. Do not use backdrop blur or brand-color washes on the private workspace header, shell, or sticky action bars.
 
-Secondary actions are ghost controls (transparent until hover). Gold remains the filled primary call to action; status colors stay semantic.
+Secondary actions are ghost in spirit (not Gold filled primaries), but they still need a visible control shape on Cloud White pages and on `--color-surface` panels. Idle secondary uses a 1px `--color-border-strong` outline and `--color-surface-subtle` fill so the control does not disappear into a white panel; hover uses `--color-surface-hover`. Do not fill secondary with `--color-surface`, and do not use `--color-border` alone for small control edges — both vanish on Cloud White. Gold remains the filled primary call to action; status colors stay semantic.
 
 ### Monitoring status
 

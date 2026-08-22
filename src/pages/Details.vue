@@ -138,7 +138,7 @@
                         <font-awesome-icon icon="clone" />
                         {{ $t("Clone") }}
                     </router-link>
-                    <button class="gizmo-native-button gizmo-native-button--secondary tw-text-status-down-fg" @click="deleteDialog">
+                    <button class="gizmo-native-button gizmo-native-button--danger-outline" @click="deleteDialog">
                         <font-awesome-icon icon="trash" />
                         {{ $t("Delete") }}
                     </button>
@@ -898,8 +898,7 @@ export default {
     .gizmo-action-group {
         width: 100%;
 
-        .gizmo-native-button,
-        a.gizmo-native-button {
+        .gizmo-native-button {
             display: inline-flex;
             flex-direction: column;
             align-items: center;
@@ -1079,10 +1078,6 @@ table {
 .tags {
     margin-bottom: 0.5rem;
     max-width: 95vw;
-}
-
-.tags > div:first-child {
-    margin-left: 0 !important;
 }
 
 .monitor-id {
