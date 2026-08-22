@@ -304,62 +304,32 @@
 
         <!-- Main Status Page -->
         <div :class="{ edit: enableEditMode }" class="main">
-            <!-- Logo, title, and (in edit mode) size/font controls. Controls are
-                 siblings of h1.title-flex so they never inherit font-size: 0. -->
-            <div class="status-page-heading-block">
-                <h1 class="title-flex" :class="titleFlexClass" data-testid="status-page-title">
-                    <!-- Logo -->
-                    <span v-if="showStatusLogo" class="logo-wrapper" :class="logoWrapperClass" @click="showImageCropUploadMethod">
-                        <button
-                            v-if="editMode"
-                            type="button"
-                            class="tw-p-0 tw-bg-transparent tw-border-0 small-reset-btn reset-top-left"
-                            @click.stop="resetToDefaultImage"
-                        >
-                            <font-awesome-icon icon="times" class="tw-text-status-down-fg" />
-                        </button>
-                        <img :src="logoURL" alt class="logo" :class="logoClass" />
-                        <font-awesome-icon v-if="enableEditMode" class="icon-upload" icon="upload" />
-                    </span>
-
-                    <!-- Title -->
-                    <span class="status-page-heading">
-                        <Editable
-                            v-model="config.title"
-                            class="status-page-title-text"
-                            tag="span"
-                            :contenteditable="editMode"
-                            :noNL="true"
-                        />
-                    </span>
-                </h1>
-
-                <div v-if="enableEditMode" class="status-page-title-controls">
-                    <label class="gizmo-field-label" for="title-size-inline">{{ $t("statusPageTitleSize") }}</label>
-                    <select
-                        id="title-size-inline"
-                        v-model="config.titleSize"
-                        class="gizmo-native-control gizmo-native-select"
-                        data-testid="title-size-inline"
+            <h1 class="title-flex" :class="titleFlexClass" data-testid="status-page-title">
+                <!-- Logo -->
+                <span v-if="showStatusLogo" class="logo-wrapper" :class="logoWrapperClass" @click="showImageCropUploadMethod">
+                    <button
+                        v-if="editMode"
+                        type="button"
+                        class="tw-p-0 tw-bg-transparent tw-border-0 small-reset-btn reset-top-left"
+                        @click.stop="resetToDefaultImage"
                     >
-                        <option value="sm">{{ $t("statusPageTitleSizeSmall") }}</option>
-                        <option value="md">{{ $t("statusPageTitleSizeMedium") }}</option>
-                        <option value="lg">{{ $t("statusPageTitleSizeLarge") }}</option>
-                    </select>
-                    <label class="gizmo-field-label" for="title-font-inline">{{ $t("statusPageTitleFont") }}</label>
-                    <select
-                        id="title-font-inline"
-                        v-model="config.titleFont"
-                        class="gizmo-native-control gizmo-native-select"
-                        data-testid="title-font-inline"
-                    >
-                        <option value="sans">{{ $t("statusPageTitleFontSans") }}</option>
-                        <option value="serif">{{ $t("statusPageTitleFontSerif") }}</option>
-                        <option value="mono">{{ $t("statusPageTitleFontMono") }}</option>
-                        <option value="display">{{ $t("statusPageTitleFontDisplay") }}</option>
-                    </select>
-                </div>
-            </div>
+                        <font-awesome-icon icon="times" class="tw-text-status-down-fg" />
+                    </button>
+                    <img :src="logoURL" alt class="logo" :class="logoClass" />
+                    <font-awesome-icon v-if="enableEditMode" class="icon-upload" icon="upload" />
+                </span>
+
+                <!-- Title -->
+                <span class="status-page-heading">
+                    <Editable
+                        v-model="config.title"
+                        class="status-page-title-text"
+                        tag="span"
+                        :contenteditable="editMode"
+                        :noNL="true"
+                    />
+                </span>
+            </h1>
 
             <!-- Uploader is out of the heading flex so it cannot sit between
                  the logo and the title. Absolute so .main's column gap skips it. -->
@@ -1754,6 +1724,8 @@ export default {
     /* A public page for a handful of services composes better on a narrower
        measure than the 1040px the private workspace uses. */
     position: relative;
+    box-sizing: border-box;
+    width: 100%;
     max-width: 55rem;
     margin-inline: auto;
     padding: 1.75rem 1.25rem 2.5rem;
@@ -1774,34 +1746,6 @@ export default {
     &.edit {
         margin-left: 300px;
     }
-}
-
-.status-page-heading-block {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 0.75rem 1rem;
-}
-
-.status-page-title-controls {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 0.5rem 0.75rem;
-    font-size: 0.875rem;
-    line-height: 1.25;
-}
-
-.status-page-title-controls .gizmo-field-label {
-    margin: 0;
-    font-size: 0.875rem;
-    line-height: 1.25rem;
-}
-
-.status-page-title-controls .gizmo-native-select {
-    width: auto;
-    min-width: 7.5rem;
-    font-size: 0.875rem;
 }
 
 .status-page-admin > div {
@@ -1842,6 +1786,7 @@ export default {
     display: flex;
     align-items: center;
     gap: 0.625rem;
+    min-width: 0;
     padding: 0.8125rem 1rem;
     border: 1px solid var(--color-border);
     border-inline-start-width: 3px;
@@ -1853,8 +1798,11 @@ export default {
 
     > div {
         display: flex;
+        flex-wrap: wrap;
         align-items: center;
         gap: 0.625rem;
+        min-width: 0;
+        overflow-wrap: anywhere;
     }
 
     svg {
@@ -1971,6 +1919,32 @@ export default {
     }
 }
 
+@media (max-width: 40rem) {
+    .sidebar {
+        position: static;
+        width: 100%;
+        height: auto;
+        border-right: 0;
+        border-bottom: 1px solid var(--color-border);
+    }
+
+    .sidebar .sidebar-body {
+        height: auto;
+        overflow-y: visible;
+    }
+
+    .sidebar .sidebar-footer {
+        position: static;
+        width: 100%;
+        height: auto;
+        border-right: 0;
+    }
+
+    .main.edit {
+        margin-left: 0;
+    }
+}
+
 .description span {
     min-width: 50px;
 }
@@ -2025,9 +1999,9 @@ export default {
     }
 }
 
-/* Logo and title sit on one row. The heading is the same height as the
-   mark so its contents can be flex-centred against the square; the h1
-   itself uses font-size 0 so its own line box cannot become a flex strut. */
+/* Logo and title sit on one row. The h1 uses font-size 0 so its own
+   line box cannot become a flex strut; the heading grows with wrapped
+   title text and stays vertically centred against the mark. */
 h1.title-flex {
     --status-logo-size: 3.75rem;
     --status-title-size: 1.5rem;
@@ -2037,6 +2011,8 @@ h1.title-flex {
     align-items: center;
     gap: 0.75rem;
     margin: 0;
+    max-width: 100%;
+    min-width: 0;
     font-family: var(--status-title-font);
     font-size: 0;
     font-weight: var(--weight-semibold);
@@ -2091,42 +2067,40 @@ h1.title-flex--above {
     text-align: center;
 }
 
-h1.title-flex > .logo-wrapper,
-h1.title-flex > .status-page-heading {
+h1.title-flex > .logo-wrapper {
     flex: none;
     align-self: center;
 }
 
 h1.title-flex > .status-page-heading {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: flex-start;
+    display: block;
+    flex: 1 1 auto;
+    align-self: center;
     box-sizing: border-box;
-    height: var(--status-logo-size);
+    height: auto;
     margin: 0;
     min-width: 0;
     font-size: var(--status-title-size);
-    line-height: 1;
+    line-height: 1.2;
 }
 
-h1.title-flex--above > .status-page-heading,
-h1.title-flex--no-logo > .status-page-heading {
-    height: auto;
-    justify-content: center;
+h1.title-flex--above > .status-page-heading {
+    flex: 0 1 auto;
+    width: 100%;
+    text-align: center;
 }
 
 h1.title-flex .status-page-title-text,
 h1.title-flex .status-page-heading :deep(.status-page-title-text),
 h1.title-flex .status-page-heading :deep(span) {
-    display: inline-flex;
-    align-items: center;
-    align-self: center;
+    display: block;
     box-sizing: border-box;
     margin: 0;
     padding: 0.12em 0.35em;
     font-size: var(--status-title-size);
-    line-height: 1;
+    line-height: 1.2;
+    overflow-wrap: anywhere;
+    white-space: normal;
 }
 
 .status-page-cropper {

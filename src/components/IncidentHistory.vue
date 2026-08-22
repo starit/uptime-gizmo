@@ -165,12 +165,19 @@ export default {
                 min-width: 0;
             }
 
+            .incident-header {
+                gap: 0.5rem;
+                flex-wrap: wrap;
+            }
+
             .incident-title {
+                min-width: 0;
                 color: var(--color-text);
                 font-size: 0.9375rem;
                 font-weight: var(--weight-semibold);
                 letter-spacing: -0.01em;
                 line-height: 1.35;
+                overflow-wrap: anywhere;
             }
 
             .incident-content {
