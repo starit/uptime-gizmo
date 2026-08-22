@@ -75,6 +75,37 @@ describe("StatusPage", () => {
         });
     });
 
+    describe("normalizeTitleSize()", () => {
+        test("keeps allowed sizes", () => {
+            assert.strictEqual(StatusPage.normalizeTitleSize("sm"), "sm");
+            assert.strictEqual(StatusPage.normalizeTitleSize("md"), "md");
+            assert.strictEqual(StatusPage.normalizeTitleSize("lg"), "lg");
+        });
+
+        test("falls back to medium, then to the supplied stored value", () => {
+            assert.strictEqual(StatusPage.normalizeTitleSize(undefined), "md");
+            assert.strictEqual(StatusPage.normalizeTitleSize("huge"), "md");
+            assert.strictEqual(StatusPage.normalizeTitleSize("huge", "sm"), "sm");
+            assert.strictEqual(StatusPage.normalizeTitleSize("huge", "nope"), "md");
+        });
+    });
+
+    describe("normalizeTitleFont()", () => {
+        test("keeps allowed typefaces", () => {
+            assert.strictEqual(StatusPage.normalizeTitleFont("sans"), "sans");
+            assert.strictEqual(StatusPage.normalizeTitleFont("serif"), "serif");
+            assert.strictEqual(StatusPage.normalizeTitleFont("mono"), "mono");
+            assert.strictEqual(StatusPage.normalizeTitleFont("display"), "display");
+        });
+
+        test("falls back to sans, then to the supplied stored value", () => {
+            assert.strictEqual(StatusPage.normalizeTitleFont(undefined), "sans");
+            assert.strictEqual(StatusPage.normalizeTitleFont("comic"), "sans");
+            assert.strictEqual(StatusPage.normalizeTitleFont("comic", "serif"), "serif");
+            assert.strictEqual(StatusPage.normalizeTitleFont("comic", "nope"), "sans");
+        });
+    });
+
     describe("renderRSS()", () => {
         const MOCK_FEED_URL = "http://localhost:3001/status/test";
 

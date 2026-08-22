@@ -458,6 +458,8 @@ class StatusPage extends BeanModel {
             rssTitle: this.rss_title,
             iconSize: StatusPage.normalizeLogoSize(this.icon_size),
             iconPosition: StatusPage.normalizeLogoPosition(this.icon_position),
+            titleSize: StatusPage.normalizeTitleSize(this.title_size),
+            titleFont: StatusPage.normalizeTitleFont(this.title_font),
         };
     }
 
@@ -487,18 +489,20 @@ class StatusPage extends BeanModel {
             rssTitle: this.rss_title,
             iconSize: StatusPage.normalizeLogoSize(this.icon_size),
             iconPosition: StatusPage.normalizeLogoPosition(this.icon_position),
+            titleSize: StatusPage.normalizeTitleSize(this.title_size),
+            titleFont: StatusPage.normalizeTitleFont(this.title_font),
         };
     }
 
     /**
      * Allowed display sizes for the public status-page logo.
-     * @type {readonly string[]}
+     * @type {string[]}
      */
     static LOGO_SIZES = Object.freeze(["sm", "md", "lg"]);
 
     /**
      * Allowed placements for the public status-page logo.
-     * @type {readonly string[]}
+     * @type {string[]}
      */
     static LOGO_POSITIONS = Object.freeze(["left", "above", "hidden"]);
 
@@ -506,9 +510,24 @@ class StatusPage extends BeanModel {
     static LOGO_POSITION_DEFAULT = "left";
 
     /**
+     * Allowed display sizes for the public status-page title.
+     * @type {string[]}
+     */
+    static TITLE_SIZES = Object.freeze(["sm", "md", "lg"]);
+
+    /**
+     * Allowed typefaces for the public status-page title.
+     * @type {string[]}
+     */
+    static TITLE_FONTS = Object.freeze(["sans", "serif", "mono", "display"]);
+
+    static TITLE_SIZE_DEFAULT = "md";
+    static TITLE_FONT_DEFAULT = "sans";
+
+    /**
      * Keep a stored or submitted logo size in the known set.
      * @param {unknown} value Candidate size
-     * @param {unknown} [fallback] Value to use when `value` is not allowed
+     * @param {unknown} fallback Value to use when `value` is not allowed
      * @returns {string} A value from LOGO_SIZES
      */
     static normalizeLogoSize(value, fallback = StatusPage.LOGO_SIZE_DEFAULT) {
@@ -524,7 +543,7 @@ class StatusPage extends BeanModel {
     /**
      * Keep a stored or submitted logo placement in the known set.
      * @param {unknown} value Candidate position
-     * @param {unknown} [fallback] Value to use when `value` is not allowed
+     * @param {unknown} fallback Value to use when `value` is not allowed
      * @returns {string} A value from LOGO_POSITIONS
      */
     static normalizeLogoPosition(value, fallback = StatusPage.LOGO_POSITION_DEFAULT) {
@@ -535,6 +554,38 @@ class StatusPage extends BeanModel {
             return fallback;
         }
         return StatusPage.LOGO_POSITION_DEFAULT;
+    }
+
+    /**
+     * Keep a stored or submitted title size in the known set.
+     * @param {unknown} value Candidate size
+     * @param {unknown} fallback Value to use when `value` is not allowed
+     * @returns {string} A value from TITLE_SIZES
+     */
+    static normalizeTitleSize(value, fallback = StatusPage.TITLE_SIZE_DEFAULT) {
+        if (StatusPage.TITLE_SIZES.includes(value)) {
+            return value;
+        }
+        if (StatusPage.TITLE_SIZES.includes(fallback)) {
+            return fallback;
+        }
+        return StatusPage.TITLE_SIZE_DEFAULT;
+    }
+
+    /**
+     * Keep a stored or submitted title typeface in the known set.
+     * @param {unknown} value Candidate font
+     * @param {unknown} fallback Value to use when `value` is not allowed
+     * @returns {string} A value from TITLE_FONTS
+     */
+    static normalizeTitleFont(value, fallback = StatusPage.TITLE_FONT_DEFAULT) {
+        if (StatusPage.TITLE_FONTS.includes(value)) {
+            return value;
+        }
+        if (StatusPage.TITLE_FONTS.includes(fallback)) {
+            return fallback;
+        }
+        return StatusPage.TITLE_FONT_DEFAULT;
     }
 
     /**

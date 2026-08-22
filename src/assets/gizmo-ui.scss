@@ -45,7 +45,7 @@ h6 {
     line-height: 1.25;
 }
 
-h1 {
+h1:not(.title-flex) {
     font-size: clamp(1.75rem, 3vw, 2rem);
     letter-spacing: -0.02em;
 }

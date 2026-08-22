@@ -172,7 +172,7 @@ The private monitoring workspace is an operational tool, not a marketing surface
 - Use compact controls for dense desktop workflows, but preserve a minimum 2.5rem target for controls that need pointer or touch interaction. Responsive layouts may reflow or reveal secondary data on demand; they must not discard a monitor's state or its accessible name.
 - Keep labels and operational metadata readable: use at least 0.75rem for secondary text, tabular numerals for time, counts, and latency, and avoid wrapping status/action controls where a responsive row layout can prevent it.
 - Prefer CSS transitions and already-loaded icons over decorative animation, large illustrations, or continuous effects in the private workspace. Visual effects must never compete with alert, incident, or recovery signals.
-- Public status pages may use more breathing room and brand expression, but availability, incident history, and affected components must still be immediately scannable.
+- Public status pages may use more breathing room and brand expression, but availability, incident history, and affected components must still be immediately scannable. The engineer mascot may appear in the public footer as a small lazy-loaded cutout; it must not sit in the overall-status or incident region.
 
 Density does not excuse inaccessible UI: keyboard focus, labels, contrast, error messages, and touch targets remain mandatory. If density and clarity conflict, preserve clarity first.
 

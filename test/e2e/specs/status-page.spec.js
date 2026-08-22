@@ -110,6 +110,7 @@ test.describe("Status Page", () => {
         await page.getByTestId("theme-select").selectOption(theme);
         await page.getByTestId("logo-size-select").selectOption("lg");
         await page.getByTestId("logo-position-select").selectOption("above");
+        await page.getByTestId("title-size-select").selectOption("lg");
         await page.getByTestId("show-tags-checkbox").uncheck();
         await page.getByTestId("show-powered-by-checkbox").uncheck();
         await page.getByTestId("show-certificate-expiry-checkbox").uncheck();
@@ -154,6 +155,7 @@ test.describe("Status Page", () => {
         await expect(page.getByTestId("powered-by")).toHaveCount(0);
         await expect(page.getByTestId("status-page-title")).toHaveClass(/title-flex--logo-lg/);
         await expect(page.getByTestId("status-page-title")).toHaveClass(/title-flex--above/);
+        await expect(page.getByTestId("status-page-title")).toHaveClass(/title-flex--title-lg/);
 
         await expect(page.getByTestId("monitor-name")).toHaveAttribute("href", monitorCustomUrl);
 

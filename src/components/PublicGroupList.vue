@@ -1,6 +1,13 @@
 <template>
     <!-- Group List -->
-    <Draggable v-model="$root.publicGroupList" class="service-groups" :disabled="!editMode" item-key="id" :animation="100">
+    <Draggable
+        v-model="$root.publicGroupList"
+        class="service-groups"
+        :class="{ 'service-groups--empty': $root.publicGroupList.length === 0 }"
+        :disabled="!editMode"
+        item-key="id"
+        :animation="100"
+    >
         <template #item="group">
             <div class="service-group" data-testid="group">
                 <!-- Group Title -->
@@ -94,7 +101,14 @@
                                                     class="item-uptime"
                                                 />
                                             </div>
-                                            <div class="extra-info">
+                                            <div
+                                                v-if="
+                                                    (showCertificateExpiry &&
+                                                        monitor.element.certExpiryDaysRemaining) ||
+                                                    showTags
+                                                "
+                                                class="extra-info"
+                                            >
                                                 <div
                                                     v-if="
                                                         showCertificateExpiry && monitor.element.certExpiryDaysRemaining
@@ -341,6 +355,10 @@ export default {
     overflow: hidden;
 }
 
+.service-groups--empty {
+    display: none;
+}
+
 .service-group + .service-group .group-title {
     border-top: 1px solid var(--color-border);
 }
@@ -354,10 +372,9 @@ export default {
     padding: 0.625rem 1rem;
     background: var(--color-surface-subtle);
     color: var(--color-text-muted);
-    font-size: 0.75rem;
+    font-size: 0.8125rem;
     font-weight: var(--weight-semibold);
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
+    letter-spacing: -0.01em;
 
     span {
         display: inline-block;
@@ -368,16 +385,18 @@ export default {
 
 .extra-info {
     display: flex;
-    margin-bottom: 0.5rem;
     flex-wrap: wrap;
     gap: 0.25rem;
+    margin-top: 0.25rem;
 }
 
 .no-monitor-msg {
     position: absolute;
     width: 100%;
-    top: 20px;
+    top: 0.75rem;
     left: 0;
+    color: var(--color-text-muted);
+    font-size: 0.875rem;
 }
 
 .monitor-list {
@@ -447,18 +466,24 @@ export default {
     margin-left: 0.375rem;
 }
 
-/* Was .row with col-9/col-3, widening to 6/6 at Bootstrap's 1200px xl. */
+/* Name and 24h figure share a row; the heartbeat takes the remaining
+   measure. Below 40rem they stack so the bar can use the full width. */
 .public-monitor-row {
     display: grid;
-    grid-template-columns: minmax(0, 3fr) minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr);
     align-items: center;
-    gap: 1.5rem;
+    gap: 0.5rem;
 }
 
-@media (min-width: 1200px) {
+@media (min-width: 40rem) {
     .public-monitor-row {
-        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        grid-template-columns: minmax(0, 1.15fr) minmax(8rem, 0.85fr);
+        gap: 1.25rem;
     }
+}
+
+.public-monitor-row > :last-child {
+    min-width: 0;
 }
 
 .link-active {

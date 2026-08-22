@@ -126,33 +126,28 @@ export default {
 <style lang="scss" scoped>
 
 .incident-group {
-    padding: 0.75rem;
-
     .incident-list {
         .incident-item {
             display: flex;
-            padding: 0.875rem;
-            border: 1px solid var(--color-border);
-            border-radius: var(--radius-md);
-            background: var(--color-surface);
-            transition: background-color 160ms ease, border-color 160ms ease;
+            padding: 0.75rem 1rem 0.875rem;
+            background: transparent;
+            transition: background-color 160ms ease;
 
             & + .incident-item {
-                margin-top: 0.625rem;
+                border-top: 1px solid var(--color-border);
             }
 
             &:hover {
                 background-color: var(--color-surface-hover);
-                border-color: var(--color-border-strong);
             }
 
             &.resolved {
-                opacity: 0.7;
+                opacity: 0.78;
             }
 
             .incident-style-indicator {
                 background: var(--color-border-strong);
-                width: 6px;
+                width: 3px;
                 min-height: 100%;
                 border-radius: var(--radius-pill);
                 flex-shrink: 0;
@@ -168,6 +163,28 @@ export default {
             .incident-body {
                 flex: 1;
                 min-width: 0;
+            }
+
+            .incident-title {
+                color: var(--color-text);
+                font-size: 0.9375rem;
+                font-weight: var(--weight-semibold);
+                letter-spacing: -0.01em;
+                line-height: 1.35;
+            }
+
+            .incident-content {
+                color: var(--color-text-muted);
+                font-size: 0.875rem;
+                line-height: 1.5;
+
+                :deep(p) {
+                    margin: 0 0 0.4em;
+                }
+
+                :deep(p:last-child) {
+                    margin-bottom: 0;
+                }
             }
 
             .incident-meta {

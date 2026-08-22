@@ -73,7 +73,10 @@
         "create-release": "node ./extra/release/create-release.mjs"
     },
     "dependencies": {
+        "@fontsource/fraunces": "5.2.8",
+        "@fontsource/ibm-plex-mono": "5.3.0",
         "@fontsource/ibm-plex-sans": "5.3.0",
+        "@fontsource/ibm-plex-serif": "5.3.0",
         "@grpc/grpc-js": "~1.8.22",
         "@louislam/ping": "~0.4.4-mod.1",
         "@louislam/sqlite3": "15.1.6",

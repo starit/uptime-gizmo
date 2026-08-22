@@ -1,5 +1,5 @@
 <template>
-    <div v-if="loadedTheme" class="status-page-shell tw-mt-3">
+    <div v-if="loadedTheme" class="status-page-shell">
         <!-- Sidebar for edit mode -->
         <div v-if="enableEditMode" class="sidebar" data-testid="edit-sidebar">
             <div class="sidebar-body">
@@ -11,38 +11,73 @@
                     </div>
                 </div>
 
-                <div class="tw-my-3">
-                    <label for="title" class="gizmo-field-label">{{ $t("Title") }}</label>
-                    <input id="title" v-model="config.title" type="text" class="gizmo-native-control" />
-                </div>
+                <!-- Title, title size/font, and logo size/position share this
+                     group so they stay next to the Logo Size field operators already use. -->
+                <section class="sidebar-header-appearance" data-testid="header-appearance">
+                    <p class="sidebar-header-appearance__title">{{ $t("statusPageHeaderAppearance") }}</p>
 
-                <div class="tw-my-3">
-                    <label for="logo-size" class="gizmo-field-label">{{ $t("statusPageLogoSize") }}</label>
-                    <select
-                        id="logo-size"
-                        v-model="config.iconSize"
-                        class="gizmo-native-control gizmo-native-select"
-                        data-testid="logo-size-select"
-                    >
-                        <option value="sm">{{ $t("statusPageLogoSizeSmall") }}</option>
-                        <option value="md">{{ $t("statusPageLogoSizeMedium") }}</option>
-                        <option value="lg">{{ $t("statusPageLogoSizeLarge") }}</option>
-                    </select>
-                </div>
+                    <div class="tw-my-3">
+                        <label for="title" class="gizmo-field-label">{{ $t("Title") }}</label>
+                        <input id="title" v-model="config.title" type="text" class="gizmo-native-control" />
+                    </div>
 
-                <div class="tw-my-3">
-                    <label for="logo-position" class="gizmo-field-label">{{ $t("statusPageLogoPosition") }}</label>
-                    <select
-                        id="logo-position"
-                        v-model="config.iconPosition"
-                        class="gizmo-native-control gizmo-native-select"
-                        data-testid="logo-position-select"
-                    >
-                        <option value="left">{{ $t("statusPageLogoPositionLeft") }}</option>
-                        <option value="above">{{ $t("statusPageLogoPositionAbove") }}</option>
-                        <option value="hidden">{{ $t("statusPageLogoPositionHidden") }}</option>
-                    </select>
-                </div>
+                    <div class="tw-my-3">
+                        <label for="logo-size" class="gizmo-field-label">{{ $t("statusPageLogoSize") }}</label>
+                        <select
+                            id="logo-size"
+                            v-model="config.iconSize"
+                            class="gizmo-native-control gizmo-native-select"
+                            data-testid="logo-size-select"
+                        >
+                            <option value="sm">{{ $t("statusPageLogoSizeSmall") }}</option>
+                            <option value="md">{{ $t("statusPageLogoSizeMedium") }}</option>
+                            <option value="lg">{{ $t("statusPageLogoSizeLarge") }}</option>
+                        </select>
+                    </div>
+
+                    <div class="tw-my-3">
+                        <label for="title-size" class="gizmo-field-label">{{ $t("statusPageTitleSize") }}</label>
+                        <select
+                            id="title-size"
+                            v-model="config.titleSize"
+                            class="gizmo-native-control gizmo-native-select"
+                            data-testid="title-size-select"
+                        >
+                            <option value="sm">{{ $t("statusPageTitleSizeSmall") }}</option>
+                            <option value="md">{{ $t("statusPageTitleSizeMedium") }}</option>
+                            <option value="lg">{{ $t("statusPageTitleSizeLarge") }}</option>
+                        </select>
+                    </div>
+
+                    <div class="tw-my-3">
+                        <label for="title-font" class="gizmo-field-label">{{ $t("statusPageTitleFont") }}</label>
+                        <select
+                            id="title-font"
+                            v-model="config.titleFont"
+                            class="gizmo-native-control gizmo-native-select"
+                            data-testid="title-font-select"
+                        >
+                            <option value="sans">{{ $t("statusPageTitleFontSans") }}</option>
+                            <option value="serif">{{ $t("statusPageTitleFontSerif") }}</option>
+                            <option value="mono">{{ $t("statusPageTitleFontMono") }}</option>
+                            <option value="display">{{ $t("statusPageTitleFontDisplay") }}</option>
+                        </select>
+                    </div>
+
+                    <div class="tw-my-3">
+                        <label for="logo-position" class="gizmo-field-label">{{ $t("statusPageLogoPosition") }}</label>
+                        <select
+                            id="logo-position"
+                            v-model="config.iconPosition"
+                            class="gizmo-native-control gizmo-native-select"
+                            data-testid="logo-position-select"
+                        >
+                            <option value="left">{{ $t("statusPageLogoPositionLeft") }}</option>
+                            <option value="above">{{ $t("statusPageLogoPositionAbove") }}</option>
+                            <option value="hidden">{{ $t("statusPageLogoPositionHidden") }}</option>
+                        </select>
+                    </div>
+                </section>
 
                 <!-- Description -->
                 <div class="tw-my-3">
@@ -269,24 +304,66 @@
 
         <!-- Main Status Page -->
         <div :class="{ edit: enableEditMode }" class="main">
-            <!-- Logo & Title -->
-            <h1 class="tw-mb-4 title-flex" :class="titleFlexClass" data-testid="status-page-title">
-                <!-- Logo -->
-                <span v-if="showStatusLogo" class="logo-wrapper" :class="logoWrapperClass" @click="showImageCropUploadMethod">
-                    <button
-                        v-if="editMode"
-                        type="button"
-                        class="tw-p-0 tw-bg-transparent tw-border-0 small-reset-btn reset-top-left"
-                        @click.stop="resetToDefaultImage"
-                    >
-                        <font-awesome-icon icon="times" class="tw-text-status-down-fg" />
-                    </button>
-                    <img :src="logoURL" alt class="logo" :class="logoClass" />
-                    <font-awesome-icon v-if="enableEditMode" class="icon-upload" icon="upload" />
-                </span>
+            <!-- Logo, title, and (in edit mode) size/font controls. Controls are
+                 siblings of h1.title-flex so they never inherit font-size: 0. -->
+            <div class="status-page-heading-block">
+                <h1 class="title-flex" :class="titleFlexClass" data-testid="status-page-title">
+                    <!-- Logo -->
+                    <span v-if="showStatusLogo" class="logo-wrapper" :class="logoWrapperClass" @click="showImageCropUploadMethod">
+                        <button
+                            v-if="editMode"
+                            type="button"
+                            class="tw-p-0 tw-bg-transparent tw-border-0 small-reset-btn reset-top-left"
+                            @click.stop="resetToDefaultImage"
+                        >
+                            <font-awesome-icon icon="times" class="tw-text-status-down-fg" />
+                        </button>
+                        <img :src="logoURL" alt class="logo" :class="logoClass" />
+                        <font-awesome-icon v-if="enableEditMode" class="icon-upload" icon="upload" />
+                    </span>
 
-                <!-- Uploader -->
-                <!--    url="/api/status-page/upload-logo" -->
+                    <!-- Title -->
+                    <span class="status-page-heading">
+                        <Editable
+                            v-model="config.title"
+                            class="status-page-title-text"
+                            tag="span"
+                            :contenteditable="editMode"
+                            :noNL="true"
+                        />
+                    </span>
+                </h1>
+
+                <div v-if="enableEditMode" class="status-page-title-controls">
+                    <label class="gizmo-field-label" for="title-size-inline">{{ $t("statusPageTitleSize") }}</label>
+                    <select
+                        id="title-size-inline"
+                        v-model="config.titleSize"
+                        class="gizmo-native-control gizmo-native-select"
+                        data-testid="title-size-inline"
+                    >
+                        <option value="sm">{{ $t("statusPageTitleSizeSmall") }}</option>
+                        <option value="md">{{ $t("statusPageTitleSizeMedium") }}</option>
+                        <option value="lg">{{ $t("statusPageTitleSizeLarge") }}</option>
+                    </select>
+                    <label class="gizmo-field-label" for="title-font-inline">{{ $t("statusPageTitleFont") }}</label>
+                    <select
+                        id="title-font-inline"
+                        v-model="config.titleFont"
+                        class="gizmo-native-control gizmo-native-select"
+                        data-testid="title-font-inline"
+                    >
+                        <option value="sans">{{ $t("statusPageTitleFontSans") }}</option>
+                        <option value="serif">{{ $t("statusPageTitleFontSerif") }}</option>
+                        <option value="mono">{{ $t("statusPageTitleFontMono") }}</option>
+                        <option value="display">{{ $t("statusPageTitleFontDisplay") }}</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Uploader is out of the heading flex so it cannot sit between
+                 the logo and the title. Absolute so .main's column gap skips it. -->
+            <div class="status-page-cropper">
                 <ImageCropUpload
                     v-model="showImageCropUpload"
                     field="img"
@@ -298,20 +375,17 @@
                     :noSquare="false"
                     @crop-success="cropSuccess"
                 />
-
-                <!-- Title -->
-                <Editable v-model="config.title" tag="span" :contenteditable="editMode" :noNL="true" />
-            </h1>
+            </div>
 
             <!-- Admin functions -->
-            <div v-if="hasToken" class="tw-mb-2">
+            <div v-if="hasToken" class="status-page-admin">
                 <div v-if="!enableEditMode">
-                    <button class="gizmo-native-button gizmo-native-button--primary tw-mb-2 tw-me-2" data-testid="edit-button" @click="edit">
+                    <button class="gizmo-native-button gizmo-native-button--primary" data-testid="edit-button" @click="edit">
                         <font-awesome-icon icon="edit" />
                         {{ $t("Edit Status Page") }}
                     </button>
 
-                    <a href="/manage-status-page" class="gizmo-native-button gizmo-native-button--primary tw-mb-2">
+                    <a href="/manage-status-page" class="gizmo-native-button">
                         <font-awesome-icon icon="tachometer-alt" />
                         {{ $t("Go to Dashboard") }}
                     </a>
@@ -319,7 +393,7 @@
 
                 <div v-else>
                     <button
-                        class="gizmo-native-button gizmo-native-button--primary btn-add-group tw-me-2"
+                        class="gizmo-native-button gizmo-native-button--primary btn-add-group"
                         data-testid="create-incident-button"
                         @click="createIncident"
                     >
@@ -344,35 +418,35 @@
             <!-- Active Pinned Incidents -->
 
             <!-- Overall Status -->
-            <div class="overall-status tw-mb-4">
+            <div class="overall-status" :class="overallStatusToneClass" role="status">
                 <div v-if="Object.keys($root.publicMonitorList).length === 0 && loadedData">
-                    <font-awesome-icon icon="question-circle" class="ok" />
+                    <font-awesome-icon icon="question-circle" />
                     {{ $t("No Services") }}
                 </div>
 
                 <template v-else>
                     <div v-if="allUp">
-                        <font-awesome-icon icon="check-circle" class="ok" />
+                        <font-awesome-icon icon="check-circle" />
                         {{ $t("All Systems Operational") }}
                     </div>
 
                     <div v-else-if="partialDown">
-                        <font-awesome-icon icon="exclamation-circle" class="warning" />
+                        <font-awesome-icon icon="exclamation-circle" />
                         {{ $t("Partially Degraded Service") }}
                     </div>
 
                     <div v-else-if="allDown">
-                        <font-awesome-icon icon="times-circle" class="danger" />
+                        <font-awesome-icon icon="times-circle" />
                         {{ $t("Degraded Service") }}
                     </div>
 
                     <div v-else-if="isMaintenance">
-                        <font-awesome-icon icon="wrench" class="status-maintenance" />
+                        <font-awesome-icon icon="wrench" />
                         {{ $t("maintenanceStatus-under-maintenance") }}
                     </div>
 
                     <div v-else>
-                        <font-awesome-icon icon="question-circle" class="unknown" />
+                        <font-awesome-icon icon="question-circle" />
                     </div>
                 </template>
             </div>
@@ -382,7 +456,7 @@
                 <div
                     v-for="maintenance in maintenanceList"
                     :key="maintenance.id"
-                    class="status-notice status-notice--maintenance tw-mb-4 tw-mt-4"
+                    class="status-notice status-notice--maintenance"
                     role="alert"
                 >
                     <h4 class="status-notice__title">{{ maintenance.title }}</h4>
@@ -427,7 +501,7 @@
                 <!-- Display mode for this incident -->
                 <div
                     v-else
-                    class="status-notice tw-mb-4 incident"
+                    class="status-notice incident"
                     role="alert"
                     :class="incidentClass(activeIncident.style)"
                     data-testid="incident"
@@ -478,7 +552,7 @@
                 </div>
             </template>
 
-            <div v-if="editMode" class="tw-mb-4">
+            <div v-if="editMode" class="status-page-editor-tools">
                 <div>
                     <button class="gizmo-native-button gizmo-native-button--primary btn-add-group tw-me-2" data-testid="add-group-button" @click="addGroup">
                         <font-awesome-icon icon="plus" />
@@ -510,16 +584,20 @@
                             </template>
                         </VueMultiselect>
                     </div>
-                    <div v-else class="tw-text-center">
-                        {{ $t("No monitors available.") }}
-                        <router-link to="/add">{{ $t("Add one") }}</router-link>
+                    <div v-else class="status-page-no-monitors">
+                        <p>{{ $t("No monitors available.") }}</p>
+                        <router-link to="/add" class="gizmo-native-button gizmo-native-button--primary gizmo-native-button--sm">
+                            {{ $t("Add one") }}
+                        </router-link>
                     </div>
                 </div>
             </div>
 
-            <div class="tw-mb-4">
-                <div v-if="$root.publicGroupList.length === 0 && loadedData" class="tw-text-center">
-                    <font-awesome-icon icon="eye" aria-hidden="true" />
+            <div class="status-page-services">
+                <div
+                    v-if="enableEditMode && $root.publicGroupList.length === 0 && loadedData"
+                    class="status-page-empty"
+                >
                     {{ $t("statusPageNothing") }}
                 </div>
 
@@ -532,8 +610,8 @@
             </div>
 
             <!-- Past Incidents -->
-            <div v-if="pastIncidentCount > 0" class="past-incidents-section tw-mb-4">
-                <h2 class="past-incidents-title tw-mb-3">
+            <div v-if="pastIncidentCount > 0" class="past-incidents-section">
+                <h2 class="past-incidents-title">
                     {{ $t("Past Incidents") }}
                 </h2>
 
@@ -541,24 +619,22 @@
                     <div
                         v-for="(dateGroup, dateKey) in groupedIncidentHistory"
                         :key="dateKey"
-                        class="incident-date-group tw-mb-4"
+                        class="incident-date-group"
                     >
-                        <h4 class="incident-date-header">{{ dateKey }}</h4>
-                        <div class="shadow-box incident-list-box">
-                            <IncidentHistory
-                                :incidents="dateGroup"
-                                :edit-mode="enableEditMode"
-                                :loading="incidentHistoryLoading"
-                                @edit-incident="$refs.incidentManageModal.showEdit($event)"
-                                @delete-incident="$refs.incidentManageModal.showDelete($event)"
-                                @resolve-incident="resolveIncident"
-                            />
-                        </div>
+                        <h3 class="incident-date-header">{{ dateKey }}</h3>
+                        <IncidentHistory
+                            :incidents="dateGroup"
+                            :edit-mode="enableEditMode"
+                            :loading="incidentHistoryLoading"
+                            @edit-incident="$refs.incidentManageModal.showEdit($event)"
+                            @delete-incident="$refs.incidentManageModal.showDelete($event)"
+                            @resolve-incident="resolveIncident"
+                        />
                     </div>
 
-                    <div v-if="incidentHistoryHasMore" class="load-more-controls tw-flex tw-justify-center tw-mt-3">
+                    <div v-if="incidentHistoryHasMore" class="load-more-controls">
                         <button
-                            class="gizmo-native-button gizmo-native-button--outline gizmo-native-button--sm"
+                            class="gizmo-native-button gizmo-native-button--sm"
                             :disabled="incidentHistoryLoading"
                             @click="loadMoreIncidentHistory"
                         >
@@ -581,9 +657,18 @@
                 @incident-updated="loadIncidentHistory"
             />
 
-            <footer class="tw-mt-5 tw-mb-4">
-                <div class="custom-footer-text tw-text-start">
-                    <strong v-if="enableEditMode">{{ $t("Custom Footer") }}:</strong>
+            <footer class="status-page-footer">
+                <img
+                    class="status-page-mascot"
+                    src="/images/gizmo-mascot-engineer-cutout.webp"
+                    alt=""
+                    width="448"
+                    height="448"
+                    loading="lazy"
+                    decoding="async"
+                >
+                <div v-if="enableEditMode" class="custom-footer-text">
+                    <strong>{{ $t("Custom Footer") }}:</strong>
                 </div>
                 <Editable
                     v-if="enableEditMode"
@@ -612,7 +697,7 @@
                     >{{ $root.appName }}</a>
                 </p>
 
-                <div class="refresh-info tw-mb-2">
+                <div class="refresh-info">
                     <div>{{ $t("lastUpdatedAt", { date: lastUpdateTimeDisplay }) }}</div>
                     <div data-testid="update-countdown-text">
                         {{ $t("statusPageRefreshIn", [updateCountdownText]) }}
@@ -638,6 +723,9 @@
 </template>
 
 <script>
+import "@fontsource/ibm-plex-serif/600.css";
+import "@fontsource/ibm-plex-mono/600.css";
+import "@fontsource/fraunces/600.css";
 import axios from "axios";
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
@@ -729,6 +817,8 @@ export default {
                 analyticsType: null,
                 iconSize: "md",
                 iconPosition: "left",
+                titleSize: "md",
+                titleFont: "sans",
             },
             selectedMonitor: null,
             incident: null,
@@ -823,7 +913,7 @@ export default {
 
         /**
          * Display size for the header logo. Unknown values fall back to medium.
-         * @returns {"sm"|"md"|"lg"}
+         * @returns {"sm"|"md"|"lg"} sm, md, or lg
          */
         logoSize() {
             const size = this.config.iconSize;
@@ -832,7 +922,7 @@ export default {
 
         /**
          * Placement for the header logo. Unknown values fall back to left of the title.
-         * @returns {"left"|"above"|"hidden"}
+         * @returns {"left"|"above"|"hidden"} left, above, or hidden
          */
         logoPosition() {
             const position = this.config.iconPosition;
@@ -840,9 +930,27 @@ export default {
         },
 
         /**
+         * Display size for the page title. Unknown values fall back to medium.
+         * @returns {"sm"|"md"|"lg"} sm, md, or lg
+         */
+        titleSize() {
+            const size = this.config.titleSize;
+            return size === "sm" || size === "lg" ? size : "md";
+        },
+
+        /**
+         * Typeface for the page title. Unknown values fall back to IBM Plex Sans.
+         * @returns {"sans"|"serif"|"mono"|"display"} sans, serif, mono, or display
+         */
+        titleFont() {
+            const font = this.config.titleFont;
+            return font === "serif" || font === "mono" || font === "display" ? font : "sans";
+        },
+
+        /**
          * Hide the logo for visitors when the operator chose Hidden; keep it
          * visible in edit mode so they can still replace it.
-         * @returns {boolean}
+         * @returns {boolean} Whether the logo should render
          */
         showStatusLogo() {
             return this.logoPosition !== "hidden" || this.editMode;
@@ -854,6 +962,14 @@ export default {
                 "title-flex--logo-md": this.logoSize === "md",
                 "title-flex--logo-lg": this.logoSize === "lg",
                 "title-flex--above": this.logoPosition === "above",
+                "title-flex--no-logo": !this.showStatusLogo,
+                "title-flex--title-sm": this.titleSize === "sm",
+                "title-flex--title-md": this.titleSize === "md",
+                "title-flex--title-lg": this.titleSize === "lg",
+                "title-flex--font-sans": this.titleFont === "sans",
+                "title-flex--font-serif": this.titleFont === "serif",
+                "title-flex--font-mono": this.titleFont === "mono",
+                "title-flex--font-display": this.titleFont === "display",
             };
         },
 
@@ -904,6 +1020,30 @@ export default {
 
         isMaintenance() {
             return this.overallStatus === STATUS_PAGE_MAINTENANCE;
+        },
+
+        /**
+         * Token class for the overall-status banner. Empty and unknown share
+         * the same plate; colour still comes with an icon and a label.
+         * @returns {string} overall-status tone class
+         */
+        overallStatusToneClass() {
+            if (Object.keys(this.$root.publicMonitorList).length === 0 && this.loadedData) {
+                return "overall-status--unknown";
+            }
+            if (this.allUp) {
+                return "overall-status--up";
+            }
+            if (this.partialDown) {
+                return "overall-status--degraded";
+            }
+            if (this.allDown) {
+                return "overall-status--down";
+            }
+            if (this.isMaintenance) {
+                return "overall-status--maintenance";
+            }
+            return "overall-status--unknown";
         },
 
         incidentHTML() {
@@ -1107,7 +1247,7 @@ export default {
         /**
          * Apply a status-page config payload and fill in display defaults.
          * @param {object} config Status page config from the API or socket
-         * @param {{ editor?: boolean }} [options] When `editor` is set, empty custom CSS becomes a starter snippet
+         * @param {{ editor?: boolean }} options When `editor` is set, empty custom CSS becomes a starter snippet
          * @returns {void}
          */
         applyStatusPageConfig(config, options = {}) {
@@ -1126,6 +1266,13 @@ export default {
 
             const position = this.config.iconPosition;
             this.config.iconPosition = position === "above" || position === "hidden" ? position : "left";
+
+            const titleSize = this.config.titleSize;
+            this.config.titleSize = titleSize === "sm" || titleSize === "lg" ? titleSize : "md";
+
+            const titleFont = this.config.titleFont;
+            this.config.titleFont =
+                titleFont === "serif" || titleFont === "mono" || titleFont === "display" ? titleFont : "sans";
         },
 
         /**
@@ -1606,26 +1753,103 @@ export default {
 .status-page-shell {
     /* A public page for a handful of services composes better on a narrower
        measure than the 1040px the private workspace uses. */
-    max-width: 880px;
-
-    /* Absorbs the centering and gutters that Bootstrap's .container provided. */
+    position: relative;
+    max-width: 55rem;
     margin-inline: auto;
-    padding-inline: 0.75rem;
-    padding-bottom: 2rem;
+    padding: 1.75rem 1.25rem 2.5rem;
+}
+
+@media (max-width: 40rem) {
+    .status-page-shell {
+        padding: 1.25rem 1rem 2rem;
+    }
+}
+
+.main {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    transition: margin 180ms ease;
+
+    &.edit {
+        margin-left: 300px;
+    }
+}
+
+.status-page-heading-block {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem 1rem;
+}
+
+.status-page-title-controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+    line-height: 1.25;
+}
+
+.status-page-title-controls .gizmo-field-label {
+    margin: 0;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+}
+
+.status-page-title-controls .gizmo-native-select {
+    width: auto;
+    min-width: 7.5rem;
+    font-size: 0.875rem;
+}
+
+.status-page-admin > div {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.status-page-editor-tools label {
+    color: var(--color-text-muted);
+    font-size: 0.875rem;
+}
+
+.status-page-no-monitors {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    color: var(--color-text-muted);
+    font-size: 0.875rem;
+    text-align: center;
+
+    p {
+        margin: 0;
+    }
+}
+
+.status-notice :deep(.content) {
+    font-size: 0.875rem;
+    line-height: 1.5;
 }
 
 /*
- * The single sentence a visitor came for, so it carries the page rather than
- * sitting in a card competing with everything else.
+ * The sentence a visitor came for. A tinted plate, not a raised card: status
+ * tokens do the work, same language as incident and maintenance notices.
  */
 .overall-status {
     display: flex;
     align-items: center;
     gap: 0.625rem;
-    font-size: clamp(1.375rem, 2.4vw, 1.75rem);
+    padding: 0.8125rem 1rem;
+    border: 1px solid var(--color-border);
+    border-inline-start-width: 3px;
+    border-radius: var(--radius-md);
+    font-size: 1.0625rem;
     font-weight: var(--weight-semibold);
-    letter-spacing: -0.02em;
-    line-height: 1.2;
+    letter-spacing: -0.015em;
+    line-height: 1.3;
 
     > div {
         display: flex;
@@ -1635,40 +1859,58 @@ export default {
 
     svg {
         flex: 0 0 auto;
-        font-size: 0.8em;
-    }
-
-    .ok {
-        color: var(--status-up);
-    }
-
-    .warning {
-        color: var(--status-degraded);
-    }
-
-    .danger {
-        color: var(--status-down);
-    }
-
-    .unknown {
-        color: var(--status-unknown);
+        font-size: 0.95em;
     }
 }
 
-h1 {
-    img {
-        vertical-align: middle;
-        height: var(--status-logo-size, 3.75rem);
-        width: var(--status-logo-size, 3.75rem);
-        object-fit: contain;
-    }
+.overall-status--up {
+    border-color: var(--status-up-border);
+    border-inline-start-color: var(--status-up);
+    background: var(--status-up-bg);
+    color: var(--status-up-fg);
 }
 
-.main {
-    transition: margin 180ms ease;
+.overall-status--degraded {
+    border-color: var(--status-degraded-border);
+    border-inline-start-color: var(--status-degraded);
+    background: var(--status-degraded-bg);
+    color: var(--status-degraded-fg);
+}
 
-    &.edit {
-        margin-left: 300px;
+.overall-status--down {
+    border-color: var(--status-down-border);
+    border-inline-start-color: var(--status-down);
+    background: var(--status-down-bg);
+    color: var(--status-down-fg);
+}
+
+.overall-status--maintenance {
+    border-color: var(--status-maintenance-border);
+    border-inline-start-color: var(--status-maintenance);
+    background: var(--status-maintenance-bg);
+    color: var(--status-maintenance-fg);
+}
+
+.overall-status--unknown {
+    border-color: var(--status-unknown-border);
+    border-inline-start-color: var(--status-unknown);
+    background: var(--status-unknown-bg);
+    color: var(--status-unknown-fg);
+}
+
+.logo {
+    display: block;
+    height: var(--status-logo-size, 3.75rem);
+    width: var(--status-logo-size, 3.75rem);
+    object-fit: contain;
+    transition: transform 200ms ease;
+
+    &.edit-mode {
+        cursor: pointer;
+
+        &:hover {
+            transform: scale(1.06);
+        }
     }
 }
 
@@ -1695,6 +1937,25 @@ h1 {
         height: calc(100% - 70px);
     }
 
+    .sidebar-header-appearance {
+        margin: 0.75rem 0;
+        padding: 0.5rem 0.625rem 0.125rem;
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-md);
+        background: var(--color-surface-subtle);
+        font-size: 0.875rem;
+        line-height: 1.25;
+    }
+
+    .sidebar-header-appearance__title {
+        margin: 0.25rem 0 0.125rem;
+        color: var(--color-text);
+        font-size: 0.8125rem;
+        font-weight: var(--weight-semibold);
+        letter-spacing: -0.01em;
+        line-height: 1.25;
+    }
+
     .sidebar-footer {
         border-top: 1px solid var(--color-border);
         border-right: 1px solid var(--color-border);
@@ -1716,7 +1977,7 @@ h1 {
 
 .status-page-description {
     max-width: 40rem;
-    margin: 0 0 1.75rem;
+    margin: 0;
     color: var(--color-text-muted);
     font-size: 0.9375rem;
     font-weight: var(--weight-normal);
@@ -1750,7 +2011,7 @@ h1 {
 
 .status-page-footer-text {
     max-width: 36rem;
-    margin: 0 auto 0.85rem;
+    margin: 0 auto 0.5rem;
     color: var(--color-text-subtle);
     font-size: 0.8125rem;
     line-height: 1.55;
@@ -1764,40 +2025,126 @@ h1 {
     }
 }
 
-/* The page title names the page; the overall status carries the message, so
-   the title steps back rather than competing with it. */
-.title-flex {
+/* Logo and title sit on one row. The heading is the same height as the
+   mark so its contents can be flex-centred against the square; the h1
+   itself uses font-size 0 so its own line box cannot become a flex strut. */
+h1.title-flex {
     --status-logo-size: 3.75rem;
+    --status-title-size: 1.5rem;
+    --status-title-font: "IBM Plex Sans", "Noto Sans", "PingFang SC", "Hiragino Sans GB", sans-serif;
     display: flex;
+    flex-direction: row;
     align-items: center;
-    gap: 0.625rem;
-    font-size: 1.125rem;
+    gap: 0.75rem;
+    margin: 0;
+    font-family: var(--status-title-font);
+    font-size: 0;
     font-weight: var(--weight-semibold);
-    letter-spacing: -0.01em;
+    letter-spacing: -0.02em;
+    line-height: 1;
 }
 
-.title-flex--logo-sm {
+h1.title-flex--logo-sm {
     --status-logo-size: 2.5rem;
 }
 
-.title-flex--logo-md {
+h1.title-flex--logo-md {
     --status-logo-size: 3.75rem;
 }
 
-.title-flex--logo-lg {
+h1.title-flex--logo-lg {
     --status-logo-size: 6rem;
 }
 
-.title-flex--above {
+h1.title-flex--title-sm {
+    --status-title-size: 1.125rem;
+}
+
+h1.title-flex--title-md {
+    --status-title-size: 1.5rem;
+}
+
+h1.title-flex--title-lg {
+    --status-title-size: 2.5rem;
+}
+
+h1.title-flex--font-sans {
+    --status-title-font: "IBM Plex Sans", "Noto Sans", "PingFang SC", "Hiragino Sans GB", sans-serif;
+}
+
+h1.title-flex--font-serif {
+    --status-title-font: "IBM Plex Serif", "Noto Serif", "Songti SC", "Noto Serif SC", serif;
+}
+
+h1.title-flex--font-mono {
+    --status-title-font: "IBM Plex Mono", "Noto Sans Mono", ui-monospace, monospace;
+}
+
+h1.title-flex--font-display {
+    --status-title-font: "Fraunces", "IBM Plex Serif", "Noto Serif", "Songti SC", "Noto Serif SC", serif;
+}
+
+h1.title-flex--above {
     flex-direction: column;
     align-items: center;
-    gap: 0.75rem;
+    gap: 0.5rem;
     text-align: center;
 }
 
+h1.title-flex > .logo-wrapper,
+h1.title-flex > .status-page-heading {
+    flex: none;
+    align-self: center;
+}
+
+h1.title-flex > .status-page-heading {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    box-sizing: border-box;
+    height: var(--status-logo-size);
+    margin: 0;
+    min-width: 0;
+    font-size: var(--status-title-size);
+    line-height: 1;
+}
+
+h1.title-flex--above > .status-page-heading,
+h1.title-flex--no-logo > .status-page-heading {
+    height: auto;
+    justify-content: center;
+}
+
+h1.title-flex .status-page-title-text,
+h1.title-flex .status-page-heading :deep(.status-page-title-text),
+h1.title-flex .status-page-heading :deep(span) {
+    display: inline-flex;
+    align-items: center;
+    align-self: center;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0.12em 0.35em;
+    font-size: var(--status-title-size);
+    line-height: 1;
+}
+
+.status-page-cropper {
+    position: absolute;
+    width: 0;
+    height: 0;
+    overflow: visible;
+}
+
 .logo-wrapper {
-    display: inline-block;
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
     position: relative;
+    width: var(--status-logo-size, 3.75rem);
+    height: var(--status-logo-size, 3.75rem);
+    line-height: 0;
 
     &:hover {
         .icon-upload {
@@ -1824,6 +2171,10 @@ h1 {
 
     /* Reset button placed at top-left of the logo */
     .reset-top-left {
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 1;
         transition:
             transform 180ms ease,
             box-shadow 180ms ease,
@@ -1878,20 +2229,11 @@ h1 {
     }
 }
 
-.logo {
-    transition: transform 200ms ease;
-
-    &.edit-mode {
-        cursor: pointer;
-
-        &:hover {
-            transform: scale(1.2);
-        }
-    }
-}
-
 .incident {
     .content {
+        font-size: 0.875rem;
+        line-height: 1.5;
+
         &[contenteditable="true"] {
             min-height: 3.75rem;
         }
@@ -1900,11 +2242,6 @@ h1 {
     .date {
         font-size: 0.75rem;
     }
-}
-
-.status-maintenance {
-    color: var(--status-maintenance-fg);
-    margin-inline-end: 0.3125rem;
 }
 
 .domain-name-list {
@@ -1931,43 +2268,81 @@ h1 {
 
 .refresh-info {
     color: var(--color-text-subtle);
-    font-size: 0.8125rem;
+    font-size: 0.75rem;
+    line-height: 1.45;
 }
 
-/* Everything below the services list is supporting text and reads as one
-   quiet block rather than three lines of equal weight. */
-footer {
+.status-page-empty {
+    padding: 1.25rem 1rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+    color: var(--color-text-muted);
+    font-size: 0.875rem;
+    text-align: center;
+}
+
+/* Supporting text reads as one quiet block. */
+.status-page-footer {
+    margin-top: 0.5rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--color-border);
     color: var(--color-text-muted);
     font-size: 0.8125rem;
     text-align: center;
 
     p {
-        margin-bottom: 0.375rem;
+        margin: 0 0 0.35rem;
     }
 }
 
-.past-incidents-title {
-    font-size: 1.25rem;
-    font-weight: var(--weight-semibold);
-    letter-spacing: -0.015em;
+.status-page-mascot {
+    display: block;
+    width: 5rem;
+    height: auto;
+    margin: 0 auto 0.85rem;
+    pointer-events: none;
+    filter: drop-shadow(0 8px 12px color-mix(in srgb, var(--color-text) 14%, transparent));
+}
+
+@media (max-width: 40rem) {
+    .status-page-mascot {
+        width: 4.25rem;
+    }
 }
 
 .past-incidents-section {
-    .past-incidents-content {
-        padding: 0;
-    }
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+    overflow: hidden;
 }
 
-.incident-date-group {
-    .incident-date-header {
-        font-size: 1rem;
-        font-weight: var(--weight-normal);
-        color: var(--color-text-muted);
-        margin-bottom: 0.75rem;
-    }
+.past-incidents-title {
+    margin: 0;
+    padding: 0.625rem 1rem;
+    background: var(--color-surface-subtle);
+    color: var(--color-text-muted);
+    font-size: 0.8125rem;
+    font-weight: var(--weight-semibold);
+    letter-spacing: -0.01em;
+}
 
-    .incident-list-box {
-        padding: 0;
-    }
+.incident-date-group + .incident-date-group {
+    border-top: 1px solid var(--color-border);
+}
+
+.incident-date-header {
+    margin: 0;
+    padding: 0.75rem 1rem 0.25rem;
+    color: var(--color-text-subtle);
+    font-size: 0.75rem;
+    font-weight: var(--weight-medium);
+}
+
+.load-more-controls {
+    display: flex;
+    justify-content: center;
+    padding: 0.75rem 1rem 1rem;
 }
 </style>
