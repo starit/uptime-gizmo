@@ -5,6 +5,7 @@
 
 <p align="center">
   <a href="https://github.com/starit/uptime-gizmo/stargazers"><img src="https://img.shields.io/github/stars/starit/uptime-gizmo?style=flat&color=ECAB24" alt="GitHub stars" /></a>
+  <a href="https://hub.docker.com/r/starit/uptime-gizmo"><img src="https://img.shields.io/docker/v/starit/uptime-gizmo/beta?label=docker&color=1E64E7" alt="Docker image" /></a>
   <a href="https://github.com/starit/uptime-gizmo/blob/master/LICENSE"><img src="https://img.shields.io/badge/license-MIT-0A151E" alt="MIT License" /></a>
   <a href="https://github.com/starit/uptime-gizmo/issues"><img src="https://img.shields.io/github/issues/starit/uptime-gizmo?color=1E64E7" alt="GitHub issues" /></a>
 </p>
@@ -96,14 +97,91 @@ does not mean.
 - HTTP(S) keyword and JSON query checks, SNMP, MQTT, RabbitMQ, NTP, game servers
 - MySQL, PostgreSQL, Microsoft SQL Server, Oracle, MongoDB and Redis
 - Multiple status pages, each able to serve on its own domain
-- Notifications through a long list of services
+- Notifications via Telegram, Discord, Slack, email (SMTP) and
+  [90+ other providers](src/components/notifications)
 - Response-time charts, certificate information, maintenance windows
 - Proxies, two-factor authentication, multi-language support
 
 ## Getting started
 
+Images are on [Docker Hub](https://hub.docker.com/r/starit/uptime-gizmo) and
+[GHCR](https://github.com/starit/uptime-gizmo/pkgs/container/uptime-gizmo), for
+linux/amd64, linux/arm64 and linux/arm/v7. Docker is the supported way to run an
+instance. The server listens on port 3001 on every interface
+(`http://localhost:3001` or `http://<your-ip>:3001`).
+
+> [!WARNING]
+> SQLite does not work on NFS. Map `/app/data` to a local directory or a Docker
+> volume.
+
+### Docker Compose
+
+From an empty directory, without cloning this repository:
+
+```bash
+mkdir uptime-gizmo
+cd uptime-gizmo
+curl -o compose.yaml https://raw.githubusercontent.com/starit/uptime-gizmo/master/compose.yaml
+docker compose up -d
+```
+
+If you already have the repo checked out, `docker compose up -d` in the root is
+enough. [compose.yaml](compose.yaml) bind-mounts `./data` to `/app/data` and
+pulls `starit/uptime-gizmo:beta`.
+
+To expose the UI on localhost only, change the published port to
+`127.0.0.1:3001:3001`.
+
+### Docker
+
+```bash
+docker run -d --restart=always -p 3001:3001 -v uptime-gizmo:/app/data --name uptime-gizmo starit/uptime-gizmo:beta
+```
+
+The named volume `uptime-gizmo` is the data directory. Localhost only:
+
+```bash
+docker run -d --restart=always -p 127.0.0.1:3001:3001 -v uptime-gizmo:/app/data --name uptime-gizmo starit/uptime-gizmo:beta
+```
+
+The same tags are on GHCR as `ghcr.io/starit/uptime-gizmo`.
+
+### Image tags
+
+| Tag | What it is |
+| --- | --- |
+| `beta` | Current prerelease. This tag moves. |
+| `3.0.0-beta.1` | A pinned prerelease. Use this if you do not want `beta` to change under you. |
+| `nightly2` | Unreleased `main`. |
+
+`beta-slim` and `3.0.0-beta.1-slim` omit Chromium, embedded MariaDB and extra
+fonts. `beta-rootless` and `*-rootless` run as the `node` user. There is no
+`:3` image yet; that tag is reserved for a final 3.x release.
+
+### Updating
+
+Compose:
+
+```bash
+docker compose pull && docker compose up -d
+```
+
+A container started with `docker run` keeps its data in the named volume. Pull
+the new image, then replace the container:
+
+```bash
+docker pull starit/uptime-gizmo:beta
+docker stop uptime-gizmo
+docker rm uptime-gizmo
+docker run -d --restart=always -p 3001:3001 -v uptime-gizmo:/app/data --name uptime-gizmo starit/uptime-gizmo:beta
+```
+
+### From source
+
 You need Node.js 20.4 or later, pnpm 10 or later, and Git. `corepack enable pnpm`
 uses the version pinned in `package.json`.
+
+Development (Vite frontend on 3000, backend on 3001):
 
 ```bash
 git clone https://github.com/starit/uptime-gizmo.git
@@ -112,12 +190,32 @@ pnpm install
 pnpm run dev
 ```
 
-The frontend runs at <http://localhost:3000> and the backend at
-<http://localhost:3001>. Use `pnpm start` to run the backend alone.
+Production, without Docker:
 
-There is a [Dockerfile](docker/dockerfile), but no published image yet.
-`compose.yaml` is written for that image and will not pull today. Images and
-upgrade documentation come once release practices are settled.
+```bash
+git clone https://github.com/starit/uptime-gizmo.git
+cd uptime-gizmo
+pnpm install --frozen-lockfile
+pnpm run build
+pnpm start
+```
+
+`pnpm start` serves the built UI from the backend on port 3001. To keep it
+running in the background:
+
+```bash
+pnpm add --global pm2
+pm2 start server/server.js --name uptime-gizmo
+pm2 startup && pm2 save
+```
+
+`pm2 monit` shows the live log. Host and port can be set with
+`UPTIME_GIZMO_HOST` and `UPTIME_GIZMO_PORT` (or `PORT`). Data lives in `./data`
+unless `DATA_DIR` says otherwise.
+
+If you are locked out of the first account, stop the process and run
+`pnpm run reset-password`. `pnpm run remove-2fa` clears two-factor authentication
+the same way.
 
 ### Backing up
 
