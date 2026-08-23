@@ -436,7 +436,7 @@ export default {
     .app-nav-link {
         font-size: 0;
 
-        svg {
+        :deep(svg) {
             font-size: 1rem;
         }
     }

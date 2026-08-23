@@ -148,7 +148,7 @@ export default {
     text-align: center;
 }
 
-.onboarding-brand img {
+.onboarding-brand :deep(img) {
     width: min(100%, 16rem);
     height: auto;
     border-radius: var(--radius-sm);

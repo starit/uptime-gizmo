@@ -86,15 +86,6 @@ async function resolveAPIKey(key) {
 }
 
 /**
- * Verify an API key
- * @param {string} key API key to verify
- * @returns {Promise<boolean>} API is ok?
- */
-async function verifyAPIKey(key) {
-    return (await resolveAPIKey(key)) !== null;
-}
-
-/**
  * Callback for basic auth authorizers
  * @callback authCallback
  * @param {any} err Any error encountered

@@ -289,7 +289,7 @@ export default {
     display: flex;
     justify-content: center;
 
-    img {
+    :deep(img) {
         width: min(100%, 16rem);
         height: auto;
         border-radius: var(--radius-sm);

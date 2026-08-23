@@ -2,7 +2,7 @@ const { describe, it } = require("node:test");
 const assert = require("node:assert");
 
 const { internals } = require("../../server/routers/v1-router");
-const { MONITOR_FIELDS, TAG_FIELDS, STATUS_PAGE_FIELDS, monitorToAPI, monitorFromAPI, projectWith } = internals;
+const { MONITOR_FIELDS, monitorToAPI, monitorFromAPI, projectWith } = internals;
 
 /*
  * The field table is what stops a request writing columns it should not, and

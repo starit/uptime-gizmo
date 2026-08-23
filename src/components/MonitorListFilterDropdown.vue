@@ -47,7 +47,7 @@ export default {
 };
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 /* Bootstrap's .dropdown supplied the positioning context that
    .filter-dropdown-menu is absolutely positioned against. */
 .filter-dropdown {
@@ -85,11 +85,11 @@ export default {
         opacity: 1;
     }
 
-    .gizmo-menu__item {
+    :deep(.gizmo-menu__item) {
         padding: 0.375rem 0.875rem;
     }
 
-    .gizmo-menu__item:focus {
+    :deep(.gizmo-menu__item:focus) {
         background: var(--color-surface-hover);
     }
 }
@@ -142,7 +142,7 @@ export default {
     font-size: 0.8125rem;
 }
 
-.filter-active {
+:deep(.filter-active) {
     color: var(--color-interactive);
 }
 </style>

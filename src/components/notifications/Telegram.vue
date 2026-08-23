@@ -204,9 +204,3 @@ Uptime Gizmo Alert{% if monitorJSON %} - {{ monitorJSON['name'] }}{% endif %}
     },
 };
 </script>
-
-<style lang="scss" scoped>
-textarea {
-    min-height: 150px;
-}
-</style>

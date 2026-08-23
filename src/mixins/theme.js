@@ -35,7 +35,10 @@ export default {
     },
 
     computed: {
-        /** Themes defined on this instance, delivered with the boot payload. */
+        /**
+         * Themes defined on this instance, delivered with the boot payload.
+         * @returns {object[]} Custom theme records
+         */
         customThemes() {
             return this.info?.customThemes ?? [];
         },
@@ -43,6 +46,7 @@ export default {
         /**
          * The raw selection for the surface currently on screen: one of "light",
          * "dark", "auto", or the id of a custom theme.
+         * @returns {string} Selected theme id
          */
         selectedThemeId() {
             if (this.forceStatusPageTheme) {
@@ -57,7 +61,10 @@ export default {
             return this.userTheme;
         },
 
-        /** The custom theme in effect, or null when a built-in is selected. */
+        /**
+         * The custom theme in effect, or null when a built-in is selected.
+         * @returns {object|null} Active custom theme, or null
+         */
         activeCustomTheme() {
             return this.customThemes.find((theme) => theme.id === this.selectedThemeId) ?? null;
         },

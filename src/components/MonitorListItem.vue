@@ -503,10 +503,6 @@ export default {
             opacity: 0.58;
         }
     }
-
-    &.dragging {
-        cursor: grabbing;
-    }
 }
 
 .bottom-style {

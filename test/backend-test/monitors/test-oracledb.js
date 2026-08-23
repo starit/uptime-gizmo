@@ -35,7 +35,7 @@ function createHeartbeat() {
 
 /**
  * Helper function to create and start an Oracle container.
- * @returns {Promise<{container: import("@testcontainers/oraclefree").StartedOracleDbContainer, connectString: string}>}
+ * @returns {Promise<{container: import("@testcontainers/oraclefree").StartedOracleDbContainer, connectString: string}>} Started container and connection string
  */
 async function createAndStartOracleContainer() {
     const container = await new OracleDbContainer(ORACLE_IMAGE)
