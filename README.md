@@ -45,16 +45,20 @@ Everything in this section works today. Planned work is in the
 
 ### On-chain monitoring
 
-Two monitor types. RPC endpoints are set up once under **Settings → Web3
+Three monitor types. RPC endpoints are set up once under **Settings → Web3
 Networks** and shared between monitors.
 
 - **Balance.** Native or ERC-20, against a minimum you set. Catches a relayer,
   paymaster or deployer running dry.
 - **RPC health.** Fails when the newest block gets too old. Catches a node that
   still answers every call after falling out of consensus.
+- **Contract value.** Reads one value out of a contract and compares it against a
+  threshold — reserves, an oracle answer, a supply cap, a paused flag, an owner
+  address. You supply the calldata; nothing here encodes it for you, and the form
+  will make the call once so you can check the value before saving.
 
-Balances are compared as integers. Chains count in units of 10^-18, where a
-float comparison can report a drained account as funded.
+Amounts are compared as integers. Chains count in units of 10^-18, where a float
+comparison can report a drained account as funded, or a threshold as met.
 
 Ethereum JSON-RPC only, so any EVM chain works: Ethereum, Polygon, BSC,
 Arbitrum, Optimism, Base, testnets, a local node. Bitcoin, Solana and Cosmos do

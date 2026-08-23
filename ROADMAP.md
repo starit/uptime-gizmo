@@ -15,7 +15,8 @@ areas of planned work and may change as the project develops.
 - An MCP server, in [mcp-server](mcp-server), and two Claude Code skills under
   [.claude/skills](.claude/skills).
 - Themes generated with Themed.js, including from a description.
-- Web3 monitoring: address balances, native and ERC-20, and RPC endpoint health.
+- Web3 monitoring: address balances, native and ERC-20, RPC endpoint health,
+  and reading a value out of a contract to compare against a threshold.
 
 ## Short-term
 

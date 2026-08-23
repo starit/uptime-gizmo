@@ -112,6 +112,7 @@ month contributes nothing to this list, which is what makes the call cheap.
 | Proxies | `GET /api/v1/proxies` |
 | Docker hosts | `GET /api/v1/docker-hosts` |
 | Remote browsers | `GET /api/v1/remote-browsers` |
+| Web3 networks | `GET /api/v1/web3-networks` |
 
 `GET /api/v1/monitors` is paginated. `limit` defaults to 100 and is clamped to 500
 rather than refused. Follow the cursor until it runs out:

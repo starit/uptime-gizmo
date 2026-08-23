@@ -352,9 +352,12 @@ Where supported by existing models and configuration, add equivalent CRUD and te
 /api/v1/proxies
 /api/v1/docker-hosts
 /api/v1/remote-browsers
+/api/v1/web3-networks
 ```
 
 These resources often contain credentials or connection URLs. Apply the same secret redaction and ownership rules as notifications.
+
+Only the read side of `/api/v1/web3-networks` exists so far, and it exists because a monitor has to reference a network by id and had no way to discover one. Its `rpc_url` is a credential — a hosted endpoint carries its API key in the URL — so it is never returned, and creating a network stays a human action in settings.
 
 ## Validation
 

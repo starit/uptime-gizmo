@@ -20,6 +20,11 @@ aggregation, NFT ownership, allowances, gas-price alerts, historical charts of
 balance over time, and any form of transaction sending. Nothing here signs
 anything or holds a private key; this feature reads public state and nothing more.
 
+Reading an arbitrary value out of a contract — reserves, an oracle answer, a
+paused flag — is a third type on the same networks, planned separately in
+[web3-contract-monitoring.md](web3-contract-monitoring.md). It inherits the
+integer arithmetic and the chain-id guard decided here.
+
 ## Networks live in settings, not on the monitor
 
 An RPC endpoint is instance-level infrastructure, in the same way a proxy or a
