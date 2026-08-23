@@ -94,9 +94,10 @@ function boundedLimit(value, fallback, max) {
  * `column` is the database name; the key is the API name. `secret` fields are
  * never returned, whatever else they allow.
  *
- * This covers the common monitor types — http, keyword, ping, port, dns. The
- * exotic transports (grpc, kafka, radius, snmp, mqtt) are deliberately absent
- * from the first release rather than half-supported.
+ * This covers the common monitor types — http, keyword, ping, port, dns — and
+ * the three web3 types, whose whole point is that something other than a human
+ * creates them. The exotic transports (grpc, kafka, radius, snmp, mqtt) are
+ * deliberately absent rather than half-supported.
  */
 const MONITOR_FIELDS = {
     id: { column: "id", type: "int" },
@@ -125,6 +126,33 @@ const MONITOR_FIELDS = {
     acceptedStatuscodes: { column: "accepted_statuscodes_json", type: "jsonArray", writable: true },
     dnsResolveType: { column: "dns_resolve_type", type: "string", writable: true },
     dnsResolveServer: { column: "dns_resolve_server", type: "string", writable: true },
+    /*
+     * Web3. The network is referenced by id — it is instance-level
+     * infrastructure carrying a credential, so it is configured in settings and
+     * listed by GET /api/v1/web3-networks, which is where a caller gets the id.
+     * Validated separately: the allow-list can coerce an integer but cannot
+     * check that the network exists and belongs to the caller.
+     */
+    web3NetworkId: { column: "web3_network_id", type: "int", writable: true },
+    web3Address: { column: "web3_address", type: "string", writable: true },
+    web3TokenContract: { column: "web3_token_contract", type: "string", writable: true },
+    web3TokenDecimals: { column: "web3_token_decimals", type: "int", writable: true },
+    /*
+     * Both thresholds are strings rather than numbers, and have to stay that
+     * way. A uint256 at 18 decimals is past where a double represents
+     * consecutive integers, so they are scaled and compared in BigInt; a number
+     * here would round the value before the comparison ever ran.
+     */
+    web3MinBalance: { column: "web3_min_balance", type: "string", writable: true },
+    web3MaxBlockAge: { column: "web3_max_block_age", type: "int", writable: true },
+    web3CallTo: { column: "web3_call_to", type: "string", writable: true },
+    web3CallData: { column: "web3_call_data", type: "string", writable: true },
+    web3ValueOffset: { column: "web3_value_offset", type: "int", writable: true },
+    web3ValueType: { column: "web3_value_type", type: "string", writable: true },
+    web3ValueDecimals: { column: "web3_value_decimals", type: "int", writable: true },
+    web3ValueOperator: { column: "web3_value_operator", type: "string", writable: true },
+    web3ValueThreshold: { column: "web3_value_threshold", type: "string", writable: true },
+    web3BlockTag: { column: "web3_block_tag", type: "string", writable: true },
     createdDate: { column: "created_date", type: "string" },
 };
 
@@ -376,11 +404,29 @@ const REMOTE_BROWSER_FIELDS = {
     url: { column: "url", type: "string", secret: true },
 };
 
+/*
+ * Web3 networks. Read-only, and the RPC URL never leaves the server: a hosted
+ * endpoint carries its API key in the URL, so it is the same shape of secret as
+ * remote_browser.url above.
+ *
+ * The rest of the row is what a caller needs and none of what it must not have:
+ * the id to reference from a monitor, the name to recognise it by, and the chain
+ * id so it can tell which chain it is about to monitor.
+ */
+const WEB3_NETWORK_FIELDS = {
+    id: { column: "id", type: "int" },
+    name: { column: "name", type: "string" },
+    chainId: { column: "chain_id", type: "string" },
+    active: { column: "active", type: "bool" },
+    rpcUrl: { column: "rpc_url", type: "string", secret: true },
+};
+
 const tagToAPI = makeProjection(TAG_FIELDS);
 const notificationToAPI = makeProjection(NOTIFICATION_FIELDS);
 const proxyToAPI = makeProjection(PROXY_FIELDS);
 const dockerHostToAPI = makeProjection(DOCKER_HOST_FIELDS);
 const remoteBrowserToAPI = makeProjection(REMOTE_BROWSER_FIELDS);
+const web3NetworkToAPI = makeProjection(WEB3_NETWORK_FIELDS);
 const statusPageToAPI = makeProjection(STATUS_PAGE_FIELDS);
 
 /*
@@ -722,6 +768,21 @@ router.get(
 );
 
 /*
+ * Without this a caller has no way to find the web3NetworkId a web3 monitor has
+ * to reference, and no way to create one at all.
+ */
+router.get(
+    "/api/v1/web3-networks",
+    apiAuth,
+    route(async (req, res) => {
+        const rows = await R.getAll("SELECT * FROM web3_network WHERE user_id = ? ORDER BY name", [
+            req.principal?.estateID ?? null,
+        ]);
+        res.json({ ok: true, data: rows.map(web3NetworkToAPI) });
+    })
+);
+
+/*
  * Status pages are instance-wide rather than per-user — the table has no
  * user_id — so this lists them all. Read-only: editing a public surface through
  * an API is a larger decision than this release makes.
@@ -793,6 +854,30 @@ async function assertParentAllowed(parent, userID, monitorID) {
 }
 
 /**
+ * Check a proposed web3 network.
+ *
+ * The network holds an RPC URL, and a hosted endpoint carries its API key in
+ * that URL. Referencing a network belonging to somebody else would let a caller
+ * spend another user's quota through a monitor of their own, without ever seeing
+ * the credential — so ownership is checked here rather than left to the fact
+ * that the id is only listed to its owner.
+ * @param {number|null} networkID proposed network id
+ * @param {number|null} userID the authenticated principal
+ * @returns {Promise<void>} resolves when the network is acceptable
+ * @throws {Error} when it is not
+ */
+async function assertWeb3NetworkAllowed(networkID, userID) {
+    if (networkID === null || networkID === undefined) {
+        return;
+    }
+
+    const network = await R.findOne("web3_network", " id = ? AND user_id = ? ", [ networkID, userID ]);
+    if (!network) {
+        throw new Error("web3NetworkId must be a network you own; see GET /api/v1/web3-networks");
+    }
+}
+
+/**
  * Send a 400 describing why a body was refused.
  * @param {express.Response} res Express response object
  * @param {Error} e the validation failure
@@ -831,6 +916,7 @@ router.post(
 
         try {
             await assertParentAllowed(bean.parent, bean.user_id, null);
+            await assertWeb3NetworkAllowed(bean.web3_network_id, bean.user_id);
         } catch (e) {
             badRequest(res, e);
             return;
@@ -900,6 +986,9 @@ router.patch(
         try {
             if ("parent" in columns) {
                 await assertParentAllowed(bean.parent, bean.user_id, bean.id);
+            }
+            if ("web3_network_id" in columns) {
+                await assertWeb3NetworkAllowed(bean.web3_network_id, bean.user_id);
             }
             bean.validate();
         } catch (e) {
@@ -1512,6 +1601,15 @@ function buildOpenAPI() {
                     responses: { 200: { description: "Remote browsers" } },
                 },
             },
+            "/api/v1/web3-networks": {
+                get: {
+                    summary: "List Web3 networks",
+                    description:
+                        "The id, name and chain id of each configured network, for a monitor to reference as web3NetworkId. The RPC URL commonly carries an API key and is never returned.",
+                    security: authed,
+                    responses: { 200: { description: "Web3 networks" } },
+                },
+            },
             "/api/v1/status-pages": {
                 get: {
                     summary: "List status pages",
@@ -1562,6 +1660,7 @@ module.exports.internals = {
     PROXY_FIELDS,
     DOCKER_HOST_FIELDS,
     REMOTE_BROWSER_FIELDS,
+    WEB3_NETWORK_FIELDS,
     monitorToAPI,
     monitorFromAPI,
     projectWith,
