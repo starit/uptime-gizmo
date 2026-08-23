@@ -6,7 +6,7 @@
 <p align="center">
   <a href="https://github.com/starit/uptime-gizmo/stargazers"><img src="https://img.shields.io/github/stars/starit/uptime-gizmo?style=flat&color=ECAB24" alt="GitHub stars" /></a>
   <a href="https://hub.docker.com/r/starit/uptime-gizmo"><img src="https://img.shields.io/docker/v/starit/uptime-gizmo/beta?label=docker&color=1E64E7" alt="Docker image" /></a>
-  <a href="https://github.com/starit/uptime-gizmo/blob/master/LICENSE"><img src="https://img.shields.io/badge/license-MIT-0A151E" alt="MIT License" /></a>
+  <a href="https://github.com/starit/uptime-gizmo/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-0A151E" alt="MIT License" /></a>
   <a href="https://github.com/starit/uptime-gizmo/issues"><img src="https://img.shields.io/github/issues/starit/uptime-gizmo?color=1E64E7" alt="GitHub issues" /></a>
 </p>
 
@@ -121,7 +121,7 @@ From an empty directory, without cloning this repository:
 ```bash
 mkdir uptime-gizmo
 cd uptime-gizmo
-curl -o compose.yaml https://raw.githubusercontent.com/starit/uptime-gizmo/master/compose.yaml
+curl -o compose.yaml https://raw.githubusercontent.com/starit/uptime-gizmo/main/compose.yaml
 docker compose up -d
 ```
 
