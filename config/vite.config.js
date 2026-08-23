@@ -3,6 +3,7 @@ import { defineConfig } from "vite";
 import visualizer from "rollup-plugin-visualizer";
 import viteCompression from "vite-plugin-compression";
 
+const pkg = require("../package.json");
 const postCssScss = require("postcss-scss");
 const postcssRTLCSS = require("postcss-rtlcss");
 const tailwindcss = require("tailwindcss");
@@ -16,7 +17,10 @@ export default defineConfig({
         port: 3000,
     },
     define: {
-        FRONTEND_VERSION: JSON.stringify(process.env.npm_package_version),
+        // Bake package.json here. `npm_package_version` is only set when a
+        // package manager runs the script; `vite --config` and some CI paths
+        // leave it undefined, which made About always warn.
+        FRONTEND_VERSION: JSON.stringify(pkg.version),
         "process.env": {},
     },
     plugins: [

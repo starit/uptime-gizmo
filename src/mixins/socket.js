@@ -6,6 +6,7 @@ import dayjs from "dayjs";
 import mitt from "mitt";
 
 import { DOWN, MAINTENANCE, PENDING, UP } from "../util.ts";
+import { frontendBackendVersionsMatch } from "../util-version-match.js";
 import {
     getDevContainerServerHostname,
     isDevContainer,
@@ -852,10 +853,7 @@ export default {
          * @returns {boolean} The frontend and backend match?
          */
         isFrontendBackendVersionMatched() {
-            if (!this.info.version) {
-                return true;
-            }
-            return this.info.version === this.frontendVersion;
+            return frontendBackendVersionsMatch(this.info.version, this.frontendVersion);
         },
     },
 
