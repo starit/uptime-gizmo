@@ -988,6 +988,18 @@ let needSetup = false;
                 bean.web3_min_balance = monitor.web3MinBalance ?? null;
                 bean.web3_max_block_age = monitor.web3MaxBlockAge || null;
 
+                // Web3 contract value. The threshold stays a string for the same
+                // reason, and the calldata is stored as given rather than
+                // composed here from an ABI.
+                bean.web3_call_to = monitor.web3CallTo || null;
+                bean.web3_call_data = monitor.web3CallData || null;
+                bean.web3_value_offset = monitor.web3ValueOffset ?? 0;
+                bean.web3_value_type = monitor.web3ValueType || "uint256";
+                bean.web3_value_decimals = monitor.web3ValueDecimals ?? 0;
+                bean.web3_value_operator = monitor.web3ValueOperator || null;
+                bean.web3_value_threshold = monitor.web3ValueThreshold ?? null;
+                bean.web3_block_tag = monitor.web3BlockTag || "latest";
+
                 // ping advanced options
                 bean.ping_numeric = monitor.ping_numeric;
                 bean.ping_count = monitor.ping_count;

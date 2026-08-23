@@ -100,6 +100,7 @@
                                     <optgroup :label="$t('monitorTypeWeb3')">
                                         <option value="web3-balance">{{ $t("Web3 Balance") }}</option>
                                         <option value="web3-rpc">{{ $t("Web3 RPC Health") }}</option>
+                                        <option value="web3-contract">{{ $t("Web3 Contract Value") }}</option>
                                     </optgroup>
 
                                     <!-- Should sort from A to Z in this category -->
@@ -276,7 +277,7 @@
                             </div>
 
                             <!-- Web3 -->
-                            <template v-if="monitor.type === 'web3-balance' || monitor.type === 'web3-rpc'">
+                            <template v-if="monitor.type === 'web3-balance' || monitor.type === 'web3-rpc' || monitor.type === 'web3-contract'">
                                 <div class="tw-my-3">
                                     <label for="web3-network" class="gizmo-field-label">{{ $t("Web3 Network") }}</label>
                                     <select
@@ -369,6 +370,132 @@
                                     />
                                     <div class="gizmo-field-help">{{ $t("web3MaxBlockAgeHelp") }}</div>
                                 </div>
+
+                                <template v-if="monitor.type === 'web3-contract'">
+                                    <div class="tw-my-3">
+                                        <label for="web3-call-to" class="gizmo-field-label">{{ $t("Contract") }}</label>
+                                        <input
+                                            id="web3-call-to"
+                                            v-model="monitor.web3CallTo"
+                                            type="text"
+                                            class="gizmo-native-control"
+                                            placeholder="0x…"
+                                            pattern="0x[0-9a-fA-F]{40}"
+                                            required
+                                        />
+                                    </div>
+
+                                    <div class="tw-my-3">
+                                        <label for="web3-call-data" class="gizmo-field-label">{{ $t("Calldata") }}</label>
+                                        <textarea
+                                            id="web3-call-data"
+                                            v-model="monitor.web3CallData"
+                                            class="gizmo-native-control tw-font-mono"
+                                            rows="2"
+                                            spellcheck="false"
+                                            placeholder="0x18160ddd"
+                                            required
+                                        ></textarea>
+                                        <div class="gizmo-field-help">{{ $t("web3CallDataHelp") }}</div>
+                                    </div>
+
+                                    <div class="tw-my-3">
+                                        <label for="web3-value-type" class="gizmo-field-label">{{ $t("Value Type") }}</label>
+                                        <select
+                                            id="web3-value-type"
+                                            v-model="monitor.web3ValueType"
+                                            class="gizmo-native-control gizmo-native-select"
+                                        >
+                                            <option v-for="valueType in web3ValueTypes" :key="valueType" :value="valueType">
+                                                {{ valueType }}
+                                            </option>
+                                        </select>
+                                        <div class="gizmo-field-help">{{ $t("web3ValueTypeHelp") }}</div>
+                                    </div>
+
+                                    <div class="tw-my-3">
+                                        <label for="web3-value-offset" class="gizmo-field-label">{{ $t("Word Index") }}</label>
+                                        <input
+                                            id="web3-value-offset"
+                                            v-model.number="monitor.web3ValueOffset"
+                                            type="number"
+                                            class="gizmo-native-control"
+                                            min="0"
+                                            step="1"
+                                        />
+                                        <div class="gizmo-field-help">{{ $t("web3ValueOffsetHelp") }}</div>
+                                    </div>
+
+                                    <div v-if="web3ValueIsNumeric" class="tw-my-3">
+                                        <label for="web3-value-decimals" class="gizmo-field-label">{{ $t("Decimals") }}</label>
+                                        <input
+                                            id="web3-value-decimals"
+                                            v-model.number="monitor.web3ValueDecimals"
+                                            type="number"
+                                            class="gizmo-native-control"
+                                            min="0"
+                                            max="36"
+                                            step="1"
+                                        />
+                                        <div class="gizmo-field-help">{{ $t("web3ValueDecimalsHelp") }}</div>
+                                    </div>
+
+                                    <div class="tw-my-3">
+                                        <label for="web3-value-operator" class="gizmo-field-label">
+                                            {{ $t("Comparison") }} ({{ $t("optional") }})
+                                        </label>
+                                        <select
+                                            id="web3-value-operator"
+                                            v-model="monitor.web3ValueOperator"
+                                            class="gizmo-native-control gizmo-native-select"
+                                        >
+                                            <option value="">{{ $t("web3NoComparison") }}</option>
+                                            <option v-for="op in web3ValueOperators" :key="op.id" :value="op.id">
+                                                {{ op.caption }}
+                                            </option>
+                                        </select>
+                                        <div class="gizmo-field-help">{{ $t("web3ComparisonHelp") }}</div>
+                                    </div>
+
+                                    <div v-if="monitor.web3ValueOperator" class="tw-my-3">
+                                        <label for="web3-value-threshold" class="gizmo-field-label">{{ $t("Threshold") }}</label>
+                                        <input
+                                            id="web3-value-threshold"
+                                            v-model="monitor.web3ValueThreshold"
+                                            type="text"
+                                            class="gizmo-native-control"
+                                            spellcheck="false"
+                                            :placeholder="web3ThresholdPlaceholder"
+                                            required
+                                        />
+                                    </div>
+
+                                    <div class="tw-my-3">
+                                        <label for="web3-block-tag" class="gizmo-field-label">{{ $t("Block") }}</label>
+                                        <select
+                                            id="web3-block-tag"
+                                            v-model="monitor.web3BlockTag"
+                                            class="gizmo-native-control gizmo-native-select"
+                                        >
+                                            <option v-for="tag in web3BlockTags" :key="tag" :value="tag">{{ tag }}</option>
+                                        </select>
+                                        <div class="gizmo-field-help">{{ $t("web3BlockTagHelp") }}</div>
+                                    </div>
+
+                                    <div class="tw-my-3">
+                                        <button
+                                            class="gizmo-native-button gizmo-native-button--secondary"
+                                            type="button"
+                                            :disabled="web3Reading"
+                                            @click="testContractRead"
+                                        >
+                                            {{ $t("web3TestRead") }}
+                                        </button>
+                                        <div v-if="web3ReadResult" class="gizmo-field-help tw-break-all">
+                                            {{ web3ReadResult }}
+                                        </div>
+                                    </div>
+                                </template>
                             </template>
 
                             <!-- Keyword -->
@@ -3428,6 +3555,17 @@ const monitorDefaults = {
     // No default: block production differs by orders of magnitude between
     // chains, so any number here would be wrong for most of them.
     web3MaxBlockAge: null,
+    web3CallTo: "",
+    web3CallData: "",
+    web3ValueOffset: 0,
+    web3ValueType: "uint256",
+    // Zero, not 18: most values read this way are counts, ids or rates rather
+    // than token amounts, and 18 would silently turn a threshold of 1000 into
+    // 0.000000000000001.
+    web3ValueDecimals: 0,
+    web3ValueOperator: "",
+    web3ValueThreshold: "",
+    web3BlockTag: "latest",
 };
 
 export default {
@@ -3480,10 +3618,67 @@ export default {
             pm2ProcessOptions: [],
             pm2ProcessLoading: false,
             pm2ProcessError: "",
+            web3Reading: false,
+            web3ReadResult: "",
         };
     },
 
     computed: {
+        /*
+         * Kept in step with VALUE_TYPES, VALUE_OPERATORS and BLOCK_TAGS in
+         * server/modules/web3-rpc.js, which is what actually enforces them.
+         */
+        web3ValueTypes() {
+            return [ "uint256", "int256", "bool", "address", "bytes32" ];
+        },
+
+        web3BlockTags() {
+            return [ "latest", "safe", "finalized" ];
+        },
+
+        /**
+         * Which comparisons the chosen value type allows.
+         *
+         * Ordering an address or a bool is meaningless, and offering it would
+         * invite a monitor that looks configured and tests nothing.
+         * @returns {Array<{id: string, caption: string}>} the operators to offer
+         */
+        web3ValueOperators() {
+            const equality = [
+                { id: "eq", caption: "== " + this.$t("web3OperatorEquals") },
+                { id: "ne", caption: "!= " + this.$t("web3OperatorNotEquals") },
+            ];
+
+            if (!this.web3ValueIsNumeric) {
+                return equality;
+            }
+
+            return [
+                { id: "gte", caption: ">= " + this.$t("web3OperatorAtLeast") },
+                { id: "lte", caption: "<= " + this.$t("web3OperatorAtMost") },
+                { id: "gt", caption: "> " + this.$t("web3OperatorAbove") },
+                { id: "lt", caption: "< " + this.$t("web3OperatorBelow") },
+                ...equality,
+            ];
+        },
+
+        web3ValueIsNumeric() {
+            return this.monitor.web3ValueType === "uint256" || this.monitor.web3ValueType === "int256";
+        },
+
+        web3ThresholdPlaceholder() {
+            switch (this.monitor.web3ValueType) {
+                case "address":
+                    return "0x…";
+                case "bytes32":
+                    return "0x" + "…";
+                case "bool":
+                    return "true";
+                default:
+                    return "1000";
+            }
+        },
+
         timeoutStep() {
             return this.monitor.type === "ping" ? 1 : 0.1;
         },
@@ -3777,6 +3972,19 @@ message HealthCheckResponse {
 
         "$route.fullPath"() {
             this.init();
+        },
+
+        /*
+         * A comparison the new type cannot make would otherwise stay selected
+         * while disappearing from the dropdown, and the form would be refused on
+         * save for a reason nothing on screen explains. The threshold goes with
+         * it: an amount is not an address.
+         */
+        "monitor.web3ValueType"() {
+            if (!this.web3ValueIsNumeric && ![ "", "eq", "ne" ].includes(this.monitor.web3ValueOperator)) {
+                this.monitor.web3ValueOperator = "";
+                this.monitor.web3ValueThreshold = "";
+            }
         },
 
         "monitor.interval"(value, oldValue) {
@@ -4140,6 +4348,46 @@ message HealthCheckResponse {
                     this.$root.toastError(res.msg);
                 }
             });
+        },
+
+        /**
+         * Make the call once, now, and show what came back.
+         *
+         * The two mistakes available here — calldata that reads the wrong
+         * function, and a word index pointing at the wrong part of the result —
+         * both produce a monitor that runs happily and reports a number that
+         * means something else. Neither is visible without doing the read, so
+         * the form offers to do it.
+         * @returns {void}
+         */
+        testContractRead() {
+            this.web3Reading = true;
+            this.web3ReadResult = "";
+
+            this.$root.getSocket().emit(
+                "web3ContractRead",
+                this.monitor.web3NetworkId,
+                {
+                    to: (this.monitor.web3CallTo || "").trim(),
+                    data: (this.monitor.web3CallData || "").trim(),
+                    offset: this.monitor.web3ValueOffset ?? 0,
+                    type: this.monitor.web3ValueType,
+                    decimals: this.monitor.web3ValueDecimals ?? 0,
+                    blockTag: this.monitor.web3BlockTag,
+                },
+                (res) => {
+                    this.web3Reading = false;
+
+                    if (res.ok) {
+                        // The raw result as well as the decoded value: a wrong
+                        // word index is only obvious next to what came back.
+                        this.web3ReadResult = this.$t("web3ReadResult", [ res.value, res.raw ]);
+                    } else {
+                        this.web3ReadResult = "";
+                        this.$root.toastError(res.msg);
+                    }
+                }
+            );
         },
 
         init() {

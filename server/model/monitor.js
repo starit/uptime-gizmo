@@ -62,6 +62,7 @@ const zlib = require("node:zlib");
 const { promisify } = require("node:util");
 const brotliCompress = promisify(zlib.brotliCompress);
 const DomainExpiry = require("./domain_expiry");
+const { validateContractRead } = require("../modules/web3-rpc");
 
 const rootCertificates = rootCertificatesFingerprints();
 
@@ -208,6 +209,14 @@ class Monitor extends BeanModel {
             web3TokenDecimals: this.web3_token_decimals,
             web3MinBalance: this.web3_min_balance,
             web3MaxBlockAge: this.web3_max_block_age,
+            web3CallTo: this.web3_call_to,
+            web3CallData: this.web3_call_data,
+            web3ValueOffset: this.web3_value_offset,
+            web3ValueType: this.web3_value_type,
+            web3ValueDecimals: this.web3_value_decimals,
+            web3ValueOperator: this.web3_value_operator,
+            web3ValueThreshold: this.web3_value_threshold,
+            web3BlockTag: this.web3_block_tag,
             ntpTimeOffsetThreshold: this.ntp_time_offset_threshold,
             ntpRootDispersionThreshold: this.ntp_root_dispersion_threshold,
             ipFamily: this.ipFamily,
@@ -1694,6 +1703,29 @@ class Monitor extends BeanModel {
             } catch (e) {
                 throw new Error(`Accepted status codes must be valid JSON: ${e.message}`);
             }
+        }
+
+        /*
+         * A contract read is refused here rather than at check time, so both the
+         * socket path and the REST API reject the same things and neither can
+         * drift from the other. Every rule it enforces is a mistake that would
+         * otherwise surface as a monitor that runs and tests nothing.
+         */
+        if (this.type === "web3-contract") {
+            if (!this.web3_network_id) {
+                throw new Error("A network is required");
+            }
+
+            validateContractRead({
+                to: this.web3_call_to,
+                data: this.web3_call_data,
+                offset: this.web3_value_offset,
+                type: this.web3_value_type,
+                decimals: this.web3_value_decimals,
+                operator: this.web3_value_operator,
+                threshold: this.web3_value_threshold,
+                blockTag: this.web3_block_tag,
+            });
         }
 
         if (["system-service", "pm2"].includes(this.type)) {

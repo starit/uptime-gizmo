@@ -1,7 +1,16 @@
 const { R } = require("redbean-node");
 const { checkLogin } = require("../util-server");
 const { sendWeb3NetworkList } = require("../client");
-const { getChainId, getTokenDecimals, isAddress } = require("../modules/web3-rpc");
+const {
+    getChainId,
+    getTokenDecimals,
+    isAddress,
+    ethCall,
+    readWord,
+    decodeWord,
+    formatValue,
+    validateContractRead,
+} = require("../modules/web3-rpc");
 const { log } = require("../../src/util");
 
 /** How long a settings-time probe of an endpoint may take. */
@@ -159,6 +168,50 @@ module.exports.web3SocketHandler = (socket) => {
             callback({ ok: true, decimals });
         } catch (e) {
             log.debug("web3", `decimals lookup failed: ${e.message}`);
+            callback({ ok: false, msg: e.message });
+        }
+    });
+
+    /**
+     * Make a contract read once, now, and hand back what it decoded.
+     *
+     * The two mistakes a contract monitor invites — calldata that reads the
+     * wrong function, and a word index pointing at the wrong part of the result
+     * — both produce a monitor that runs happily and reports a number that means
+     * something else. Neither is visible without doing the read, so the form can
+     * ask for it before the monitor is saved.
+     *
+     * Nothing is stored. It is the same call the check makes, on a network the
+     * caller already owns, so it grants no reach they did not have.
+     */
+    socket.on("web3ContractRead", async (networkID, read, callback) => {
+        try {
+            checkLogin(socket);
+
+            const bean = await ownedNetwork(networkID, socket.userID);
+
+            // The same rules the monitor is saved under, minus the threshold:
+            // this reads a value rather than judging one.
+            validateContractRead({ ...read, operator: "", threshold: "" });
+
+            const raw = await ethCall(
+                bean.rpc_url,
+                String(read.to).trim(),
+                String(read.data).trim(),
+                read.blockTag,
+                PROBE_TIMEOUT_MS
+            );
+
+            const type = read.type || "uint256";
+            const value = decodeWord(readWord(raw, Number(read.offset ?? 0)), type);
+
+            callback({
+                ok: true,
+                raw,
+                value: formatValue(value, type, Number(read.decimals ?? 0)),
+            });
+        } catch (e) {
+            log.debug("web3", `contract read failed: ${e.message}`);
             callback({ ok: false, msg: e.message });
         }
     });
