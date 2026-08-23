@@ -29,7 +29,7 @@ export UPTIME_GIZMO_API_KEY=uk1_...
 Create the key in **Settings → API Keys**. **Leave it read-only** unless this
 agent genuinely needs to change your monitoring. New keys default to read-only.
 
-With a read-only key the server offers eight read tools and does not advertise
+With a read-only key the server offers thirteen read tools and does not advertise
 the writing ones. That is a convenience, not the control: the API refuses a
 mutating request from a read-only key regardless of what this server offers.
 
@@ -64,6 +64,14 @@ Always available:
 | `get_monitor` | One monitor by id |
 | `list_tags` | Tags |
 | `list_maintenances` | Maintenance windows |
+| `list_notification_channels` | Which channels exist and are active — whether an alert has anywhere to go |
+| `list_proxies` | Proxies by protocol, host, port and username |
+| `list_docker_hosts` | Docker hosts by name and connection type |
+| `list_remote_browsers` | Remote browsers by name |
+| `list_web3_networks` | Configured chains by id, name and chain id — where `web3NetworkId` comes from |
+
+None of those five return the credential they carry: a notification config, a
+proxy password, a daemon address, a browser endpoint, an RPC URL.
 
 Offered only when the key may write:
 
@@ -71,6 +79,18 @@ Offered only when the key may write:
 | --- | --- |
 | `create_monitor` | Begins checking a target; its first result may notify |
 | `update_monitor` | Restarts the monitor; may change whether it alerts |
+
+`create_monitor` covers `http`, `keyword`, `ping`, `port` and `dns`, and the three
+web3 types — `web3-balance`, `web3-rpc` and `web3-contract`. Each web3 type needs
+a `web3NetworkId` from `list_web3_networks`; the chain and its RPC endpoint are
+configured by a human in settings, because the endpoint URL usually carries an API
+key.
+
+`web3-contract` reads one value out of a contract and compares it against a
+threshold. **The calldata is sent verbatim** — nothing here encodes it from an
+ABI, so an agent supplying it owns the correctness of the encoding. Thresholds are
+decimal **strings**, not numbers: they are compared as integers, because a uint256
+at 18 decimals is past what a double represents exactly.
 
 Every tool description states its side effects, so a model can weigh
 consequences before calling.

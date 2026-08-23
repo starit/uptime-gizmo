@@ -183,7 +183,76 @@ const READ_TOOLS = [
         inputSchema: { type: "object", properties: {} },
         run: () => api("/api/v1/remote-browsers"),
     },
+    {
+        name: "list_web3_networks",
+        description:
+            "List the configured chains by id, name and chain id. Every web3 monitor references one as web3NetworkId, so call this before creating one; an empty list means no chain is configured and a human has to add one in settings. The RPC URL carries an API key and is never returned. Side effects: none.",
+        inputSchema: { type: "object", properties: {} },
+        run: () => api("/api/v1/web3-networks"),
+    },
 ];
+
+/*
+ * Fields the web3 monitor types need, shared by create and update so the two
+ * cannot drift.
+ *
+ * The two thresholds are strings and must stay strings: they are scaled and
+ * compared as integers, because a uint256 at 18 decimals is past what a double
+ * represents exactly, and a comparison that rounds fails in the direction of
+ * reporting that nothing is wrong.
+ */
+const WEB3_PROPERTIES = {
+    web3NetworkId: {
+        type: "integer",
+        description: "Which configured chain to read through, from list_web3_networks. Every web3 type needs it.",
+    },
+    web3Address: { type: "string", description: "web3-balance: the address to watch." },
+    web3TokenContract: {
+        type: "string",
+        description: "web3-balance: an ERC-20 contract. Omit for the chain's own token.",
+    },
+    web3TokenDecimals: { type: "integer", description: "web3-balance: decimals of the ERC-20, usually 18." },
+    web3MinBalance: {
+        type: "string",
+        description: "web3-balance: the floor, as a decimal string such as \"0.05\" — not a number. Omit to record the balance without alerting on it.",
+    },
+    web3MaxBlockAge: {
+        type: "integer",
+        description: "web3-rpc: seconds. Down when the newest block is older than this. Pick it from the chain's block time.",
+    },
+    web3CallTo: { type: "string", description: "web3-contract: the contract to call." },
+    web3CallData: {
+        type: "string",
+        description: "web3-contract: 0x calldata, sent verbatim — a four-byte selector plus any ABI-encoded arguments. Nothing encodes it for you, and calldata that reads the wrong function produces a monitor that runs happily and reports the wrong number.",
+    },
+    web3ValueOffset: {
+        type: "integer",
+        description: "web3-contract: which 32-byte word of the result to read, from 0. One return value is 0; latestRoundData() puts the price in 1. A word past the end of the result fails the check rather than reading as zero.",
+    },
+    web3ValueType: {
+        type: "string",
+        enum: [ "uint256", "int256", "bool", "address", "bytes32" ],
+        description: "web3-contract: how to read the word. Use int256 whenever the value can go negative.",
+    },
+    web3ValueDecimals: {
+        type: "integer",
+        description: "web3-contract: scales the threshold and the reported value. Defaults to 0; use 18 for a token amount, 8 for most price feeds.",
+    },
+    web3ValueOperator: {
+        type: "string",
+        enum: [ "gte", "lte", "gt", "lt", "eq", "ne" ],
+        description: "web3-contract: the comparison. Only eq and ne apply to bool, address and bytes32. Omit it, and the threshold, to record the value without alerting on it.",
+    },
+    web3ValueThreshold: {
+        type: "string",
+        description: "web3-contract: a decimal string, not a number. For address and bytes32 send the hex; for bool send \"true\" or \"false\".",
+    },
+    web3BlockTag: {
+        type: "string",
+        enum: [ "latest", "safe", "finalized" ],
+        description: "web3-contract: which block to read at. Defaults to latest.",
+    },
+};
 
 /*
  * Writing tools. Create and update only.
@@ -196,12 +265,15 @@ const WRITE_TOOLS = [
     {
         name: "create_monitor",
         description:
-            "Create a monitor. Requires name and type; type is one of http, keyword, ping, port, dns. Side effects: begins checking the target, and its first result may trigger notifications.",
+            "Create a monitor. Requires name and type; type is one of http, keyword, ping, port, dns, web3-balance, web3-rpc, web3-contract. For a web3 type, call list_web3_networks first — web3NetworkId is required and cannot be guessed. Side effects: begins checking the target, and its first result may trigger notifications.",
         inputSchema: {
             type: "object",
             properties: {
                 name: { type: "string" },
-                type: { type: "string", description: "http, keyword, ping, port or dns" },
+                type: {
+                    type: "string",
+                    description: "http, keyword, ping, port, dns, web3-balance, web3-rpc or web3-contract",
+                },
                 url: { type: "string" },
                 hostname: { type: "string" },
                 port: { type: "integer" },
@@ -209,6 +281,7 @@ const WRITE_TOOLS = [
                 keyword: { type: "string" },
                 description: { type: "string" },
                 active: { type: "boolean" },
+                ...WEB3_PROPERTIES,
             },
             required: [ "name", "type" ],
         },
@@ -230,6 +303,7 @@ const WRITE_TOOLS = [
                 keyword: { type: "string" },
                 description: { type: "string" },
                 active: { type: "boolean" },
+                ...WEB3_PROPERTIES,
             },
             required: [ "id" ],
         },
