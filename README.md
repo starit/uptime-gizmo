@@ -102,21 +102,14 @@ does not mean.
 - Response-time charts, certificate information, maintenance windows
 - Proxies, two-factor authentication, multi-language support
 
-## Getting started
+## 🔧 How to Install
 
 Images are on [Docker Hub](https://hub.docker.com/r/starit/uptime-gizmo) and
 [GHCR](https://github.com/starit/uptime-gizmo/pkgs/container/uptime-gizmo), for
 linux/amd64, linux/arm64 and linux/arm/v7. Docker is the supported way to run an
-instance. The server listens on port 3001 on every interface
-(`http://localhost:3001` or `http://<your-ip>:3001`).
+instance.
 
-> [!WARNING]
-> SQLite does not work on NFS. Map `/app/data` to a local directory or a Docker
-> volume.
-
-### Docker Compose
-
-From an empty directory, without cloning this repository:
+### 🐳 Docker Compose
 
 ```bash
 mkdir uptime-gizmo
@@ -125,6 +118,9 @@ curl -o compose.yaml https://raw.githubusercontent.com/starit/uptime-gizmo/main/
 docker compose up -d
 ```
 
+Uptime Gizmo is now running on all network interfaces (e.g. http://localhost:3001
+or http://your-ip:3001).
+
 If you already have the repo checked out, `docker compose up -d` in the root is
 enough. [compose.yaml](compose.yaml) bind-mounts `./data` to `/app/data` and
 pulls `starit/uptime-gizmo:beta`.
@@ -132,29 +128,88 @@ pulls `starit/uptime-gizmo:beta`.
 To expose the UI on localhost only, change the published port to
 `127.0.0.1:3001:3001`.
 
-### Docker
+> [!WARNING]
+> SQLite does not work on NFS. Map `/app/data` to a local directory or a Docker
+> volume.
+
+### 🐳 Docker Command
 
 ```bash
 docker run -d --restart=always -p 3001:3001 -v uptime-gizmo:/app/data --name uptime-gizmo starit/uptime-gizmo:beta
 ```
 
-The named volume `uptime-gizmo` is the data directory. Localhost only:
+Uptime Gizmo is now running on all network interfaces (e.g. http://localhost:3001
+or http://your-ip:3001).
+
+If you want to limit exposure to localhost only:
 
 ```bash
-docker run -d --restart=always -p 127.0.0.1:3001:3001 -v uptime-gizmo:/app/data --name uptime-gizmo starit/uptime-gizmo:beta
+docker run ... -p 127.0.0.1:3001:3001 ...
 ```
 
 The same tags are on GHCR as `ghcr.io/starit/uptime-gizmo`.
+
+### 💪🏻 Non-Docker
+
+Requirements:
+
+- [Node.js](https://nodejs.org/en/download/) >= 20.4
+- [pnpm](https://pnpm.io/installation) >= 10 (`corepack enable pnpm` uses the
+  version pinned in `package.json`)
+- [Git](https://git-scm.com/downloads)
+- [pm2](https://pm2.keymetrics.io/) — for running Uptime Gizmo in the background
+
+```bash
+git clone https://github.com/starit/uptime-gizmo.git
+cd uptime-gizmo
+corepack enable pnpm
+pnpm install --frozen-lockfile
+pnpm run build
+
+# Option 1. Try it
+pnpm start
+
+# (Recommended) Option 2. Run in the background using PM2
+# Install PM2 if you don't have it:
+pnpm add --global pm2
+
+# Start Server
+pm2 start server/server.js --name uptime-gizmo
+```
+
+Uptime Gizmo is now running on all network interfaces (e.g. http://localhost:3001
+or http://your-ip:3001).
+
+More useful PM2 commands:
+
+```bash
+# If you want to see the current console output
+pm2 monit
+
+# If you want to add it to startup
+pm2 startup && pm2 save
+```
+
+`pnpm start` serves the built UI from the backend on port 3001. Host and port
+can be set with `UPTIME_GIZMO_HOST` and `UPTIME_GIZMO_PORT` (or `PORT`). Data
+lives in `./data` unless `DATA_DIR` says otherwise.
+
+If you are locked out of the first account, stop the process and run
+`pnpm run reset-password`. `pnpm run remove-2fa` clears two-factor authentication
+the same way.
+
+For local development (`pnpm run dev`, Vite on 3000), see the
+[Contributing Guide](CONTRIBUTING.md).
 
 ### Image tags
 
 | Tag | What it is |
 | --- | --- |
 | `beta` | Current prerelease. This tag moves. |
-| `3.0.0-beta.1` | A pinned prerelease. Use this if you do not want `beta` to change under you. |
+| `<version>` | A pinned prerelease matching that GitHub release. Use this if you do not want `beta` to change under you. |
 | `nightly2` | Unreleased `main`. |
 
-`beta-slim` and `3.0.0-beta.1-slim` omit Chromium, embedded MariaDB and extra
+`beta-slim` and `<version>-slim` omit Chromium, embedded MariaDB and extra
 fonts. `beta-rootless` and `*-rootless` run as the `node` user. There is no
 `:3` image yet; that tag is reserved for a final 3.x release.
 
@@ -175,47 +230,6 @@ docker stop uptime-gizmo
 docker rm uptime-gizmo
 docker run -d --restart=always -p 3001:3001 -v uptime-gizmo:/app/data --name uptime-gizmo starit/uptime-gizmo:beta
 ```
-
-### From source
-
-You need Node.js 20.4 or later, pnpm 10 or later, and Git. `corepack enable pnpm`
-uses the version pinned in `package.json`.
-
-Development (Vite frontend on 3000, backend on 3001):
-
-```bash
-git clone https://github.com/starit/uptime-gizmo.git
-cd uptime-gizmo
-pnpm install
-pnpm run dev
-```
-
-Production, without Docker:
-
-```bash
-git clone https://github.com/starit/uptime-gizmo.git
-cd uptime-gizmo
-pnpm install --frozen-lockfile
-pnpm run build
-pnpm start
-```
-
-`pnpm start` serves the built UI from the backend on port 3001. To keep it
-running in the background:
-
-```bash
-pnpm add --global pm2
-pm2 start server/server.js --name uptime-gizmo
-pm2 startup && pm2 save
-```
-
-`pm2 monit` shows the live log. Host and port can be set with
-`UPTIME_GIZMO_HOST` and `UPTIME_GIZMO_PORT` (or `PORT`). Data lives in `./data`
-unless `DATA_DIR` says otherwise.
-
-If you are locked out of the first account, stop the process and run
-`pnpm run reset-password`. `pnpm run remove-2fa` clears two-factor authentication
-the same way.
 
 ### Backing up
 
