@@ -196,16 +196,23 @@
     }
 
     .gizmo-inline-action {
+        position: relative;
         display: flex;
+        min-width: 0;
         align-items: stretch;
     }
 
-    .gizmo-inline-action .gizmo-control {
+    .gizmo-inline-action .gizmo-control,
+    .gizmo-inline-action .gizmo-native-control {
+        min-width: 0;
+        flex: 1 1 auto;
         border-start-end-radius: 0;
         border-end-end-radius: 0;
     }
 
-    .gizmo-inline-action .gizmo-button {
+    .gizmo-inline-action .gizmo-button,
+    .gizmo-inline-action .gizmo-native-button {
+        flex: 0 0 auto;
         border-start-start-radius: 0;
         border-end-start-radius: 0;
     }

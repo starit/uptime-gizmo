@@ -75,7 +75,7 @@
             <p class="gizmo-dialog-copy">
                 {{ $t("apiKeyAddedMsg") }}
             </p>
-            <CopyableInput v-model="clearKey" disabled="disabled" />
+            <CopyableInput v-model="clearKey" readonly="readonly" />
         </div>
         <template #footer>
             <GizmoButton autofocus @click="setKeyOpen(false)">
