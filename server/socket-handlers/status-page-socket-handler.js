@@ -336,7 +336,8 @@ module.exports.statusPageSocketHandler = (socket) => {
             statusPage.icon_size = StatusPage.normalizeLogoSize(config.iconSize, statusPage.icon_size);
             statusPage.icon_position = StatusPage.normalizeLogoPosition(config.iconPosition, statusPage.icon_position);
             statusPage.title_size = StatusPage.normalizeTitleSize(config.titleSize, statusPage.title_size);
-            statusPage.title_font = StatusPage.normalizeTitleFont(config.titleFont, statusPage.title_font);
+            statusPage.title_font = StatusPage.normalizeFont(config.font ?? config.titleFont, statusPage.title_font);
+            statusPage.text_size = StatusPage.normalizeTextSize(config.textSize, statusPage.text_size);
             statusPage.rss_title = config.rssTitle;
             statusPage.show_only_last_heartbeat = config.showOnlyLastHeartbeat;
             statusPage.show_certificate_expiry = config.showCertificateExpiry;

@@ -372,7 +372,7 @@ export default {
     padding: 0.625rem 1rem;
     background: var(--color-surface-subtle);
     color: var(--color-text-muted);
-    font-size: 0.8125rem;
+    font-size: 0.8125em;
     font-weight: var(--weight-semibold);
     letter-spacing: -0.01em;
 

@@ -173,7 +173,7 @@ export default {
             .incident-title {
                 min-width: 0;
                 color: var(--color-text);
-                font-size: 0.9375rem;
+                font-size: 0.9375em;
                 font-weight: var(--weight-semibold);
                 letter-spacing: -0.01em;
                 line-height: 1.35;
@@ -182,7 +182,7 @@ export default {
 
             .incident-content {
                 color: var(--color-text-muted);
-                font-size: 0.875rem;
+                font-size: 0.875em;
                 line-height: 1.5;
 
                 :deep(p) {
@@ -195,7 +195,7 @@ export default {
             }
 
             .incident-meta {
-                font-size: 0.75rem;
+                font-size: 0.75em;
             }
         }
     }

@@ -106,6 +106,28 @@ describe("StatusPage", () => {
         });
     });
 
+    describe("normalizeFont()", () => {
+        test("is the page typeface, shared by title and body", () => {
+            assert.strictEqual(StatusPage.normalizeFont("serif"), "serif");
+            assert.strictEqual(StatusPage.FONTS, StatusPage.TITLE_FONTS);
+        });
+    });
+
+    describe("normalizeTextSize()", () => {
+        test("keeps allowed sizes", () => {
+            assert.strictEqual(StatusPage.normalizeTextSize("sm"), "sm");
+            assert.strictEqual(StatusPage.normalizeTextSize("md"), "md");
+            assert.strictEqual(StatusPage.normalizeTextSize("lg"), "lg");
+        });
+
+        test("falls back to medium, then to the supplied stored value", () => {
+            assert.strictEqual(StatusPage.normalizeTextSize(undefined), "md");
+            assert.strictEqual(StatusPage.normalizeTextSize("huge"), "md");
+            assert.strictEqual(StatusPage.normalizeTextSize("huge", "sm"), "sm");
+            assert.strictEqual(StatusPage.normalizeTextSize("huge", "nope"), "md");
+        });
+    });
+
     describe("renderRSS()", () => {
         const MOCK_FEED_URL = "http://localhost:3001/status/test";
 

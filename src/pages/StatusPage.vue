@@ -11,8 +11,8 @@
                     </div>
                 </div>
 
-                <!-- Title, title size/font, and logo size/position share this
-                     group so they stay next to the Logo Size field operators already use. -->
+                <!-- Title, logo, typeface, and body size share this group.
+                     Typeface applies to the whole public page, not only the title. -->
                 <section class="sidebar-header-appearance" data-testid="header-appearance">
                     <p class="sidebar-header-appearance__title">{{ $t("statusPageHeaderAppearance") }}</p>
 
@@ -50,12 +50,26 @@
                     </div>
 
                     <div class="tw-my-3">
-                        <label for="title-font" class="gizmo-field-label">{{ $t("statusPageTitleFont") }}</label>
+                        <label for="text-size" class="gizmo-field-label">{{ $t("statusPageTextSize") }}</label>
                         <select
-                            id="title-font"
-                            v-model="config.titleFont"
+                            id="text-size"
+                            v-model="config.textSize"
                             class="gizmo-native-control gizmo-native-select"
-                            data-testid="title-font-select"
+                            data-testid="text-size-select"
+                        >
+                            <option value="sm">{{ $t("statusPageTitleSizeSmall") }}</option>
+                            <option value="md">{{ $t("statusPageTitleSizeMedium") }}</option>
+                            <option value="lg">{{ $t("statusPageTitleSizeLarge") }}</option>
+                        </select>
+                    </div>
+
+                    <div class="tw-my-3">
+                        <label for="status-font" class="gizmo-field-label">{{ $t("statusPageFont") }}</label>
+                        <select
+                            id="status-font"
+                            v-model="config.font"
+                            class="gizmo-native-control gizmo-native-select"
+                            data-testid="font-select"
                         >
                             <option value="sans">{{ $t("statusPageTitleFontSans") }}</option>
                             <option value="serif">{{ $t("statusPageTitleFontSerif") }}</option>
@@ -303,7 +317,7 @@
         </div>
 
         <!-- Main Status Page -->
-        <div :class="{ edit: enableEditMode }" class="main">
+        <div class="main" :class="mainClass" data-testid="status-page-main">
             <h1 class="title-flex" :class="titleFlexClass" data-testid="status-page-title">
                 <!-- Logo -->
                 <span v-if="showStatusLogo" class="logo-wrapper" :class="logoWrapperClass" @click="showImageCropUploadMethod">
@@ -693,9 +707,6 @@
 </template>
 
 <script>
-import "@fontsource/ibm-plex-serif/600.css";
-import "@fontsource/ibm-plex-mono/600.css";
-import "@fontsource/fraunces/600.css";
 import axios from "axios";
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
@@ -718,6 +729,7 @@ import IncidentHistory from "../components/IncidentHistory.vue";
 import IncidentManageModal from "../components/IncidentManageModal.vue";
 import IncidentEditForm from "../components/IncidentEditForm.vue";
 import { getResBaseURL } from "../util-frontend";
+import { loadStatusPageFont, prefetchStatusPageFonts } from "../util-status-page-fonts";
 import {
     STATUS_PAGE_ALL_DOWN,
     STATUS_PAGE_ALL_UP,
@@ -788,7 +800,8 @@ export default {
                 iconSize: "md",
                 iconPosition: "left",
                 titleSize: "md",
-                titleFont: "sans",
+                textSize: "md",
+                font: "sans",
             },
             selectedMonitor: null,
             incident: null,
@@ -909,11 +922,20 @@ export default {
         },
 
         /**
-         * Typeface for the page title. Unknown values fall back to IBM Plex Sans.
+         * Size for body copy. Unknown values fall back to medium.
+         * @returns {"sm"|"md"|"lg"} sm, md, or lg
+         */
+        textSize() {
+            const size = this.config.textSize;
+            return size === "sm" || size === "lg" ? size : "md";
+        },
+
+        /**
+         * Typeface for the public page (title and body). Unknown values fall back to sans.
          * @returns {"sans"|"serif"|"mono"|"display"} sans, serif, mono, or display
          */
-        titleFont() {
-            const font = this.config.titleFont;
+        pageFont() {
+            const font = this.config.font;
             return font === "serif" || font === "mono" || font === "display" ? font : "sans";
         },
 
@@ -936,10 +958,23 @@ export default {
                 "title-flex--title-sm": this.titleSize === "sm",
                 "title-flex--title-md": this.titleSize === "md",
                 "title-flex--title-lg": this.titleSize === "lg",
-                "title-flex--font-sans": this.titleFont === "sans",
-                "title-flex--font-serif": this.titleFont === "serif",
-                "title-flex--font-mono": this.titleFont === "mono",
-                "title-flex--font-display": this.titleFont === "display",
+            };
+        },
+
+        /**
+         * Edit offset plus the public typeface and body size.
+         * @returns {object} Class map for `.main`
+         */
+        mainClass() {
+            return {
+                edit: this.enableEditMode,
+                "status-page-main--font-sans": this.pageFont === "sans",
+                "status-page-main--font-serif": this.pageFont === "serif",
+                "status-page-main--font-mono": this.pageFont === "mono",
+                "status-page-main--font-display": this.pageFont === "display",
+                "status-page-main--text-sm": this.textSize === "sm",
+                "status-page-main--text-md": this.textSize === "md",
+                "status-page-main--text-lg": this.textSize === "lg",
             };
         },
 
@@ -1077,6 +1112,19 @@ export default {
         },
     },
     watch: {
+        pageFont: {
+            immediate: true,
+            handler(font) {
+                loadStatusPageFont(font);
+            },
+        },
+
+        enableEditMode(editing) {
+            if (editing) {
+                prefetchStatusPageFonts();
+            }
+        },
+
         /**
          * If connected to the socket and logged in, request private data of this statusPage
          * @param {boolean} loggedIn Is the client logged in?
@@ -1240,9 +1288,11 @@ export default {
             const titleSize = this.config.titleSize;
             this.config.titleSize = titleSize === "sm" || titleSize === "lg" ? titleSize : "md";
 
-            const titleFont = this.config.titleFont;
-            this.config.titleFont =
-                titleFont === "serif" || titleFont === "mono" || titleFont === "display" ? titleFont : "sans";
+            const textSize = this.config.textSize;
+            this.config.textSize = textSize === "sm" || textSize === "lg" ? textSize : "md";
+
+            const font = this.config.font ?? this.config.titleFont;
+            this.config.font = font === "serif" || font === "mono" || font === "display" ? font : "sans";
         },
 
         /**
@@ -1738,14 +1788,46 @@ export default {
 }
 
 .main {
+    --status-font: "IBM Plex Sans", "Noto Sans", "PingFang SC", "Hiragino Sans GB", sans-serif;
+    --status-text-size: 1rem;
     display: flex;
     flex-direction: column;
     gap: 1.25rem;
+    font-family: var(--status-font);
+    font-size: var(--status-text-size);
     transition: margin 180ms ease;
 
     &.edit {
         margin-left: 300px;
     }
+}
+
+.status-page-main--font-sans {
+    --status-font: "IBM Plex Sans", "Noto Sans", "PingFang SC", "Hiragino Sans GB", sans-serif;
+}
+
+.status-page-main--font-serif {
+    --status-font: "IBM Plex Serif", "Noto Serif", "Songti SC", "Noto Serif SC", serif;
+}
+
+.status-page-main--font-mono {
+    --status-font: "IBM Plex Mono", "Noto Sans Mono", ui-monospace, monospace;
+}
+
+.status-page-main--font-display {
+    --status-font: "Fraunces", "IBM Plex Serif", "Noto Serif", "Songti SC", "Noto Serif SC", serif;
+}
+
+.status-page-main--text-sm {
+    --status-text-size: 0.875rem;
+}
+
+.status-page-main--text-md {
+    --status-text-size: 1rem;
+}
+
+.status-page-main--text-lg {
+    --status-text-size: 1.125rem;
 }
 
 .status-page-admin > div {
@@ -1765,7 +1847,7 @@ export default {
     align-items: center;
     gap: 0.75rem;
     color: var(--color-text-muted);
-    font-size: 0.875rem;
+    font-size: 0.875em;
     text-align: center;
 
     p {
@@ -1774,7 +1856,7 @@ export default {
 }
 
 .status-notice :deep(.content) {
-    font-size: 0.875rem;
+    font-size: 0.875em;
     line-height: 1.5;
 }
 
@@ -1791,7 +1873,7 @@ export default {
     border: 1px solid var(--color-border);
     border-inline-start-width: 3px;
     border-radius: var(--radius-md);
-    font-size: 1.0625rem;
+    font-size: 1.0625em;
     font-weight: var(--weight-semibold);
     letter-spacing: -0.015em;
     line-height: 1.3;
@@ -1953,7 +2035,7 @@ export default {
     max-width: 40rem;
     margin: 0;
     color: var(--color-text-muted);
-    font-size: 0.9375rem;
+    font-size: 0.9375em;
     font-weight: var(--weight-normal);
     line-height: 1.55;
 
@@ -1969,7 +2051,7 @@ export default {
     :deep(h2),
     :deep(h3) {
         color: var(--color-text);
-        font-size: 1rem;
+        font-size: 1em;
         font-weight: var(--weight-semibold);
         letter-spacing: -0.01em;
         line-height: 1.35;
@@ -1987,7 +2069,7 @@ export default {
     max-width: 36rem;
     margin: 0 auto 0.5rem;
     color: var(--color-text-subtle);
-    font-size: 0.8125rem;
+    font-size: 0.8125em;
     line-height: 1.55;
 
     :deep(p) {
@@ -2005,7 +2087,6 @@ export default {
 h1.title-flex {
     --status-logo-size: 3.75rem;
     --status-title-size: 1.5rem;
-    --status-title-font: "IBM Plex Sans", "Noto Sans", "PingFang SC", "Hiragino Sans GB", sans-serif;
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -2013,7 +2094,7 @@ h1.title-flex {
     margin: 0;
     max-width: 100%;
     min-width: 0;
-    font-family: var(--status-title-font);
+    font-family: inherit;
     font-size: 0;
     font-weight: var(--weight-semibold);
     letter-spacing: -0.02em;
@@ -2042,22 +2123,6 @@ h1.title-flex--title-md {
 
 h1.title-flex--title-lg {
     --status-title-size: 2.5rem;
-}
-
-h1.title-flex--font-sans {
-    --status-title-font: "IBM Plex Sans", "Noto Sans", "PingFang SC", "Hiragino Sans GB", sans-serif;
-}
-
-h1.title-flex--font-serif {
-    --status-title-font: "IBM Plex Serif", "Noto Serif", "Songti SC", "Noto Serif SC", serif;
-}
-
-h1.title-flex--font-mono {
-    --status-title-font: "IBM Plex Mono", "Noto Sans Mono", ui-monospace, monospace;
-}
-
-h1.title-flex--font-display {
-    --status-title-font: "Fraunces", "IBM Plex Serif", "Noto Serif", "Songti SC", "Noto Serif SC", serif;
 }
 
 h1.title-flex--above {
@@ -2205,7 +2270,7 @@ h1.title-flex .status-page-heading :deep(span) {
 
 .incident {
     .content {
-        font-size: 0.875rem;
+        font-size: 0.875em;
         line-height: 1.5;
 
         &[contenteditable="true"] {
@@ -2214,7 +2279,7 @@ h1.title-flex .status-page-heading :deep(span) {
     }
 
     .date {
-        font-size: 0.75rem;
+        font-size: 0.75em;
     }
 }
 
@@ -2242,7 +2307,7 @@ h1.title-flex .status-page-heading :deep(span) {
 
 .refresh-info {
     color: var(--color-text-subtle);
-    font-size: 0.75rem;
+    font-size: 0.75em;
     line-height: 1.45;
 }
 
@@ -2252,7 +2317,7 @@ h1.title-flex .status-page-heading :deep(span) {
     border-radius: var(--radius-md);
     background: var(--color-surface);
     color: var(--color-text-muted);
-    font-size: 0.875rem;
+    font-size: 0.875em;
     text-align: center;
 }
 
@@ -2262,7 +2327,7 @@ h1.title-flex .status-page-heading :deep(span) {
     padding-top: 1.25rem;
     border-top: 1px solid var(--color-border);
     color: var(--color-text-muted);
-    font-size: 0.8125rem;
+    font-size: 0.8125em;
     text-align: center;
 
     p {
@@ -2297,7 +2362,7 @@ h1.title-flex .status-page-heading :deep(span) {
     padding: 0.625rem 1rem;
     background: var(--color-surface-subtle);
     color: var(--color-text-muted);
-    font-size: 0.8125rem;
+    font-size: 0.8125em;
     font-weight: var(--weight-semibold);
     letter-spacing: -0.01em;
 }
@@ -2310,7 +2375,7 @@ h1.title-flex .status-page-heading :deep(span) {
     margin: 0;
     padding: 0.75rem 1rem 0.25rem;
     color: var(--color-text-subtle);
-    font-size: 0.75rem;
+    font-size: 0.75em;
     font-weight: var(--weight-medium);
 }
 

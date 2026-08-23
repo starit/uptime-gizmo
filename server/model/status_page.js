@@ -459,7 +459,8 @@ class StatusPage extends BeanModel {
             iconSize: StatusPage.normalizeLogoSize(this.icon_size),
             iconPosition: StatusPage.normalizeLogoPosition(this.icon_position),
             titleSize: StatusPage.normalizeTitleSize(this.title_size),
-            titleFont: StatusPage.normalizeTitleFont(this.title_font),
+            font: StatusPage.normalizeFont(this.title_font),
+            textSize: StatusPage.normalizeTextSize(this.text_size),
         };
     }
 
@@ -490,7 +491,8 @@ class StatusPage extends BeanModel {
             iconSize: StatusPage.normalizeLogoSize(this.icon_size),
             iconPosition: StatusPage.normalizeLogoPosition(this.icon_position),
             titleSize: StatusPage.normalizeTitleSize(this.title_size),
-            titleFont: StatusPage.normalizeTitleFont(this.title_font),
+            font: StatusPage.normalizeFont(this.title_font),
+            textSize: StatusPage.normalizeTextSize(this.text_size),
         };
     }
 
@@ -516,12 +518,24 @@ class StatusPage extends BeanModel {
     static TITLE_SIZES = Object.freeze(["sm", "md", "lg"]);
 
     /**
-     * Allowed typefaces for the public status-page title.
+     * Allowed typefaces for the public status page (title and body).
+     * Stored in `title_font`; the column name is historical.
      * @type {string[]}
      */
-    static TITLE_FONTS = Object.freeze(["sans", "serif", "mono", "display"]);
+    static FONTS = Object.freeze(["sans", "serif", "mono", "display"]);
+
+    /**
+     * Allowed sizes for public status-page body copy.
+     * @type {string[]}
+     */
+    static TEXT_SIZES = Object.freeze(["sm", "md", "lg"]);
 
     static TITLE_SIZE_DEFAULT = "md";
+    static FONT_DEFAULT = "sans";
+    static TEXT_SIZE_DEFAULT = "md";
+    /** @deprecated Use FONTS; kept so older call sites keep compiling. */
+    static TITLE_FONTS = StatusPage.FONTS;
+    /** @deprecated Use FONT_DEFAULT */
     static TITLE_FONT_DEFAULT = "sans";
 
     /**
@@ -573,19 +587,45 @@ class StatusPage extends BeanModel {
     }
 
     /**
-     * Keep a stored or submitted title typeface in the known set.
+     * Keep a stored or submitted page typeface in the known set.
      * @param {unknown} value Candidate font
      * @param {unknown} fallback Value to use when `value` is not allowed
-     * @returns {string} A value from TITLE_FONTS
+     * @returns {string} A value from FONTS
      */
-    static normalizeTitleFont(value, fallback = StatusPage.TITLE_FONT_DEFAULT) {
-        if (StatusPage.TITLE_FONTS.includes(value)) {
+    static normalizeFont(value, fallback = StatusPage.FONT_DEFAULT) {
+        if (StatusPage.FONTS.includes(value)) {
             return value;
         }
-        if (StatusPage.TITLE_FONTS.includes(fallback)) {
+        if (StatusPage.FONTS.includes(fallback)) {
             return fallback;
         }
-        return StatusPage.TITLE_FONT_DEFAULT;
+        return StatusPage.FONT_DEFAULT;
+    }
+
+    /**
+     * @param {unknown} value Candidate font
+     * @param {unknown} fallback Value to use when `value` is not allowed
+     * @returns {string} A value from FONTS
+     * @deprecated Use normalizeFont; title and body share the page typeface.
+     */
+    static normalizeTitleFont(value, fallback = StatusPage.FONT_DEFAULT) {
+        return StatusPage.normalizeFont(value, fallback);
+    }
+
+    /**
+     * Keep a stored or submitted body size in the known set.
+     * @param {unknown} value Candidate size
+     * @param {unknown} fallback Value to use when `value` is not allowed
+     * @returns {string} A value from TEXT_SIZES
+     */
+    static normalizeTextSize(value, fallback = StatusPage.TEXT_SIZE_DEFAULT) {
+        if (StatusPage.TEXT_SIZES.includes(value)) {
+            return value;
+        }
+        if (StatusPage.TEXT_SIZES.includes(fallback)) {
+            return fallback;
+        }
+        return StatusPage.TEXT_SIZE_DEFAULT;
     }
 
     /**
