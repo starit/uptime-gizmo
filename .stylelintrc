@@ -13,6 +13,12 @@
         "color-hex-length": null,
         "declaration-block-no-redundant-longhand-properties": null,
         "at-rule-no-unknown": null,
+        "selector-pseudo-class-no-unknown": [
+            true,
+            {
+                "ignorePseudoClasses": ["deep", "global", "slotted"]
+            }
+        ],
         "selector-class-pattern": [
             "^[a-z][a-z0-9]*(-[a-z0-9]+)*(__[a-z][a-z0-9]*(-[a-z0-9]+)*)?(--[a-z][a-z0-9]*(-[a-z0-9]+)*)?$",
             {
