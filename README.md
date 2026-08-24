@@ -24,7 +24,8 @@ server, on-chain monitoring, and a rebuilt interface.
 ## What the fork adds
 
 Everything in this section works today. Planned work is in the
-[Roadmap](ROADMAP.md).
+[Roadmap](ROADMAP.md). Short user notes for these additions are in
+[docs/wiki](docs/wiki).
 
 ### An API, and an MCP server on top of it
 
@@ -150,6 +151,15 @@ If you want to limit exposure to localhost only:
 ```bash
 docker run ... -p 127.0.0.1:3001:3001 ...
 ```
+
+If 3001 is already in use on the host, change only the left-hand port. The
+container still listens on 3001:
+
+```bash
+docker run -d --restart=always -p 3002:3001 -v uptime-gizmo:/app/data --name uptime-gizmo starit/uptime-gizmo:beta
+```
+
+Then open http://localhost:3002. Any free host port works the same way (`3003:3001`, and so on).
 
 The same tags are on GHCR as `ghcr.io/starit/uptime-gizmo`.
 
