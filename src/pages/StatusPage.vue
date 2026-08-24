@@ -1771,12 +1771,12 @@ export default {
 
 <style lang="scss" scoped>
 .status-page-shell {
-    /* A public page for a handful of services composes better on a narrower
-       measure than the 1040px the private workspace uses. */
+    /* Wide enough for the service list and heartbeat, still a composed page
+       rather than the private workspace's 1040px canvas. */
     position: relative;
     box-sizing: border-box;
     width: 100%;
-    max-width: 55rem;
+    max-width: 68rem;
     margin-inline: auto;
     padding: 1.75rem 1.25rem 2.5rem;
 }

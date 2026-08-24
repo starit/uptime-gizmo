@@ -39,8 +39,8 @@
                                     :class="{ collapsed: isCollapsed }"
                                 />
                             </span>
-                            <div class="tw-flex-1 tw-truncate" style="min-width: 0">
-                                <div class="tw-truncate">{{ monitor.name }}</div>
+                            <div class="tw-flex-1" style="min-width: 0">
+                                <div class="monitor-row__name" :title="monitor.name">{{ monitor.name }}</div>
                                 <div v-if="monitor.tags.length > 0" class="tags tw-gap-1">
                                     <Tag
                                         v-for="tag in monitor.tags"
@@ -66,7 +66,7 @@
                         a green dot said "fine" about a number that was not; the
                         dot says the state, this says how much.
                     -->
-                    <div v-show="$root.userHeartbeatBar == 'normal'" class="monitor-row__uptime">
+                    <div class="monitor-row__uptime">
                         <Uptime :monitor="monitor" type="24" />
                     </div>
                 </div>
@@ -209,9 +209,9 @@ export default {
         },
 
         monitorStyle() {
-            const isFullWidth = this.$root.userHeartbeatBar === "bottom" || this.$root.userHeartbeatBar === "none";
             return {
-                "monitor-row--split": !isFullWidth,
+                "monitor-row--split": this.$root.userHeartbeatBar === "normal",
+                "monitor-row--uptime-end": this.$root.userHeartbeatBar !== "normal",
             };
         },
     },
@@ -382,26 +382,27 @@ export default {
 }
 
 /*
- * The heartbeat is a fixed-purpose sparkline, so it takes a fixed width and the
- * name absorbs whatever is left. The Bootstrap markup used col-3 col-xl-6,
- * which widened the heartbeat to half the row whenever the *window* passed
- * 1200px — regardless of how narrow the rail itself was — leaving the name
- * about 80px and truncating all but the shortest.
- */
-
-/*
- * The heartbeat bar is this product's signature and it had five rems — about
- * eight beats, against forty on the monitor page. It takes what the name does
- * not need now, and the percentage sits after it as a quiet reference figure.
+ * Name takes leftover width. The bar is a compact sparkline, not a second
+ * title; a 7rem column left about six characters on a typical rail.
  */
 .monitor-row--split {
-    /*
-     * The name has a floor. Giving the bar all it would take squeezed names to
-     * about six characters — "api.exa…", "checko…" — and a row you cannot
-     * identify is worse than one with fewer beats in it.
-     */
-    grid-template-columns: minmax(8rem, 1fr) minmax(3.5rem, 7rem) auto;
-    gap: 0.55rem;
+    grid-template-columns: minmax(0, 1fr) 4.25rem auto;
+    gap: 0.5rem;
+}
+
+.monitor-row--uptime-end {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0.5rem;
+}
+
+.monitor-row__name {
+    display: -webkit-box;
+    overflow: hidden;
+    overflow-wrap: anywhere;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    line-height: 1.25;
 }
 
 .monitor-row__uptime {
