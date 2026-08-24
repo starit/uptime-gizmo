@@ -21,11 +21,15 @@ Everything Kuma is good at is still here: easy self-hosting, twenty-odd monitor
 types, a long list of notification providers. This fork adds an API and an MCP
 server, on-chain monitoring, and a rebuilt interface.
 
+**[Wiki](docs/wiki)** — what this fork added, in short. Open it for
+screenshots of the current UI (login, dashboard, dark theme, public status
+page), plus the mascot and logo.
+
 ## What the fork adds
 
 Everything in this section works today. Planned work is in the
-[Roadmap](ROADMAP.md). Short user notes for these additions are in
-[docs/wiki](docs/wiki).
+[Roadmap](ROADMAP.md). The same notes, with screenshots, are in the
+[wiki](docs/wiki).
 
 ### An API, and an MCP server on top of it
 
