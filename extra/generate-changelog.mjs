@@ -17,6 +17,67 @@ const ignoreList = [
 
 const mergeList = ["chore: Translations Update from Weblate", "chore: Update dependencies"];
 
+/** Reject option-like strings so git never treats a version as a flag. */
+const VERSION_REVISION_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._/-]*$/;
+
+/**
+ * Resolve a release previous_version input to an existing git commit.
+ * Tries the given name, then a `v` prefix / unprefixed form.
+ * @param {string} previousVersion Version tag or commit from the workflow input
+ * @param {{ fetchTags?: boolean }} options Whether to `git fetch --tags` first
+ * @returns {string} A git revision that `git log` can read
+ * @throws {Error} If previousVersion is not an existing tag or commit
+ */
+export function resolvePreviousVersionRevision(previousVersion, { fetchTags = true } = {}) {
+    if (!previousVersion || !VERSION_REVISION_PATTERN.test(previousVersion)) {
+        throw new Error(
+            `Previous version '${previousVersion}' is not a valid git tag or commit. Pass an existing tag from this repository.`
+        );
+    }
+
+    if (fetchTags) {
+        const fetchResult = childProcess.spawnSync("git", ["fetch", "--tags", "--force"], {
+            encoding: "utf-8",
+        });
+        if (fetchResult.status !== 0 && fetchResult.stderr) {
+            console.warn("git fetch --tags:", fetchResult.stderr.trim());
+        }
+    }
+
+    const candidates = [previousVersion];
+    if (previousVersion.startsWith("v")) {
+        candidates.push(previousVersion.slice(1));
+    } else {
+        candidates.push(`v${previousVersion}`);
+    }
+
+    for (const ref of candidates) {
+        const parsed = childProcess.spawnSync(
+            "git",
+            ["rev-parse", "--verify", "--quiet", "--end-of-options", `${ref}^{commit}`],
+            { encoding: "utf-8" }
+        );
+        if (parsed.status === 0 && parsed.stdout.trim()) {
+            if (ref !== previousVersion) {
+                console.log(`Resolved previous version ${previousVersion} to git ref ${ref}`);
+            }
+            return ref;
+        }
+    }
+
+    const tagsResult = childProcess.spawnSync("git", ["tag", "--list", "--sort=-creatordate"], {
+        encoding: "utf-8",
+    });
+    const tags = (tagsResult.stdout || "")
+        .split("\n")
+        .map((line) => line.trim())
+        .filter(Boolean);
+    const known = tags.length > 0 ? tags.slice(0, 20).join(", ") : "(none)";
+    throw new Error(
+        `Previous version '${previousVersion}' is not a git tag or commit in this repository. Changelog generation needs an existing revision. Known tags: ${known}. Create the missing tag first, or pass one of those tags as previous_version.`
+    );
+}
+
 const outputFormat = JSON.stringify({
     improvements: [123, 456],
     newFeatures: [789],
@@ -260,15 +321,17 @@ export async function generateChangelogAI(previousVersion) {
  * @returns {Promise<object>} List of Pull Requests merged since previousVersion
  */
 export async function getPullRequestList(previousVersion, removeAuthor = false) {
-    // Get the date of previousVersion in iso8601-strict format (2026-02-19T13:34:03+08:00) from git
-    const previousVersionDate = childProcess
-        .execSync(`git log -1 --format=%cd --date=iso8601-strict ${previousVersion}`)
-        .toString()
-        .trim();
+    const revision = resolvePreviousVersionRevision(previousVersion);
+    const log = childProcess.spawnSync(
+        "git",
+        ["log", "-1", "--format=%cd", "--date=iso8601-strict", revision],
+        { encoding: "utf-8" }
+    );
+    const previousVersionDate = (log.stdout || "").trim();
 
-    if (!previousVersionDate) {
+    if (log.status !== 0 || !previousVersionDate) {
         throw new Error(
-            `Unable to find the date of version ${previousVersion}. Please make sure the version tag exists.`
+            `Unable to find the date of version ${previousVersion} (resolved to ${revision}). Please make sure the version tag exists.`
         );
     }
 

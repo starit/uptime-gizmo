@@ -11,6 +11,7 @@ import {
     createDistTarGz,
     createReleasePR,
 } from "./lib.mjs";
+import { resolvePreviousVersionRevision } from "../generate-changelog.mjs";
 import semver from "semver";
 
 const repoNames = getRepoNames();
@@ -31,6 +32,14 @@ checkReleaseBranch(branchName);
 
 // Check if the version is a valid semver
 checkVersionFormat(version);
+
+try {
+    const previousRevision = resolvePreviousVersionRevision(previousVersion);
+    console.log("Changelog previous revision:", previousRevision);
+} catch (error) {
+    console.error(error.message);
+    process.exit(1);
+}
 
 // Check if the semver identifier is "beta"
 const semverIdentifier = semver.prerelease(version);

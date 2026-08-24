@@ -8,7 +8,7 @@ on:
         required: true
         type: string
       previous_version:
-        description: "Previous version tag for changelog (e.g., 2.1.0-beta.1)"
+        description: "Existing git tag to start the changelog from (must already be in the repo, e.g. 3.0.0-beta.1 or v2.9.9)"
         required: true
         type: string
       dry_run:
