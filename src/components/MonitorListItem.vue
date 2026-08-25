@@ -396,6 +396,7 @@ export default {
 }
 
 .monitor-row__name {
+    /* stylelint-disable-next-line value-no-vendor-prefix -- the two-line clamp needs the legacy box display; no unprefixed equivalent is honoured by Safari or Firefox yet */
     display: -webkit-box;
     overflow: hidden;
     overflow-wrap: anywhere;
