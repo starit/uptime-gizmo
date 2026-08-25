@@ -70,7 +70,7 @@
                             <GizmoMenuItem as-child>
                                 <router-link
                                     to="/maintenance"
-                                    :class="{ active: $route.path.includes('manage-maintenance') }"
+                                    :class="{ active: onMaintenance }"
                                 >
                                     <font-awesome-icon icon="wrench" />
                                     {{ $t("Maintenance") }}
@@ -79,14 +79,14 @@
                             <GizmoMenuItem as-child>
                                 <router-link
                                     to="/settings/general"
-                                    :class="{ active: $route.path.includes('settings') }"
+                                    :class="{ active: onSettings }"
                                 >
                                     <font-awesome-icon icon="cog" />
                                     {{ $t("Settings") }}
                                 </router-link>
                             </GizmoMenuItem>
                             <GizmoMenuItem as-child>
-                                <router-link to="/settings/api-docs">
+                                <router-link to="/settings/api-docs" :class="{ active: onApiDocs }">
                                     <font-awesome-icon icon="book" />
                                     {{ $t("API Documentation") }}
                                 </router-link>
@@ -189,6 +189,28 @@ export default {
     },
 
     computed: {
+        /*
+         * Which menu entry is the page you are on.
+         *
+         * Substring matching was the bug: API Documentation lives at
+         * /settings/api-docs, so a path test of includes("settings") lit Settings
+         * up as well, and two entries claimed to be the current page at once. The
+         * maintenance test looked for a path — manage-maintenance — that no route
+         * has, so that entry never lit up at all.
+         */
+        onApiDocs() {
+            return this.$route.path === "/settings/api-docs";
+        },
+
+        // Every settings pane except API Documentation, which is its own entry.
+        onSettings() {
+            return this.$route.path.startsWith("/settings") && !this.onApiDocs;
+        },
+
+        onMaintenance() {
+            return /^\/(maintenance|add-maintenance)(\/|$)/.test(this.$route.path);
+        },
+
         // Theme or Mobile
         classes() {
             const classes = {};
