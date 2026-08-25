@@ -676,6 +676,18 @@
     .gizmo-menu__item[data-disabled] { cursor: not-allowed; opacity: 0.5; }
     .gizmo-menu__item--danger { color: var(--status-down); }
     .gizmo-menu__item.active { background: var(--color-interactive-subtle); color: var(--color-interactive); }
+
+    /*
+     * The active entry still has to answer to the pointer and the arrow keys.
+     * `.active` and `[data-highlighted]` carry the same specificity, so the
+     * active tint won and the entry you were standing on looked identical to the
+     * one you were not — which loses the cursor for anyone navigating the menu
+     * from the keyboard.
+     */
+    .gizmo-menu__item.active[data-highlighted] {
+        background: var(--color-interactive);
+        color: var(--color-text-inverse);
+    }
     .gizmo-menu__label { padding: 0.5rem 0.625rem; color: var(--color-text-muted); font-size: 0.8125rem; }
     .gizmo-menu__separator { height: 1px; margin: 0.375rem; background: var(--color-border); }
     .gizmo-dialog-section { padding-top: 1rem; border-top: 1px solid var(--color-border); }

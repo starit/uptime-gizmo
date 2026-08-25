@@ -100,7 +100,22 @@ pre code {
     background: none;
 }
 
-a:not(.gizmo-native-button) {
+/*
+ * Prose links are blue. Anchors that are controls are not — a menu entry or a
+ * button that happens to be an <a> should look like the thing it is, and this
+ * rule already carved out .gizmo-native-button for exactly that reason.
+ *
+ * Menu entries needed the same carve-out. Without it every navigating entry in a
+ * dropdown rendered in --color-interactive, which is the colour the active entry
+ * uses to say "you are here" — so that signal said nothing, and the current page
+ * was distinguishable only by a background tint 1.15:1 against the surface.
+ *
+ * The exclusion sits inside :where() so it costs no specificity. Spelling it as a
+ * second :not() raised this rule from (0,1,1) to (0,2,1), which then outranked
+ * .app-nav-link's own (0,2,0) scoped colour and turned the header navigation
+ * blue — a rule that reaches further than it means to is how that happens.
+ */
+a:not(.gizmo-native-button):where(:not(.gizmo-menu__item)) {
     color: var(--color-interactive);
     text-decoration-color: color-mix(in srgb, currentColor 35%, transparent);
     text-underline-offset: 0.15em;
