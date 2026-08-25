@@ -1,6 +1,6 @@
 ---
 name: uptime-gizmo-sync
-version: 1.0.0
+version: 1.0.1
 description: Create and update monitors on an Uptime Gizmo instance over its HTTP API, so that a service added during development starts being watched. Use when asked to add monitoring for a new endpoint or service, to change how something is checked, to pause or resume a monitor, or to tag monitors. Covers create, update, pause, resume and tagging; deleting is not supported here and is left to the user.
 ---
 
@@ -145,18 +145,30 @@ nothing to point a monitor at, and the fix is a human adding the endpoint.
 
 ```bash
 curl -s -u "api:$KEY" -X POST -H 'Content-Type: application/json' -d '{
-  "name": "vault total assets",
+  "name": "uniswap v2 pair count",
   "type": "web3-contract",
   "web3NetworkId": 2,
-  "web3CallTo": "0x…",
-  "web3CallData": "0x01e1d114",
+  "web3CallTo": "0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f",
+  "web3CallData": "0x574f2ba3",
   "web3ValueType": "uint256",
-  "web3ValueDecimals": 18,
+  "web3ValueDecimals": 0,
   "web3ValueOperator": "gte",
-  "web3ValueThreshold": "1000",
+  "web3ValueThreshold": "500000",
   "interval": 300
 }' "$URL/api/v1/monitors"
 ```
+
+That one is real and checked: `0x574f2ba3` is `allPairsLength()` on the Uniswap V2
+factory, and on Ethereum mainnet it returned 519654. For a token amount rather
+than a count, the same shape with `web3ValueDecimals: 18` compares in whole
+tokens.
+
+**The threshold is the healthy state, not the alarm.** The monitor is down when
+the comparison *fails*, so "alert when the value goes above 1000" is
+`"web3ValueOperator": "lte", "web3ValueThreshold": "1000"`. Sending `gte` there
+produces a monitor that stays green in exactly the situation somebody asked to
+hear about. Read the request out loud as "it is healthy while …" before choosing
+the operator.
 
 - **`web3CallData` is sent verbatim.** A four-byte selector plus any arguments,
   already ABI-encoded. Nothing on the server encodes it for you, so encode it

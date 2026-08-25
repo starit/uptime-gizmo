@@ -24,7 +24,9 @@ Amounts are compared as integers. Type the threshold as a decimal string (`0.05`
 
 ## RPC health
 
-**Web3 RPC Health.** The node answering is not enough. If the newest block is older than **Maximum Block Age** (seconds; default 120), the monitor goes down. That is the stale-but-still-serving case.
+**Web3 RPC Health.** The node answering is not enough. If the newest block is older than **Maximum Block Age** (seconds), the monitor goes down. That is the stale-but-still-serving case.
+
+There is no default, deliberately: block production runs from twelve seconds on Ethereum to under one on some rollups, and some chains only produce a block when there is something to put in it. `120` is only the placeholder. Left empty, height and age are still recorded on every heartbeat without alerting.
 
 ## Contract value
 
@@ -39,6 +41,45 @@ You supply:
 - Optional comparison and threshold (again a decimal **string**)
 
 The form makes the call once before save so you can see the value. `int256` is two’s complement; a negative funding rate is not `2^256 - 1`.
+
+### The threshold is the healthy state, not the alarm
+
+The monitor is **down when the comparison fails**. So a comparison is written as
+the condition that should hold, and "alert when X goes above 1000" is entered as
+`<= 1000`, not `>= 1000`. Getting this backwards produces a monitor that is
+green in exactly the situation you wanted to hear about.
+
+### Worked example: how many Uniswap V2 pairs exist
+
+The V2 factory keeps every pair it has created in one array, and
+`allPairsLength()` returns its length. On Ethereum mainnet:
+
+| Field | Value |
+| --- | --- |
+| Contract | `0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f` |
+| Calldata | `0x574f2ba3` — the selector for `allPairsLength()`, no arguments |
+| Value type | `uint256` |
+| Word index | `0` |
+| Decimals | `0` — a count, not an amount |
+
+Read on 2026-08-25 it returned **519,654**, which cross-checks: `allPairs(519653)`
+returns a pair address and `allPairs(519654)` reverts, so the number really is the
+array length.
+
+**Alerting above a ceiling** — the request "tell me when there are more than
+100,000 pairs" is `<= 100000`, and the heartbeat reads
+`Value 519654 is not <= 100000`. Worth knowing before you set it: this counter
+only ever goes up, it passed 100,000 years ago, and a monitor like this is down
+from the moment you save it. It is a good way to see the type work; it is not a
+useful alert.
+
+**A floor is the useful direction for a counter that only grows.** Set `>=`
+slightly under the current value — say `>= 500000` — and the monitor is green
+while the chain is the one you think it is. It goes down if the endpoint starts
+serving a fork, a testnet, or a stale archive node whose factory has fewer
+pairs, because on the real chain that number cannot decrease. Paired with the
+network's stored chain ID, that is a fairly strong statement that you are reading
+the chain you meant to read.
 
 Not in this type: events/logs, strings or arrays, multiple conditions, or writing the chain.
 

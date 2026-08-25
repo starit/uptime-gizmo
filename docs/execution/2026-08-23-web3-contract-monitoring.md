@@ -146,10 +146,24 @@ so that move will not rename anything.
 
 ## Verification
 
-**No live chain was used.** The balance work was verified against a stand-in
-chain; this was not, so the decoding and comparison are pinned by unit tests over
-hand-built words rather than by a real `eth_call`. The transport underneath is the
-same `rpcCall` those types already use.
+Unit tests over hand-built words pin the decoding and the comparison, and one run
+against Ethereum mainnet pins the whole path — the check function, not its parts.
+
+The live subject is the Uniswap V2 factory's `allPairsLength()`
+(`0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f`, calldata `0x574f2ba3`), which
+returned **519,654** on 2026-08-25. It cross-checks itself: `allPairs(519653)`
+answers with a pair address and `allPairs(519654)` reverts, so the number is the
+array length rather than something that merely looks like a count.
+
+| Configuration against mainnet | Result |
+| --- | --- |
+| `gte 100000` | Up — "Value 519654 >= 100000", 1011 ms |
+| `lte 100000` | Down — "Value 519654 is not <= 100000" |
+| No comparison | Up — "Value 519654" |
+| Word index 1 on a one-word result | Down — "The call returned 32 bytes, which has no 32-byte word at index 1" |
+
+The last row is the guard that matters, refusing real return data rather than a
+fixture.
 
 | | |
 | --- | --- |
