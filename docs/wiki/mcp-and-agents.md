@@ -38,7 +38,7 @@ Install details and the full tool list: [`mcp-server/README.md`](../../mcp-serve
 
 ## Claude Code skills
 
-Two skills live in [`.claude/skills`](../../.claude/skills). They talk to `/api/v1` with `curl`; they do not need this repository checked out once the skill files are available to the agent.
+Two skills live in [`skills`](../../skills), each carrying a version in its front matter. They talk to `/api/v1` with `curl`; they do not need this repository checked out once the skill files are available to the agent. Install one by copying its directory into the `.claude/skills` of the project that should have it — they are deliberately not loaded by this repository, so an agent editing Uptime Gizmo does not silently gain the ability to reconfigure a production instance.
 
 | Skill | Does |
 | --- | --- |

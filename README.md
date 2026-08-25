@@ -43,7 +43,8 @@ Everything in this section works today. Planned work is in the
   to Uptime Gizmo only through the REST API, so the monitoring server never
   hosts the protocol. A read-only key gets the read tools. Creating and updating
   monitors appear when the key allows it.
-- **Two Claude Code skills** in [.claude/skills](.claude/skills).
+- **Two Claude Code skills** in [skills](skills), versioned and installed by
+  copying one into your own project's `.claude/skills`.
   `uptime-gizmo-status` reads an instance. `uptime-gizmo-sync` creates and
   updates monitors from a project during development. Neither needs a checkout
   of this repository.

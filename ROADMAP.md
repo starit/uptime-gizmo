@@ -13,7 +13,7 @@ areas of planned work and may change as the project develops.
 - An HTTP API at `/api/v1`, with a reference in the product that renders the
   generated description.
 - An MCP server, in [mcp-server](mcp-server), and two Claude Code skills under
-  [.claude/skills](.claude/skills).
+  [skills](skills).
 - Themes generated with Themed.js, including from a description.
 - Web3 monitoring: address balances, native and ERC-20, RPC endpoint health,
   and reading a value out of a contract to compare against a threshold.

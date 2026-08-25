@@ -1,5 +1,6 @@
 ---
 name: uptime-gizmo-status
+version: 1.0.0
 description: Read the state of an Uptime Gizmo instance over its HTTP API — what is being monitored, what is broken and for how long, what changed recently, and which notification channels, proxies and maintenance windows exist. Use when asked whether something is up or down, why a service was unreachable, what the uptime of a monitor is, or what an instance is watching. Read-only; never changes anything.
 ---
 
