@@ -372,6 +372,14 @@
                                 </div>
 
                                 <template v-if="monitor.type === 'web3-contract'">
+                                    <GizmoAlert tone="info" role="status" class="tw-my-3">
+                                        <template #title>{{ $t("web3AgentHintTitle") }}</template>
+                                        {{ $t("web3AgentHint") }}
+                                        <div class="tw-mt-1">
+                                            <router-link to="/settings/api-docs">{{ $t("web3AgentHintLink") }}</router-link>
+                                        </div>
+                                    </GizmoAlert>
+
                                     <div class="tw-my-3">
                                         <label for="web3-call-to" class="gizmo-field-label">{{ $t("Contract") }}</label>
                                         <input
@@ -3454,6 +3462,7 @@
 import VueMultiselect from "vue-multiselect";
 import { useToast } from "vue-toastification";
 import ActionSelect from "../components/ActionSelect.vue";
+import GizmoAlert from "../components/gizmo/GizmoAlert.vue";
 import CopyableInput from "../components/CopyableInput.vue";
 import CreateGroupDialog from "../components/CreateGroupDialog.vue";
 import Confirm from "../components/Confirm.vue";
@@ -3572,6 +3581,7 @@ export default {
     components: {
         HiddenInput,
         ActionSelect,
+        GizmoAlert,
         ProxyDialog,
         CopyableInput,
         CreateGroupDialog,
