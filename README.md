@@ -277,6 +277,24 @@ Design notes: [REST API plan](docs/plans/rest-api.md),
 [MCP and agent-facing API plan](docs/plans/mcp-and-agent-api.md),
 [multi-user plan](docs/plans/multi-user.md).
 
+## How this is built
+
+Uptime Gizmo is developed with heavy use of AI coding agents. Saying so matters
+less than saying what they are held to.
+
+Anything substantial starts as a plan in [docs/plans](docs/plans) that argues
+the trade-offs before the code exists, and ends as a record in
+[docs/execution](docs/execution) saying what shipped, what was verified, and
+what was not. [AGENTS.md](AGENTS.md) is the standing brief: agents implement and
+review, the maintainer decides. Tests and lint run in CI on every change.
+
+The Kuma core underneath is years of other people's work. What this fork adds on
+top is where the agents work.
+
+None of that makes a defect impossible. It does mean that when you wonder why
+something behaves the way it does, there is usually a written argument you can
+read — and disagree with.
+
 ## Upstream acknowledgement
 
 Uptime Gizmo is a fork of [Uptime Kuma](https://github.com/louislam/uptime-kuma)
