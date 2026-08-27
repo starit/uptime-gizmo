@@ -4,6 +4,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 const { internals } = require("../../server/routers/v1-router");
 const { VALUE_TYPES, VALUE_OPERATORS, BLOCK_TAGS, UNORDERED_TYPES } = require("../../server/modules/web3-rpc");
+const { DNS_RESOLVE_TYPES } = require("../../server/monitor-types/dns");
 
 /*
  * Agent-facing copies of lists the server owns. Each copy exists because the
@@ -42,6 +43,18 @@ function vueReturnedArray(source, methodName) {
     return match[1].split(",").map((part) => part.trim().replace(/"/g, ""));
 }
 
+/**
+ * A one-line `let x = ["a", "b"];` assignment in a Vue method.
+ * @param {string} source component source
+ * @param {string} variableName the assigned variable
+ * @returns {string[]} the array
+ */
+function vueAssignedArray(source, variableName) {
+    const match = source.match(new RegExp(`let ${variableName} = \\[([^\\]]+)\\];`));
+    assert.ok(match, `${variableName} is no longer a one-line array in EditMonitor.vue`);
+    return match[1].split(",").map((part) => part.trim().replace(/"/g, ""));
+}
+
 describe("agent copies agree with the server lists", () => {
     const skill = fs.readFileSync(path.join(ROOT, "skills", "uptime-gizmo-sync", "SKILL.md"), "utf8");
     const statusSkill = fs.readFileSync(path.join(ROOT, "skills", "uptime-gizmo-status", "SKILL.md"), "utf8");
@@ -69,6 +82,10 @@ describe("agent copies agree with the server lists", () => {
         assert.deepStrictEqual(skillEnum(skill, "web3BlockTag"), BLOCK_TAGS);
     });
 
+    it("the sync skill dnsResolveType enum matches the check engine", () => {
+        assert.deepStrictEqual(skillEnum(skill, "dnsResolveType"), DNS_RESOLVE_TYPES);
+    });
+
     it("the wiki value-type list matches the check engine", () => {
         const match = wiki.match(/\*\*Value type:\*\* ([^—\n]+)/);
         assert.ok(match, "the wiki value-type line has moved");
@@ -93,6 +110,15 @@ describe("agent copies agree with the server lists", () => {
             numericTypes.sort(),
             VALUE_TYPES.filter((type) => !UNORDERED_TYPES.includes(type)).sort()
         );
+    });
+
+    /*
+     * The dropdown has to stay inside what the switch in dns.js can read. A type
+     * outside it resolves, matches no branch, and now fails every check — before
+     * the default branch existed it reported up having read nothing.
+     */
+    it("the edit form offers only DNS types the check engine can read", () => {
+        assert.deepStrictEqual(vueAssignedArray(vue, "dnsresolvetypeOptions"), DNS_RESOLVE_TYPES);
     });
 
     it("the status skill names every GET the OpenAPI document has", () => {

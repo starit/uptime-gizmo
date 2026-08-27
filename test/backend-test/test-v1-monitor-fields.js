@@ -259,6 +259,32 @@ describe("v1 monitor field table", () => {
         assert.strictEqual(MONITOR_FIELDS.web3BlockTag.enum, BLOCK_TAGS);
     });
 
+    it("refuses dnsResolveType the check engine cannot read", () => {
+        assert.throws(
+            () => monitorFromAPI({ dnsResolveType: "ANY" }, true),
+            /dnsResolveType must be one of/
+        );
+        assert.throws(
+            () => monitorFromAPI({ dnsResolveType: "NAPTR" }, true),
+            /dnsResolveType must be one of/
+        );
+        assert.throws(
+            () => monitorFromAPI({ dnsResolveType: "TLSA" }, true),
+            /dnsResolveType must be one of/
+        );
+    });
+
+    it("publishes the dnsResolveType enum on the OpenAPI schema", () => {
+        const { DNS_RESOLVE_TYPES } = require("../../server/monitor-types/dns");
+        const spec = buildOpenAPI();
+
+        assert.deepStrictEqual(
+            spec.components.schemas.MonitorInput.properties.dnsResolveType.enum,
+            DNS_RESOLVE_TYPES
+        );
+        assert.strictEqual(MONITOR_FIELDS.dnsResolveType.enum, DNS_RESOLVE_TYPES);
+    });
+
     it("the sync skill documents exactly these types", () => {
         const skill = fs.readFileSync(
             path.join(__dirname, "..", "..", "skills", "uptime-gizmo-sync", "SKILL.md"),

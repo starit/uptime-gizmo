@@ -50,6 +50,8 @@ These three exist so a caller does not have to assemble the picture from every m
 
 The types `POST /api/v1/monitors` accepts are the `enum` on `MonitorInput.type` in `/api/v1/openapi.json`, generated from the same list the route enforces. Anything else — invented, or a type the UI can create but this API cannot configure — is refused with `400`. The three [Web3 types](web3-monitoring.md) are in that list; MQTT, gRPC and the rest stay in the UI.
 
+Field enums (`dnsResolveType`, the web3 value fields) come from the same lists the check engines enforce. A value the UI's Globalping form offers (`ANY`, and the rest) is still `400` here: this API cannot create a Globalping monitor, and native `dns` cannot read those records.
+
 Deleting a **group** needs `?children=unlink` (default: leave children parentless) or `?children=delete` (remove the subtree). Pause and resume are safe to retry.
 
 ## High-count load check

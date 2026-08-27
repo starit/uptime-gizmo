@@ -46,7 +46,10 @@ describe("MCP monitor fields agree with the REST allow-list", () => {
         .map(([ name ]) => name);
 
     it("offers only fields the API will actually write", () => {
-        const offered = propertyNames(source, "const WEB3_PROPERTIES = {");
+        const offered = [
+            ...propertyNames(source, "const WEB3_PROPERTIES = {"),
+            ...propertyNames(source, "const DNS_PROPERTIES = {"),
+        ];
 
         assert.ok(offered.length > 0, "no properties were found; the declaration has moved");
 
@@ -69,6 +72,17 @@ describe("MCP monitor fields agree with the REST allow-list", () => {
             web3Writable.filter((name) => !offered.includes(name)),
             [],
             "the REST API accepts web3 fields the MCP server does not offer"
+        );
+    });
+
+    it("offers every dns field the API accepts", () => {
+        const offered = propertyNames(source, "const DNS_PROPERTIES = {");
+        const dnsWritable = writable.filter((name) => name.startsWith("dns"));
+
+        assert.deepStrictEqual(
+            dnsWritable.filter((name) => !offered.includes(name)),
+            [],
+            "the REST API accepts dns fields the MCP server does not offer"
         );
     });
 
@@ -97,5 +111,14 @@ describe("MCP monitor fields agree with the REST allow-list", () => {
         assert.deepStrictEqual(listed("WEB3_VALUE_TYPES"), VALUE_TYPES);
         assert.deepStrictEqual(listed("WEB3_VALUE_OPERATORS"), VALUE_OPERATORS);
         assert.deepStrictEqual(listed("WEB3_BLOCK_TAGS"), BLOCK_TAGS);
+    });
+
+    it("dns resolve types are exactly the list the check engine can read", () => {
+        const { DNS_RESOLVE_TYPES } = require("../../server/monitor-types/dns");
+        const start = source.indexOf("const DNS_RESOLVE_TYPES = [");
+        assert.notStrictEqual(start, -1, "DNS_RESOLVE_TYPES is no longer in the MCP server");
+        const offered = [ ...source.slice(start).split("];")[0].matchAll(/"([^"]+)"/g) ].map((match) => match[1]);
+
+        assert.deepStrictEqual(offered, DNS_RESOLVE_TYPES);
     });
 });

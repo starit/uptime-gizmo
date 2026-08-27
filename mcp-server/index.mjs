@@ -197,6 +197,30 @@ const WEB3_VALUE_OPERATORS = [ "gte", "lte", "gt", "lt", "eq", "ne" ];
 const WEB3_BLOCK_TAGS = [ "latest", "safe", "finalized" ];
 
 /*
+ * Copy of DNS_RESOLVE_TYPES in server/monitor-types/dns.js. test-mcp-monitor-fields
+ * asserts they match. The MCP server cannot import the check engine.
+ *
+ * Narrower than what Node's resolver accepts: ANY, NAPTR and TLSA resolve and
+ * have no branch that reads them. Offering them here would create a monitor
+ * that the API then refuses, or — before the enum existed — one that reported
+ * up having checked nothing.
+ */
+const DNS_RESOLVE_TYPES = [ "A", "AAAA", "CAA", "CNAME", "MX", "NS", "PTR", "SOA", "SRV", "TXT" ];
+
+const DNS_PROPERTIES = {
+    dnsResolveType: {
+        type: "string",
+        enum: DNS_RESOLVE_TYPES,
+        description:
+            "dns: record type. A, AAAA, CAA, CNAME, MX, NS, PTR, SOA, SRV or TXT — the types the check can actually read. ANY and others resolve but are not read, and are refused.",
+    },
+    dnsResolveServer: {
+        type: "string",
+        description: "dns: resolver to query, such as 1.1.1.1.",
+    },
+};
+
+/*
  * Fields the web3 monitor types need, shared by create and update so the two
  * cannot drift.
  *
@@ -309,6 +333,7 @@ const WRITE_TOOLS = [
                 description: { type: "string" },
                 active: { type: "boolean" },
                 parent: { type: "integer", description: "Id of a group to nest this under." },
+                ...DNS_PROPERTIES,
                 ...WEB3_PROPERTIES,
             },
             required: [ "name", "type" ],
@@ -332,6 +357,7 @@ const WRITE_TOOLS = [
                 description: { type: "string" },
                 active: { type: "boolean" },
                 parent: { type: "integer", description: "Id of a group to nest this under." },
+                ...DNS_PROPERTIES,
                 ...WEB3_PROPERTIES,
             },
             required: [ "id" ],

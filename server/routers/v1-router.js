@@ -6,6 +6,7 @@ const { apiAuth, requireWrite } = require("../auth");
 const { UptimeCalculator } = require("../uptime-calculator");
 const { log } = require("../../src/util");
 const { VALUE_TYPES, VALUE_OPERATORS, BLOCK_TAGS } = require("../modules/web3-rpc");
+const { DNS_RESOLVE_TYPES } = require("../monitor-types/dns");
 
 const router = express.Router();
 
@@ -97,7 +98,8 @@ function boundedLimit(value, fallback, max) {
  *
  * Writable types live in API_MONITOR_TYPES, which is also the OpenAPI enum.
  * Web3 value type, operator and block tag are VALUE_TYPES, VALUE_OPERATORS and
- * BLOCK_TAGS from web3-rpc.js — the same lists the check engine enforces.
+ * BLOCK_TAGS from web3-rpc.js, and dnsResolveType is DNS_RESOLVE_TYPES from
+ * dns.js — the same lists the check engine enforces.
  * Copies (the MCP tool schema, the sync skill, the edit form) are asserted
  * against these lists rather than maintained alongside them. The exotic
  * transports (grpc, kafka, radius, snmp, mqtt) are deliberately absent rather
@@ -142,7 +144,7 @@ const MONITOR_FIELDS = {
     keyword: { column: "keyword", type: "string", writable: true },
     invertKeyword: { column: "invert_keyword", type: "bool", writable: true },
     acceptedStatuscodes: { column: "accepted_statuscodes_json", type: "jsonArray", writable: true },
-    dnsResolveType: { column: "dns_resolve_type", type: "string", writable: true },
+    dnsResolveType: { column: "dns_resolve_type", type: "string", writable: true, enum: DNS_RESOLVE_TYPES },
     dnsResolveServer: { column: "dns_resolve_server", type: "string", writable: true },
     /*
      * Web3. The network is referenced by id — it is instance-level

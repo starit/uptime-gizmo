@@ -9,6 +9,20 @@ const { evaluateExpressionGroup } = require("../monitor-conditions/evaluator");
 const { Resolver } = require("node:dns/promises");
 const net = require("node:net");
 
+/*
+ * The record types this monitor can actually read, and the authority for that
+ * list: the REST API's enum and the edit form's dropdown are both checked
+ * against it.
+ *
+ * It is narrower than what Node's resolver accepts, which is the whole point.
+ * ANY, NAPTR and TLSA resolve perfectly well and have no case in the switch
+ * below, so before this list existed a monitor set to one of them completed its
+ * lookup, matched nothing, and reported UP with an empty message — having
+ * evaluated none of its conditions. A monitor that is green because it checked
+ * nothing is worse than one that is red.
+ */
+const DNS_RESOLVE_TYPES = [ "A", "AAAA", "CAA", "CNAME", "MX", "NS", "PTR", "SOA", "SRV", "TXT" ];
+
 class DnsMonitorType extends MonitorType {
     name = "dns";
 
@@ -85,6 +99,17 @@ class DnsMonitorType extends MonitorType {
                     .join(" | ");
                 conditionsResult = dnsRes.some((record) => handleConditions({ record: record.name }));
                 break;
+
+            /*
+             * Reached only when the stored type resolved but has no case here —
+             * a value the API let through before it had an enum, or one added to
+             * DNS_RESOLVE_TYPES without a case to read it. Falling through would
+             * leave conditionsResult at its initial true and report UP.
+             */
+            default:
+                throw new Error(
+                    `Cannot read ${monitor.dns_resolve_type} records; supported types are ${DNS_RESOLVE_TYPES.join(", ")}`
+                );
         }
 
         if (monitor.dns_last_result !== dnsMessage && dnsMessage !== undefined) {
@@ -183,4 +208,5 @@ class DnsMonitorType extends MonitorType {
 
 module.exports = {
     DnsMonitorType,
+    DNS_RESOLVE_TYPES,
 };

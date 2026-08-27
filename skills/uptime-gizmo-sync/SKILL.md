@@ -1,12 +1,12 @@
 ---
 name: uptime-gizmo-sync
-version: 1.0.3
+version: 1.0.4
 description: Create and update monitors on an Uptime Gizmo instance over its HTTP API, so that a service added during development starts being watched. Use when asked to add monitoring for a new endpoint or service, to change how something is checked, to pause or resume a monitor, or to tag monitors. Covers create, update, pause, resume and tagging; deleting is not supported here and is left to the user.
 ---
 
 # Adding monitoring for what you just built
 
-This is version **1.0.3**. A newer copy, if one exists, is at
+This is version **1.0.4**. A newer copy, if one exists, is at
 [skills/uptime-gizmo-sync/SKILL.md](https://github.com/starit/uptime-gizmo/blob/main/skills/uptime-gizmo-sync/SKILL.md).
 Replace this file with that one before creating monitors: a stale skill omits
 fields the API now accepts, or describes ones it no longer does. See
@@ -113,6 +113,8 @@ This table is the types `POST /api/v1/monitors` accepts — the same `enum` as
 `MonitorInput.type` in `GET /api/v1/openapi.json`. Any other `type` is refused
 with `400`. MQTT, gRPC and the rest exist in the UI; the API will not create
 them, because it cannot write the fields they need.
+
+For `dns`, **`dnsResolveType`** is `A`, `AAAA`, `CAA`, `CNAME`, `MX`, `NS`, `PTR`, `SOA`, `SRV` or `TXT` — the `enum` on `MonitorInput.dnsResolveType`. Node will resolve `ANY` and others; this monitor cannot read them, they used to report up having checked nothing, and they are refused. Globalping's form offers a wider list; this API cannot create that type, and a `PATCH` of the same column is still this enum.
 
 ### Every writable field
 

@@ -47,7 +47,7 @@ Everything in this section works today. Planned work is in the
   fetching one into your own project's `.claude/skills`. Current copies:
   [`uptime-gizmo-status` 1.0.1](https://github.com/starit/uptime-gizmo/blob/main/skills/uptime-gizmo-status/SKILL.md)
   (reads an instance) and
-  [`uptime-gizmo-sync` 1.0.3](https://github.com/starit/uptime-gizmo/blob/main/skills/uptime-gizmo-sync/SKILL.md)
+  [`uptime-gizmo-sync` 1.0.4](https://github.com/starit/uptime-gizmo/blob/main/skills/uptime-gizmo-sync/SKILL.md)
   (creates and updates monitors). Re-fetch from those URLs to update a copy.
   Neither needs a checkout of this repository.
 
