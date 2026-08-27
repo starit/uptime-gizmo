@@ -65,7 +65,7 @@ class SystemServiceMonitorType extends MonitorType {
     }
 
     /**
-     * Windows Check (PowerShell)
+     * Windows Check (Service Control Manager)
      * @param {string} serviceName The name of the service to check.
      * @param {object} heartbeat The heartbeat object.
      * @returns {Promise<void>} Resolves on success, rejects on error.
@@ -74,35 +74,22 @@ class SystemServiceMonitorType extends MonitorType {
         return new Promise((resolve, reject) => {
             // SECURITY: Validate service name to reduce command-injection risk
             if (!/^[A-Za-z0-9._-]+$/.test(serviceName)) {
-                throw new Error("Invalid service name. Only alphanumeric characters and '.', '_', '-' are allowed.");
+                reject(new Error("Invalid service name. Only alphanumeric characters and '.', '_', '-' are allowed."));
+                return;
             }
 
-            const cmd = "powershell";
-            const args = [
-                "-NoProfile",
-                "-NonInteractive",
-                "-Command",
-                `(Get-Service -Name '${serviceName.replaceAll("'", "''")}').Status`,
-            ];
-
-            execFile(cmd, args, { timeout: 5000 }, (error, stdout, stderr) => {
-                let output = (stderr || stdout || "").toString().trim();
-                if (output.length > 200) {
-                    output = output.substring(0, 200) + "...";
-                }
-
-                if (error || stderr) {
-                    reject(new Error(`Service '${serviceName}' is not running/found.`));
-                    return;
-                }
-
-                if (output === "Running") {
+            // sc.exe talks to the SCM directly. PowerShell cold-start on hosted
+            // Windows runners often exceeds a 5s execFile timeout and was
+            // reported as "not running/found".
+            execFile("sc.exe", ["query", serviceName], { timeout: 5000, windowsHide: true }, (error, stdout) => {
+                if (!error && /\bRUNNING\b/.test(stdout || "")) {
                     heartbeat.status = UP;
                     heartbeat.msg = `Service '${serviceName}' is running.`;
                     resolve();
-                } else {
-                    reject(new Error(`Service '${serviceName}' is ${output}.`));
+                    return;
                 }
+
+                reject(new Error(`Service '${serviceName}' is not running/found.`));
             });
         });
     }
