@@ -43,8 +43,11 @@ Everything in this section works today. Planned work is in the
   to Uptime Gizmo only through the REST API, so the monitoring server never
   hosts the protocol. A read-only key gets the read tools. Creating and updating
   monitors appear when the key allows it.
-- **Two Claude Code skills** in [skills](skills), versioned and installed by
-  fetching one into your own project's `.claude/skills`. Current copies:
+- **Two agent skills** in [skills](skills), versioned. Each is a `SKILL.md`
+  with front matter and nothing else — the instructions reach the instance with
+  `curl` and an API key, so no part of them is tied to one agent runtime. Fetch
+  one into wherever your agent reads skills from (`.claude/skills` for Claude
+  Code). Current copies:
   [`uptime-gizmo-status` 1.0.1](https://github.com/starit/uptime-gizmo/blob/main/skills/uptime-gizmo-status/SKILL.md)
   (reads an instance) and
   [`uptime-gizmo-sync` 1.0.4](https://github.com/starit/uptime-gizmo/blob/main/skills/uptime-gizmo-sync/SKILL.md)

@@ -12,7 +12,7 @@ areas of planned work and may change as the project develops.
   and does not mean.
 - An HTTP API at `/api/v1`, with a reference in the product that renders the
   generated description.
-- An MCP server, in [mcp-server](mcp-server), and two Claude Code skills under
+- An MCP server, in [mcp-server](mcp-server), and two agent skills under
   [skills](skills).
 - Themes generated with Themed.js, including from a description.
 - Web3 monitoring: address balances, native and ERC-20, RPC endpoint health,

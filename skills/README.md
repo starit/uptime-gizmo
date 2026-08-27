@@ -1,8 +1,14 @@
 # Skills
 
-Two Claude Code skills for working with a running Uptime Gizmo instance. They
-talk to `/api/v1` with `curl` and nothing else, so an agent using them does not
-need this repository checked out — only the skill file and an API key.
+Two skills for working with a running Uptime Gizmo instance. Each is a
+`SKILL.md` with front matter and nothing else: the instructions reach the
+instance with `curl` and an API key, so no part of them is specific to one agent
+runtime, and nothing here needs this repository checked out.
+
+Where a skill file goes is the one runtime-specific detail. Claude Code reads
+them from `.claude/skills`; another agent may read them from somewhere else, or
+simply be handed the file. The paths below use the Claude Code location because
+it needs to say something concrete.
 
 | Skill | Version | What it does |
 | --- | --- | --- |
@@ -72,12 +78,12 @@ the stale one.
 
 ## They live here, not in `.claude/`
 
-Claude Code auto-discovers project skills in `.claude/skills`. These are in a
-top-level `skills/` directory instead, because they are a **product of this
-repository rather than tooling for developing it** — the audience is somebody
-else's project. Nothing in this repository loads them automatically, which is
-the intended consequence: an agent editing Uptime Gizmo should not silently gain
-the ability to reconfigure a production instance.
+An agent working *on* this repository would auto-load anything in `.claude/skills`
+— that is where Claude Code looks. These sit in a top-level `skills/` directory
+instead, because they are a **product of this repository rather than tooling for
+developing it**: the audience is somebody else's project. Nothing here loads them
+automatically, which is the intended consequence — an agent editing Uptime Gizmo
+should not silently gain the ability to reconfigure a production instance.
 
 To use them while working on this repository, copy or link one into
 `.claude/skills` the same way any other project would.

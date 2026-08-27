@@ -36,9 +36,9 @@ Write tools (`create_monitor`, `update_monitor`) appear only when the key may wr
 
 Install details and the full tool list: [`mcp-server/README.md`](../../mcp-server/README.md).
 
-## Claude Code skills
+## Agent skills
 
-Two skills live in [`skills`](../../skills), each carrying a version in its front matter. They talk to `/api/v1` with `curl`; they do not need this repository checked out once the skill files are available to the agent. Install one by fetching it from GitHub into the `.claude/skills` of the project that should have it — they are deliberately not loaded by this repository, so an agent editing Uptime Gizmo does not silently gain the ability to reconfigure a production instance.
+Two skills live in [`skills`](../../skills), each carrying a version in its front matter. A skill is a `SKILL.md` and nothing more: the instructions reach the instance with `curl` and an API key, so nothing in them assumes a particular agent runtime. They do not need this repository checked out once the file is available to the agent. Install one by fetching it from GitHub into the directory your agent reads skills from — `.claude/skills` for Claude Code — inside the project that should have it. They are deliberately not loaded by this repository, so an agent editing Uptime Gizmo does not silently gain the ability to reconfigure a production instance.
 
 | Skill | Version | Does |
 | --- | --- | --- |
