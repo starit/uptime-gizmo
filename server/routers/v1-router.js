@@ -5,6 +5,7 @@ const apicache = require("../modules/apicache");
 const { apiAuth, requireWrite } = require("../auth");
 const { UptimeCalculator } = require("../uptime-calculator");
 const { log } = require("../../src/util");
+const { VALUE_TYPES, VALUE_OPERATORS, BLOCK_TAGS } = require("../modules/web3-rpc");
 
 const router = express.Router();
 
@@ -94,15 +95,32 @@ function boundedLimit(value, fallback, max) {
  * `column` is the database name; the key is the API name. `secret` fields are
  * never returned, whatever else they allow.
  *
- * This covers the common monitor types — http, keyword, ping, port, dns — and
- * the three web3 types, whose whole point is that something other than a human
- * creates them. The exotic transports (grpc, kafka, radius, snmp, mqtt) are
- * deliberately absent rather than half-supported.
+ * Writable types live in API_MONITOR_TYPES, which is also the OpenAPI enum.
+ * Web3 value type, operator and block tag are VALUE_TYPES, VALUE_OPERATORS and
+ * BLOCK_TAGS from web3-rpc.js — the same lists the check engine enforces.
+ * Copies (the MCP tool schema, the sync skill, the edit form) are asserted
+ * against these lists rather than maintained alongside them. The exotic
+ * transports (grpc, kafka, radius, snmp, mqtt) are deliberately absent rather
+ * than half-supported: an invented name, or a type the UI can create but this
+ * API cannot configure, is refused rather than stored as a monitor that then
+ * fails every check with "Unknown Monitor Type".
  */
+const API_MONITOR_TYPES = [
+    "http",
+    "keyword",
+    "ping",
+    "port",
+    "dns",
+    "group",
+    "web3-balance",
+    "web3-rpc",
+    "web3-contract",
+];
+
 const MONITOR_FIELDS = {
     id: { column: "id", type: "int" },
     name: { column: "name", type: "string", writable: true, required: true },
-    type: { column: "type", type: "string", writable: true, required: true },
+    type: { column: "type", type: "string", writable: true, required: true, enum: API_MONITOR_TYPES },
     active: { column: "active", type: "bool", writable: true },
     description: { column: "description", type: "string", writable: true },
     // Which group this monitor sits under. Validated separately: the allow-list
@@ -148,11 +166,11 @@ const MONITOR_FIELDS = {
     web3CallTo: { column: "web3_call_to", type: "string", writable: true },
     web3CallData: { column: "web3_call_data", type: "string", writable: true },
     web3ValueOffset: { column: "web3_value_offset", type: "int", writable: true },
-    web3ValueType: { column: "web3_value_type", type: "string", writable: true },
+    web3ValueType: { column: "web3_value_type", type: "string", writable: true, enum: VALUE_TYPES },
     web3ValueDecimals: { column: "web3_value_decimals", type: "int", writable: true },
-    web3ValueOperator: { column: "web3_value_operator", type: "string", writable: true },
+    web3ValueOperator: { column: "web3_value_operator", type: "string", writable: true, enum: VALUE_OPERATORS },
     web3ValueThreshold: { column: "web3_value_threshold", type: "string", writable: true },
-    web3BlockTag: { column: "web3_block_tag", type: "string", writable: true },
+    web3BlockTag: { column: "web3_block_tag", type: "string", writable: true, enum: BLOCK_TAGS },
     createdDate: { column: "created_date", type: "string" },
 };
 
@@ -281,7 +299,11 @@ function parseWith(fields, body, partial) {
             }
             continue;
         }
-        columns[field.column] = coerce(body[name], field.type, name);
+        const coerced = coerce(body[name], field.type, name);
+        if (Array.isArray(field.enum) && !field.enum.includes(coerced)) {
+            throw new Error(`${name} must be one of ${field.enum.join(", ")}`);
+        }
+        columns[field.column] = coerced;
     }
 
     if (Object.keys(columns).length === 0) {
@@ -1303,7 +1325,11 @@ function fieldSchema(field) {
     if (field.type === "jsonArray") {
         return { type: "array", items: { type: "string" } };
     }
-    return { type: "string", nullable: true };
+    const schema = { type: "string", nullable: true };
+    if (Array.isArray(field.enum)) {
+        schema.enum = [ ...field.enum ];
+    }
+    return schema;
 }
 
 /**
@@ -1653,6 +1679,7 @@ module.exports = router;
 // Exposed for tests. The field table is the support of the write-side security
 // property, so it needs to be assertable without standing up a server.
 module.exports.internals = {
+    API_MONITOR_TYPES,
     MONITOR_FIELDS,
     TAG_FIELDS,
     STATUS_PAGE_FIELDS,

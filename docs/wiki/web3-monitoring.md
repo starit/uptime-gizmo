@@ -36,7 +36,7 @@ You supply:
 
 - Contract address
 - **Calldata** as hex (`0x…`). Nothing here encodes it from an ABI. Wrong calldata that still returns a number is the worst failure a monitor can have — you own the encoding.
-- **Value type:** `uint256`, `int256`, `bool`, `address`, or `bytes32`
+- **Value type:** `uint256`, `int256`, `bool`, `address`, or `bytes32` — the same list the API publishes on `MonitorInput.web3ValueType`.
 - **Word index** into the ABI-encoded result (0 is the first 32-byte word). Past the end is an error, not zero.
 - Optional comparison and threshold (again a decimal **string**)
 

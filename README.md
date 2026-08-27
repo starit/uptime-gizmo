@@ -44,10 +44,12 @@ Everything in this section works today. Planned work is in the
   hosts the protocol. A read-only key gets the read tools. Creating and updating
   monitors appear when the key allows it.
 - **Two Claude Code skills** in [skills](skills), versioned and installed by
-  copying one into your own project's `.claude/skills`.
-  `uptime-gizmo-status` reads an instance. `uptime-gizmo-sync` creates and
-  updates monitors from a project during development. Neither needs a checkout
-  of this repository.
+  fetching one into your own project's `.claude/skills`. Current copies:
+  [`uptime-gizmo-status` 1.0.1](https://github.com/starit/uptime-gizmo/blob/main/skills/uptime-gizmo-status/SKILL.md)
+  (reads an instance) and
+  [`uptime-gizmo-sync` 1.0.3](https://github.com/starit/uptime-gizmo/blob/main/skills/uptime-gizmo-sync/SKILL.md)
+  (creates and updates monitors). Re-fetch from those URLs to update a copy.
+  Neither needs a checkout of this repository.
 
 ### On-chain monitoring
 

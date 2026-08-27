@@ -192,6 +192,10 @@ const READ_TOOLS = [
     },
 ];
 
+const WEB3_VALUE_TYPES = [ "uint256", "int256", "bool", "address", "bytes32" ];
+const WEB3_VALUE_OPERATORS = [ "gte", "lte", "gt", "lt", "eq", "ne" ];
+const WEB3_BLOCK_TAGS = [ "latest", "safe", "finalized" ];
+
 /*
  * Fields the web3 monitor types need, shared by create and update so the two
  * cannot drift.
@@ -200,6 +204,9 @@ const READ_TOOLS = [
  * compared as integers, because a uint256 at 18 decimals is past what a double
  * represents exactly, and a comparison that rounds fails in the direction of
  * reporting that nothing is wrong.
+ *
+ * The three enums are copies of VALUE_TYPES, VALUE_OPERATORS and BLOCK_TAGS in
+ * server/modules/web3-rpc.js. test-mcp-monitor-fields asserts they match.
  */
 const WEB3_PROPERTIES = {
     web3NetworkId: {
@@ -231,7 +238,7 @@ const WEB3_PROPERTIES = {
     },
     web3ValueType: {
         type: "string",
-        enum: [ "uint256", "int256", "bool", "address", "bytes32" ],
+        enum: WEB3_VALUE_TYPES,
         description: "web3-contract: how to read the word. Use int256 whenever the value can go negative.",
     },
     web3ValueDecimals: {
@@ -240,7 +247,7 @@ const WEB3_PROPERTIES = {
     },
     web3ValueOperator: {
         type: "string",
-        enum: [ "gte", "lte", "gt", "lt", "eq", "ne" ],
+        enum: WEB3_VALUE_OPERATORS,
         description: "web3-contract: the comparison. Only eq and ne apply to bool, address and bytes32. Omit it, and the threshold, to record the value without alerting on it.",
     },
     web3ValueThreshold: {
@@ -249,10 +256,29 @@ const WEB3_PROPERTIES = {
     },
     web3BlockTag: {
         type: "string",
-        enum: [ "latest", "safe", "finalized" ],
+        enum: WEB3_BLOCK_TAGS,
         description: "web3-contract: which block to read at. Defaults to latest.",
     },
 };
+
+/*
+ * Types this package can create. The REST API is the authority
+ * (`API_MONITOR_TYPES` in server/routers/v1-router.js, published as the
+ * OpenAPI enum on MonitorInput.type). This copy exists because the MCP server
+ * is a separate package and cannot import that file; test-mcp-monitor-fields
+ * asserts they are the same array.
+ */
+const CREATE_MONITOR_TYPES = [
+    "http",
+    "keyword",
+    "ping",
+    "port",
+    "dns",
+    "group",
+    "web3-balance",
+    "web3-rpc",
+    "web3-contract",
+];
 
 /*
  * Writing tools. Create and update only.
@@ -265,14 +291,15 @@ const WRITE_TOOLS = [
     {
         name: "create_monitor",
         description:
-            "Create a monitor. Requires name and type; type is one of http, keyword, ping, port, dns, web3-balance, web3-rpc, web3-contract. For a web3 type, call list_web3_networks first — web3NetworkId is required and cannot be guessed. Side effects: begins checking the target, and its first result may trigger notifications.",
+            `Create a monitor. Requires name and type; type is one of ${CREATE_MONITOR_TYPES.join(", ")}. For a web3 type, call list_web3_networks first — web3NetworkId is required and cannot be guessed. Side effects: begins checking the target, and its first result may trigger notifications.`,
         inputSchema: {
             type: "object",
             properties: {
                 name: { type: "string" },
                 type: {
                     type: "string",
-                    description: "http, keyword, ping, port, dns, web3-balance, web3-rpc or web3-contract",
+                    enum: CREATE_MONITOR_TYPES,
+                    description: CREATE_MONITOR_TYPES.join(", "),
                 },
                 url: { type: "string" },
                 hostname: { type: "string" },
@@ -281,6 +308,7 @@ const WRITE_TOOLS = [
                 keyword: { type: "string" },
                 description: { type: "string" },
                 active: { type: "boolean" },
+                parent: { type: "integer", description: "Id of a group to nest this under." },
                 ...WEB3_PROPERTIES,
             },
             required: [ "name", "type" ],
@@ -303,6 +331,7 @@ const WRITE_TOOLS = [
                 keyword: { type: "string" },
                 description: { type: "string" },
                 active: { type: "boolean" },
+                parent: { type: "integer", description: "Id of a group to nest this under." },
                 ...WEB3_PROPERTIES,
             },
             required: [ "id" ],

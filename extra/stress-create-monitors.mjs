@@ -11,9 +11,8 @@
  *   pnpm exec node extra/stress-create-monitors.mjs
  *
  * Each run creates one group (`stress-<timestamp>`) and `--count` children
- * (default 100), cycling through the types the API can write: http, keyword,
- * ping, port, dns. Pass `--web3` to mix in web3-rpc / web3-balance /
- * web3-contract when the instance has a network configured.
+ * (default 100), cycling through http, keyword, ping, port, dns. Pass `--web3`
+ * to mix in the web3 types when the instance has a network configured.
  *
  * Monitors are created **paused**. The scheduler would otherwise start a check
  * for every new row immediately, which is a different experiment from filling

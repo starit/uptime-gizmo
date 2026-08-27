@@ -48,7 +48,7 @@ These three exist so a caller does not have to assemble the picture from every m
 - Create, update, pause, resume, and delete monitors
 - Create, update, and delete tags; attach and detach them on a monitor
 
-Creating a monitor through the API covers `http`, `keyword`, `ping`, `port`, `dns`, and the three [Web3 types](web3-monitoring.md). Other types are still edited in the UI.
+The types `POST /api/v1/monitors` accepts are the `enum` on `MonitorInput.type` in `/api/v1/openapi.json`, generated from the same list the route enforces. Anything else — invented, or a type the UI can create but this API cannot configure — is refused with `400`. The three [Web3 types](web3-monitoring.md) are in that list; MQTT, gRPC and the rest stay in the UI.
 
 Deleting a **group** needs `?children=unlink` (default: leave children parentless) or `?children=delete` (remove the subtree). Pause and resume are safe to retry.
 

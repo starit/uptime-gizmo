@@ -6,13 +6,27 @@ need this repository checked out — only the skill file and an API key.
 
 | Skill | Version | What it does |
 | --- | --- | --- |
-| [uptime-gizmo-status](uptime-gizmo-status/SKILL.md) | 1.0.0 | Reads an instance: what is monitored, what is broken and for how long, what changed, which channels and windows exist. Never writes. |
-| [uptime-gizmo-sync](uptime-gizmo-sync/SKILL.md) | 1.0.1 | Creates and updates monitors, pauses and resumes them, and manages tags. Does not delete. |
+| [uptime-gizmo-status](uptime-gizmo-status/SKILL.md) | 1.0.1 | Reads an instance: what is monitored, what is broken and for how long, what changed, which channels and windows exist. Never writes. |
+| [uptime-gizmo-sync](uptime-gizmo-sync/SKILL.md) | 1.0.3 | Creates and updates monitors, pauses and resumes them, and manages tags. Does not delete. |
 
 ## Installing one
 
-A skill is a directory holding a `SKILL.md`. Copy the one you want into the
-project that should have it:
+A skill is a directory holding a `SKILL.md`. You do not need this repository
+checked out. Fetch the file from GitHub into the project that should have it:
+
+```bash
+mkdir -p .claude/skills/uptime-gizmo-status
+curl -fsSL -o .claude/skills/uptime-gizmo-status/SKILL.md \
+  https://raw.githubusercontent.com/starit/uptime-gizmo/main/skills/uptime-gizmo-status/SKILL.md
+```
+
+The other skill is the same path with `uptime-gizmo-sync` in place of
+`uptime-gizmo-status`. Current copies:
+
+- https://github.com/starit/uptime-gizmo/blob/main/skills/uptime-gizmo-status/SKILL.md
+- https://github.com/starit/uptime-gizmo/blob/main/skills/uptime-gizmo-sync/SKILL.md
+
+If you already have this repository, copying from `skills/` works too:
 
 ```bash
 mkdir -p /path/to/your-project/.claude/skills
@@ -42,6 +56,19 @@ The number describes the skill, not the server. A new monitor type or field
 appearing in the API is a minor bump in the skill that documents it; a change in
 what a skill tells an agent to *do* — an endpoint that moved, a rule that
 reversed — is a major one.
+
+## Updating a copy
+
+The file in `.claude/skills` is a snapshot. It does not update itself. Re-fetch
+it from GitHub and compare the `version` in the front matter:
+
+```bash
+curl -fsSL -o .claude/skills/uptime-gizmo-sync/SKILL.md \
+  https://raw.githubusercontent.com/starit/uptime-gizmo/main/skills/uptime-gizmo-sync/SKILL.md
+```
+
+Same URL as install. If the GitHub copy's version is newer, the local file was
+the stale one.
 
 ## They live here, not in `.claude/`
 

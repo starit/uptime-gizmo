@@ -1,8 +1,10 @@
 const { describe, it } = require("node:test");
 const assert = require("node:assert");
+const fs = require("node:fs");
+const path = require("node:path");
 
 const { internals } = require("../../server/routers/v1-router");
-const { MONITOR_FIELDS, monitorToAPI, monitorFromAPI, projectWith } = internals;
+const { API_MONITOR_TYPES, MONITOR_FIELDS, monitorToAPI, monitorFromAPI, projectWith, buildOpenAPI } = internals;
 
 /*
  * The field table is what stops a request writing columns it should not, and
@@ -203,5 +205,76 @@ describe("v1 monitor field table", () => {
     it("refuses a value it cannot coerce", () => {
         assert.throws(() => monitorFromAPI({ name: "x", type: "http", interval: "soon" }, false), /interval must be a number/);
         assert.throws(() => monitorFromAPI({ name: "x", type: "http", acceptedStatuscodes: "200" }, false), /must be an array/);
+    });
+
+    it("accepts every type this API can create", () => {
+        for (const type of API_MONITOR_TYPES) {
+            assert.doesNotThrow(() => monitorFromAPI({ name: "x", type }, false));
+        }
+    });
+
+    it("refuses a type this API cannot create", () => {
+        assert.throws(() => monitorFromAPI({ name: "x", type: "not-a-type" }, false), /type must be one of/);
+        // Exists in the UI; its fields are not in the table, so creating it here
+        // would store a hollow monitor.
+        assert.throws(() => monitorFromAPI({ name: "x", type: "mqtt" }, false), /type must be one of/);
+        assert.throws(() => monitorFromAPI({ type: "json-query" }, true), /type must be one of/);
+    });
+
+    it("does not require type on a patch that leaves it alone", () => {
+        assert.doesNotThrow(() => monitorFromAPI({ name: "renamed" }, true));
+    });
+
+    it("publishes the type allow-list on the OpenAPI schema", () => {
+        const spec = buildOpenAPI();
+        assert.deepStrictEqual(spec.components.schemas.MonitorInput.properties.type.enum, API_MONITOR_TYPES);
+        assert.deepStrictEqual(MONITOR_FIELDS.type.enum, API_MONITOR_TYPES);
+    });
+
+    it("refuses web3 enums that the check engine would not accept", () => {
+        assert.throws(
+            () => monitorFromAPI({ web3ValueType: "bytes" }, true),
+            /web3ValueType must be one of/
+        );
+        assert.throws(
+            () => monitorFromAPI({ web3ValueOperator: "greater" }, true),
+            /web3ValueOperator must be one of/
+        );
+        assert.throws(
+            () => monitorFromAPI({ web3BlockTag: "pending" }, true),
+            /web3BlockTag must be one of/
+        );
+    });
+
+    it("publishes the web3 enums on the OpenAPI schema", () => {
+        const { VALUE_TYPES, VALUE_OPERATORS, BLOCK_TAGS } = require("../../server/modules/web3-rpc");
+        const spec = buildOpenAPI();
+        const properties = spec.components.schemas.MonitorInput.properties;
+
+        assert.deepStrictEqual(properties.web3ValueType.enum, VALUE_TYPES);
+        assert.deepStrictEqual(properties.web3ValueOperator.enum, VALUE_OPERATORS);
+        assert.deepStrictEqual(properties.web3BlockTag.enum, BLOCK_TAGS);
+        assert.strictEqual(MONITOR_FIELDS.web3ValueType.enum, VALUE_TYPES);
+        assert.strictEqual(MONITOR_FIELDS.web3ValueOperator.enum, VALUE_OPERATORS);
+        assert.strictEqual(MONITOR_FIELDS.web3BlockTag.enum, BLOCK_TAGS);
+    });
+
+    it("the sync skill documents exactly these types", () => {
+        const skill = fs.readFileSync(
+            path.join(__dirname, "..", "..", "skills", "uptime-gizmo-sync", "SKILL.md"),
+            "utf8"
+        );
+        const section = skill.split("### Types and their fields")[1]?.split("### ")[0];
+        assert.ok(section, "the types table heading has moved");
+        // The heading row is `| `type` | Needs | Notes |`; skip that label.
+        const types = [ ...section.matchAll(/^\| `([^`]+)` /gm) ]
+            .map((match) => match[1])
+            .filter((name) => name !== "type");
+
+        assert.deepStrictEqual(
+            types,
+            API_MONITOR_TYPES,
+            "the sync skill type table has drifted from the API"
+        );
     });
 });

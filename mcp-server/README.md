@@ -80,11 +80,11 @@ Offered only when the key may write:
 | `create_monitor` | Begins checking a target; its first result may notify |
 | `update_monitor` | Restarts the monitor; may change whether it alerts |
 
-`create_monitor` covers `http`, `keyword`, `ping`, `port` and `dns`, and the three
-web3 types — `web3-balance`, `web3-rpc` and `web3-contract`. Each web3 type needs
-a `web3NetworkId` from `list_web3_networks`; the chain and its RPC endpoint are
-configured by a human in settings, because the endpoint URL usually carries an API
-key.
+`create_monitor` accepts the same types as `POST /api/v1/monitors`. The list is
+the `enum` on `MonitorInput.type` in `/api/v1/openapi.json`; repeating it here
+would drift. Each web3 type needs a `web3NetworkId` from `list_web3_networks`;
+the chain and its RPC endpoint are configured by a human in settings, because
+the endpoint URL usually carries an API key.
 
 `web3-contract` reads one value out of a contract and compares it against a
 threshold. **The calldata is sent verbatim** — nothing here encodes it from an
