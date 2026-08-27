@@ -52,6 +52,20 @@ Creating a monitor through the API covers `http`, `keyword`, `ping`, `port`, `dn
 
 Deleting a **group** needs `?children=unlink` (default: leave children parentless) or `?children=delete` (remove the subtree). Pause and resume are safe to retry.
 
+## High-count load check
+
+`extra/stress-create-monitors.mjs` creates a group plus a batch of mixed-type monitors (default 100, paused) over this API, so you can see how the dashboard and scheduler behave with a large list. Authenticated calls are limited to 60 per minute; the script spaces writes.
+
+```bash
+export UPTIME_GIZMO_URL=http://127.0.0.1:3001
+export UPTIME_GIZMO_API_KEY=uk1_...   # writable key; do not put it on the command line
+pnpm run stress-create-monitors
+pnpm run stress-create-monitors -- --active --interval 300
+pnpm run stress-create-monitors -- --delete --yes
+```
+
+`--help` lists the rest. MQTT, gRPC and other UI-only types are not created here; the API cannot write them yet.
+
 ## Not in this API yet
 
 Writing maintenance windows, status-page incidents, notification channels, and other credential-bearing settings. Those stay in the UI. See the [Roadmap](../../ROADMAP.md).

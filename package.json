@@ -70,7 +70,8 @@
         "rebase-pr-to-1.23.X": "node extra/rebase-pr.js 1.23.X",
         "reset-migrate-aggregate-table-state": "node extra/reset-migrate-aggregate-table-state.js",
         "generate-changelog": "node ./extra/generate-changelog.mjs",
-        "create-release": "node ./extra/release/create-release.mjs"
+        "create-release": "node ./extra/release/create-release.mjs",
+        "stress-create-monitors": "node extra/stress-create-monitors.mjs"
     },
     "dependencies": {
         "@fontsource/fraunces": "5.2.8",
