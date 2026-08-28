@@ -1,6 +1,6 @@
 # Web3 monitoring
 
-Three monitor types for EVM chains. They **read** public state. They do not hold a private key and they never send a transaction.
+Three monitor types for EVM chains. Every check is Ethereum JSON-RPC (`eth_chainId`, `eth_getBalance`, `eth_getBlockByNumber`, `eth_call`) — not a generic chain-agnostic call. They **read** public state. They do not hold a private key and they never send a transaction.
 
 ## Networks first
 
@@ -8,7 +8,7 @@ Three monitor types for EVM chains. They **read** public state. They do not hold
 
 The RPC URL is a credential (hosted providers put the key in the path). It is shared by every monitor on that chain. Configure it once here, not on each monitor.
 
-Ethereum JSON-RPC only: Ethereum, Polygon, BSC, Arbitrum, Optimism, Base, testnets, a local node. Bitcoin, Solana, and Cosmos are not supported.
+Ethereum JSON-RPC only: Ethereum, Polygon, BSC, Arbitrum, Optimism, Base, testnets, a local node. Bitcoin, Solana, and Cosmos are not supported. Solana and other non-EVM chains are [planned](../../ROADMAP.md); a Solana RPC URL will not work here.
 
 Then add a monitor and pick the network.
 

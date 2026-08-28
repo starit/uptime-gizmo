@@ -186,7 +186,7 @@ const READ_TOOLS = [
     {
         name: "list_web3_networks",
         description:
-            "List the configured chains by id, name and chain id. Every web3 monitor references one as web3NetworkId, so call this before creating one; an empty list means no chain is configured and a human has to add one in settings. The RPC URL carries an API key and is never returned. Side effects: none.",
+            "List the configured EVM chains by id, name and chain id. Every web3 monitor references one as web3NetworkId, so call this before creating one; an empty list means no chain is configured and a human has to add one in settings. These networks speak Ethereum JSON-RPC; Solana and other chains are not offered. The RPC URL carries an API key and is never returned. Side effects: none.",
         inputSchema: { type: "object", properties: {} },
         run: () => api("/api/v1/web3-networks"),
     },
@@ -235,7 +235,7 @@ const DNS_PROPERTIES = {
 const WEB3_PROPERTIES = {
     web3NetworkId: {
         type: "integer",
-        description: "Which configured chain to read through, from list_web3_networks. Every web3 type needs it.",
+        description: "Which configured EVM chain to read through, from list_web3_networks. Every web3 type needs it. Solana and other non-EVM chains are not a network you can pick.",
     },
     web3Address: { type: "string", description: "web3-balance: the address to watch." },
     web3TokenContract: {
@@ -315,7 +315,7 @@ const WRITE_TOOLS = [
     {
         name: "create_monitor",
         description:
-            `Create a monitor. Requires name and type; type is one of ${CREATE_MONITOR_TYPES.join(", ")}. For a web3 type, call list_web3_networks first — web3NetworkId is required and cannot be guessed. Side effects: begins checking the target, and its first result may trigger notifications.`,
+            `Create a monitor. Requires name and type; type is one of ${CREATE_MONITOR_TYPES.join(", ")}. For a web3 type (EVM JSON-RPC only — not Solana or other non-EVM chains), call list_web3_networks first — web3NetworkId is required and cannot be guessed. Side effects: begins checking the target, and its first result may trigger notifications.`,
         inputSchema: {
             type: "object",
             properties: {

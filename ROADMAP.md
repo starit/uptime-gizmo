@@ -15,8 +15,9 @@ areas of planned work and may change as the project develops.
 - An MCP server, in [mcp-server](mcp-server), and two agent skills under
   [skills](skills).
 - Themes generated with Themed.js, including from a description.
-- Web3 monitoring: address balances, native and ERC-20, RPC endpoint health,
-  and reading a value out of a contract to compare against a threshold.
+- Web3 monitoring on EVM chains: address balances, native and ERC-20, RPC
+  endpoint health, and reading a value out of a contract to compare against a
+  threshold. Every call is Ethereum JSON-RPC.
 
 ## Short-term
 
@@ -29,7 +30,8 @@ areas of planned work and may change as the project develops.
 
 - Migrate the codebase to TypeScript.
 - Support more notification providers.
-- Add broader Web3 support.
+- Add Solana and other non-EVM chains to Web3 monitoring; today's types speak
+  Ethereum JSON-RPC only.
 - Add self-monitoring for Uptime Gizmo, including application, database, worker,
   storage, and local server health.
 - Expand stability and reliability testing.

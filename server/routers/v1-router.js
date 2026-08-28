@@ -147,11 +147,12 @@ const MONITOR_FIELDS = {
     dnsResolveType: { column: "dns_resolve_type", type: "string", writable: true, enum: DNS_RESOLVE_TYPES },
     dnsResolveServer: { column: "dns_resolve_server", type: "string", writable: true },
     /*
-     * Web3. The network is referenced by id — it is instance-level
+     * Web3 (EVM JSON-RPC). The network is referenced by id — it is instance-level
      * infrastructure carrying a credential, so it is configured in settings and
      * listed by GET /api/v1/web3-networks, which is where a caller gets the id.
      * Validated separately: the allow-list can coerce an integer but cannot
-     * check that the network exists and belongs to the caller.
+     * check that the network exists and belongs to the caller. Solana and other
+     * non-EVM chains are not these fields.
      */
     web3NetworkId: { column: "web3_network_id", type: "int", writable: true },
     web3Address: { column: "web3_address", type: "string", writable: true },
@@ -1633,7 +1634,7 @@ function buildOpenAPI() {
                 get: {
                     summary: "List Web3 networks",
                     description:
-                        "The id, name and chain id of each configured network, for a monitor to reference as web3NetworkId. The RPC URL commonly carries an API key and is never returned.",
+                        "The id, name and chain id of each configured EVM network (Ethereum JSON-RPC), for a monitor to reference as web3NetworkId. The RPC URL commonly carries an API key and is never returned. Solana and other non-EVM chains are not in this list.",
                     security: authed,
                     responses: { 200: { description: "Web3 networks" } },
                 },

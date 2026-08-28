@@ -68,7 +68,7 @@ Always available:
 | `list_proxies` | Proxies by protocol, host, port and username |
 | `list_docker_hosts` | Docker hosts by name and connection type |
 | `list_remote_browsers` | Remote browsers by name |
-| `list_web3_networks` | Configured chains by id, name and chain id — where `web3NetworkId` comes from |
+| `list_web3_networks` | Configured EVM chains by id, name and chain id — where `web3NetworkId` comes from |
 
 None of those five return the credential they carry: a notification config, a
 proxy password, a daemon address, a browser endpoint, an RPC URL.
@@ -82,9 +82,9 @@ Offered only when the key may write:
 
 `create_monitor` accepts the same types as `POST /api/v1/monitors`. The list is
 the `enum` on `MonitorInput.type` in `/api/v1/openapi.json`; repeating it here
-would drift. Each web3 type needs a `web3NetworkId` from `list_web3_networks`;
+would drift. Each web3 type is an EVM JSON-RPC check and needs a `web3NetworkId` from `list_web3_networks`;
 the chain and its RPC endpoint are configured by a human in settings, because
-the endpoint URL usually carries an API key.
+the endpoint URL usually carries an API key. Solana and other non-EVM chains are not offered.
 
 `web3-contract` reads one value out of a contract and compares it against a
 threshold. **The calldata is sent verbatim** — nothing here encodes it from an

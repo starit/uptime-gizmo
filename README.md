@@ -56,8 +56,10 @@ Everything in this section works today. Planned work is in the
 
 ### On-chain monitoring
 
-Three monitor types. RPC endpoints are set up once under **Settings → Web3
-Networks** and shared between monitors.
+Three monitor types, all EVM. RPC endpoints are set up once under **Settings →
+Web3 Networks** and shared between monitors. Every check is Ethereum JSON-RPC
+(`eth_getBalance`, `eth_getBlockByNumber`, `eth_call`) — not a generic "web3"
+call.
 
 - **Balance.** Native or ERC-20, against a minimum you set. Catches a relayer,
   paymaster or deployer running dry.
@@ -71,9 +73,9 @@ Networks** and shared between monitors.
 Amounts are compared as integers. Chains count in units of 10^-18, where a float
 comparison can report a drained account as funded, or a threshold as met.
 
-Ethereum JSON-RPC only, so any EVM chain works: Ethereum, Polygon, BSC,
-Arbitrum, Optimism, Base, testnets, a local node. Bitcoin, Solana and Cosmos do
-not.
+Any EVM chain works: Ethereum, Polygon, BSC, Arbitrum, Optimism, Base, testnets,
+a local node. Bitcoin, Solana and Cosmos do not. Solana and other non-EVM chains
+are [planned](ROADMAP.md).
 
 ### A rebuilt interface
 

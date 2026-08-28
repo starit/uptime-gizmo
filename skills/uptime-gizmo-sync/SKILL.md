@@ -141,6 +141,12 @@ wait between retries once failing, `maxretries` how many before it counts as dow
 
 ## Watching something on-chain
 
+These three types are **EVM calls** — Ethereum JSON-RPC (`eth_getBalance`,
+`eth_getBlockByNumber`, `eth_call`). Any EVM chain works. Solana and other
+non-EVM chains are planned and are not a type you can create: there is no
+`solana` type, and pointing a web3 network at a Solana RPC will not work. Say
+so rather than inventing one.
+
 All three web3 types read through a **network** — a chain and an RPC endpoint,
 configured once in the instance's settings. You reference it by id and cannot
 create one: the endpoint URL usually carries an API key, so it is a credential a
