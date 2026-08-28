@@ -71,7 +71,8 @@
         "reset-migrate-aggregate-table-state": "node extra/reset-migrate-aggregate-table-state.js",
         "generate-changelog": "node ./extra/generate-changelog.mjs",
         "create-release": "node ./extra/release/create-release.mjs",
-        "stress-create-monitors": "node extra/stress-create-monitors.mjs"
+        "stress-create-monitors": "node extra/stress-create-monitors.mjs",
+        "seed-demo-instance": "node extra/seed-demo-instance.mjs"
     },
     "dependencies": {
         "@fontsource/fraunces": "5.2.8",
