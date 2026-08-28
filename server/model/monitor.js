@@ -63,6 +63,8 @@ const { promisify } = require("node:util");
 const brotliCompress = promisify(zlib.brotliCompress);
 const DomainExpiry = require("./domain_expiry");
 const { validateContractRead } = require("../modules/web3-rpc");
+const { applyCloudPublicTargetPolicy } = require("../cloud-target-policy");
+const { enqueueCloudTransition } = require("../cloud-transition-events");
 
 const rootCertificates = rootCertificatesFingerprints();
 
@@ -641,6 +643,8 @@ class Monitor extends BeanModel {
                         }
                     }
 
+                    applyCloudPublicTargetPolicy(options, this);
+
                     let tlsInfo = {};
                     // Store tlsInfo when secureConnect event is emitted
                     // The keylog event listener is a workaround to access the tlsSocket
@@ -1077,6 +1081,18 @@ class Monitor extends BeanModel {
             // Store to database
             log.debug("monitor", `[${this.name}] Store`);
             await R.store(bean);
+
+            if (
+                isImportant &&
+                (!isFirstBeat || bean.status === DOWN) &&
+                Monitor.isImportantForNotification(isFirstBeat, previousBeat?.status, bean.status)
+            ) {
+                enqueueCloudTransition({
+                    monitorId: this.id,
+                    occurredAt: bean.time,
+                    status: bean.status,
+                });
+            }
 
             log.debug("monitor", `[${this.name}] prometheus.update`);
             const data24h = uptimeCalculator.get24Hour();
