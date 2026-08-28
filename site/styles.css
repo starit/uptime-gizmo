@@ -1,0 +1,253 @@
+/*
+ * Project page. Tokens from DESIGN.md dark theme.
+ * Assembled by site/build.sh; asset URLs are relative so /uptime-gizmo/ works.
+ */
+
+:root {
+    --color-bg: #0a151e;
+    --color-text: #fcfcfc;
+    --color-text-muted: #c6cbd0;
+    --color-border: #2b3d4b;
+    --color-surface: #15232c;
+    --color-brand: #ecab24;
+    --color-brand-contrast: #0a151e;
+    --color-interactive: #75a7ff;
+    --color-interactive-hover: #9abeff;
+    --color-focus-ring: #75a7ff;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+    color: var(--color-text);
+    background: var(--color-bg);
+    font-family: "IBM Plex Sans", "Noto Sans", sans-serif;
+    font-size: 1.0625rem;
+    line-height: 1.5;
+    -webkit-text-size-adjust: 100%;
+}
+
+body {
+    margin: 0;
+    padding: 2.5rem 1.25rem 4rem;
+    background:
+        radial-gradient(ellipse 28rem 22rem at 12% 18%, rgb(236 171 36 / 14%), transparent 70%),
+        radial-gradient(ellipse 40rem 28rem at 100% 0%, rgb(30 100 231 / 12%), transparent 55%),
+        var(--color-bg);
+}
+
+main,
+footer {
+    max-width: 38rem;
+    margin: 0 auto 0 clamp(0.25rem, 10vw, 7rem);
+}
+
+.logo {
+    display: block;
+    width: min(17.5rem, 100%);
+    height: auto;
+}
+
+.repo {
+    margin: 0.35rem 0 0;
+    font-size: 0.9375rem;
+}
+
+.line {
+    display: flex;
+    gap: 0.35rem 0.9rem;
+    align-items: center;
+    margin: 1.75rem 0 1.4rem;
+}
+
+.mascot {
+    flex-shrink: 0;
+    width: 10.5rem;
+    height: auto;
+    transform: rotate(-3deg);
+    /* The cutout already has a studio shadow. */
+    filter: drop-shadow(0 12px 18px rgb(0 0 0 / 35%));
+    animation: idle 3.6s ease-in-out infinite;
+}
+
+.line blockquote {
+    position: relative;
+    margin: 0 0 1.4rem;
+    padding: 0.8rem 1.05rem 0.9rem;
+    color: var(--color-text);
+    background: var(--color-surface);
+    border: 1px solid rgb(236 171 36 / 55%);
+    transform: rotate(-1.5deg);
+}
+
+.line blockquote p {
+    margin: 0;
+    color: var(--color-text);
+    font-family: Fraunces, "Iowan Old Style", Palatino, serif;
+    font-size: 1.45rem;
+    font-optical-sizing: auto;
+    font-weight: 500;
+    line-height: 1.2;
+}
+
+.line blockquote em {
+    color: var(--color-brand);
+    font-style: italic;
+    font-weight: 600;
+}
+
+.line blockquote::before {
+    content: "";
+    position: absolute;
+    top: 52%;
+    left: -6px;
+    width: 11px;
+    height: 11px;
+    background: var(--color-surface);
+    border-left: 1px solid rgb(236 171 36 / 55%);
+    border-bottom: 1px solid rgb(236 171 36 / 55%);
+    transform: translateY(-50%) rotate(45deg);
+}
+
+p,
+li {
+    color: var(--color-text-muted);
+}
+
+ul {
+    margin: 1.25rem 0;
+    padding: 0;
+    list-style: none;
+}
+
+li + li {
+    margin-top: 0.7rem;
+}
+
+li strong {
+    color: var(--color-text);
+    font-weight: 600;
+}
+
+li strong::before {
+    content: "";
+    display: inline-block;
+    width: 0.42rem;
+    height: 0.42rem;
+    margin-right: 0.5rem;
+    vertical-align: 0.12rem;
+    background: var(--color-brand);
+    transform: rotate(45deg);
+}
+
+.shot {
+    display: block;
+    width: 100%;
+    height: auto;
+    margin: 1.6rem 0 0;
+    border: 1px solid var(--color-border);
+    transform: rotate(0.4deg);
+}
+
+.stall {
+    margin: 1.6rem 0 0.45rem;
+    color: var(--color-brand);
+    font-family: Fraunces, "Iowan Old Style", Palatino, serif;
+    font-size: 0.95rem;
+    font-weight: 500;
+}
+
+pre {
+    margin: 0;
+    padding: 0.85rem 1rem;
+    overflow-x: auto;
+    color: var(--color-text);
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 0.8125rem;
+    line-height: 1.45;
+    white-space: pre-wrap;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+}
+
+.links {
+    display: flex;
+    gap: 1.1rem;
+    align-items: center;
+    margin: 1.6rem 0 0;
+}
+
+a {
+    color: var(--color-interactive);
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.2em;
+}
+
+a:hover {
+    color: var(--color-interactive-hover);
+}
+
+.cta {
+    display: inline-block;
+    padding: 0.5rem 1.05rem;
+    color: var(--color-brand-contrast);
+    font-weight: 600;
+    text-decoration: none;
+    background: var(--color-brand);
+}
+
+.cta:hover {
+    color: var(--color-brand-contrast);
+    background: #d99b1e;
+}
+
+a:focus-visible,
+.cta:focus-visible,
+pre:focus-visible {
+    outline: 2px solid var(--color-focus-ring);
+    outline-offset: 3px;
+}
+
+footer {
+    margin-top: 3rem;
+}
+
+footer p {
+    margin: 0;
+    font-size: 0.875rem;
+}
+
+@keyframes idle {
+    0%,
+    100% {
+        transform: rotate(-3deg) translateY(0);
+    }
+
+    50% {
+        transform: rotate(-3deg) translateY(-5px);
+    }
+}
+
+@media (max-width: 32rem) {
+    .line {
+        flex-wrap: wrap;
+    }
+
+    .line blockquote {
+        margin-bottom: 0;
+    }
+
+    .line blockquote::before {
+        top: -6px;
+        left: 2.6rem;
+        transform: rotate(-135deg);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .mascot {
+        animation: none;
+    }
+}

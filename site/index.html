@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="color-scheme" content="dark" />
+        <meta name="theme-color" content="#0A151E" />
+        <meta
+            name="description"
+            content="Self-hosted monitoring. An API for agents. EVM checks. A rebuilt interface."
+        />
+        <title>Uptime Gizmo</title>
+        <link rel="icon" href="./favicon.png" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=IBM+Plex+Mono:wght@400&family=IBM+Plex+Sans:wght@400;500;600&display=swap"
+            rel="stylesheet"
+        />
+        <link rel="stylesheet" href="./styles.css" />
+    </head>
+    <body>
+        <main>
+            <p>
+                <img
+                    class="logo"
+                    src="./images/logo.png"
+                    width="280"
+                    height="93"
+                    alt="Uptime Gizmo"
+                />
+            </p>
+            <p class="repo">
+                <a href="https://github.com/starit/uptime-gizmo">github.com/starit/uptime-gizmo</a>
+            </p>
+            <figure class="line">
+                <img
+                    class="mascot"
+                    src="./images/mascot.webp"
+                    width="448"
+                    height="448"
+                    alt="Gizmo, the engineer mascot, holding a wrench."
+                />
+                <blockquote>
+                    <p>Uptime is <em>money</em>, friend.</p>
+                </blockquote>
+            </figure>
+            <p>
+                Self-hosted monitoring. A fork of Uptime Kuma with an API for agents, EVM checks, and a rebuilt
+                interface.
+            </p>
+            <ul>
+                <li><strong>REST, MCP, skills.</strong> Agents can see what is down, and create monitors.</li>
+                <li><strong>Web3, EVM only.</strong> Balances, RPC freshness, one contract value.</li>
+                <li><strong>Rebuilt UI.</strong> Light, dark, and a public status page.</li>
+            </ul>
+            <p>
+                <img
+                    class="shot"
+                    src="./images/dashboard.png"
+                    width="760"
+                    alt="Dashboard with three monitors up and a short event list."
+                />
+            </p>
+            <p class="stall">One to go — runs on your machine.</p>
+            <pre><code>docker run -d --restart=always -p 3001:3001 -v uptime-gizmo:/app/data --name uptime-gizmo starit/uptime-gizmo:beta</code></pre>
+            <p class="links">
+                <a class="cta" href="https://github.com/starit/uptime-gizmo">GitHub</a>
+                <a href="https://github.com/starit/uptime-gizmo/tree/main/docs/wiki">Docs</a>
+            </p>
+        </main>
+        <footer>
+            <p>MIT. A fork of Uptime Kuma.</p>
+        </footer>
+    </body>
+</html>
