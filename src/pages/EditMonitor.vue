@@ -97,6 +97,10 @@
                                         <option value="websocket-upgrade">Websocket Upgrade</option>
                                     </optgroup>
 
+                                    <optgroup :label="$t('monitorTypeAi')">
+                                        <option value="llm">{{ $t("LLM Endpoint") }}</option>
+                                    </optgroup>
+
                                     <optgroup :label="$t('monitorTypeWeb3')">
                                         <option value="web3-balance">{{ $t("Web3 Balance") }}</option>
                                         <option value="web3-rpc">{{ $t("Web3 RPC Health") }}</option>
@@ -196,7 +200,8 @@
                                     monitor.type === 'http' ||
                                     monitor.type === 'keyword' ||
                                     monitor.type === 'json-query' ||
-                                    monitor.type === 'real-browser'
+                                    monitor.type === 'real-browser' ||
+                                    monitor.type === 'llm'
                                 "
                                 class="tw-my-3"
                             >
@@ -506,24 +511,98 @@
                                 </template>
                             </template>
 
+                            <!-- LLM -->
+                            <template v-if="monitor.type === 'llm'">
+                                <div class="tw-my-3">
+                                    <label for="llm-model" class="gizmo-field-label">{{ $t("Model") }}</label>
+                                    <input
+                                        id="llm-model"
+                                        v-model="monitor.llmModel"
+                                        data-testid="llm-model-input"
+                                        type="text"
+                                        class="gizmo-native-control"
+                                        placeholder="gpt-4o-mini"
+                                        required
+                                    />
+                                    <div class="gizmo-field-help">{{ $t("llmModelHelp") }}</div>
+                                </div>
+
+                                <div class="tw-my-3">
+                                    <label for="llm-api-key" class="gizmo-field-label">{{ $t("llmApiKeyLabel") }}</label>
+                                    <HiddenInput id="llm-api-key" v-model="monitor.llmApiKey" autocomplete="new-password" />
+                                    <div class="gizmo-field-help">{{ $t("llmApiKeyHelp") }}</div>
+                                </div>
+
+                                <div class="tw-my-3">
+                                    <label for="llm-prompt" class="gizmo-field-label">{{ $t("llmPromptLabel") }}</label>
+                                    <textarea
+                                        id="llm-prompt"
+                                        v-model="monitor.llmPrompt"
+                                        data-testid="llm-prompt-input"
+                                        class="gizmo-native-control"
+                                        rows="2"
+                                        placeholder="Reply with the single word: ok"
+                                    ></textarea>
+                                    <div class="gizmo-field-help">{{ $t("llmPromptHelp") }}</div>
+                                </div>
+
+                                <div class="tw-my-3">
+                                    <label for="llm-max-tokens" class="gizmo-field-label">{{ $t("llmMaxTokensLabel") }}</label>
+                                    <input
+                                        id="llm-max-tokens"
+                                        v-model.number="monitor.llmMaxTokens"
+                                        data-testid="llm-max-tokens-input"
+                                        type="number"
+                                        class="gizmo-native-control"
+                                        min="1"
+                                        step="1"
+                                    />
+                                    <div class="gizmo-field-help">{{ $t("llmMaxTokensHelp") }}</div>
+                                </div>
+
+                                <div class="tw-my-3">
+                                    <label for="llm-max-latency" class="gizmo-field-label">{{ $t("llmMaxLatencyLabel") }}</label>
+                                    <input
+                                        id="llm-max-latency"
+                                        v-model.number="monitor.llmMaxLatency"
+                                        data-testid="llm-max-latency-input"
+                                        type="number"
+                                        class="gizmo-native-control"
+                                        min="1"
+                                        step="1"
+                                        placeholder="5000"
+                                    />
+                                    <div class="gizmo-field-help">{{ $t("llmMaxLatencyHelp") }}</div>
+                                </div>
+
+                                <GizmoAlert variant="info" class="tw-my-3">
+                                    <strong>{{ $t("llmCostTitle") }}</strong>
+                                    {{ $t("llmCostHelp", [monitor.interval]) }}
+                                </GizmoAlert>
+                            </template>
+
                             <!-- Keyword -->
-                            <div v-if="monitor.type === 'keyword' || monitor.type === 'grpc-keyword'" class="tw-my-3">
+                            <div
+                                v-if="monitor.type === 'keyword' || monitor.type === 'grpc-keyword' || monitor.type === 'llm'"
+                                class="tw-my-3"
+                            >
                                 <label for="keyword" class="gizmo-field-label">{{ $t("Keyword") }}</label>
                                 <input
                                     id="keyword"
                                     v-model="monitor.keyword"
                                     type="text"
                                     class="gizmo-native-control"
-                                    required
+                                    :required="monitor.type !== 'llm'"
+                                    data-testid="keyword-input"
                                 />
                                 <div class="gizmo-field-help">
-                                    {{ $t("keywordDescription") }}
+                                    {{ monitor.type === "llm" ? $t("llmKeywordHelp") : $t("keywordDescription") }}
                                 </div>
                             </div>
 
                             <!-- Invert keyword -->
                             <div
-                                v-if="monitor.type === 'keyword' || monitor.type === 'grpc-keyword'"
+                                v-if="monitor.type === 'keyword' || monitor.type === 'grpc-keyword' || monitor.type === 'llm'"
                                 class="tw-my-3 gizmo-native-check"
                             >
                                 <input
@@ -1865,7 +1944,8 @@
                                     monitor.type === 'rabbitmq' ||
                                     monitor.type === 'snmp' ||
                                     monitor.type === 'websocket-upgrade' ||
-                                    monitor.type === 'kafka-producer'
+                                    monitor.type === 'kafka-producer' ||
+                                    monitor.type === 'llm'
                                 "
                                 class="tw-my-3"
                             >
@@ -1884,6 +1964,7 @@
                                 <input
                                     id="timeout"
                                     v-model="monitor.timeout"
+                                    data-testid="timeout-input"
                                     type="number"
                                     class="gizmo-native-control"
                                     :min="timeoutMin"
@@ -3575,6 +3656,15 @@ const monitorDefaults = {
     web3ValueOperator: "",
     web3ValueThreshold: "",
     web3BlockTag: "latest",
+    llmModel: "",
+    llmApiKey: "",
+    llmPrompt: "",
+    // Low on purpose: every check spends tokens, and the assertion this type
+    // makes needs a few words, not an essay.
+    llmMaxTokens: 16,
+    // No default: a ceiling that is wrong for the model in use would fail a
+    // working endpoint, so latency is only recorded until someone sets one.
+    llmMaxLatency: null,
 };
 
 export default {

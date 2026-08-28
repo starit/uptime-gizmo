@@ -19,7 +19,7 @@ Uptime Gizmo is a self-hosted monitoring platform. It is a fork of
 
 Everything Kuma is good at is still here: easy self-hosting, twenty-odd monitor
 types, a long list of notification providers. This fork adds an API and an MCP
-server, on-chain monitoring, and a rebuilt interface.
+server, monitoring for AI and on-chain infrastructure, and a rebuilt interface.
 
 **[Wiki](docs/wiki)** — what this fork added, in short. Open it for
 screenshots of the current UI (login, dashboard, dark theme, public status
@@ -53,6 +53,28 @@ Everything in this section works today. Planned work is in the
   [`uptime-gizmo-sync` 1.0.4](https://github.com/starit/uptime-gizmo/blob/main/skills/uptime-gizmo-sync/SKILL.md)
   (creates and updates monitors). Re-fetch from those URLs to update a copy.
   Neither needs a checkout of this repository.
+
+### AI endpoint monitoring
+
+One monitor type, `llm`. It sends a chat completion on every check and asserts
+on the content that comes back, which is the part an HTTP check cannot see. A
+provider answering 200 with an error object in the payload, a model deprecated
+or renamed out from under the caller, an empty completion from an exhausted
+quota, and an answer that arrives after the application gave up all keep a
+status-code check green.
+
+The URL is the full chat-completions endpoint — nothing appends a path for you,
+because a gateway may mount it elsewhere and guessing fails silently. The
+request body is the OpenAI chat-completions shape, which Ollama, vLLM,
+llama.cpp, LiteLLM and hosted providers behind a compatible gateway all accept.
+`Keyword` asserts on the completion text rather than the whole body, and an
+optional latency ceiling fails a successful answer that took too long.
+
+Every check spends tokens: at a 60-second interval that is 1440 completions a
+day, so the default prompt is one line and the token cap is 16. Use an interval
+measured in minutes against a metered endpoint. Details, and why the API key is
+not settable over the HTTP API, are in the
+[wiki](docs/wiki/llm-monitoring.md).
 
 ### On-chain monitoring
 

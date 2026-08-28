@@ -18,6 +18,8 @@ areas of planned work and may change as the project develops.
 - Web3 monitoring on EVM chains: address balances, native and ERC-20, RPC
   endpoint health, and reading a value out of a contract to compare against a
   threshold. Every call is Ethereum JSON-RPC.
+- LLM endpoint monitoring: one chat completion per check, asserting on the
+  content rather than the status code.
 
 ## Short-term
 

@@ -117,6 +117,7 @@ const API_MONITOR_TYPES = [
     "web3-balance",
     "web3-rpc",
     "web3-contract",
+    "llm",
 ];
 
 const MONITOR_FIELDS = {
@@ -174,6 +175,22 @@ const MONITOR_FIELDS = {
     web3ValueOperator: { column: "web3_value_operator", type: "string", writable: true, enum: VALUE_OPERATORS },
     web3ValueThreshold: { column: "web3_value_threshold", type: "string", writable: true },
     web3BlockTag: { column: "web3_block_tag", type: "string", writable: true, enum: BLOCK_TAGS },
+    /*
+     * The llm type. Its endpoint, request timeout and content assertion are
+     * `url`, `timeout` and `keyword`/`invertKeyword` above, which mean the same
+     * thing here as they do for an HTTP keyword monitor.
+     *
+     * llmApiKey is marked secret rather than omitted, for the reason the
+     * notification fields are: an omitted column is one a later edit can add
+     * back with nothing to object. It is not writable either — accepting a
+     * credential through this API is a decision this project has not taken, and
+     * every other credential-bearing resource is entered by a human.
+     */
+    llmModel: { column: "llm_model", type: "string", writable: true },
+    llmPrompt: { column: "llm_prompt", type: "string", writable: true },
+    llmMaxTokens: { column: "llm_max_tokens", type: "int", writable: true },
+    llmMaxLatency: { column: "llm_max_latency", type: "int", writable: true },
+    llmApiKey: { column: "llm_api_key", type: "string", secret: true },
     createdDate: { column: "created_date", type: "string" },
 };
 

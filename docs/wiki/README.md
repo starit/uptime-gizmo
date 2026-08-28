@@ -52,6 +52,7 @@ The product logo is a gear, a “G,” and goggles. Gizmo is the engineer mascot
 | --- | --- |
 | [REST API](rest-api.md) | Scripts and agents talk to the instance over HTTP |
 | [MCP and agent skills](mcp-and-agents.md) | An AI client can ask what is down, and optionally create monitors |
+| [LLM endpoint monitoring](llm-monitoring.md) | Check that an inference endpoint still returns usable output |
 | [Web3 monitoring](web3-monitoring.md) | Watch balances, RPC freshness, and one value from a contract |
 | [Themes](themes.md) | Shared palettes, including ones generated from a description |
 | [Multiple logins](multiple-logins.md) | Separate passwords for the same instance |

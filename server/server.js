@@ -1000,6 +1000,15 @@ let needSetup = false;
                 bean.web3_value_threshold = monitor.web3ValueThreshold ?? null;
                 bean.web3_block_tag = monitor.web3BlockTag || "latest";
 
+                // The llm type. Its endpoint, request timeout and content
+                // assertion are url, timeout and keyword/invertKeyword, set
+                // above with the fields they belong to.
+                bean.llm_model = monitor.llmModel || null;
+                bean.llm_api_key = monitor.llmApiKey || null;
+                bean.llm_prompt = monitor.llmPrompt || null;
+                bean.llm_max_tokens = monitor.llmMaxTokens || null;
+                bean.llm_max_latency = monitor.llmMaxLatency || null;
+
                 // ping advanced options
                 bean.ping_numeric = monitor.ping_numeric;
                 bean.ping_count = monitor.ping_count;

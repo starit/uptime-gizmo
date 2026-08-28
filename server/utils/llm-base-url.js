@@ -91,11 +91,17 @@ function ipv4FromMappedIPv6(host) {
 
 /**
  * Refuse a base URL that would receive the LLM API key unsafely.
+ *
+ * The llm monitor type validates its own endpoint through here rather than
+ * repeating the rules: it sends the same kind of credential to the same kind of
+ * destination, and a second copy of this list is how one of them ends up
+ * missing a case.
  * @param {any} value raw setting
+ * @param {string} label what to call the value in an error message
  * @returns {string|undefined} trimmed URL, or undefined when unset
  * @throws {Error} when the value cannot be used as a request destination
  */
-function assertSafeLlmBaseUrl(value) {
+function assertSafeLlmBaseUrl(value, label = "The LLM base URL") {
     if (value == null) {
         return undefined;
     }
@@ -109,27 +115,27 @@ function assertSafeLlmBaseUrl(value) {
     try {
         url = new URL(text);
     } catch (e) {
-        throw new Error("The LLM base URL is not a URL");
+        throw new Error(`${label} is not a URL`);
     }
 
     if (url.username || url.password) {
-        throw new Error("The LLM base URL must not contain credentials; the API key is sent separately");
+        throw new Error(`${label} must not contain credentials; the API key is sent separately`);
     }
 
     if (url.protocol !== "https:" && url.protocol !== "http:") {
-        throw new Error("The LLM base URL must be http or https");
+        throw new Error(`${label} must be http or https`);
     }
 
     const host = url.hostname.replace(/^\[|\]$/g, "");
 
     if (isMetadataOrLinkLocal(host)) {
-        throw new Error("The LLM base URL cannot be a link-local or cloud-metadata address");
+        throw new Error(`${label} cannot be a link-local or cloud-metadata address`);
     }
 
     // HTTP on the public internet would send the key in cleartext. Local
     // Ollama and similar speak HTTP on loopback; that is the one exception.
     if (url.protocol === "http:" && !isLocalhost(host)) {
-        throw new Error("The LLM base URL must use HTTPS, except for localhost");
+        throw new Error(`${label} must use HTTPS, except for localhost`);
     }
 
     return text;

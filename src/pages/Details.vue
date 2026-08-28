@@ -40,6 +40,10 @@
                 >
                     {{ filterPassword(monitor.url) }}
                 </a>
+                <span v-if="monitor.type === 'llm'" data-testid="llm-target">
+                    <span class="keyword">{{ monitor.llmModel }}</span>
+                    {{ filterPassword(monitor.url) }}
+                </span>
                 <span v-if="monitor.type === 'port'">TCP Port {{ monitor.hostname }}:{{ monitor.port }}</span>
                 <span v-if="monitor.type === 'ping'">Ping: {{ monitor.hostname }}</span>
                 <span v-if="monitor.type === 'globalping'">
@@ -757,7 +761,12 @@ export default {
                 translationPrefix = "Avg. ";
             }
 
-            if (this.monitor.type === "http" || this.monitor.type === "keyword" || this.monitor.type === "json-query") {
+            if (
+                this.monitor.type === "http" ||
+                this.monitor.type === "keyword" ||
+                this.monitor.type === "json-query" ||
+                this.monitor.type === "llm"
+            ) {
                 return this.$t(translationPrefix + "Response");
             }
 

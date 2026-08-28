@@ -286,6 +286,37 @@ const WEB3_PROPERTIES = {
 };
 
 /*
+ * The llm type: one chat-completion request per check, asserting on the content
+ * that comes back rather than the status code.
+ *
+ * The endpoint is `url`, the request timeout is `timeout`, and the content
+ * assertion is `keyword`/`invertKeyword` — all three already above, meaning the
+ * same thing they mean for an HTTP keyword monitor.
+ *
+ * There is no llmApiKey property. The API does not accept a credential, so a
+ * monitor an agent creates can only reach an endpoint that needs no key, or one
+ * whose key a human already entered.
+ */
+const LLM_PROPERTIES = {
+    llmModel: {
+        type: "string",
+        description: "Model name sent as `model`. Required for the llm type; it cannot be guessed.",
+    },
+    llmPrompt: {
+        type: "string",
+        description: "The user message. Keep it one line; every check spends tokens.",
+    },
+    llmMaxTokens: {
+        type: "integer",
+        description: "Cap on the completion length. Defaults to 16. Every check spends tokens, so raise it only when an assertion needs more.",
+    },
+    llmMaxLatency: {
+        type: "integer",
+        description: "Milliseconds. The check fails when a successful answer takes longer than this. Leave unset to only record latency.",
+    },
+};
+
+/*
  * Types this package can create. The REST API is the authority
  * (`API_MONITOR_TYPES` in server/routers/v1-router.js, published as the
  * OpenAPI enum on MonitorInput.type). This copy exists because the MCP server
@@ -302,6 +333,7 @@ const CREATE_MONITOR_TYPES = [
     "web3-balance",
     "web3-rpc",
     "web3-contract",
+    "llm",
 ];
 
 /*
@@ -315,7 +347,7 @@ const WRITE_TOOLS = [
     {
         name: "create_monitor",
         description:
-            `Create a monitor. Requires name and type; type is one of ${CREATE_MONITOR_TYPES.join(", ")}. For a web3 type (EVM JSON-RPC only — not Solana or other non-EVM chains), call list_web3_networks first — web3NetworkId is required and cannot be guessed. Side effects: begins checking the target, and its first result may trigger notifications.`,
+            `Create a monitor. Requires name and type; type is one of ${CREATE_MONITOR_TYPES.join(", ")}. For a web3 type (EVM JSON-RPC only — not Solana or other non-EVM chains), call list_web3_networks first — web3NetworkId is required and cannot be guessed. For the llm type, url is the full chat-completions endpoint and llmModel is required; the API does not accept an API key, so the endpoint must either need none or already have one set by a human. Side effects: begins checking the target, and its first result may trigger notifications.`,
         inputSchema: {
             type: "object",
             properties: {
@@ -335,6 +367,7 @@ const WRITE_TOOLS = [
                 parent: { type: "integer", description: "Id of a group to nest this under." },
                 ...DNS_PROPERTIES,
                 ...WEB3_PROPERTIES,
+                ...LLM_PROPERTIES,
             },
             required: [ "name", "type" ],
         },
@@ -359,6 +392,7 @@ const WRITE_TOOLS = [
                 parent: { type: "integer", description: "Id of a group to nest this under." },
                 ...DNS_PROPERTIES,
                 ...WEB3_PROPERTIES,
+                ...LLM_PROPERTIES,
             },
             required: [ "id" ],
         },

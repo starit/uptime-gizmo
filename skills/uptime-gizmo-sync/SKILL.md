@@ -1,12 +1,12 @@
 ---
 name: uptime-gizmo-sync
-version: 1.0.4
+version: 1.0.5
 description: Create and update monitors on an Uptime Gizmo instance over its HTTP API, so that a service added during development starts being watched. Use when asked to add monitoring for a new endpoint or service, to change how something is checked, to pause or resume a monitor, or to tag monitors. Covers create, update, pause, resume and tagging; deleting is not supported here and is left to the user.
 ---
 
 # Adding monitoring for what you just built
 
-This is version **1.0.4**. A newer copy, if one exists, is at
+This is version **1.0.5**. A newer copy, if one exists, is at
 [skills/uptime-gizmo-sync/SKILL.md](https://github.com/starit/uptime-gizmo/blob/main/skills/uptime-gizmo-sync/SKILL.md).
 Replace this file with that one before creating monitors: a stale skill omits
 fields the API now accepts, or describes ones it no longer does. See
@@ -108,6 +108,7 @@ somebody. Create it paused and resume when the service is live.
 | `web3-balance` | `web3NetworkId`, `web3Address` | Native balance, or an ERC-20 with `web3TokenContract` |
 | `web3-rpc` | `web3NetworkId` | Down when the newest block stops being recent |
 | `web3-contract` | `web3NetworkId`, `web3CallTo`, `web3CallData` | Reads one value out of a contract and compares it |
+| `llm` | `url`, `llmModel` | One chat completion per check; asserts on the content, not the status code |
 
 This table is the types `POST /api/v1/monitors` accepts — the same `enum` as
 `MonitorInput.type` in `GET /api/v1/openapi.json`. Any other `type` is refused
@@ -115,6 +116,52 @@ with `400`. MQTT, gRPC and the rest exist in the UI; the API will not create
 them, because it cannot write the fields they need.
 
 For `dns`, **`dnsResolveType`** is `A`, `AAAA`, `CAA`, `CNAME`, `MX`, `NS`, `PTR`, `SOA`, `SRV` or `TXT` — the `enum` on `MonitorInput.dnsResolveType`. Node will resolve `ANY` and others; this monitor cannot read them, they used to report up having checked nothing, and they are refused. Globalping's form offers a wider list; this API cannot create that type, and a `PATCH` of the same column is still this enum.
+
+## Watching an inference endpoint
+
+`llm` sends one chat completion per check and asserts on the content that comes
+back. An HTTP monitor on the same URL already covers reachability; this type
+exists for the failures that keep a status check green — a 200 carrying an error
+object, a model that has been deprecated or renamed, an empty completion from a
+gateway or an exhausted quota, and an answer that arrives after the caller would
+have given up.
+
+`url` is the **full** chat-completions endpoint, not a base URL. Nothing appends
+`/v1/chat/completions` for you, because a gateway may mount it elsewhere and
+guessing fails silently. `timeout` is the request timeout in seconds, and
+`keyword`/`invertKeyword` assert on the completion text rather than the whole
+body.
+
+```bash
+curl -s -u "api:$KEY" -X POST -H 'Content-Type: application/json' -d '{
+  "name": "local llama",
+  "type": "llm",
+  "url": "http://127.0.0.1:11434/v1/chat/completions",
+  "llmModel": "llama3.2",
+  "llmPrompt": "Reply with the single word: ok",
+  "llmMaxTokens": 16,
+  "keyword": "ok",
+  "llmMaxLatency": 5000,
+  "interval": 300
+}' "$URL/api/v1/monitors"
+```
+
+Two things to tell the person asking, because both are easy to get wrong:
+
+**Every check spends tokens.** At a 60-second interval that is 1440 completions
+a day against a metered endpoint. Suggest an interval measured in minutes and
+leave `llmMaxTokens` low; it defaults to 16.
+
+**This API does not accept an API key.** There is no `llmApiKey` field, for the
+same reason there is no way to create a web3 network: a credential is entered by
+a human. So a monitor you create can reach an endpoint that needs no key — a
+local Ollama, vLLM or llama.cpp server — or one whose key is already set in the
+UI. For a hosted provider that needs a key, create nothing and say that a human
+has to add it under the monitor's own form.
+
+The endpoint URL is checked before any request: it must be http or https, must
+not carry credentials in the URL, must not be a link-local or cloud-metadata
+address, and must be HTTPS unless the host is localhost.
 
 ### Every writable field
 
@@ -128,7 +175,8 @@ These names are the writable properties on `MonitorInput` in
 `web3NetworkId`, `web3Address`, `web3TokenContract`, `web3TokenDecimals`,
 `web3MinBalance`, `web3MaxBlockAge`, `web3CallTo`, `web3CallData`,
 `web3ValueOffset`, `web3ValueType`, `web3ValueDecimals`, `web3ValueOperator`,
-`web3ValueThreshold`, `web3BlockTag`.
+`web3ValueThreshold`, `web3BlockTag`, `llmModel`, `llmPrompt`, `llmMaxTokens`,
+`llmMaxLatency`.
 
 Anything else in the body is **dropped silently** — the API takes an allow-list. If
 a setting you need is not here, it is not settable over the API yet; say so instead
