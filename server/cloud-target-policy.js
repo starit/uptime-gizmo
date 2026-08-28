@@ -196,12 +196,23 @@ function applyCloudPublicTargetPolicy(options, monitor) {
     const lookup = createSafeLookup();
     options.httpAgent.options.lookup = lookup;
     options.httpsAgent.options.lookup = lookup;
+    options.httpAgent.maxSockets = 10;
+    options.httpsAgent.maxSockets = 10;
+    options.httpAgent.maxFreeSockets = 2;
+    options.httpsAgent.maxFreeSockets = 2;
     options.maxContentLength = 1024 * 1024;
     options.maxBodyLength = 1024 * 1024;
     options.maxHeaderSize = 16 * 1024;
     options.beforeRedirect = (redirectOptions) => {
+        if (redirectOptions.auth) {
+            throw new CloudTargetPolicyError("redirect_credentials_not_allowed");
+        }
+        const redirectHostname = String(redirectOptions.hostname || "").replace(/^\[(.*)\]$/, "$1");
+        const formattedHostname = net.isIP(redirectHostname) === 6
+            ? `[${redirectHostname}]`
+            : redirectHostname;
         assertPublicTargetShape(
-            `${redirectOptions.protocol}//${redirectOptions.hostname}${redirectOptions.port ? `:${redirectOptions.port}` : ""}${redirectOptions.path || "/"}`,
+            `${redirectOptions.protocol}//${formattedHostname}${redirectOptions.port ? `:${redirectOptions.port}` : ""}${redirectOptions.path || "/"}`,
             allowedPorts
         );
         redirectOptions.lookup = lookup;

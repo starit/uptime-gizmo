@@ -51,4 +51,26 @@ describe("Cloud transition events", () => {
         assert.equal(new Set(requests.map((request) => request.body)).size, 1);
         assert.ok(requests.every((request) => request.headers["X-Gizmo-Signature"].startsWith("v1=")));
     });
+
+    test("does not retry a permanent Cloud rejection", async () => {
+        let requests = 0;
+        const sender = new CloudTransitionEventSender({
+            endpoint: "https://cloud.example.test/api/internal/gizmo-events",
+            instanceId: "instance-a",
+            secret: "a".repeat(32),
+            fetchImplementation: async () => {
+                requests += 1;
+                return { ok: false, status: 400 };
+            },
+            sleepImplementation: async () => {},
+        });
+        const event = transitionEvent({
+            instanceId: "instance-a",
+            monitorId: 42,
+            occurredAt: "2026-08-28T12:00:00.000Z",
+            status: DOWN,
+        });
+        await assert.rejects(() => sender.send(event), /Cloud rejected transition event/);
+        assert.equal(requests, 1);
+    });
 });

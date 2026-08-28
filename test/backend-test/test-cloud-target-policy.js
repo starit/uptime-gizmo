@@ -5,6 +5,7 @@ const {
     assertPublicAddress,
     assertPublicTargetShape,
     createSafeLookup,
+    applyCloudPublicTargetPolicy,
     resolveAndValidate,
 } = require("../../server/cloud-target-policy");
 
@@ -71,5 +72,37 @@ describe("Cloud public target policy", () => {
             });
         });
         assert.deepEqual(result, { address: "8.8.4.4", family: 4 });
+    });
+
+    test("rechecks every redirect and bounds each monitor connection pool", () => {
+        const previous = process.env.UPTIME_GIZMO_CLOUD_PUBLIC_TARGETS;
+        process.env.UPTIME_GIZMO_CLOUD_PUBLIC_TARGETS = "true";
+        try {
+            const options = {
+                url: "https://example.com/health",
+                httpAgent: { options: {} },
+                httpsAgent: { options: {} },
+            };
+            applyCloudPublicTargetPolicy(options, { proxy_id: null });
+            assert.equal(options.httpAgent.maxSockets, 10);
+            assert.equal(options.httpsAgent.maxSockets, 10);
+            assert.throws(() => options.beforeRedirect({
+                protocol: "http:",
+                hostname: "169.254.169.254",
+                path: "/latest/meta-data",
+            }), CloudTargetPolicyError);
+            assert.throws(() => options.beforeRedirect({
+                protocol: "https:",
+                hostname: "example.com",
+                auth: "user:password",
+                path: "/",
+            }), CloudTargetPolicyError);
+        } finally {
+            if (previous === undefined) {
+                delete process.env.UPTIME_GIZMO_CLOUD_PUBLIC_TARGETS;
+            } else {
+                process.env.UPTIME_GIZMO_CLOUD_PUBLIC_TARGETS = previous;
+            }
+        }
     });
 });

@@ -108,10 +108,12 @@ class CloudTransitionEventSender {
                     return;
                 }
                 if (![ 408, 409, 425, 429 ].includes(response.status) && response.status < 500) {
-                    throw new Error(`Cloud rejected transition event (${response.status})`);
+                    const error = new Error(`Cloud rejected transition event (${response.status})`);
+                    error.retryable = false;
+                    throw error;
                 }
             } catch (error) {
-                if (attempt + 1 >= MAX_ATTEMPTS) {
+                if (error.retryable === false || attempt + 1 >= MAX_ATTEMPTS) {
                     throw error;
                 }
             }
