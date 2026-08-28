@@ -116,6 +116,18 @@ li {
     color: var(--color-text-muted);
 }
 
+.lede {
+    max-width: 44ch;
+    color: var(--color-text);
+    font-size: 1.12rem;
+    line-height: 1.45;
+}
+
+.lede strong {
+    color: var(--color-text);
+    font-weight: 600;
+}
+
 ul {
     margin: 1.25rem 0;
     padding: 0;
