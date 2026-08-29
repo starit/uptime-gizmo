@@ -45,6 +45,7 @@ before(async () => {
         req.on("end", () => {
             received = {
                 authorization: req.headers.authorization,
+                apiKeyHeader: req.headers["api-key"],
                 body: JSON.parse(body || "{}"),
             };
             res.writeHead(reply.status, { "Content-Type": "application/json" });
@@ -75,6 +76,15 @@ describe("A custom endpoint is reached with the model named", () => {
 
         await probeLlmCredential(credential({ model: "" }));
         assert.ok(!("model" in received.body));
+    });
+
+    it("sends the key under the header the credential names, and no Bearer", async () => {
+        reply = { status: 200, body: { choices: [ { message: { content: "ok" } } ] } };
+
+        await probeLlmCredential(credential({ apiKeyHeader: "api-key" }));
+
+        assert.strictEqual(received.apiKeyHeader, "sk-test");
+        assert.strictEqual(received.authorization, undefined);
     });
 
     it("reports what the endpoint said when it refuses", async () => {

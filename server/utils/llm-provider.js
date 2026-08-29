@@ -44,8 +44,17 @@ async function createLlmProvider(credential, options = {}) {
          */
         const model = (credential.model ?? "").trim();
 
+        /*
+         * themed.js sends the key as `Authorization: Bearer` whenever it has
+         * one. A credential that names its own header sends the key there
+         * instead, and hands themed.js no key at all, so the Bearer header the
+         * endpoint would reject is never added.
+         */
+        const header = (credential.apiKeyHeader ?? "").trim();
+
         return new CustomProvider({
-            apiKey: credential.apiKey,
+            apiKey: header ? "" : credential.apiKey,
+            headers: header ? { [header]: credential.apiKey } : undefined,
             endpoint: url,
             timeout,
             maxRetries,

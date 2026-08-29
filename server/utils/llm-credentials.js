@@ -17,6 +17,14 @@ const { Settings } = require("../settings");
 const NAME_MAX_LENGTH = 64;
 
 /**
+ * A header name, as RFC 7230 defines a token.
+ *
+ * Anything outside this cannot be sent as a header name at all, and a value
+ * with a colon or a newline in it is how a header injection starts.
+ */
+const HEADER_NAME = /^[!#$%&'*+\-.^_`|~0-9A-Za-z]+$/;
+
+/**
  * Read a value that has to be a short string.
  * @param {any} value raw value
  * @param {string} label what to call it in an error message
@@ -81,11 +89,30 @@ function normalizeLlmCredential(raw, index) {
         throw new Error(`"${name}" needs an endpoint URL`);
     }
 
+    /*
+     * Bearer is what an OpenAI-compatible endpoint expects, and it is what this
+     * sends when nothing says otherwise. Azure OpenAI wants the key in api-key,
+     * and some gateways in x-api-key; against those a Bearer header is a 401
+     * whatever the key is. Naming the header sends the key as that header's
+     * whole value, with no scheme in front of it.
+     *
+     * Only a custom provider has this. The named ones are reached at their own
+     * hosts, which authenticate the way themed.js already knows.
+     */
+    const apiKeyHeader = provider.requiresEndpoint
+        ? shortString(raw.apiKeyHeader, `The API key header for "${name}"`)
+        : "";
+
+    if (apiKeyHeader !== "" && !HEADER_NAME.test(apiKeyHeader)) {
+        throw new Error(`The API key header for "${name}" is not a valid header name`);
+    }
+
     return {
         id,
         name,
         provider: provider.id,
         apiKey: raw.apiKey.trim(),
+        apiKeyHeader,
         model: (raw.model ?? "").trim(),
         baseUrl,
     };
@@ -167,6 +194,7 @@ function credentialFromLegacySettings(settings) {
         name: provider.label,
         provider: provider.id,
         apiKey: settings.llmApiKey.trim(),
+        apiKeyHeader: "",
         model: (settings.llmModel ?? "").trim(),
         baseUrl: (settings.llmBaseUrl ?? "").trim(),
     };

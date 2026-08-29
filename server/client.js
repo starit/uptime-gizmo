@@ -2,7 +2,7 @@
  * For Client Socket
  */
 const { TimeLogger } = require("../src/util");
-const { hasLlmCredential, llmCredentialSummaries } = require("./utils/llm-credentials");
+const { hasLlmCredential, llmCredentialSummaries, resolveActiveLlmCredential } = require("./utils/llm-credentials");
 const { R } = require("redbean-node");
 const { UptimeGizmoServer } = require("./uptime-gizmo-server");
 const { personalRoom } = require("./util-server");
@@ -161,8 +161,10 @@ async function sendInfo(socket, hideVersion = false) {
     if (socket.loginUserID) {
         const user = await R.findOne("user", " id = ? AND active = 1 ", [ socket.loginUserID ]);
         info.isAdmin = Boolean(user?.admin);
-        // Enough to name a credential in a monitor. The keys stay here.
+        // Enough to name a credential in a monitor, and to say which one an AI
+        // feature is about to use. The keys stay here.
         info.aiCredentials = await llmCredentialSummaries();
+        info.aiActiveCredentialId = (await resolveActiveLlmCredential())?.id ?? null;
     }
     if (!hideVersion) {
         info.version = checkVersion.version;

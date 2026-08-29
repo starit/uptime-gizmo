@@ -156,6 +156,7 @@ export default {
                 name: "",
                 provider: llmProviders[0].id,
                 apiKey: "",
+                apiKeyHeader: "",
                 model: "",
                 baseUrl: "",
             });

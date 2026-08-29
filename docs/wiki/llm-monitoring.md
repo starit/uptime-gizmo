@@ -17,6 +17,8 @@ An HTTP monitor on the same URL already covers reachability, and that is the fai
 
 Only credentials whose provider answers OpenAI chat completions are listed. A Claude credential is not among them: the Anthropic API is a different request shape than this monitor sends. A credential pointed at another host through its base URL is not listed either — that is a base, and appending a path to it is the guess this type exists to avoid. Either can still be watched by giving this monitor its own endpoint.
 
+A credential that names an **API Key Header** is honoured here too: the check sends the key under that header instead of as `Authorization: Bearer`, which is how one credential covers both a monitor and theme generation against an Azure-style endpoint.
+
 If the credential a monitor names is deleted, the check fails saying so rather than quietly watching something else.
 
 **URL** — for a monitor that carries its own endpoint — is the **full** chat-completions endpoint — `https://api.openai.com/v1/chat/completions`, `http://127.0.0.1:11434/v1/chat/completions`. Nothing appends a path for you: a gateway may mount it elsewhere, and guessing fails silently against exactly the setup you were trying to watch.

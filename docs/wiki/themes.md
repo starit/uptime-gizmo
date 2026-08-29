@@ -15,7 +15,9 @@ A custom theme is a palette layered over the built-in light or dark baseline. Wh
 
 Generation runs on the server. The LLM API key never reaches the browser. Only an administrator may change the AI credentials — generating a theme sends the key as a Bearer token, so changing the URL a credential points at could send it somewhere else.
 
-**Settings → AI** keeps a list of credentials, each with its own provider, key, and model, and one of them is marked **Use for AI features**. Alongside the named providers there is a **Custom** one, for any endpoint that speaks the OpenAI chat-completions API — a gateway, a proxy, or a model running on the same machine. The model field suggests models the provider is known for and accepts any other name you type.
+**Settings → AI** keeps a list of credentials, each with its own provider, key, and model, and one of them is marked **Use for AI features** — the generate box on the appearance page names that one, so a failure says which credential to go and fix. Alongside the named providers there is a **Custom** one, for any endpoint that speaks the OpenAI chat-completions API — a gateway, a proxy, or a model running on the same machine. The model field suggests models the provider is known for and accepts any other name you type.
+
+A custom credential also has an **API Key Header**. Left empty the key is sent as `Authorization: Bearer`, which is what an OpenAI-compatible endpoint expects; Azure OpenAI wants it in `api-key`, and some gateways in `x-api-key`. Against those, a Bearer header is a 401 whatever the key is. **Test** on the credential sends one short completion and shows what came back, which is where a wrong header, a wrong URL or a wrong key says so.
 
 No credential is required. With none saved, the instance contacts no AI service.
 

@@ -41,6 +41,26 @@
                 <div class="gizmo-field-help">{{ $t("llmApiKeyDescription") }}</div>
             </div>
 
+            <!--
+                Bearer is what an OpenAI-compatible endpoint expects. Azure
+                OpenAI wants api-key, and some gateways x-api-key; against those
+                a Bearer header is a 401 whatever the key is.
+            -->
+            <div v-if="isCustom">
+                <label for="llm-credential-key-header" class="gizmo-field-label">
+                    {{ $t("llmApiKeyHeaderLabel") }}
+                </label>
+                <input
+                    id="llm-credential-key-header"
+                    v-model="credential.apiKeyHeader"
+                    type="text"
+                    class="gizmo-native-control"
+                    maxlength="64"
+                    placeholder="Authorization: Bearer"
+                />
+                <div class="gizmo-field-help">{{ $t("llmApiKeyHeaderHelp") }}</div>
+            </div>
+
             <div>
                 <label for="llm-credential-model" class="gizmo-field-label">{{ $t("LLM Model (optional)") }}</label>
                 <input
@@ -123,6 +143,7 @@ interface LlmCredential {
     name: string;
     provider: string;
     apiKey: string;
+    apiKeyHeader: string;
     model: string;
     baseUrl: string;
 }
@@ -164,6 +185,7 @@ export default {
                 name: "",
                 provider: llmProviders[0].id,
                 apiKey: "",
+                apiKeyHeader: "",
                 model: "",
                 baseUrl: "",
             } as LlmCredential,
@@ -216,7 +238,8 @@ export default {
          */
         show(credential: LlmCredential, existing = false) {
             this.existing = existing;
-            this.credential = { ...credential };
+            // A credential stored before this field existed arrives without it.
+            this.credential = { ...credential, apiKeyHeader: credential.apiKeyHeader ?? "" };
             this.testMessage = "";
             this.testing = false;
             this.open = true;

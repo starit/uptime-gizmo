@@ -65,6 +65,27 @@ describe("AI credentials are a list, and every entry in it is checked", () => {
         );
     });
 
+    it("takes a header name for the key, which only a custom provider has", () => {
+        const [ custom ] = normalizeLlmCredentials([
+            { ...openai, provider: "custom", baseUrl: "https://llm.example.com/v1/chat/completions", apiKeyHeader: " api-key " },
+        ]);
+        assert.strictEqual(custom.apiKeyHeader, "api-key");
+
+        const [ hosted ] = normalizeLlmCredentials([ { ...openai, apiKeyHeader: "api-key" } ]);
+        assert.strictEqual(hosted.apiKeyHeader, "");
+    });
+
+    it("refuses a header name that is not one, which is how an injection starts", () => {
+        for (const bad of [ "api key", "api-key: x", "api\nkey", "api:key" ]) {
+            assert.throws(
+                () => normalizeLlmCredentials([
+                    { ...openai, provider: "custom", baseUrl: "https://llm.example.com/v1", apiKeyHeader: bad },
+                ]),
+                /valid header name/
+            );
+        }
+    });
+
     it("requires an endpoint for a custom provider, which has no host of its own", () => {
         assert.throws(() => normalizeLlmCredentials([ { ...openai, provider: "custom", baseUrl: "" } ]), /needs an endpoint/);
 

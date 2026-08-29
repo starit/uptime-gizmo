@@ -292,6 +292,7 @@ describe("What one check sends when the monitor names a saved credential", () =>
         assert.deepStrictEqual(target, {
             endpoint: "https://own.example.com/v1/chat/completions",
             apiKey: "sk-own",
+            apiKeyHeader: "",
             model: "own-model",
         });
     });
@@ -305,6 +306,22 @@ describe("What one check sends when the monitor names a saved credential", () =>
         assert.strictEqual(target.endpoint, "https://llm.example.com/v1/chat/completions");
         assert.strictEqual(target.apiKey, "sk-saved");
         assert.strictEqual(target.model, "pinned-model");
+    });
+
+    it("carries the credential's header name, so the same key reaches Azure and a gateway alike", () => {
+        const target = internals.resolveTarget({ llm_credential_id: "azure" }, [
+            {
+                id: "azure",
+                name: "Azure",
+                provider: "custom",
+                apiKey: "sk-azure",
+                apiKeyHeader: "api-key",
+                model: "gpt-5.6-terra",
+                baseUrl: "https://example.openai.azure.com/openai/deployments/x/chat/completions",
+            },
+        ]);
+
+        assert.strictEqual(target.apiKeyHeader, "api-key");
     });
 
     it("falls back to the credential's model when the monitor names none", () => {

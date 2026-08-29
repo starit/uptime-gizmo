@@ -160,6 +160,16 @@
                 </div>
 
                 <template v-else>
+                    <!--
+                        With several credentials saved, "check the provider, key
+                        and model in AI settings" is not enough to act on: it
+                        does not say which of them was tried.
+                    -->
+                    <div v-if="activeAiCredentialName" class="gizmo-field-help theme-tool__credential">
+                        {{ $t("generateThemeCredential", [ activeAiCredentialName ]) }}
+                        <router-link to="/settings/ai">{{ $t("aiSettingsLink") }}</router-link>
+                    </div>
+
                     <div class="gizmo-inline-action">
                         <input
                             id="theme-prompt"
@@ -369,6 +379,7 @@ import { findContrastFailures, findInvalidColours, baselineFor, themeToGizmoVars
 import GizmoButton from "../gizmo/GizmoButton.vue";
 import GizmoDialog from "../gizmo/GizmoDialog.vue";
 import ToggleSection from "../ToggleSection.vue";
+import { getLLMProvider } from "../../llm-providers.ts";
 
 /*
  * A model asked for "warm dusk" will sometimes hand back a palette that reads
@@ -419,6 +430,22 @@ export default {
          */
         aiConfigured() {
             return Boolean(this.$root.info?.aiConfigured);
+        },
+
+        /**
+         * The credential generation will use, named the way the AI settings
+         * name it, with the model it ends up sending.
+         * @returns {string} the description, or "" when there is nothing to say
+         */
+        activeAiCredentialName() {
+            const credentials = this.$root.info?.aiCredentials ?? [];
+            const active = credentials.find((item) => item.id === this.$root.info?.aiActiveCredentialId);
+            if (!active) {
+                return "";
+            }
+
+            const model = active.model || getLLMProvider(active.provider)?.defaultModel;
+            return model ? `${active.name} · ${model}` : active.name;
         },
 
         maxGenerateAttempts() {
@@ -692,6 +719,10 @@ export default {
 }
 
 /* The shared badge recipe sets no gap, so the icon sat against the word. */
+.theme-tool__credential {
+    margin-top: -0.25rem;
+}
+
 .theme-tool__badge {
     gap: 0.3rem;
 }

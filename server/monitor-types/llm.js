@@ -90,7 +90,12 @@ class LlmMonitorType extends MonitorType {
 
         const headers = { "Content-Type": "application/json" };
         if (target.apiKey) {
-            headers.Authorization = `Bearer ${target.apiKey}`;
+            // Bearer unless the credential names the header its endpoint wants.
+            if (target.apiKeyHeader) {
+                headers[target.apiKeyHeader] = target.apiKey;
+            } else {
+                headers.Authorization = `Bearer ${target.apiKey}`;
+            }
         }
 
         const started = dayjs().valueOf();
@@ -264,6 +269,7 @@ function resolveTarget(monitor, credentials) {
         return {
             endpoint: monitor.url,
             apiKey: monitor.llm_api_key,
+            apiKeyHeader: "",
             model: (monitor.llm_model || "").trim(),
         };
     }
@@ -283,6 +289,7 @@ function resolveTarget(monitor, credentials) {
     return {
         endpoint,
         apiKey: credential.apiKey,
+        apiKeyHeader: (credential.apiKeyHeader ?? "").trim(),
         model: (monitor.llm_model || credential.model || provider?.defaultModel || "").trim(),
     };
 }
