@@ -41,26 +41,6 @@
                 <div class="gizmo-field-help">{{ $t("llmApiKeyDescription") }}</div>
             </div>
 
-            <!--
-                Bearer is what an OpenAI-compatible endpoint expects. Azure
-                OpenAI wants api-key, and some gateways x-api-key; against those
-                a Bearer header is a 401 whatever the key is.
-            -->
-            <div v-if="isCustom">
-                <label for="llm-credential-key-header" class="gizmo-field-label">
-                    {{ $t("llmApiKeyHeaderLabel") }}
-                </label>
-                <input
-                    id="llm-credential-key-header"
-                    v-model="credential.apiKeyHeader"
-                    type="text"
-                    class="gizmo-native-control"
-                    maxlength="64"
-                    placeholder="Authorization: Bearer"
-                />
-                <div class="gizmo-field-help">{{ $t("llmApiKeyHeaderHelp") }}</div>
-            </div>
-
             <div>
                 <label for="llm-credential-model" class="gizmo-field-label">{{ $t("LLM Model (optional)") }}</label>
                 <input
@@ -100,6 +80,30 @@
                 </div>
             </div>
 
+            <!--
+                The key header is standard — Authorization: Bearer — for every
+                endpoint that is actually OpenAI-compatible, so it is folded
+                away rather than offered alongside the fields that do need
+                filling in. A credential that already sets one opens with it
+                showing, so nothing configured is also hidden.
+            -->
+            <ToggleSection v-if="isCustom" :key="credential.id" :heading="$t('Advanced')" :default-open="Boolean(credential.apiKeyHeader)">
+                <div>
+                    <label for="llm-credential-key-header" class="gizmo-field-label">
+                        {{ $t("llmApiKeyHeaderLabel") }}
+                    </label>
+                    <input
+                        id="llm-credential-key-header"
+                        v-model="credential.apiKeyHeader"
+                        type="text"
+                        class="gizmo-native-control"
+                        maxlength="64"
+                        placeholder="Authorization: Bearer"
+                    />
+                    <div class="gizmo-field-help">{{ $t("llmApiKeyHeaderHelp") }}</div>
+                </div>
+            </ToggleSection>
+
             <!-- What the provider said when Test was pressed, kept where the
                  fields that caused it are still on screen. -->
             <div v-if="testMessage" ref="testResult" class="gizmo-native-alert" :class="testAlertClass">
@@ -136,6 +140,7 @@ import Confirm from "./Confirm.vue";
 import GizmoButton from "./gizmo/GizmoButton.vue";
 import GizmoDialog from "./gizmo/GizmoDialog.vue";
 import HiddenInput from "./HiddenInput.vue";
+import ToggleSection from "./ToggleSection.vue";
 import { getLLMProvider, llmProviders, type LLMProvider } from "../llm-providers.ts";
 
 interface LlmCredential {
@@ -170,6 +175,7 @@ export default {
         GizmoButton,
         GizmoDialog,
         HiddenInput,
+        ToggleSection,
     },
     emits: ["save", "delete"],
     data() {
