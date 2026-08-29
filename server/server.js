@@ -136,9 +136,10 @@ const {
     allowDevAllOrigin,
     printServerUrls,
 } = require("./util-server");
-const { getLLMProvider } = require("../src/llm-providers");
 const { LLM_SETTING_KEYS, assertSafeLlmBaseUrl } = require("./utils/llm-base-url");
+const { createLlmProvider, probeLlmCredential } = require("./utils/llm-provider");
 const {
+    normalizeLlmCredential,
     normalizeLlmCredentials,
     redactLlmCredentials,
     readLlmCredentials,
@@ -1592,61 +1593,10 @@ let needSetup = false;
                     throw new Error("No AI provider is configured");
                 }
 
-                // Checked here, not only at save: a URL stored before this
-                // existed, or one written around the settings form, must not
-                // receive the key either.
-                const url = assertSafeLlmBaseUrl(credential.baseUrl);
-
                 // Generation runs here rather than in the browser so the key
                 // never leaves the server.
-                const { createThemed, CustomProvider } = await import("@themed.js/core");
-
-                let ai;
-
-                if (credential.provider === "custom") {
-                    if (!url) {
-                        throw new Error("The selected AI credential has no endpoint URL");
-                    }
-
-                    /*
-                     * themed.js posts its own body shape to a custom endpoint,
-                     * and that shape carries no model. An OpenAI-compatible
-                     * gateway — LiteLLM, OpenRouter, vLLM, Ollama — needs one,
-                     * so the request is rebuilt here with the model named. The
-                     * rest of the provider, including retries and reading the
-                     * answer back, is left to themed.js.
-                     */
-                    ai = {
-                        provider: new CustomProvider({
-                            apiKey: credential.apiKey,
-                            endpoint: url,
-                            transformRequest: (messages) => ({
-                                ...(credential.model ? { model: credential.model } : {}),
-                                messages: messages.map((message) => ({
-                                    role: message.role,
-                                    content: message.content,
-                                })),
-                                temperature: 0.7,
-                                max_tokens: 2000,
-                            }),
-                        }),
-                    };
-                } else {
-                    /*
-                     * A blank model field falls back to this project's
-                     * catalogue rather than to themed.js, whose own fallbacks
-                     * name models their providers have since retired.
-                     */
-                    ai = {
-                        provider: credential.provider,
-                        apiKey: credential.apiKey,
-                        model: credential.model || getLLMProvider(credential.provider)?.defaultModel || undefined,
-                        // When set, this replaces the provider's own host.
-                        baseURL: url,
-                    };
-                }
-
-                const themed = createThemed({ ai });
+                const { createThemed } = await import("@themed.js/core");
+                const themed = createThemed({ ai: { provider: await createLlmProvider(credential) } });
 
                 /*
                  * themed.js models a palette as sixteen colours, and two of the
@@ -1675,6 +1625,36 @@ let needSetup = false;
                 });
             } catch (e) {
                 log.warn("theme", `AI theme generation failed: ${e.message}`);
+                callback({
+                    ok: false,
+                    msg: e.message,
+                });
+            }
+        });
+
+        socket.on("testLlmCredential", async (credential, callback) => {
+            try {
+                checkLogin(socket);
+
+                /*
+                 * The credential arrives from the form rather than from the
+                 * database, so a key can be tried before it is saved. That is
+                 * also why this is administrators only: it sends whatever key
+                 * and URL it is handed, which is the same power setSettings
+                 * keeps to them.
+                 */
+                if (!(await isAdmin(socket))) {
+                    throw new Error("Only an administrator can test an AI credential");
+                }
+
+                const answer = await probeLlmCredential(normalizeLlmCredential(credential, 0));
+
+                callback({
+                    ok: true,
+                    answer,
+                });
+            } catch (e) {
+                log.warn("ai", `AI credential test failed: ${e.message}`);
                 callback({
                     ok: false,
                     msg: e.message,

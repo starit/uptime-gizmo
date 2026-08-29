@@ -29,6 +29,7 @@
         "src/components/Confirm.vue",
         "src/components/CreateGroupDialog.vue",
         "src/components/DockerHostDialog.vue",
+        "src/components/LlmCredentialDialog.vue",
         "src/components/MonitorSettingDialog.vue",
         "src/components/NotificationFormHost.vue",
         "src/components/ProxyDialog.vue",
