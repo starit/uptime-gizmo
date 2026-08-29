@@ -63,11 +63,17 @@
         </div>
 
         <div v-if="canEdit && credentials.length > 0" class="gizmo-action-bar llm-actions">
-            <GizmoButton variant="secondary" :disabled="credentials.length >= credentialLimit" @click="add()">
+            <GizmoButton variant="secondary" :disabled="atCredentialLimit" @click="add()">
                 <font-awesome-icon icon="plus" />
                 {{ $t("addLlmCredential") }}
             </GizmoButton>
         </div>
+
+        <!-- A disabled button explains nothing, and cannot be hovered for a
+             tooltip in every browser, so the reason is said in the open. -->
+        <p v-if="canEdit && atCredentialLimit" class="gizmo-field-help llm-limit">
+            {{ $t("llmCredentialLimitReached", [ credentialLimit ]) }}
+        </p>
 
         <LlmCredentialDialog ref="dialog" @save="store" @delete="remove" />
     </div>
@@ -112,6 +118,9 @@ export default {
         },
         activeId() {
             return this.settings.llmActiveCredentialId ?? "";
+        },
+        atCredentialLimit() {
+            return this.credentials.length >= this.credentialLimit;
         },
         canEdit() {
             return Boolean(this.$root.info?.isAdmin);
@@ -269,5 +278,9 @@ export default {
 
 .llm-actions {
     margin-top: 0.75rem;
+}
+
+.llm-limit {
+    margin-top: 0.5rem;
 }
 </style>

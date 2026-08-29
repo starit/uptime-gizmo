@@ -1655,6 +1655,7 @@
     "addLlmCredential": "Add Credential",
     "noLlmCredentials": "No AI credentials",
     "noLlmCredentialsDescription": "Add one to enable AI features such as generating a theme from a description.",
+    "llmCredentialLimitReached": "This instance keeps at most {0} AI credentials. Delete one to add another.",
     "customThemesHelp": "A custom theme is a palette that layers over the built-in light or dark theme. Which one it layers over is read from its own background colour, shown beside its name, so a light theme stays light whatever is selected above. Whether it arrives by import or from the AI, it is translated into this project's colour tokens and then measured against the contrast DESIGN.md requires — 4.5:1 for text, 3:1 for indicators and controls — and rejected outright if any pair falls short. Nothing that fails that check is ever stored or applied.",
     "themeChoiceHelp": "Auto follows your operating system. Selecting a custom theme below replaces this choice — a custom theme carries its own light or dark baseline.",
     "appearanceIntro": "Language, theme, and the heartbeat bar options below are remembered in this browser, so each person who signs in picks their own. Custom themes are the exception: they are stored on the instance and offered to everyone.",
