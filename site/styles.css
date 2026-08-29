@@ -14,6 +14,16 @@
     --color-interactive: #75a7ff;
     --color-interactive-hover: #9abeff;
     --color-focus-ring: #75a7ff;
+
+    /*
+     * Same faces as the product: Plex for UI and code, Fraunces for the English
+     * display line. CJK is left to the system so we do not download Noto Sans SC
+     * (it is large, and its metrics do not match Plex).
+     */
+    --font-sans: "IBM Plex Sans", "Noto Sans", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC",
+        sans-serif;
+    --font-display: Fraunces, "Iowan Old Style", Palatino, "Songti SC", "Noto Serif SC", serif;
+    --font-mono: "IBM Plex Mono", ui-monospace, "Noto Sans Mono", monospace;
 }
 
 * {
@@ -23,10 +33,15 @@
 html {
     color: var(--color-text);
     background: var(--color-bg);
-    font-family: "IBM Plex Sans", "Noto Sans", sans-serif;
+    overflow-x: clip;
+    font-family: var(--font-sans);
     font-size: 1.0625rem;
     line-height: 1.5;
     -webkit-text-size-adjust: 100%;
+}
+
+html[lang="zh-Hans"] {
+    line-height: 1.65;
 }
 
 body {
@@ -50,9 +65,17 @@ footer {
     height: auto;
 }
 
-.repo {
+.lang {
+    display: flex;
+    gap: 0.75rem;
     margin: 0.35rem 0 0;
     font-size: 0.9375rem;
+}
+
+.lang a[aria-current="page"] {
+    color: var(--color-text);
+    font-weight: 600;
+    text-decoration: none;
 }
 
 .line {
@@ -85,7 +108,7 @@ footer {
 .line blockquote p {
     margin: 0;
     color: var(--color-text);
-    font-family: Fraunces, "Iowan Old Style", Palatino, serif;
+    font-family: var(--font-display);
     font-size: 1.45rem;
     font-optical-sizing: auto;
     font-weight: 500;
@@ -117,7 +140,6 @@ li {
 }
 
 .lede {
-    max-width: 44ch;
     color: var(--color-text);
     font-size: 1.12rem;
     line-height: 1.45;
@@ -166,22 +188,65 @@ li strong::before {
 .stall {
     margin: 1.6rem 0 0.45rem;
     color: var(--color-brand);
-    font-family: Fraunces, "Iowan Old Style", Palatino, serif;
+    font-family: var(--font-display);
     font-size: 0.95rem;
     font-weight: 500;
 }
 
-pre {
+html[lang="zh-Hans"] .stall {
+    font-family: var(--font-sans);
+}
+
+.cmd {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: start;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+}
+
+.cmd pre {
     margin: 0;
     padding: 0.85rem 1rem;
+    min-width: 0;
     overflow-x: auto;
     color: var(--color-text);
-    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-family: var(--font-mono);
     font-size: 0.8125rem;
     line-height: 1.45;
     white-space: pre-wrap;
-    background: var(--color-surface);
+    overflow-wrap: anywhere;
+    background: transparent;
+}
+
+.copy {
+    appearance: none;
+    -webkit-appearance: none;
+    margin: 0.45rem 0.45rem 0.45rem 0;
+    padding: 0 0.9rem;
+    min-height: 2.5rem;
+    color: var(--color-text);
+    font: inherit;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    line-height: 1;
+    white-space: nowrap;
+    cursor: pointer;
+    touch-action: manipulation;
+    background: var(--color-bg);
     border: 1px solid var(--color-border);
+    border-radius: 0;
+}
+
+.copy:hover {
+    color: var(--color-interactive);
+    border-color: var(--color-interactive);
+}
+
+.copy.is-copied,
+.copy.is-copied:hover {
+    color: var(--color-brand);
+    border-color: var(--color-brand);
 }
 
 .links {
@@ -217,7 +282,7 @@ a:hover {
 
 a:focus-visible,
 .cta:focus-visible,
-pre:focus-visible {
+.copy:focus-visible {
     outline: 2px solid var(--color-focus-ring);
     outline-offset: 3px;
 }
@@ -243,18 +308,90 @@ footer p {
 }
 
 @media (max-width: 32rem) {
+    body {
+        padding: 1.35rem 1rem 3rem;
+        padding-left: max(1rem, env(safe-area-inset-left, 0px));
+        padding-right: max(1rem, env(safe-area-inset-right, 0px));
+        padding-bottom: max(3rem, env(safe-area-inset-bottom, 0px));
+    }
+
+    main,
+    footer {
+        margin-left: 0;
+        margin-right: 0;
+    }
+
+    .logo {
+        width: min(14rem, 100%);
+    }
+
+    .lang a {
+        display: inline-flex;
+        align-items: center;
+        min-height: 2.5rem;
+        padding: 0 0.15rem;
+    }
+
     .line {
-        flex-wrap: wrap;
+        gap: 0.45rem 0.65rem;
+        margin: 1.35rem 0 1.15rem;
+    }
+
+    .mascot {
+        width: 6.75rem;
     }
 
     .line blockquote {
-        margin-bottom: 0;
+        flex: 1;
+        min-width: 0;
+        margin: 0 0 0.85rem;
+        padding: 0.7rem 0.85rem 0.75rem;
     }
 
-    .line blockquote::before {
-        top: -6px;
-        left: 2.6rem;
-        transform: rotate(-135deg);
+    .line blockquote p {
+        font-size: 1.18rem;
+    }
+
+    .lede {
+        font-size: 1.05rem;
+    }
+
+    .shot {
+        transform: none;
+    }
+
+    .cmd {
+        grid-template-columns: 1fr;
+    }
+
+    .cmd pre {
+        padding: 0.8rem 0.9rem;
+        font-size: 0.75rem;
+    }
+
+    .copy {
+        margin: 0;
+        width: 100%;
+        border: 0;
+        border-top: 1px solid var(--color-border);
+    }
+
+    .links {
+        flex-wrap: wrap;
+        gap: 0.85rem 1.1rem;
+    }
+
+    .cta {
+        display: inline-flex;
+        align-items: center;
+        min-height: 2.5rem;
+        padding: 0.55rem 1.15rem;
+    }
+
+    .links > a:not(.cta) {
+        display: inline-flex;
+        align-items: center;
+        min-height: 2.5rem;
     }
 }
 

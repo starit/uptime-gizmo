@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://starit.github.io/uptime-gizmo/sitemap.xml
