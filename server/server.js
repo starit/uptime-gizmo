@@ -136,7 +136,15 @@ const {
     allowDevAllOrigin,
     printServerUrls,
 } = require("./util-server");
+const { getLLMProvider } = require("../src/llm-providers");
 const { LLM_SETTING_KEYS, assertSafeLlmBaseUrl } = require("./utils/llm-base-url");
+const {
+    normalizeLlmCredentials,
+    redactLlmCredentials,
+    readLlmCredentials,
+    pickLlmCredential,
+    resolveActiveLlmCredential,
+} = require("./utils/llm-credentials");
 
 log.debug("server", "Importing Notification");
 const { Notification } = require("./notification");
@@ -1537,13 +1545,26 @@ let needSetup = false;
                     data.serverTimezone = await server.getTimezone();
                 }
 
-                // The API key is an instance credential. Anyone who can sign in
-                // used to receive it in this payload, then could point llmBaseUrl
-                // at a host they control and generate a theme — the server would
-                // send the key there as a Bearer token.
+                /*
+                 * The credential list is sent in one shape whatever is stored,
+                 * so a page that has not been saved since this instance kept a
+                 * single credential still edits that credential rather than
+                 * silently starting a new list beside it.
+                 */
+                const credentials = await readLlmCredentials();
+                const active = pickLlmCredential(credentials, data.llmActiveCredentialId);
+
+                // The API keys are instance credentials. Anyone who can sign in
+                // used to receive one in this payload, then could point its base
+                // URL at a host they control and generate a theme — the server
+                // would send the key there as a Bearer token.
                 if (!(await isAdmin(socket))) {
                     delete data.llmApiKey;
+                    data.llmCredentials = redactLlmCredentials(credentials);
+                } else {
+                    data.llmCredentials = credentials;
                 }
+                data.llmActiveCredentialId = active ? active.id : "";
 
                 callback({
                     ok: true,
@@ -1565,29 +1586,67 @@ let needSetup = false;
                     throw new Error("A description is required");
                 }
 
-                const provider = await Settings.get("llmProvider");
-                const apiKey = await Settings.get("llmApiKey");
+                const credential = await resolveActiveLlmCredential();
 
-                if (!provider || !apiKey) {
+                if (!credential) {
                     throw new Error("No AI provider is configured");
                 }
 
                 // Checked here, not only at save: a URL stored before this
                 // existed, or one written around the settings form, must not
                 // receive the key either.
-                const baseURL = assertSafeLlmBaseUrl(await Settings.get("llmBaseUrl"));
+                const url = assertSafeLlmBaseUrl(credential.baseUrl);
 
                 // Generation runs here rather than in the browser so the key
                 // never leaves the server.
-                const { createThemed } = await import("@themed.js/core");
-                const themed = createThemed({
-                    ai: {
-                        provider,
-                        apiKey,
-                        model: (await Settings.get("llmModel")) || undefined,
-                        baseURL,
-                    },
-                });
+                const { createThemed, CustomProvider } = await import("@themed.js/core");
+
+                let ai;
+
+                if (credential.provider === "custom") {
+                    if (!url) {
+                        throw new Error("The selected AI credential has no endpoint URL");
+                    }
+
+                    /*
+                     * themed.js posts its own body shape to a custom endpoint,
+                     * and that shape carries no model. An OpenAI-compatible
+                     * gateway — LiteLLM, OpenRouter, vLLM, Ollama — needs one,
+                     * so the request is rebuilt here with the model named. The
+                     * rest of the provider, including retries and reading the
+                     * answer back, is left to themed.js.
+                     */
+                    ai = {
+                        provider: new CustomProvider({
+                            apiKey: credential.apiKey,
+                            endpoint: url,
+                            transformRequest: (messages) => ({
+                                ...(credential.model ? { model: credential.model } : {}),
+                                messages: messages.map((message) => ({
+                                    role: message.role,
+                                    content: message.content,
+                                })),
+                                temperature: 0.7,
+                                max_tokens: 2000,
+                            }),
+                        }),
+                    };
+                } else {
+                    /*
+                     * A blank model field falls back to this project's
+                     * catalogue rather than to themed.js, whose own fallbacks
+                     * name models their providers have since retired.
+                     */
+                    ai = {
+                        provider: credential.provider,
+                        apiKey: credential.apiKey,
+                        model: credential.model || getLLMProvider(credential.provider)?.defaultModel || undefined,
+                        // When set, this replaces the provider's own host.
+                        baseURL: url,
+                    };
+                }
+
+                const themed = createThemed({ ai });
 
                 /*
                  * themed.js models a palette as sixteen colours, and two of the
@@ -1672,8 +1731,27 @@ let needSetup = false;
                     for (const key of LLM_SETTING_KEYS) {
                         delete data[key];
                     }
-                } else if (Object.prototype.hasOwnProperty.call(data, "llmBaseUrl")) {
-                    data.llmBaseUrl = assertSafeLlmBaseUrl(data.llmBaseUrl) ?? "";
+                } else {
+                    if (Object.prototype.hasOwnProperty.call(data, "llmBaseUrl")) {
+                        data.llmBaseUrl = assertSafeLlmBaseUrl(data.llmBaseUrl) ?? "";
+                    }
+
+                    if (Object.prototype.hasOwnProperty.call(data, "llmCredentials")) {
+                        const credentials = normalizeLlmCredentials(data.llmCredentials);
+                        data.llmCredentials = credentials;
+                        data.llmActiveCredentialId = pickLlmCredential(credentials, data.llmActiveCredentialId)?.id ?? "";
+
+                        /*
+                         * The list is the source of truth once it has been
+                         * saved. The single-credential settings are cleared
+                         * rather than left behind, so a key does not stay in
+                         * the database after it was removed from the list.
+                         */
+                        data.llmProvider = "";
+                        data.llmApiKey = "";
+                        data.llmModel = "";
+                        data.llmBaseUrl = "";
+                    }
                 }
 
                 // If currently is disabled auth, don't need to check

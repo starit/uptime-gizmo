@@ -98,10 +98,12 @@ Create an account, set its initial password, toggle its administrator flag,
 disable it, delete it, and reset someone else's password. Those are the account
 events that check the flag.
 
-The other thing the flag governs is the LLM credential bag (`llmProvider`,
-`llmApiKey`, `llmModel`, `llmBaseUrl`). Generating a theme sends the API key to
-the base URL as a Bearer token, so anyone who can change that URL can send the
-key to a host they control. Only an administrator may write those settings.
+The other thing the flag governs is the LLM credential bag (`llmCredentials`,
+`llmActiveCredentialId`, and the single-credential `llmProvider`, `llmApiKey`,
+`llmModel`, `llmBaseUrl` settings they replaced). Generating a theme sends the
+API key to the credential's URL as a Bearer token, so anyone who can change that
+URL can send the key to a host they control. Only an administrator may write
+those settings, or read the keys back.
 Generating a theme also refuses a stored URL that is not HTTPS (HTTP is allowed
 only on localhost) or that points at a link-local or cloud-metadata address.
 

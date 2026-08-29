@@ -13,9 +13,11 @@ A custom theme is a palette layered over the built-in light or dark baseline. Wh
 - **Import** JSON from another instance or written by hand.
 - **Generate** from a sentence, if an administrator has configured **Settings → AI**.
 
-Generation runs on the server. The LLM API key never reaches the browser. Only an administrator may change the AI provider, key, model, or base URL — generating a theme sends that key as a Bearer token, so changing the base URL could send it somewhere else.
+Generation runs on the server. The LLM API key never reaches the browser. Only an administrator may change the AI credentials — generating a theme sends the key as a Bearer token, so changing the URL a credential points at could send it somewhere else.
 
-No provider is required. With none selected, the instance contacts no AI service.
+**Settings → AI** keeps a list of credentials, each with its own provider, key, and model, and one of them is marked **Use for AI features**. Alongside the named providers there is a **Custom** one, for any endpoint that speaks the OpenAI chat-completions API — a gateway, a proxy, or a model running on the same machine. The model field suggests models the provider is known for and accepts any other name you type.
+
+No credential is required. With none saved, the instance contacts no AI service.
 
 ## Contrast gate
 

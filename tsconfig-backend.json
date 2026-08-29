@@ -5,5 +5,5 @@
         "allowSyntheticDefaultImports": true,
         "skipLibCheck": true
     },
-    "files": ["./src/util.ts", "./src/badge-constants.ts"]
+    "files": ["./src/util.ts", "./src/badge-constants.ts", "./src/llm-providers.ts"]
 }

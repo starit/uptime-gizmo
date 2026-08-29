@@ -1,5 +1,5 @@
 module.exports = {
-    ignorePatterns: ["test/*.js", "server/modules/*", "src/util.js"],
+    ignorePatterns: ["test/*.js", "server/modules/*", "src/util.js", "src/llm-providers.js"],
     root: true,
     env: {
         browser: true,

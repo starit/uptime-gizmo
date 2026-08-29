@@ -8,8 +8,19 @@
  * else has to be a URL we are willing to put that header on.
  */
 
-/** Setting keys that are the LLM credential bag. */
-const LLM_SETTING_KEYS = [ "llmProvider", "llmApiKey", "llmModel", "llmBaseUrl" ];
+/**
+ * Setting keys that are the LLM credential bag. The first four are the
+ * single-credential settings the list replaced; they are still read for an
+ * instance that has not saved the AI page since upgrading.
+ */
+const LLM_SETTING_KEYS = [
+    "llmProvider",
+    "llmApiKey",
+    "llmModel",
+    "llmBaseUrl",
+    "llmCredentials",
+    "llmActiveCredentialId",
+];
 
 const METADATA_HOSTS = new Set([
     "metadata.google.internal",

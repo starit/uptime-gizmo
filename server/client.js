@@ -2,6 +2,7 @@
  * For Client Socket
  */
 const { TimeLogger } = require("../src/util");
+const { hasLlmCredential } = require("./utils/llm-credentials");
 const { R } = require("redbean-node");
 const { UptimeGizmoServer } = require("./uptime-gizmo-server");
 const { personalRoom } = require("./util-server");
@@ -153,9 +154,9 @@ async function sendInfo(socket, hideVersion = false) {
         // unauthenticated status page need them at boot, so they ride along
         // here rather than behind the authenticated settings channel.
         customThemes: (await setting("customThemes")) ?? [],
-        // Whether AI features can be offered. The credential itself stays on
-        // the server; the client only needs to know it exists.
-        aiConfigured: Boolean((await setting("llmProvider")) && (await setting("llmApiKey"))),
+        // Whether AI features can be offered. The credentials themselves stay
+        // on the server; the client only needs to know one exists.
+        aiConfigured: await hasLlmCredential(),
     };
     if (socket.loginUserID) {
         const user = await R.findOne("user", " id = ? AND active = 1 ", [ socket.loginUserID ]);
