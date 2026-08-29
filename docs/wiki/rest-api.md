@@ -18,8 +18,39 @@ curl -s -u "api:$UPTIME_GIZMO_API_KEY" "$UPTIME_GIZMO_URL/api/v1/whoami"
 | --- | --- |
 | `401` | Missing or wrong key, or the account behind it is disabled |
 | `403` | Key is read-only and the request would change something |
+| `429` | The key has spent its request allowance for this minute |
 
 Leave a key read-only unless the holder must create or edit monitors.
+
+### Rate limits
+
+Two limits, because guessing a key and using one are different problems:
+
+| | Counted against | Spent when | Allowance |
+| --- | --- | --- | --- |
+| Key guessing | The source address | A key is **rejected** | 20 a minute |
+| Throughput | The key | Any authenticated request | 60 a minute, configurable |
+
+A client holding a valid key never touches the first limit however hard it
+polls, and one caller cannot spend another's throughput.
+
+Throughput is sized per deployment rather than fixed. An instance driven by a
+fleet controller — one that polls health, reconciles state and forwards writes
+for every tenant it serves — will want more than an instance a person scripts
+against:
+
+| Variable | Effect |
+| --- | --- |
+| `UPTIME_GIZMO_API_RATE_LIMIT_PER_MINUTE` | Requests a minute each key may make. Defaults to 60. |
+| `UPTIME_GIZMO_API_RATE_LIMIT_UNLIMITED_KEY_IDS` | Comma-separated key ids exempt from throughput limiting. |
+
+A key's id is the number in its own prefix: `uk2_…` is key `2`.
+
+Exempt only keys belonging to something this instance is *operated by*.
+Throttling a fleet controller throttles every tenant it serves, which is why
+the exemption exists — it is not a way to make a busy script go faster.
+
+Both limits are held in memory, so each server process keeps its own.
 
 ## Questions the API answers in one call
 
@@ -27,13 +58,20 @@ These three exist so a caller does not have to assemble the picture from every m
 
 | Call | Question |
 | --- | --- |
-| `GET /api/v1/overview` | State of every monitor, when it entered that state, 24-hour uptime |
+| `GET /api/v1/overview` | State of every monitor, when it entered that state, 24-hour uptime, TLS certificate |
 | `GET /api/v1/incidents/active` | What is down or degraded **right now** (paused monitors are omitted) |
 | `GET /api/v1/changes?hours=24` | Status transitions in a window |
 
 `hours` defaults to 24 and is capped at 168. If the window was shortened or the 500-row limit was hit, the `window` object says so — check it before treating a quiet list as a quiet period.
 
 `since` on an incident is a **timestamp**, not a duration.
+
+A monitor that has completed a TLS check also carries `certValid` — whether the
+chain validated — and `certExpiresAt`, the certificate's own `notAfter`. Judge
+expiry from that timestamp rather than from a days-remaining count: a count is
+accurate only at the moment of the check that produced it, while a caller
+computing from the timestamp is right whenever it asks. Both are absent on a
+monitor that makes no TLS connection, and on an engine older than the field.
 
 ## Resources
 
@@ -56,7 +94,7 @@ Deleting a **group** needs `?children=unlink` (default: leave children parentles
 
 ## High-count load check
 
-`extra/stress-create-monitors.mjs` creates a group plus a batch of mixed-type monitors (default 100, paused) over this API, so you can see how the dashboard and scheduler behave with a large list. Authenticated calls are limited to 60 per minute; the script spaces writes.
+`extra/stress-create-monitors.mjs` creates a group plus a batch of mixed-type monitors (default 100, paused) over this API, so you can see how the dashboard and scheduler behave with a large list. The script spaces its writes to stay inside the per-key throughput limit above.
 
 ```bash
 export UPTIME_GIZMO_URL=http://127.0.0.1:3001

@@ -242,6 +242,12 @@ pm2 startup && pm2 save
 can be set with `UPTIME_GIZMO_HOST` and `UPTIME_GIZMO_PORT` (or `PORT`). Data
 lives in `./data` unless `DATA_DIR` says otherwise.
 
+An instance driven by a fleet controller rather than by people can raise the
+per-key request allowance with `UPTIME_GIZMO_API_RATE_LIMIT_PER_MINUTE`, and
+exempt the controller's own key with
+`UPTIME_GIZMO_API_RATE_LIMIT_UNLIMITED_KEY_IDS`. See
+[REST API](docs/wiki/rest-api.md#rate-limits).
+
 If you are locked out of the first account, stop the process and run
 `pnpm run reset-password`. `pnpm run remove-2fa` clears two-factor authentication
 the same way.
