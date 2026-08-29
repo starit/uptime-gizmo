@@ -2,7 +2,12 @@ const basicAuth = require("express-basic-auth");
 const passwordHash = require("./password-hash");
 const { R } = require("redbean-node");
 const { log } = require("../src/util");
-const { loginRateLimiter, apiRateLimiter } = require("./rate-limiter");
+const {
+    loginRateLimiter,
+    apiAuthFailureRateLimiter,
+    apiThroughputRateLimiter,
+    isUnlimitedApiKey,
+} = require("./rate-limiter");
 const { Settings } = require("./settings");
 const dayjs = require("dayjs");
 
@@ -115,12 +120,19 @@ async function estateOwnerID(fallback) {
  * @returns {void}
  */
 function apiAuthorizer(req, username, password, callback) {
-    // API Rate Limit
-    apiRateLimiter.pass(null, 0).then((pass) => {
-        if (pass) {
+    /*
+     * Bound how fast a key can be guessed, not how fast a valid one can be
+     * used. A token is spent below only when an attempt fails, so a client
+     * holding a real key never draws this bucket down however hard it polls,
+     * and one source guessing cannot exhaust the allowance of the rest.
+     */
+    const source = authSource(req);
+    apiAuthFailureRateLimiter.hasAllowance(source).then((allowed) => {
+        if (allowed) {
             resolveAPIKey(password).then(async (apiKey) => {
                 const valid = apiKey !== null;
                 if (!valid) {
+                    await apiAuthFailureRateLimiter.removeTokens(source, 1);
                     log.warn("api-auth", "Failed API auth attempt: invalid API Key");
                 } else {
                     // express-basic-auth invokes the authorizer as a plain
@@ -148,15 +160,60 @@ function apiAuthorizer(req, username, password, callback) {
                     };
                 }
                 callback(null, valid);
-                // Only allow a set number of api requests per minute
-                // (currently set to 60)
-                apiRateLimiter.removeTokens(1);
             });
         } else {
-            log.warn("api-auth", "Failed API auth attempt: rate limit exceeded");
+            log.warn("api-auth", "Failed API auth attempt: too many failed attempts from this source");
             callback(null, false);
         }
     });
+}
+
+/**
+ * Which bucket a request's failed authentication attempts count against.
+ *
+ * Express reports the peer address, which behind a proxy is the proxy. Trusting
+ * a forwarded header unconditionally would let a caller choose its own bucket
+ * by sending whatever address it liked, so the header is read only when this
+ * instance has been configured to sit behind a proxy.
+ * @param {express.Request} req Request the attempt arrived on
+ * @returns {string} Bucket key for that source
+ */
+function authSource(req) {
+    if (req?.app?.get("trust proxy")) {
+        return req.ip || "unknown";
+    }
+    return req?.socket?.remoteAddress || req?.ip || "unknown";
+}
+
+/**
+ * Spend one unit of the authenticated key's throughput allowance.
+ *
+ * Runs after authentication, because until the key is resolved there is no
+ * bucket to spend from. A key the operator named as a service key is exempt:
+ * it belongs to something the instance is operated by rather than to a person
+ * using it, and throttling it throttles every tenant it serves.
+ * @param {express.Request} req Express request object
+ * @param {express.Response} res Express response object
+ * @param {express.NextFunction} next Next handler in chain
+ * @returns {Promise<void>}
+ */
+async function apiThroughputGate(req, res, next) {
+    const apiKeyID = req.principal?.apiKeyID;
+    if (apiKeyID === undefined || isUnlimitedApiKey(apiKeyID)) {
+        next();
+        return;
+    }
+
+    const remaining = await apiThroughputRateLimiter.removeTokens(String(apiKeyID), 1);
+    if (remaining < 0) {
+        log.warn("api-auth", `API key ${apiKeyID} exceeded its request allowance`);
+        res.status(429).set("Retry-After", "60").json({
+            ok: false,
+            msg: apiThroughputRateLimiter.errorMessage,
+        });
+        return;
+    }
+    next();
 }
 
 /**
@@ -232,7 +289,12 @@ exports.apiAuth = async function (req, res, next) {
                 challenge: true,
             });
         }
-        middleware(req, res, next);
+        /*
+         * The throughput gate runs on the far side of authentication so that it
+         * has a principal to charge, and answers 429 itself rather than letting
+         * a spent allowance look like a rejected credential.
+         */
+        middleware(req, res, () => apiThroughputGate(req, res, next));
     } else {
         next();
     }
