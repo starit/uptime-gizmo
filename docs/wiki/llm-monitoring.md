@@ -17,7 +17,7 @@ An HTTP monitor on the same URL already covers reachability, and that is the fai
 
 Only credentials whose provider answers OpenAI chat completions are listed. A Claude credential is not among them: the Anthropic API is a different request shape than this monitor sends. A credential pointed at another host through its base URL is not listed either — that is a base, and appending a path to it is the guess this type exists to avoid. Either can still be watched by giving this monitor its own endpoint.
 
-A credential that names an **API Key Header** is honoured here too: the check sends the key under that header instead of as `Authorization: Bearer`, which is how one credential covers both a monitor and theme generation against an Azure-style endpoint.
+A credential that names an **API Key Header** — the exception rather than the rule, for an endpoint like Azure OpenAI that reads the key from `api-key` — is honoured here too, so one credential covers both a monitor and theme generation against it.
 
 If the credential a monitor names is deleted, the check fails saying so rather than quietly watching something else.
 

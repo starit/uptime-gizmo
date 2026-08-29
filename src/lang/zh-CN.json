@@ -1766,7 +1766,7 @@
     "llmModelListDescription": "列表仅供参考，也可以填写该提供商支持的任意模型名。",
     "llmModelCustomPlaceholder": "该接口所需的模型名",
     "llmApiKeyHeaderLabel": "API 密钥请求头（可选）",
-    "llmApiKeyHeaderHelp": "留空则以 Authorization: Bearer 发送密钥，这也是 OpenAI 兼容接口的惯例。Azure OpenAI 需要 api-key，部分网关需要 x-api-key。填写后，密钥会作为该请求头的完整值发送。",
+    "llmApiKeyHeaderHelp": "通常留空。OpenAI API 以 Authorization: Bearer 发送密钥，兼容它的接口都接受这种方式。这个字段是给那些只照搬了请求体、没照搬鉴权方式的接口用的——Azure OpenAI 从 api-key 读取密钥。填写后，密钥会作为该请求头的完整值发送，且不再发送 Bearer 头。",
     "editLlmCredential": "编辑凭据",
     "deleteLlmCredentialMsg": "确定要删除这条 AI 凭据吗？",
     "llmCredentialTestPassed": "该提供商已正常响应。",

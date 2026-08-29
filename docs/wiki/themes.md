@@ -17,7 +17,9 @@ Generation runs on the server. The LLM API key never reaches the browser. Only a
 
 **Settings → AI** keeps a list of credentials, each with its own provider, key, and model, and one of them is marked **Use for AI features** — the generate box on the appearance page names that one, so a failure says which credential to go and fix. Alongside the named providers there is a **Custom** one, for any endpoint that speaks the OpenAI chat-completions API — a gateway, a proxy, or a model running on the same machine. The model field suggests models the provider is known for and accepts any other name you type.
 
-A custom credential also has an **API Key Header**. Left empty the key is sent as `Authorization: Bearer`, which is what an OpenAI-compatible endpoint expects; Azure OpenAI wants it in `api-key`, and some gateways in `x-api-key`. Against those, a Bearer header is a 401 whatever the key is. **Test** on the credential sends one short completion and shows what came back, which is where a wrong header, a wrong URL or a wrong key says so.
+A custom credential also has an **API Key Header**, and it is almost always empty. The OpenAI API sends the key as `Authorization: Bearer`, and an endpoint compatible with it accepts that — vLLM, Ollama, LiteLLM, OpenRouter and the hosted providers all do. The field is for an endpoint that copies the request body but not the authentication. Azure OpenAI is the one worth naming: it reads the key from `api-key` and keeps `Authorization: Bearer` for Entra ID tokens, so a Bearer header there is a 401 whatever the key is. Its URL carries the deployment and an `api-version`, which the endpoint field takes as written: `https://YOUR-RESOURCE.openai.azure.com/openai/deployments/YOUR-DEPLOYMENT/chat/completions?api-version=2024-10-21`.
+
+**Test** on a credential sends one short completion and shows what came back, which is where a wrong header, a wrong URL or a wrong key says so.
 
 No credential is required. With none saved, the instance contacts no AI service.
 

@@ -90,11 +90,13 @@ function normalizeLlmCredential(raw, index) {
     }
 
     /*
-     * Bearer is what an OpenAI-compatible endpoint expects, and it is what this
-     * sends when nothing says otherwise. Azure OpenAI wants the key in api-key,
-     * and some gateways in x-api-key; against those a Bearer header is a 401
-     * whatever the key is. Naming the header sends the key as that header's
-     * whole value, with no scheme in front of it.
+     * The OpenAI API sends the key as `Authorization: Bearer`, so an endpoint
+     * compatible with it needs nothing here, and nothing here is the default.
+     * The field is for one that copies the request body but not the
+     * authentication: Azure OpenAI reads the key from `api-key` and keeps
+     * `Authorization: Bearer` for Entra ID tokens, so a Bearer header there is
+     * a 401 whatever the key is. Naming the header sends the key as that
+     * header's whole value, with no scheme in front of it.
      *
      * Only a custom provider has this. The named ones are reached at their own
      * hosts, which authenticate the way themed.js already knows.

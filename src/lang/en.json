@@ -1648,7 +1648,7 @@
     "llmModelListDescription": "Suggestions only — any model name the provider accepts works.",
     "llmModelCustomPlaceholder": "Model name the endpoint expects",
     "llmApiKeyHeaderLabel": "API Key Header (optional)",
-    "llmApiKeyHeaderHelp": "Leave empty to send the key as Authorization: Bearer, which is what an OpenAI-compatible endpoint expects. Azure OpenAI wants api-key; some gateways want x-api-key. Named here, the key is sent as that header's whole value.",
+    "llmApiKeyHeaderHelp": "Almost always empty. The OpenAI API sends the key as Authorization: Bearer, and an endpoint that is compatible with it accepts that. This is for one that copies the request but not the authentication — Azure OpenAI reads the key from api-key. Named here, the key is sent as that header's whole value and no Bearer header is sent.",
     "editLlmCredential": "Edit Credential",
     "deleteLlmCredentialMsg": "Are you sure you want to delete this AI credential?",
     "llmCredentialTestPassed": "The provider answered.",
