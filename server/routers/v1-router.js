@@ -126,6 +126,22 @@ const MONITOR_FIELDS = {
     type: { column: "type", type: "string", writable: true, required: true, enum: API_MONITOR_TYPES },
     active: { column: "active", type: "bool", writable: true },
     description: { column: "description", type: "string", writable: true },
+    externalRef: {
+        column: "external_ref",
+        type: "string",
+        writable: true,
+        createOnly: true,
+        validate: (value) => {
+            if (value === null || value.length < 1 || value.length > 128) {
+                throw new Error("externalRef must contain between 1 and 128 characters");
+            }
+            if (!/^[A-Za-z0-9][A-Za-z0-9:._-]*$/.test(value)) {
+                throw new Error("externalRef contains unsupported characters");
+            }
+        },
+        description:
+            "Optional caller correlation key. Unique per account and immutable after creation; repeating a create with the same value returns the existing monitor.",
+    },
     // Which group this monitor sits under. Validated separately: the allow-list
     // coerces a value but cannot check that the group exists, belongs to the
     // caller, and is not a descendant of the monitor being moved.
@@ -313,6 +329,9 @@ function parseWith(fields, body, partial) {
         if (!field.writable) {
             continue;
         }
+        if (partial && field.createOnly && name in body) {
+            throw new Error(`${name} cannot be changed after creation`);
+        }
         if (!(name in body)) {
             if (!partial && field.required) {
                 throw new Error(`${name} is required`);
@@ -322,6 +341,9 @@ function parseWith(fields, body, partial) {
         const coerced = coerce(body[name], field.type, name);
         if (Array.isArray(field.enum) && !field.enum.includes(coerced)) {
             throw new Error(`${name} must be one of ${field.enum.join(", ")}`);
+        }
+        if (field.validate) {
+            field.validate(coerced);
         }
         columns[field.column] = coerced;
     }
@@ -482,6 +504,28 @@ router.get(
     "/api/v1/monitors",
     apiAuth,
     route(async (req, res) => {
+        const rawExternalRef = req.query.externalRef;
+        if (rawExternalRef !== undefined) {
+            let externalRef;
+            try {
+                externalRef = coerce(rawExternalRef, MONITOR_FIELDS.externalRef.type, "externalRef");
+                MONITOR_FIELDS.externalRef.validate(externalRef);
+            } catch (e) {
+                badRequest(res, e);
+                return;
+            }
+            const row = await R.findOne("monitor", " user_id = ? AND external_ref = ? ", [
+                req.principal?.estateID ?? null,
+                externalRef,
+            ]);
+            res.json({
+                ok: true,
+                data: row ? [ monitorToAPI(row) ] : [],
+                page: { limit: 1, hasMore: false, nextCursor: null },
+            });
+            return;
+        }
+
         const limit = boundedLimit(req.query.limit, 100, 500);
         const cursor = Number.parseInt(req.query.cursor, 10);
         const after = Number.isFinite(cursor) ? cursor : 0;
@@ -945,6 +989,18 @@ router.post(
             return;
         }
 
+        const userID = req.principal?.estateID ?? null;
+        if (columns.external_ref) {
+            const existing = await R.findOne("monitor", " user_id = ? AND external_ref = ? ", [
+                userID,
+                columns.external_ref,
+            ]);
+            if (existing) {
+                res.json({ ok: true, data: monitorToAPI(existing), replayed: true });
+                return;
+            }
+        }
+
         const bean = R.dispense("monitor");
         // Column defaults first, so an explicit value always wins.
         for (const [ column, value ] of Object.entries(CREATE_DEFAULTS)) {
@@ -954,7 +1010,7 @@ router.post(
             bean[column] = value;
         }
         // Ownership comes from the authenticated principal, never the body.
-        bean.user_id = req.principal?.estateID ?? null;
+        bean.user_id = userID;
 
         try {
             await assertParentAllowed(bean.parent, bean.user_id, null);
@@ -973,7 +1029,27 @@ router.post(
             return;
         }
 
-        await R.store(bean);
+        try {
+            await R.store(bean);
+        } catch (error) {
+            /*
+             * Two requests carrying one externalRef can race between the read
+             * above and the insert. The unique constraint picks one winner;
+             * the loser returns that same monitor instead of surfacing a 500
+             * or creating a duplicate on a later retry.
+             */
+            if (columns.external_ref) {
+                const existing = await R.findOne("monitor", " user_id = ? AND external_ref = ? ", [
+                    userID,
+                    columns.external_ref,
+                ]);
+                if (existing) {
+                    res.json({ ok: true, data: monitorToAPI(existing), replayed: true });
+                    return;
+                }
+            }
+            throw error;
+        }
 
         /*
          * Re-read rather than projecting the in-memory bean. Column defaults —
@@ -1349,6 +1425,9 @@ function fieldSchema(field) {
     if (Array.isArray(field.enum)) {
         schema.enum = [ ...field.enum ];
     }
+    if (field.description) {
+        schema.description = field.description;
+    }
     return schema;
 }
 
@@ -1385,6 +1464,7 @@ function schemaFor(fields) {
 function buildOpenAPI() {
     const monitorProperties = {};
     const writableProperties = {};
+    const updateProperties = {};
     const required = [];
 
     for (const [ name, field ] of Object.entries(MONITOR_FIELDS)) {
@@ -1394,6 +1474,9 @@ function buildOpenAPI() {
         monitorProperties[name] = fieldSchema(field);
         if (field.writable) {
             writableProperties[name] = fieldSchema(field);
+            if (!field.createOnly) {
+                updateProperties[name] = fieldSchema(field);
+            }
             if (field.required) {
                 required.push(name);
             }
@@ -1446,6 +1529,7 @@ function buildOpenAPI() {
                     parameters: [
                         { name: "limit", in: "query", schema: { type: "integer", maximum: 500, default: 100 } },
                         { name: "cursor", in: "query", description: "nextCursor from a previous page", schema: { type: "integer" } },
+                        { name: "externalRef", in: "query", description: "Exact caller correlation key; returns zero or one monitor", schema: { type: "string" } },
                     ],
                     responses: { 200: { description: "Monitors", content: envelope({ type: "array", items: monitorRef }) } },
                 },
@@ -1521,7 +1605,7 @@ function buildOpenAPI() {
                     parameters: [ { name: "id", in: "path", required: true, schema: { type: "integer" } } ],
                     requestBody: {
                         required: true,
-                        content: { "application/json": { schema: { type: "object", properties: writableProperties } } },
+                        content: { "application/json": { schema: { type: "object", properties: updateProperties } } },
                     },
                     responses: {
                         200: { description: "Updated", content: envelope(monitorRef) },

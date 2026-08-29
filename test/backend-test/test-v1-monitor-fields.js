@@ -202,6 +202,36 @@ describe("v1 monitor field table", () => {
         assert.throws(() => monitorFromAPI({}, true), /No writable fields/);
     });
 
+    it("accepts a bounded externalRef only when creating", () => {
+        assert.deepStrictEqual(
+            monitorFromAPI({ name: "x", type: "http", externalRef: "gizmo-cloud:00000000-0000-4000-8000-000000000000" }, false).external_ref,
+            "gizmo-cloud:00000000-0000-4000-8000-000000000000"
+        );
+        assert.throws(
+            () => monitorFromAPI({ externalRef: "changed" }, true),
+            /cannot be changed/
+        );
+        assert.throws(
+            () => monitorFromAPI({ name: "x", type: "http", externalRef: "" }, false),
+            /between 1 and 128/
+        );
+        assert.throws(
+            () => monitorFromAPI({ name: "x", type: "http", externalRef: "contains spaces" }, false),
+            /unsupported characters/
+        );
+    });
+
+    it("documents externalRef on create and lookup but not update", () => {
+        const spec = buildOpenAPI();
+        const create = spec.components.schemas.MonitorInput.properties;
+        const update = spec.paths["/api/v1/monitors/{id}"].patch.requestBody.content["application/json"].schema.properties;
+        const lookup = spec.paths["/api/v1/monitors"].get.parameters.find(parameter => parameter.name === "externalRef");
+
+        assert.ok(create.externalRef);
+        assert.ok(!update.externalRef);
+        assert.ok(lookup);
+    });
+
     it("refuses a value it cannot coerce", () => {
         assert.throws(() => monitorFromAPI({ name: "x", type: "http", interval: "soon" }, false), /interval must be a number/);
         assert.throws(() => monitorFromAPI({ name: "x", type: "http", acceptedStatuscodes: "200" }, false), /must be an array/);
