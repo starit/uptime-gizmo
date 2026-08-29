@@ -7,6 +7,7 @@ const { UptimeCalculator } = require("../uptime-calculator");
 const { log } = require("../../src/util");
 const { VALUE_TYPES, VALUE_OPERATORS, BLOCK_TAGS } = require("../modules/web3-rpc");
 const { DNS_RESOLVE_TYPES } = require("../monitor-types/dns");
+const { llmCredentialSummaries } = require("../utils/llm-credentials");
 
 const router = express.Router();
 
@@ -201,7 +202,13 @@ const MONITOR_FIELDS = {
      * back with nothing to object. It is not writable either — accepting a
      * credential through this API is a decision this project has not taken, and
      * every other credential-bearing resource is entered by a human.
+     *
+     * llmCredentialId is how a monitor created here reaches an endpoint that
+     * does need a key: it names one already saved in Settings → AI, and the key
+     * itself never travels through this API. The ids are listed by
+     * GET /api/v1/ai-credentials, which is where a caller gets one.
      */
+    llmCredentialId: { column: "llm_credential_id", type: "string", writable: true },
     llmModel: { column: "llm_model", type: "string", writable: true },
     llmPrompt: { column: "llm_prompt", type: "string", writable: true },
     llmMaxTokens: { column: "llm_max_tokens", type: "int", writable: true },
@@ -865,6 +872,20 @@ router.get(
             req.principal?.estateID ?? null,
         ]);
         res.json({ ok: true, data: rows.map(web3NetworkToAPI) });
+    })
+);
+
+/*
+ * The AI credentials, as much of them as is not a secret: what a caller needs to
+ * name one in a monitor, and nothing that could be used away from this instance.
+ * Instance-wide, like status pages, and read-only — they are written in the
+ * settings page by an administrator.
+ */
+router.get(
+    "/api/v1/ai-credentials",
+    apiAuth,
+    route(async (req, res) => {
+        res.json({ ok: true, data: await llmCredentialSummaries() });
     })
 );
 
@@ -1738,6 +1759,15 @@ function buildOpenAPI() {
                         "The id, name and chain id of each configured EVM network (Ethereum JSON-RPC), for a monitor to reference as web3NetworkId. The RPC URL commonly carries an API key and is never returned. Solana and other non-EVM chains are not in this list.",
                     security: authed,
                     responses: { 200: { description: "Web3 networks" } },
+                },
+            },
+            "/api/v1/ai-credentials": {
+                get: {
+                    summary: "List AI credentials",
+                    description:
+                        "The id, name, provider and model of each credential saved in Settings → AI, for an llm monitor to reference as llmCredentialId. The API key is never returned. monitorUsable is false for a credential whose provider does not answer OpenAI chat completions, which an llm monitor cannot send its request through.",
+                    security: authed,
+                    responses: { 200: { description: "AI credentials" } },
                 },
             },
             "/api/v1/status-pages": {

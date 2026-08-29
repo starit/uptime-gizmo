@@ -1,6 +1,8 @@
 const { MonitorType } = require("./monitor-type");
 const { UP } = require("../../src/util");
+const { getLLMProvider } = require("../../src/llm-providers");
 const { assertSafeLlmBaseUrl } = require("../utils/llm-base-url");
+const { chatCompletionsEndpoint, readLlmCredentials } = require("../utils/llm-credentials");
 const dayjs = require("dayjs");
 const axios = require("axios");
 
@@ -65,12 +67,17 @@ class LlmMonitorType extends MonitorType {
      * @inheritdoc
      */
     async check(monitor, heartbeat, _server) {
-        const endpoint = assertSafeLlmBaseUrl(monitor.url, "The endpoint URL");
+        const target = resolveTarget(
+            monitor,
+            monitor.llm_credential_id ? await readLlmCredentials() : []
+        );
+
+        const endpoint = assertSafeLlmBaseUrl(target.endpoint, "The endpoint URL");
         if (!endpoint) {
             throw new Error("No endpoint URL is set for this monitor");
         }
 
-        const model = (monitor.llm_model || "").trim();
+        const model = target.model;
         if (!model) {
             throw new Error("No model is set for this monitor");
         }
@@ -82,8 +89,8 @@ class LlmMonitorType extends MonitorType {
         const timeout = seconds * 1000;
 
         const headers = { "Content-Type": "application/json" };
-        if (monitor.llm_api_key) {
-            headers.Authorization = `Bearer ${monitor.llm_api_key}`;
+        if (target.apiKey) {
+            headers.Authorization = `Bearer ${target.apiKey}`;
         }
 
         const started = dayjs().valueOf();
@@ -238,7 +245,49 @@ function describeBody(body) {
     return flat.length > ERROR_BODY_CHARS ? `${flat.slice(0, ERROR_BODY_CHARS)}…` : flat;
 }
 
+/**
+ * The endpoint, key and model one check should use.
+ *
+ * A monitor that names no credential is unchanged: its own three fields are the
+ * whole configuration. One that names a credential takes the endpoint and key
+ * from it, so a rotated key is entered once, and keeps its own model when it
+ * has one — the model is what such a monitor is usually asserting on.
+ * @param {object} monitor the monitor row
+ * @param {object[]} credentials saved credentials, when the monitor names one
+ * @returns {{endpoint: string, apiKey: string, model: string}} what to send
+ * @throws {Error} when the named credential is gone, or cannot be used here
+ */
+function resolveTarget(monitor, credentials) {
+    const id = monitor.llm_credential_id;
+
+    if (!id) {
+        return {
+            endpoint: monitor.url,
+            apiKey: monitor.llm_api_key,
+            model: (monitor.llm_model || "").trim(),
+        };
+    }
+
+    const credential = credentials.find((item) => item.id === id);
+    if (!credential) {
+        throw new Error("The AI credential this monitor uses is no longer configured");
+    }
+
+    const endpoint = chatCompletionsEndpoint(credential);
+    if (!endpoint) {
+        throw new Error(`The AI credential "${credential.name}" has no chat-completions endpoint this monitor can use`);
+    }
+
+    const provider = getLLMProvider(credential.provider);
+
+    return {
+        endpoint,
+        apiKey: credential.apiKey,
+        model: (monitor.llm_model || credential.model || provider?.defaultModel || "").trim(),
+    };
+}
+
 module.exports = {
     LlmMonitorType,
-    internals: { completionContent, describeSuccess, preview, describeBody },
+    internals: { completionContent, describeSuccess, preview, describeBody, resolveTarget },
 };

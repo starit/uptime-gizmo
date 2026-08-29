@@ -13,7 +13,13 @@ An HTTP monitor on the same URL already covers reachability, and that is the fai
 
 ## Configuration
 
-**URL** is the **full** chat-completions endpoint — `https://api.openai.com/v1/chat/completions`, `http://127.0.0.1:11434/v1/chat/completions`. Nothing appends a path for you: a gateway may mount it elsewhere, and guessing fails silently against exactly the setup you were trying to watch.
+**AI Credential** decides where the request goes. Left on *This monitor's own endpoint and key*, the monitor carries its own URL and key, which is what every monitor did before this option existed. Naming a credential from **Settings → AI** takes the endpoint and the key from it instead, so a rotated key is entered once rather than in every monitor that uses it, and the URL and key fields below disappear.
+
+Only credentials whose provider answers OpenAI chat completions are listed. A Claude credential is not among them: the Anthropic API is a different request shape than this monitor sends. A credential pointed at another host through its base URL is not listed either — that is a base, and appending a path to it is the guess this type exists to avoid. Either can still be watched by giving this monitor its own endpoint.
+
+If the credential a monitor names is deleted, the check fails saying so rather than quietly watching something else.
+
+**URL** — for a monitor that carries its own endpoint — is the **full** chat-completions endpoint — `https://api.openai.com/v1/chat/completions`, `http://127.0.0.1:11434/v1/chat/completions`. Nothing appends a path for you: a gateway may mount it elsewhere, and guessing fails silently against exactly the setup you were trying to watch.
 
 The request body is the OpenAI chat-completions shape, which self-hosted servers (Ollama, vLLM, llama.cpp, LiteLLM) and hosted providers behind a compatible gateway all accept.
 
@@ -21,8 +27,9 @@ The endpoint is checked before any request is made, through the same policy that
 
 | Field | Meaning |
 | --- | --- |
-| **Model** | Sent as `model`. Required. Name the model your application actually calls — a rename is one of the failures this type catches. |
-| **API Key** | Sent as `Authorization: Bearer`. Leave empty for an endpoint that needs none. |
+| **AI Credential** | Optional. Takes the endpoint and key from **Settings → AI** instead of this monitor's own. |
+| **Model** | Sent as `model`. Required unless a credential is named, in which case leaving it empty uses the credential's own model. Name the model your application actually calls — a rename is one of the failures this type catches. |
+| **API Key** | Sent as `Authorization: Bearer`. Leave empty for an endpoint that needs none. Not shown when a credential is named; the key comes from there. |
 | **Prompt** | The user message. Defaults to asking for the single word `ok`. |
 | **Max Tokens** | Cap on the completion. Defaults to 16. |
 | **Maximum Latency** | Milliseconds. A successful but slower answer fails the check. Empty records latency without alerting. |
@@ -43,7 +50,13 @@ A completion delivered as an array of content parts is read as well as a plain s
 
 There is no `llmApiKey` field on `POST /api/v1/monitors`. Accepting a credential through that API is a decision this project has not taken, and every other credential-bearing resource — notification channels, proxies, Web3 network RPC URLs — is entered by a human for the same reason.
 
-So a monitor created over the API can reach an endpoint that needs no key, or one whose key is already set in the monitor's own form. Everything else about the type is writable:
+A monitor created over the API reaches an endpoint that needs no key, one whose key is already set in the monitor's own form, or one it names with `llmCredentialId` — a credential saved in the settings, whose key stays on the server:
+
+```bash
+curl -s -u "api:$KEY" "$URL/api/v1/ai-credentials"
+```
+
+That returns the id, name and provider of each saved credential, and `monitorUsable`, which is `false` for one an llm monitor cannot send its request through. Everything else about the type is writable:
 
 ```bash
 curl -s -u "api:$KEY" -X POST -H 'Content-Type: application/json' -d '{
@@ -59,7 +72,7 @@ curl -s -u "api:$KEY" -X POST -H 'Content-Type: application/json' -d '{
 }' "$URL/api/v1/monitors"
 ```
 
-`llmModel`, `llmPrompt`, `llmMaxTokens` and `llmMaxLatency` are the type's own writable fields. The endpoint, timeout and content assertion are `url`, `timeout` and `keyword`/`invertKeyword` — the same fields an HTTP keyword monitor uses, meaning the same thing.
+`llmCredentialId`, `llmModel`, `llmPrompt`, `llmMaxTokens` and `llmMaxLatency` are the type's own writable fields. The endpoint, timeout and content assertion are `url`, `timeout` and `keyword`/`invertKeyword` — the same fields an HTTP keyword monitor uses, meaning the same thing.
 
 The MCP `create_monitor` tool takes the same fields. See [MCP and agents](mcp-and-agents.md).
 

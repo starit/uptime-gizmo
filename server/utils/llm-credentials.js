@@ -213,6 +213,46 @@ async function resolveActiveLlmCredential() {
 }
 
 /**
+ * Where a credential answers OpenAI-shaped chat completions, if anywhere.
+ *
+ * An llm monitor sends that shape, so this is what decides whether a monitor
+ * can name a credential instead of carrying its own endpoint and key. A custom
+ * credential holds the whole address. A named provider is usable only through
+ * its own documented endpoint, and not when the credential overrides its host:
+ * that override is a base URL, and appending a path to it is the guess the llm
+ * monitor type exists to avoid.
+ * @param {object} credential a saved credential
+ * @returns {string|null} the endpoint, or null when there is none to use
+ */
+function chatCompletionsEndpoint(credential) {
+    const provider = getLLMProvider(credential.provider);
+    if (!provider) {
+        return null;
+    }
+
+    if (provider.requiresEndpoint) {
+        return credential.baseUrl || null;
+    }
+
+    return credential.baseUrl ? null : provider.chatCompletionsUrl ?? null;
+}
+
+/**
+ * What the browser is told about the saved credentials: enough to name one in a
+ * monitor, and nothing that is a secret.
+ * @returns {Promise<object[]>} id, name, provider, model and whether a monitor can use it
+ */
+async function llmCredentialSummaries() {
+    return (await readLlmCredentials()).map((credential) => ({
+        id: credential.id,
+        name: credential.name,
+        provider: credential.provider,
+        model: credential.model,
+        monitorUsable: chatCompletionsEndpoint(credential) !== null,
+    }));
+}
+
+/**
  * Whether any AI credential is configured, without handing one out.
  * @returns {Promise<boolean>} true when AI features can be offered
  */
@@ -222,6 +262,8 @@ async function hasLlmCredential() {
 
 module.exports = {
     NAME_MAX_LENGTH,
+    chatCompletionsEndpoint,
+    llmCredentialSummaries,
     normalizeLlmCredential,
     normalizeLlmCredentials,
     redactLlmCredentials,

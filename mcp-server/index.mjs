@@ -184,6 +184,13 @@ const READ_TOOLS = [
         run: () => api("/api/v1/remote-browsers"),
     },
     {
+        name: "list_ai_credentials",
+        description:
+            "List the AI credentials saved on this instance by id, name, provider and model. An llm monitor can name one as llmCredentialId instead of carrying its own endpoint and key, which is the only way a monitor created here reaches an endpoint that needs a key. Skip any whose monitorUsable is false: that provider does not answer OpenAI chat completions, which is the request an llm monitor sends. The keys themselves are never returned. Side effects: none.",
+        inputSchema: { type: "object", properties: {} },
+        run: () => api("/api/v1/ai-credentials"),
+    },
+    {
         name: "list_web3_networks",
         description:
             "List the configured EVM chains by id, name and chain id. Every web3 monitor references one as web3NetworkId, so call this before creating one; an empty list means no chain is configured and a human has to add one in settings. These networks speak Ethereum JSON-RPC; Solana and other chains are not offered. The RPC URL carries an API key and is never returned. Side effects: none.",
@@ -294,13 +301,18 @@ const WEB3_PROPERTIES = {
  * same thing they mean for an HTTP keyword monitor.
  *
  * There is no llmApiKey property. The API does not accept a credential, so a
- * monitor an agent creates can only reach an endpoint that needs no key, or one
- * whose key a human already entered.
+ * monitor an agent creates reaches an endpoint that needs no key, one whose key
+ * a human already entered, or one named through llmCredentialId, where the key
+ * stays on the server.
  */
 const LLM_PROPERTIES = {
+    llmCredentialId: {
+        type: "string",
+        description: "Take the endpoint and key from a credential saved in the AI settings, from list_ai_credentials. With it set, url and llmModel are optional: the endpoint comes from the credential, and so does the model unless llmModel names one. Without it, url must be the full chat-completions endpoint and the endpoint must need no key.",
+    },
     llmModel: {
         type: "string",
-        description: "Model name sent as `model`. Required for the llm type; it cannot be guessed.",
+        description: "Model name sent as `model`. Required for the llm type unless llmCredentialId is set; it cannot be guessed.",
     },
     llmPrompt: {
         type: "string",
@@ -347,7 +359,7 @@ const WRITE_TOOLS = [
     {
         name: "create_monitor",
         description:
-            `Create a monitor. Requires name and type; type is one of ${CREATE_MONITOR_TYPES.join(", ")}. For a web3 type (EVM JSON-RPC only — not Solana or other non-EVM chains), call list_web3_networks first — web3NetworkId is required and cannot be guessed. For the llm type, url is the full chat-completions endpoint and llmModel is required; the API does not accept an API key, so the endpoint must either need none or already have one set by a human. Side effects: begins checking the target, and its first result may trigger notifications.`,
+            `Create a monitor. Requires name and type; type is one of ${CREATE_MONITOR_TYPES.join(", ")}. For a web3 type (EVM JSON-RPC only — not Solana or other non-EVM chains), call list_web3_networks first — web3NetworkId is required and cannot be guessed. For the llm type, either name a saved credential with llmCredentialId (call list_ai_credentials first — it carries the endpoint and key) or give url as the full chat-completions endpoint and llmModel, in which case the endpoint must need no key or already have one set by a human; the API never accepts a key itself. Side effects: begins checking the target, and its first result may trigger notifications.`,
         inputSchema: {
             type: "object",
             properties: {

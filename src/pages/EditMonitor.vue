@@ -201,7 +201,7 @@
                                     monitor.type === 'keyword' ||
                                     monitor.type === 'json-query' ||
                                     monitor.type === 'real-browser' ||
-                                    monitor.type === 'llm'
+                                    (monitor.type === 'llm' && !monitor.llmCredentialId)
                                 "
                                 class="tw-my-3"
                             >
@@ -513,6 +513,36 @@
 
                             <!-- LLM -->
                             <template v-if="monitor.type === 'llm'">
+                                <!--
+                                    The AI settings already hold endpoints and
+                                    keys for this kind of destination. Naming one
+                                    here means a rotated key is entered once
+                                    rather than in every monitor that uses it.
+                                -->
+                                <div class="tw-my-3">
+                                    <label for="llm-credential" class="gizmo-field-label">
+                                        {{ $t("llmCredentialLabel") }}
+                                    </label>
+                                    <select
+                                        id="llm-credential"
+                                        v-model="monitor.llmCredentialId"
+                                        data-testid="llm-credential-select"
+                                        class="gizmo-native-control gizmo-native-select"
+                                    >
+                                        <option :value="null">{{ $t("llmCredentialOwn") }}</option>
+                                        <option
+                                            v-for="credential in monitorLlmCredentials"
+                                            :key="credential.id"
+                                            :value="credential.id"
+                                        >
+                                            {{ credential.name }}
+                                        </option>
+                                    </select>
+                                    <div class="gizmo-field-help">
+                                        {{ monitor.llmCredentialId ? $t("llmCredentialSelectedHelp") : $t("llmCredentialOwnHelp") }}
+                                    </div>
+                                </div>
+
                                 <div class="tw-my-3">
                                     <label for="llm-model" class="gizmo-field-label">{{ $t("Model") }}</label>
                                     <input
@@ -521,13 +551,17 @@
                                         data-testid="llm-model-input"
                                         type="text"
                                         class="gizmo-native-control"
-                                        placeholder="gpt-4o-mini"
-                                        required
+                                        list="llm-monitor-model-list"
+                                        :placeholder="llmModelPlaceholder"
+                                        :required="!monitor.llmCredentialId"
                                     />
+                                    <datalist id="llm-monitor-model-list">
+                                        <option v-for="model in llmModelSuggestions" :key="model" :value="model" />
+                                    </datalist>
                                     <div class="gizmo-field-help">{{ $t("llmModelHelp") }}</div>
                                 </div>
 
-                                <div class="tw-my-3">
+                                <div v-if="!monitor.llmCredentialId" class="tw-my-3">
                                     <label for="llm-api-key" class="gizmo-field-label">{{ $t("llmApiKeyLabel") }}</label>
                                     <HiddenInput id="llm-api-key" v-model="monitor.llmApiKey" autocomplete="new-password" />
                                     <div class="gizmo-field-help">{{ $t("llmApiKeyHelp") }}</div>
@@ -3554,6 +3588,7 @@ import ProxyDialog from "../components/ProxyDialog.vue";
 import TagsManager from "../components/TagsManager.vue";
 import { genSecret, MIN_INTERVAL_SECOND, sleep, TYPES_WITH_DOMAIN_EXPIRY_SUPPORT_VIA_FIELD } from "../util.ts";
 import { timeDurationFormatter } from "../util-frontend";
+import { getLLMProvider } from "../llm-providers.ts";
 import isFQDN from "validator/lib/isFQDN";
 import isIP from "validator/lib/isIP";
 import HiddenInput from "../components/HiddenInput.vue";
@@ -3656,6 +3691,7 @@ const monitorDefaults = {
     web3ValueOperator: "",
     web3ValueThreshold: "",
     web3BlockTag: "latest",
+    llmCredentialId: null,
     llmModel: "",
     llmApiKey: "",
     llmPrompt: "",
@@ -3724,6 +3760,39 @@ export default {
     },
 
     computed: {
+        /**
+         * Saved AI credentials an llm monitor can send its request through.
+         *
+         * A credential is only listed when the server knows where it answers
+         * chat completions: a Claude key, for instance, is a different API
+         * shape than this monitor sends.
+         * @returns {object[]} the credentials that can be named here
+         */
+        monitorLlmCredentials() {
+            return (this.$root.info?.aiCredentials ?? []).filter((credential) => credential.monitorUsable);
+        },
+
+        // The credential this monitor names, if it names one.
+        monitorLlmCredential() {
+            return this.monitorLlmCredentials.find((item) => item.id === this.monitor.llmCredentialId) ?? null;
+        },
+
+        // The provider behind that credential.
+        monitorLlmProvider() {
+            return this.monitorLlmCredential ? getLLMProvider(this.monitorLlmCredential.provider) : null;
+        },
+
+        // Models to suggest, which are known only once a provider is.
+        llmModelSuggestions() {
+            return this.monitorLlmProvider?.models ?? [];
+        },
+
+        // What the model field shows while it is empty, which is the model a
+        // blank field ends up sending.
+        llmModelPlaceholder() {
+            return this.monitorLlmCredential?.model || this.monitorLlmProvider?.defaultModel || "gpt-4o-mini";
+        },
+
         /*
          * Kept in step with VALUE_TYPES, VALUE_OPERATORS and BLOCK_TAGS in
          * server/modules/web3-rpc.js, which is what actually enforces them.

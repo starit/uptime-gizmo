@@ -1012,6 +1012,7 @@ let needSetup = false;
                 // The llm type. Its endpoint, request timeout and content
                 // assertion are url, timeout and keyword/invertKeyword, set
                 // above with the fields they belong to.
+                bean.llm_credential_id = monitor.llmCredentialId || null;
                 bean.llm_model = monitor.llmModel || null;
                 bean.llm_api_key = monitor.llmApiKey || null;
                 bean.llm_prompt = monitor.llmPrompt || null;

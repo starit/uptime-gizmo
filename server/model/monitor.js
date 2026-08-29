@@ -219,6 +219,7 @@ class Monitor extends BeanModel {
             web3ValueOperator: this.web3_value_operator,
             web3ValueThreshold: this.web3_value_threshold,
             web3BlockTag: this.web3_block_tag,
+            llmCredentialId: this.llm_credential_id,
             llmModel: this.llm_model,
             llmPrompt: this.llm_prompt,
             llmMaxTokens: this.llm_max_tokens,

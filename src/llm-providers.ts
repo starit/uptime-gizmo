@@ -29,6 +29,14 @@ export interface LLMProvider {
      * URL requests are sent to.
      */
     requiresEndpoint?: boolean;
+
+    /**
+     * Where this provider answers OpenAI-shaped chat completions, when it does.
+     * An llm monitor sends that shape, so a credential can only stand in for a
+     * monitor's own endpoint when this is known. Checked against each
+     * provider's own documentation in August 2026.
+     */
+    chatCompletionsUrl?: string;
 }
 
 /*
@@ -46,8 +54,11 @@ export const llmProviders: LLMProvider[] = [
         label: "OpenAI",
         defaultModel: "gpt-5.6-terra",
         models: [ "gpt-5.6-sol", "gpt-5.6-terra", "gpt-5.6-luna" ],
+        chatCompletionsUrl: "https://api.openai.com/v1/chat/completions",
     },
     {
+        // No chatCompletionsUrl: the Anthropic API is its own shape, not the
+        // chat-completions one an llm monitor sends.
         id: "claude",
         label: "Claude",
         defaultModel: "claude-opus-5",
@@ -58,24 +69,28 @@ export const llmProviders: LLMProvider[] = [
         label: "Gemini",
         defaultModel: "gemini-3.7-flash",
         models: [ "gemini-3.7-flash", "gemini-3.6-flash", "gemini-3.5-flash", "gemini-3.5-flash-lite", "gemini-2.5-pro" ],
+        chatCompletionsUrl: "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions",
     },
     {
         id: "groq",
         label: "Groq",
         defaultModel: "openai/gpt-oss-120b",
         models: [ "openai/gpt-oss-120b", "openai/gpt-oss-20b", "llama-3.3-70b-versatile", "llama-3.1-8b-instant" ],
+        chatCompletionsUrl: "https://api.groq.com/openai/v1/chat/completions",
     },
     {
         id: "deepseek",
         label: "DeepSeek",
         defaultModel: "deepseek-v4-flash",
         models: [ "deepseek-v4-pro", "deepseek-v4-flash" ],
+        chatCompletionsUrl: "https://api.deepseek.com/chat/completions",
     },
     {
         id: "moonshot",
         label: "Moonshot (Kimi)",
         defaultModel: "kimi-k3",
         models: [ "kimi-k3", "kimi-k2.7-code", "kimi-k2.6" ],
+        chatCompletionsUrl: "https://api.moonshot.ai/v1/chat/completions",
     },
     {
         id: "custom",

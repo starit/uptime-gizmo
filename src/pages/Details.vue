@@ -41,8 +41,8 @@
                     {{ filterPassword(monitor.url) }}
                 </a>
                 <span v-if="monitor.type === 'llm'" data-testid="llm-target">
-                    <span class="keyword">{{ monitor.llmModel }}</span>
-                    {{ filterPassword(monitor.url) }}
+                    <span class="keyword">{{ llmModelName }}</span>
+                    {{ llmTargetName }}
                 </span>
                 <span v-if="monitor.type === 'port'">TCP Port {{ monitor.hostname }}:{{ monitor.port }}</span>
                 <span v-if="monitor.type === 'ping'">Ping: {{ monitor.hostname }}</span>
@@ -495,6 +495,31 @@ export default {
         monitor() {
             let id = this.$route.params.id;
             return this.$root.monitorList[id];
+        },
+
+        /*
+         * An llm monitor may take its endpoint, key and model from a saved AI
+         * credential, in which case it has no url of its own to show and its
+         * model field may be empty. What it is checking is then the credential:
+         * naming it is how this line stays about the target rather than going
+         * blank.
+         */
+        llmCredential() {
+            if (!this.monitor?.llmCredentialId) {
+                return null;
+            }
+            return (this.$root.info?.aiCredentials ?? []).find((item) => item.id === this.monitor.llmCredentialId) ?? null;
+        },
+
+        llmModelName() {
+            return this.monitor?.llmModel || this.llmCredential?.model || "";
+        },
+
+        llmTargetName() {
+            if (!this.monitor?.llmCredentialId) {
+                return this.filterPassword(this.monitor?.url);
+            }
+            return this.llmCredential?.name ?? this.$t("llmCredentialMissing");
         },
 
         /**

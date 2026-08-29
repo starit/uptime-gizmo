@@ -1,6 +1,7 @@
 const { describe, it } = require("node:test");
 const assert = require("node:assert");
 const {
+    chatCompletionsEndpoint,
     normalizeLlmCredentials,
     redactLlmCredentials,
     pickLlmCredential,
@@ -118,5 +119,37 @@ describe("The single credential this replaced is still read", () => {
     it("is nothing when no provider or no key was configured", () => {
         assert.strictEqual(credentialFromLegacySettings({ llmProvider: "openai", llmApiKey: "" }), null);
         assert.strictEqual(credentialFromLegacySettings({ llmProvider: null, llmApiKey: "sk-test" }), null);
+    });
+});
+
+describe("Which credentials an llm monitor can send its request through", () => {
+    it("is a custom one, at the address it carries", () => {
+        assert.strictEqual(
+            chatCompletionsEndpoint({ provider: "custom", baseUrl: "https://llm.example.com/v1/chat/completions" }),
+            "https://llm.example.com/v1/chat/completions"
+        );
+    });
+
+    it("is a named provider that answers the OpenAI shape, at its documented endpoint", () => {
+        assert.strictEqual(
+            chatCompletionsEndpoint({ provider: "openai", baseUrl: "" }),
+            "https://api.openai.com/v1/chat/completions"
+        );
+        assert.strictEqual(
+            chatCompletionsEndpoint({ provider: "deepseek", baseUrl: "" }),
+            "https://api.deepseek.com/chat/completions"
+        );
+    });
+
+    it("is not a provider whose API is a different shape than the monitor sends", () => {
+        assert.strictEqual(chatCompletionsEndpoint({ provider: "claude", baseUrl: "" }), null);
+    });
+
+    it("is not a named provider pointed at another host, which is a base and not an endpoint", () => {
+        assert.strictEqual(chatCompletionsEndpoint({ provider: "openai", baseUrl: "https://proxy.example.com/v1" }), null);
+    });
+
+    it("is not a custom one with no address yet", () => {
+        assert.strictEqual(chatCompletionsEndpoint({ provider: "custom", baseUrl: "" }), null);
     });
 });

@@ -269,3 +269,61 @@ describe("llm monitor helpers", () => {
         assert.doesNotMatch(internals.describeSuccess(5, undefined, "ok"), /tokens/);
     });
 });
+
+describe("What one check sends when the monitor names a saved credential", () => {
+    const saved = [
+        {
+            id: "gateway",
+            name: "Gateway",
+            provider: "custom",
+            apiKey: "sk-saved",
+            model: "gateway-model",
+            baseUrl: "https://llm.example.com/v1/chat/completions",
+        },
+        { id: "anthropic", name: "Claude", provider: "claude", apiKey: "sk-ant", model: "", baseUrl: "" },
+    ];
+
+    it("is the monitor's own three fields when it names none", () => {
+        const target = internals.resolveTarget(
+            { url: "https://own.example.com/v1/chat/completions", llm_api_key: "sk-own", llm_model: "own-model" },
+            saved
+        );
+
+        assert.deepStrictEqual(target, {
+            endpoint: "https://own.example.com/v1/chat/completions",
+            apiKey: "sk-own",
+            model: "own-model",
+        });
+    });
+
+    it("takes the endpoint and key from the credential, and keeps the monitor's model", () => {
+        const target = internals.resolveTarget(
+            { llm_credential_id: "gateway", llm_model: "pinned-model", url: "", llm_api_key: "" },
+            saved
+        );
+
+        assert.strictEqual(target.endpoint, "https://llm.example.com/v1/chat/completions");
+        assert.strictEqual(target.apiKey, "sk-saved");
+        assert.strictEqual(target.model, "pinned-model");
+    });
+
+    it("falls back to the credential's model when the monitor names none", () => {
+        const target = internals.resolveTarget({ llm_credential_id: "gateway", llm_model: "" }, saved);
+
+        assert.strictEqual(target.model, "gateway-model");
+    });
+
+    it("says so when the credential has been deleted, rather than checking something else", () => {
+        assert.throws(
+            () => internals.resolveTarget({ llm_credential_id: "gone" }, saved),
+            /no longer configured/
+        );
+    });
+
+    it("refuses a credential whose API is a different shape than this monitor sends", () => {
+        assert.throws(
+            () => internals.resolveTarget({ llm_credential_id: "anthropic" }, saved),
+            /no chat-completions endpoint/
+        );
+    });
+});

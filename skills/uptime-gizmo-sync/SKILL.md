@@ -108,7 +108,7 @@ somebody. Create it paused and resume when the service is live.
 | `web3-balance` | `web3NetworkId`, `web3Address` | Native balance, or an ERC-20 with `web3TokenContract` |
 | `web3-rpc` | `web3NetworkId` | Down when the newest block stops being recent |
 | `web3-contract` | `web3NetworkId`, `web3CallTo`, `web3CallData` | Reads one value out of a contract and compares it |
-| `llm` | `url`, `llmModel` | One chat completion per check; asserts on the content, not the status code |
+| `llm` | `url` + `llmModel`, or `llmCredentialId` | One chat completion per check; asserts on the content, not the status code |
 
 This table is the types `POST /api/v1/monitors` accepts — the same `enum` as
 `MonitorInput.type` in `GET /api/v1/openapi.json`. Any other `type` is refused
@@ -154,10 +154,21 @@ leave `llmMaxTokens` low; it defaults to 16.
 
 **This API does not accept an API key.** There is no `llmApiKey` field, for the
 same reason there is no way to create a web3 network: a credential is entered by
-a human. So a monitor you create can reach an endpoint that needs no key — a
-local Ollama, vLLM or llama.cpp server — or one whose key is already set in the
-UI. For a hosted provider that needs a key, create nothing and say that a human
-has to add it under the monitor's own form.
+a human. A monitor you create reaches an endpoint that needs no key — a local
+Ollama, vLLM or llama.cpp server — one whose key is already set in the UI, or one
+it names with `llmCredentialId`, where the key stays on the server:
+
+```bash
+curl -s -u "api:$KEY" "$URL/api/v1/ai-credentials"
+```
+
+That lists the credentials saved under Settings → AI by `id`, `name`, `provider`
+and `model`, and never the key itself. Skip any whose `monitorUsable` is `false`:
+that provider does not answer OpenAI chat completions, which is the request this
+type sends. With `llmCredentialId` set, `url` is not needed — the endpoint comes
+from the credential — and `llmModel` is optional, defaulting to the credential's
+own model. If nothing is listed and the endpoint needs a key, create nothing and
+say a human has to add the credential first.
 
 The endpoint URL is checked before any request: it must be http or https, must
 not carry credentials in the URL, must not be a link-local or cloud-metadata
@@ -168,15 +179,16 @@ address, and must be HTTPS unless the host is localhost.
 These names are the writable properties on `MonitorInput` in
 `GET /api/v1/openapi.json`. A name missing here is not settable over the API.
 
-`name`, `type`, `active`, `description`, `parent`, `url`, `hostname`, `port`,
-`interval`, `retryInterval`, `resendInterval`, `maxretries`, `timeout`, `method`,
+`name`, `type`, `active`, `description`, `externalRef`, `parent`, `url`,
+`hostname`, `port`, `interval`, `retryInterval`, `resendInterval`, `maxretries`,
+`timeout`, `method`,
 `maxredirects`, `ignoreTls`, `upsideDown`, `keyword`, `invertKeyword`,
 `acceptedStatuscodes`, `dnsResolveType`, `dnsResolveServer`,
 `web3NetworkId`, `web3Address`, `web3TokenContract`, `web3TokenDecimals`,
 `web3MinBalance`, `web3MaxBlockAge`, `web3CallTo`, `web3CallData`,
 `web3ValueOffset`, `web3ValueType`, `web3ValueDecimals`, `web3ValueOperator`,
-`web3ValueThreshold`, `web3BlockTag`, `llmModel`, `llmPrompt`, `llmMaxTokens`,
-`llmMaxLatency`.
+`web3ValueThreshold`, `web3BlockTag`, `llmCredentialId`, `llmModel`, `llmPrompt`,
+`llmMaxTokens`, `llmMaxLatency`.
 
 Anything else in the body is **dropped silently** — the API takes an allow-list. If
 a setting you need is not here, it is not settable over the API yet; say so instead
