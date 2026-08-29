@@ -594,6 +594,7 @@ router.get(
             req.principal?.estateID ?? null,
         ]);
         const monitors = R.convertToBeans("monitor", rows);
+        const certificates = await readCertificates(monitors.map((monitor) => monitor.id));
 
         const data = [];
         for (const monitor of monitors) {
@@ -627,12 +628,64 @@ router.get(
                 since: since ? since.time : null,
                 ping: beat ? beat.ping : null,
                 uptime24h: uptime,
+                ...(certificates.get(monitor.id) ?? { certValid: null, certExpiresAt: null }),
             });
         }
 
         res.json({ ok: true, data });
     })
 );
+
+/**
+ * Read what each monitor last learned about its peer's certificate.
+ *
+ * The engine already records this on every TLS check; it simply had no way out
+ * through this API, so a caller could watch a site's availability but not the
+ * certificate that availability depends on.
+ *
+ * Read in one query rather than per monitor: the overview loop is already
+ * several queries deep per row, and a certificate lookup for each would grow
+ * that with the size of the estate.
+ *
+ * `certExpiresAt` is the certificate's own notAfter and is the value to judge
+ * expiry by. A days-remaining count is deliberately not returned: it would be
+ * correct only at the moment of the check that produced it, and a caller
+ * computing from the timestamp is right whenever it asks.
+ * @param {number[]} monitorIDs Monitors to look up
+ * @returns {Promise<Map<number, object>>} Certificate fields by monitor id
+ */
+async function readCertificates(monitorIDs) {
+    const certificates = new Map();
+    if (monitorIDs.length === 0) {
+        return certificates;
+    }
+
+    const placeholders = monitorIDs.map(() => "?").join(",");
+    const rows = await R.getAll(
+        `SELECT monitor_id, info_json FROM monitor_tls_info WHERE monitor_id IN (${placeholders})`,
+        monitorIDs
+    );
+
+    for (const row of rows) {
+        let info;
+        try {
+            info = JSON.parse(row.info_json);
+        } catch (e) {
+            // A row this API cannot read is reported as no certificate rather
+            // than failing the whole overview for every other monitor.
+            continue;
+        }
+        if (!info || typeof info !== "object") {
+            continue;
+        }
+        certificates.set(row.monitor_id, {
+            certValid: typeof info.valid === "boolean" ? info.valid : null,
+            certExpiresAt: info.certInfo?.validTo ?? null,
+        });
+    }
+
+    return certificates;
+}
 
 /*
  * Lets a caller discover its own authority before attempting anything, which is
@@ -1658,7 +1711,8 @@ function buildOpenAPI() {
             "/api/v1/overview": {
                 get: {
                     summary: "Current state of every monitor",
-                    description: "One row per monitor with its status, when it entered that status, and 24-hour uptime.",
+                    description:
+                        "One row per monitor with its status, when it entered that status, 24-hour uptime, and — for a monitor that has completed a TLS check — whether the peer's certificate validated and when it expires. `certExpiresAt` is the certificate's notAfter; judge expiry from it rather than from a count taken at check time.",
                     security: authed,
                     responses: { 200: { description: "Overview" } },
                 },
@@ -1827,4 +1881,5 @@ module.exports.internals = {
     projectWith,
     parseWith,
     buildOpenAPI,
+    readCertificates,
 };
