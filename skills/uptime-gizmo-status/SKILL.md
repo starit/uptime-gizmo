@@ -116,6 +116,7 @@ month contributes nothing to this list, which is what makes the call cheap.
 | Maintenance windows | `GET /api/v1/maintenances` |
 | Status pages | `GET /api/v1/status-pages` |
 | Notification channels | `GET /api/v1/notifications` |
+| Notification providers this build has | `GET /api/v1/notification-providers` |
 | Proxies | `GET /api/v1/proxies` |
 | Docker hosts | `GET /api/v1/docker-hosts` |
 | Remote browsers | `GET /api/v1/remote-browsers` |

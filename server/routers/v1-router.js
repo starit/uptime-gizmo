@@ -8,6 +8,7 @@ const { log } = require("../../src/util");
 const { VALUE_TYPES, VALUE_OPERATORS, BLOCK_TAGS } = require("../modules/web3-rpc");
 const { DNS_RESOLVE_TYPES } = require("../monitor-types/dns");
 const { llmCredentialSummaries } = require("../utils/llm-credentials");
+const { Notification } = require("../notification");
 
 const router = express.Router();
 
@@ -865,9 +866,38 @@ router.patch(
 );
 
 /*
- * Read-only, all four. Creating a notification channel or a proxy means
- * supplying the credential this API declines to return, so writing them is a
- * separate decision from listing them.
+ * Which providers this build can send through.
+ *
+ * Read from the live registry rather than a list kept alongside it, so a
+ * provider added to the server is offered here without a second edit. A caller
+ * building a form needs this before it can ask for a channel's settings, and
+ * the names are the same strings `type` takes below.
+ */
+router.get(
+    "/api/v1/notification-providers",
+    apiAuth,
+    route(async (req, res) => {
+        res.json({
+            ok: true,
+            data: Object.keys(Notification.providerList).sort().map((name) => ({ name })),
+        });
+    })
+);
+
+/*
+ * Notification channels.
+ *
+ * Writable, with the credential travelling one way only: `config` is accepted
+ * and never returned. For most providers that object *is* the credential — a
+ * Slack webhook URL is enough to post as that bot — so returning it would make
+ * any key a way to read every channel's secret, while accepting it only lets a
+ * caller set something it already knew.
+ *
+ * The settings inside `config` are not validated against the provider, because
+ * the server does not validate them either: a provider reads the keys it wants
+ * and the interface's form is the only thing that has ever shaped them. What is
+ * checked is `type`, since a channel naming a provider this build does not have
+ * would accept every alert and deliver none of them.
  */
 router.get(
     "/api/v1/notifications",
@@ -877,6 +907,142 @@ router.get(
             req.principal?.estateID ?? null,
         ]);
         res.json({ ok: true, data: rows.map(notificationToAPI) });
+    })
+);
+
+/**
+ * Read a notification channel out of a request body.
+ * @param {object} body Request body
+ * @param {boolean} partial Whether absent fields are allowed
+ * @returns {object} The settings object to store
+ * @throws {Error} When the body does not describe a usable channel
+ */
+function parseNotificationBody(body, partial) {
+    if (!body || typeof body !== "object" || Array.isArray(body)) {
+        throw new Error("A notification body must be an object");
+    }
+    const { name, type, isDefault, active, config } = body;
+
+    if (!partial || name !== undefined) {
+        if (typeof name !== "string" || !name.trim()) {
+            throw new Error("name is required");
+        }
+    }
+    if (!partial || type !== undefined) {
+        if (typeof type !== "string" || !Notification.providerList[type]) {
+            throw new Error(
+                `type must name a provider this server has; see GET /api/v1/notification-providers`
+            );
+        }
+    }
+    if (config !== undefined && (typeof config !== "object" || config === null || Array.isArray(config))) {
+        throw new Error("config must be an object");
+    }
+    for (const [ field, value ] of [ [ "isDefault", isDefault ], [ "active", active ] ]) {
+        if (value !== undefined && typeof value !== "boolean") {
+            throw new Error(`${field} must be a boolean`);
+        }
+    }
+
+    /*
+     * Stored the way the interface stores it: one flat object holding the
+     * provider's settings alongside name and type. Keeping the shape identical
+     * means a channel created here is editable in the interface afterwards, and
+     * one created there is editable through this API.
+     */
+    return {
+        ...(config ?? {}),
+        ...(name === undefined ? {} : { name: name.trim() }),
+        ...(type === undefined ? {} : { type }),
+        ...(isDefault === undefined ? {} : { isDefault }),
+        ...(active === undefined ? {} : { active }),
+    };
+}
+
+router.post(
+    "/api/v1/notifications",
+    apiAuth,
+    requireWrite,
+    route(async (req, res) => {
+        let settings;
+        try {
+            settings = parseNotificationBody(req.body, false);
+        } catch (e) {
+            badRequest(res, e);
+            return;
+        }
+
+        const bean = await Notification.save(settings, null, req.principal?.estateID ?? null);
+        const saved = await R.findOne("notification", " id = ? ", [ bean.id ]);
+        res.status(201).json({ ok: true, data: notificationToAPI(saved) });
+    })
+);
+
+router.patch(
+    "/api/v1/notifications/:id",
+    apiAuth,
+    requireWrite,
+    route(async (req, res) => {
+        const existing = await R.findOne("notification", " id = ? AND user_id = ? ", [
+            req.params.id,
+            req.principal?.estateID ?? null,
+        ]);
+        if (!existing) {
+            res.status(404).json({
+                ok: false,
+                error: { code: "not_found", message: "No such notification" },
+            });
+            return;
+        }
+
+        let patch;
+        try {
+            patch = parseNotificationBody(req.body, true);
+        } catch (e) {
+            badRequest(res, e);
+            return;
+        }
+
+        /*
+         * Merged over what is stored, so a caller changing a name does not have
+         * to resend a credential it cannot read back.
+         */
+        let stored = {};
+        try {
+            stored = JSON.parse(existing.config) ?? {};
+        } catch (e) {
+            stored = {};
+        }
+
+        const bean = await Notification.save(
+            { ...stored, ...patch },
+            existing.id,
+            req.principal?.estateID ?? null
+        );
+        const saved = await R.findOne("notification", " id = ? ", [ bean.id ]);
+        res.json({ ok: true, data: notificationToAPI(saved) });
+    })
+);
+
+router.delete(
+    "/api/v1/notifications/:id",
+    apiAuth,
+    requireWrite,
+    route(async (req, res) => {
+        const existing = await R.findOne("notification", " id = ? AND user_id = ? ", [
+            req.params.id,
+            req.principal?.estateID ?? null,
+        ]);
+        if (!existing) {
+            res.status(404).json({
+                ok: false,
+                error: { code: "not_found", message: "No such notification" },
+            });
+            return;
+        }
+
+        await Notification.delete(existing.id, req.principal?.estateID ?? null);
+        res.json({ ok: true, data: { deleted: [ Number(existing.id) ] } });
     })
 );
 
@@ -1773,7 +1939,40 @@ function buildOpenAPI() {
                     responses: { 200: { description: "Deleted" }, 403: { description: "The key is read-only" }, 404: { description: "No such tag" } },
                 },
             },
+            "/api/v1/notification-providers": {
+                get: {
+                    summary: "Notification providers this server can send through",
+                    description:
+                        "The names `type` accepts when creating a channel. Read from the live registry, so it is whatever this build has.",
+                    security: authed,
+                    responses: { 200: { description: "Providers" } },
+                },
+            },
+            "/api/v1/notifications/{id}": {
+                patch: {
+                    summary: "Update a notification channel",
+                    description:
+                        "Merged over what is stored, so changing a name does not mean resending a credential the caller cannot read back.",
+                    security: authed,
+                    parameters: [ idParam ],
+                    responses: { 200: { description: "Updated" }, 400: { description: "Invalid body" }, 403: { description: "The key is read-only" }, 404: { description: "No such notification" } },
+                },
+                delete: {
+                    summary: "Delete a notification channel",
+                    description: "Removes it from every monitor using it.",
+                    security: authed,
+                    parameters: [ idParam ],
+                    responses: { 200: { description: "Deleted" }, 403: { description: "The key is read-only" }, 404: { description: "No such notification" } },
+                },
+            },
             "/api/v1/notifications": {
+                post: {
+                    summary: "Create a notification channel",
+                    description:
+                        "`config` holds the provider's own settings and is accepted but never returned: for most providers that object is the credential. `type` must name a provider from /api/v1/notification-providers.",
+                    security: authed,
+                    responses: { 201: { description: "Created" }, 400: { description: "Invalid body" }, 403: { description: "The key is read-only" } },
+                },
                 get: {
                     summary: "List notification channels",
                     description:
@@ -1880,6 +2079,8 @@ module.exports.internals = {
     monitorFromAPI,
     projectWith,
     parseWith,
+    parseNotificationBody,
+    notificationToAPI,
     buildOpenAPI,
     readCertificates,
 };
