@@ -9,6 +9,7 @@ const { VALUE_TYPES, VALUE_OPERATORS, BLOCK_TAGS } = require("../modules/web3-rp
 const { DNS_RESOLVE_TYPES } = require("../monitor-types/dns");
 const { llmCredentialSummaries } = require("../utils/llm-credentials");
 const { Notification } = require("../notification");
+const { NOTIFICATION_FIELDS: PROVIDER_FIELDS } = require("../notification-fields");
 
 const router = express.Router();
 
@@ -879,7 +880,18 @@ router.get(
     route(async (req, res) => {
         res.json({
             ok: true,
-            data: Object.keys(Notification.providerList).sort().map((name) => ({ name })),
+            data: Object.keys(Notification.providerList)
+                .sort()
+                /*
+                 * `fields` is present for the providers whose settings have
+                 * been written down, and absent for the rest. A caller that
+                 * has them can draw a form; a caller that does not should ask
+                 * for the settings directly rather than guess, which is why
+                 * the key is missing rather than empty.
+                 */
+                .map((name) => (PROVIDER_FIELDS[name]
+                    ? { name, fields: PROVIDER_FIELDS[name] }
+                    : { name })),
         });
     })
 );
@@ -2093,7 +2105,7 @@ function buildOpenAPI() {
                 get: {
                     summary: "Notification providers this server can send through",
                     description:
-                        "The names `type` accepts when creating a channel. Read from the live registry, so it is whatever this build has.",
+                        "The names `type` accepts when creating a channel, read from the live registry. A provider whose settings have been written down also carries `fields`, enough to draw a form; one without it should be asked for its settings directly rather than guessed at.",
                     security: authed,
                     responses: { 200: { description: "Providers" } },
                 },
