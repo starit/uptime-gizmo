@@ -117,6 +117,7 @@ month contributes nothing to this list, which is what makes the call cheap.
 | Status pages | `GET /api/v1/status-pages` |
 | Notification channels | `GET /api/v1/notifications` |
 | Notification providers this build has | `GET /api/v1/notification-providers` |
+| Channels a monitor alerts through | `GET /api/v1/monitors/{id}/notifications` |
 | Proxies | `GET /api/v1/proxies` |
 | Docker hosts | `GET /api/v1/docker-hosts` |
 | Remote browsers | `GET /api/v1/remote-browsers` |

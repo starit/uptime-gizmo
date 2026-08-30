@@ -1569,6 +1569,130 @@ router.post(
     })
 );
 
+/*
+ * Which channels a monitor alerts through.
+ *
+ * The link is read fresh every time a notification is sent, so attaching one
+ * takes effect on the next transition rather than on a restart.
+ *
+ * A channel is named by id and never described here: what it is and where it
+ * points belong to /api/v1/notifications, and repeating them would put a
+ * credential's destination in a second place.
+ */
+router.get(
+    "/api/v1/monitors/:monitorId/notifications",
+    apiAuth,
+    route(async (req, res) => {
+        const monitor = await ownedMonitor(req, res);
+        if (!monitor) {
+            return;
+        }
+
+        const rows = await R.getAll(
+            `SELECT notification.* FROM notification
+             JOIN monitor_notification ON monitor_notification.notification_id = notification.id
+             WHERE monitor_notification.monitor_id = ?
+             ORDER BY notification.name`,
+            [ monitor.id ]
+        );
+        res.json({ ok: true, data: rows.map(notificationToAPI) });
+    })
+);
+
+router.post(
+    "/api/v1/monitors/:monitorId/notifications",
+    apiAuth,
+    requireWrite,
+    route(async (req, res) => {
+        const monitor = await ownedMonitor(req, res);
+        if (!monitor) {
+            return;
+        }
+
+        const notificationID = Number(req.body?.notificationID);
+        if (!Number.isInteger(notificationID)) {
+            badRequest(res, new Error("notificationID is required and must be an integer"));
+            return;
+        }
+
+        /*
+         * Scoped to the caller's estate: without it a monitor could be pointed
+         * at a channel belonging to someone else, which would send that
+         * someone else this monitor's alerts.
+         */
+        const notification = await R.findOne("notification", " id = ? AND user_id = ? ", [
+            notificationID,
+            req.principal?.estateID ?? null,
+        ]);
+        if (!notification) {
+            res.status(404).json({
+                ok: false,
+                error: { code: "not_found", message: "No such notification" },
+            });
+            return;
+        }
+
+        const existing = await R.findOne(
+            "monitor_notification",
+            " monitor_id = ? AND notification_id = ? ",
+            [ monitor.id, notificationID ]
+        );
+
+        /*
+         * Attaching twice is the same monitor alerting the same channel, so a
+         * repeat is the state the caller asked for rather than a second link
+         * that would send every alert twice.
+         */
+        if (!existing) {
+            await R.exec(
+                "INSERT INTO monitor_notification (monitor_id, notification_id) VALUES (?, ?)",
+                [ monitor.id, notificationID ]
+            );
+        }
+
+        await lifecycle.notifyMonitorChanged(req.principal?.estateID ?? null, monitor.id);
+
+        res.status(existing ? 200 : 201).json({
+            ok: true,
+            data: { monitorID: monitor.id, notificationID },
+        });
+    })
+);
+
+router.delete(
+    "/api/v1/monitors/:monitorId/notifications/:notificationId",
+    apiAuth,
+    requireWrite,
+    route(async (req, res) => {
+        const monitor = await ownedMonitor(req, res);
+        if (!monitor) {
+            return;
+        }
+
+        const link = await R.findOne(
+            "monitor_notification",
+            " monitor_id = ? AND notification_id = ? ",
+            [ monitor.id, req.params.notificationId ]
+        );
+
+        if (!link) {
+            res.status(404).json({
+                ok: false,
+                error: { code: "not_found", message: "That notification is not on that monitor" },
+            });
+            return;
+        }
+
+        await R.trash(link);
+        await lifecycle.notifyMonitorChanged(req.principal?.estateID ?? null, monitor.id);
+
+        res.json({
+            ok: true,
+            data: { monitorID: monitor.id, notificationID: Number(req.params.notificationId) },
+        });
+    })
+);
+
 router.delete(
     "/api/v1/monitors/:monitorId/tags/:tagId",
     apiAuth,
@@ -1937,6 +2061,32 @@ function buildOpenAPI() {
                     security: authed,
                     parameters: [ idParam ],
                     responses: { 200: { description: "Deleted" }, 403: { description: "The key is read-only" }, 404: { description: "No such tag" } },
+                },
+            },
+            "/api/v1/monitors/{monitorId}/notifications": {
+                get: {
+                    summary: "Channels a monitor alerts through",
+                    description: "Each channel as /api/v1/notifications reports it; its settings are still not returned.",
+                    security: authed,
+                    parameters: [ monitorIdParam ],
+                    responses: { 200: { description: "Channels" }, 404: { description: "No such monitor" } },
+                },
+                post: {
+                    summary: "Alert a monitor through a channel",
+                    description:
+                        "Takes `notificationID`. Read fresh when a notification is sent, so it applies from the next transition. Attaching one already attached is the state asked for, not a second link.",
+                    security: authed,
+                    parameters: [ monitorIdParam ],
+                    responses: { 200: { description: "Already attached" }, 201: { description: "Attached" }, 400: { description: "Invalid body" }, 403: { description: "The key is read-only" }, 404: { description: "No such monitor or notification" } },
+                },
+            },
+            "/api/v1/monitors/{monitorId}/notifications/{notificationId}": {
+                delete: {
+                    summary: "Stop alerting a monitor through a channel",
+                    description: "Leaves the channel itself alone; only the link is removed.",
+                    security: authed,
+                    parameters: [ monitorIdParam, pathParam("notificationId") ],
+                    responses: { 200: { description: "Detached" }, 403: { description: "The key is read-only" }, 404: { description: "Not attached" } },
                 },
             },
             "/api/v1/notification-providers": {
