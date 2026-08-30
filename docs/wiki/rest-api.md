@@ -73,6 +73,32 @@ accurate only at the moment of the check that produced it, while a caller
 computing from the timestamp is right whenever it asks. Both are absent on a
 monitor that makes no TLS connection, and on an engine older than the field.
 
+## History
+
+| Call | Question |
+| --- | --- |
+| `GET /api/v1/monitors/{id}/uptime?window=24h` | Uptime and latency over time, as buckets to draw a chart from |
+| `GET /api/v1/monitors/{id}/heartbeats?limit=100` | The individual checks behind those buckets, newest first |
+
+`window` is one of `3h`, `6h`, `24h`, `7d`, `30d`, `1y`. Each window fixes its
+own bucket size — minutes up to a day, hours up to a month, days beyond — and
+the response says which in `bucket` and `bucketSeconds`, so a caller never has
+to reconcile a resolution it asked for against the one it received. Points come
+**oldest first**.
+
+A bucket reports `uptime: null` when nothing was checked in it. That is not the
+same as an outage, and drawing it as zero invents downtime that never happened —
+a monitor created an hour ago has 23 empty hours behind it. `avgPing`, `minPing`
+and `maxPing` are likewise null for a bucket whose checks all failed.
+
+`summary` covers the whole requested window. A monitor that has never been
+checked returns an empty `points` array with a null summary rather than a 404:
+the question was fair, there is simply no history yet.
+
+`heartbeats` carries the `message` a failed check recorded, which is usually the
+first thing anyone wants after seeing a dip in the chart. `limit` defaults to
+100 and is capped at 500.
+
 ## Resources
 
 **Read** (any key):

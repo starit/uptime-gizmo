@@ -584,6 +584,223 @@ router.get(
 );
 
 /*
+ * How a monitor has behaved over time, which is what a chart is drawn from.
+ *
+ * The engine already keeps rolled-up counts per minute, hour and day for its
+ * own pages; until now they had no way out through this API, so a caller could
+ * read the state a monitor is in but not how it got there.
+ *
+ * Windows are named rather than free-form (a start and an end would invite
+ * requests for a year at minute resolution, which is 525,600 buckets), and each
+ * window fixes its own bucket size, so a caller never has to reconcile a
+ * resolution it asked for against the one it received.
+ */
+const UPTIME_WINDOWS = {
+    "3h": { bucket: "minute", count: 180 },
+    "6h": { bucket: "minute", count: 360 },
+    "24h": { bucket: "minute", count: 1440 },
+    "7d": { bucket: "hour", count: 168 },
+    "30d": { bucket: "hour", count: 720 },
+    "1y": { bucket: "day", count: 365 },
+};
+
+const UPTIME_BUCKET_SECONDS = {
+    minute: 60,
+    hour: 3600,
+    day: 86400,
+};
+
+router.get(
+    "/api/v1/monitors/:id/uptime",
+    apiAuth,
+    route(async (req, res) => {
+        const monitor = await R.findOne("monitor", " id = ? AND user_id = ? ", [
+            req.params.id,
+            req.principal?.estateID ?? null,
+        ]);
+
+        if (!monitor) {
+            res.status(404).json({
+                ok: false,
+                error: { code: "not_found", message: "No such monitor" },
+            });
+            return;
+        }
+
+        const window = req.query.window ?? "24h";
+        const shape = UPTIME_WINDOWS[window];
+
+        if (!shape) {
+            res.status(400).json({
+                ok: false,
+                error: {
+                    code: "invalid_request",
+                    message: `window must be one of ${Object.keys(UPTIME_WINDOWS).join(", ")}`,
+                },
+            });
+            return;
+        }
+
+        let calculator;
+        try {
+            calculator = await UptimeCalculator.getUptimeCalculator(monitor.id);
+        } catch (e) {
+            /*
+             * A monitor that has never been checked has no calculator. That is
+             * an empty chart, not an error: the caller asked a fair question
+             * about a monitor with nothing to say yet.
+             */
+            log.debug("api", `No uptime data for monitor ${monitor.id}: ${e.message}`);
+            res.json({
+                ok: true,
+                data: {
+                    window,
+                    bucket: shape.bucket,
+                    bucketSeconds: UPTIME_BUCKET_SECONDS[shape.bucket],
+                    points: [],
+                    summary: { uptime: null, avgPing: null },
+                },
+            });
+            return;
+        }
+
+        const summary = calculator.getData(shape.count, shape.bucket);
+
+        res.json({
+            ok: true,
+            data: {
+                window,
+                bucket: shape.bucket,
+                bucketSeconds: UPTIME_BUCKET_SECONDS[shape.bucket],
+                /*
+                 * Oldest first. The calculator walks backwards from now, which
+                 * is the reverse of how every chart reads, and sorting is the
+                 * kind of step a caller forgets exactly once.
+                 */
+                points: calculator
+                    .getDataArray(shape.count, shape.bucket)
+                    .map(uptimePointToAPI)
+                    .sort((a, b) => a.timestamp - b.timestamp),
+                summary: {
+                    uptime: summary.uptime,
+                    avgPing: summary.avgPing,
+                },
+            },
+        });
+    })
+);
+
+/**
+ * Present one rolled-up bucket.
+ *
+ * Named explicitly rather than passed through, because the stored shape carries
+ * whatever the calculator happened to put on it — including the ping fields it
+ * leaves undefined for a bucket with no successful check.
+ * @param {object} point A bucket from UptimeCalculator
+ * @returns {object} The bucket as this API reports it
+ */
+function uptimePointToAPI(point) {
+    const up = point.up ?? 0;
+    const down = point.down ?? 0;
+    const maintenance = point.maintenance ?? 0;
+    const total = up + down;
+
+    return {
+        timestamp: point.timestamp,
+        up,
+        down,
+        maintenance,
+        /*
+         * The share of checks that succeeded in this bucket, or null when
+         * nothing was checked. Zero would read as an outage, and a gap in
+         * monitoring is not the same thing as a monitor being down.
+         */
+        uptime: total === 0 ? null : up / total,
+        avgPing: point.avgPing ?? null,
+        minPing: point.minPing ?? null,
+        maxPing: point.maxPing ?? null,
+    };
+}
+
+/*
+ * The individual checks behind the aggregate, newest first.
+ *
+ * A chart drawn from buckets cannot say what actually happened at 14:02, and
+ * the message attached to a failed check is usually the first thing anyone
+ * wants. Returned as its own route so a caller reading a chart every few
+ * seconds is not also carrying beat detail it will not draw.
+ */
+router.get(
+    "/api/v1/monitors/:id/heartbeats",
+    apiAuth,
+    route(async (req, res) => {
+        const monitor = await R.findOne("monitor", " id = ? AND user_id = ? ", [
+            req.params.id,
+            req.principal?.estateID ?? null,
+        ]);
+
+        if (!monitor) {
+            res.status(404).json({
+                ok: false,
+                error: { code: "not_found", message: "No such monitor" },
+            });
+            return;
+        }
+
+        const limit = parseBoundedInteger(req.query.limit, 100, 1, 500);
+
+        if (limit === null) {
+            res.status(400).json({
+                ok: false,
+                error: { code: "invalid_request", message: "limit must be an integer between 1 and 500" },
+            });
+            return;
+        }
+
+        const rows = await R.getAll(
+            `SELECT status, time, ping, msg, important, duration
+             FROM heartbeat WHERE monitor_id = ? ORDER BY time DESC LIMIT ?`,
+            [ monitor.id, limit ]
+        );
+
+        res.json({
+            ok: true,
+            data: rows.map((row) => ({
+                status: row.status,
+                time: row.time,
+                ping: row.ping,
+                message: row.msg,
+                important: Boolean(row.important),
+                duration: row.duration,
+            })),
+        });
+    })
+);
+
+/**
+ * Read a query parameter that must be a whole number inside a range.
+ *
+ * Returns null for anything that is not, including "12abc" and "1e3", rather
+ * than the partial number parseInt would find: a caller that sent a malformed
+ * limit meant something, and quietly using half of it is worse than saying no.
+ * @param {*} raw The raw query value
+ * @param {number} fallback Used when the parameter was not supplied
+ * @param {number} min Smallest accepted value
+ * @param {number} max Largest accepted value
+ * @returns {number|null} The value, or null if it was not acceptable
+ */
+function parseBoundedInteger(raw, fallback, min, max) {
+    if (raw === undefined) {
+        return fallback;
+    }
+    if (typeof raw !== "string" || !/^[0-9]+$/.test(raw)) {
+        return null;
+    }
+    const value = Number(raw);
+    return value >= min && value <= max ? value : null;
+}
+
+/*
  * The question an agent actually asks, answered in one call: what is the state
  * of everything right now. Assembled here rather than left to the caller, so a
  * client cannot get the correlation wrong.
@@ -1924,6 +2141,52 @@ function buildOpenAPI() {
                     },
                 },
             },
+            "/api/v1/monitors/{id}/uptime": {
+                get: {
+                    summary: "Uptime and latency over time",
+                    description:
+                        "Rolled-up buckets for drawing a chart, oldest first. Each named window fixes its own "
+                        + "bucket size, so the resolution is never in question. A bucket nothing was checked in "
+                        + "reports uptime null, which is not the same as an outage.",
+                    security: authed,
+                    parameters: [
+                        idParam,
+                        {
+                            name: "window",
+                            in: "query",
+                            required: false,
+                            schema: { type: "string", enum: Object.keys(UPTIME_WINDOWS), default: "24h" },
+                        },
+                    ],
+                    responses: {
+                        200: { description: "Uptime series" },
+                        400: { description: "Unknown window" },
+                        404: { description: "No such monitor" },
+                    },
+                },
+            },
+            "/api/v1/monitors/{id}/heartbeats": {
+                get: {
+                    summary: "Individual checks, newest first",
+                    description:
+                        "The checks behind the aggregate, including the message a failed check recorded.",
+                    security: authed,
+                    parameters: [
+                        idParam,
+                        {
+                            name: "limit",
+                            in: "query",
+                            required: false,
+                            schema: { type: "integer", minimum: 1, maximum: 500, default: 100 },
+                        },
+                    ],
+                    responses: {
+                        200: { description: "Heartbeats" },
+                        400: { description: "Unacceptable limit" },
+                        404: { description: "No such monitor" },
+                    },
+                },
+            },
             "/api/v1/monitors/{id}/pause": {
                 post: {
                     summary: "Pause a monitor",
@@ -2245,4 +2508,7 @@ module.exports.internals = {
     notificationToAPI,
     buildOpenAPI,
     readCertificates,
+    uptimePointToAPI,
+    parseBoundedInteger,
+    UPTIME_WINDOWS,
 };
