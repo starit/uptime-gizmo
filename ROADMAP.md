@@ -19,14 +19,24 @@ areas of planned work and may change as the project develops.
   endpoint health, and reading a value out of a contract to compare against a
   threshold. Every call is Ethereum JSON-RPC.
 - LLM endpoint monitoring: one chat completion per check, asserting on the
-  content rather than the status code.
+  content rather than the status code. Credentials are saved once and named by
+  the monitors that use them, so the key is not repeated per monitor.
+- Notification channels over the API: created, updated, deleted, and attached
+  to monitors. Each provider publishes the fields it needs, so a client can
+  build the form rather than guess it. What a channel's settings contain is
+  never returned — for most providers that object is the credential.
+- A monitor's history over the API: rolled-up buckets to draw a chart from, and
+  the individual checks behind them.
+- Per-key request allowances separated from the limit on guessing a key, so a
+  busy integration cannot be throttled by someone else's failed logins.
 
 ## Short-term
 
-- Finish the write side of the HTTP API: maintenance windows, status-page
-  incidents, and the resources whose configuration carries credentials.
-- Notification channels, proxies and integrations over the API, once there is a
-  decided answer for accepting a credential through it.
+- Finish the write side of the HTTP API: maintenance windows and status-page
+  incidents.
+- Proxies and integrations over the API. Notification channels answered the
+  question of how a credential is accepted — the settings go in and never come
+  back out — and the same answer should carry to these.
 
 ## Long-term
 

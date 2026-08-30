@@ -33,8 +33,11 @@ Everything in this section works today. Planned work is in the
 
 ### An API, and an MCP server on top of it
 
-- **REST API at `/api/v1`.** Monitors, tags, maintenance windows and `whoami`,
-  plus `overview`, `incidents/active` and `changes`.
+- **REST API at `/api/v1`.** Monitors, tags, notification channels and
+  `whoami`, plus `overview`, `incidents/active` and `changes`. A monitor's
+  history comes back as buckets to draw a chart from, and as the individual
+  checks behind them. Maintenance windows, status pages, proxies and the other
+  integrations are readable; their write side is still to come.
 - **API keys can be read-only**, and new keys are read-only by default. An agent
   can be given a key that sees everything and changes nothing.
 - **An OpenAPI description** at `/api/v1/openapi.json`, generated from the field
@@ -305,7 +308,8 @@ The [Roadmap](ROADMAP.md) has the current list. The short version:
 
 - Better status pages.
 - Checks that report health, not just whether something answered.
-- The write side of the API.
+- The rest of the write side of the API: maintenance windows, status-page
+  incidents, proxies and integrations.
 - More context around an incident.
 
 Design notes: [REST API plan](docs/plans/rest-api.md),
