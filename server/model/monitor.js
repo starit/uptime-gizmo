@@ -1562,7 +1562,13 @@ class Monitor extends BeanModel {
      */
     static async getNotificationList(monitor) {
         let notificationList = await R.getAll(
-            "SELECT notification.* FROM notification, monitor_notification WHERE monitor_id = ? AND monitor_notification.notification_id = notification.id ",
+            /*
+             * Disabled channels are filtered here rather than at each caller:
+             * both callers are delivery paths, and a channel switched off has
+             * to stop receiving without being detached from every monitor
+             * first — which is the only reason to switch one off.
+             */
+            "SELECT notification.* FROM notification, monitor_notification WHERE monitor_id = ? AND monitor_notification.notification_id = notification.id AND notification.active = 1 ",
             [monitor.id]
         );
         return notificationList;

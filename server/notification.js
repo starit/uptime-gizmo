@@ -283,6 +283,16 @@ class Notification {
         bean.user_id = userID;
         bean.config = JSON.stringify(notification);
         bean.is_default = notification.isDefault || false;
+        /*
+         * Absent means unchanged rather than false. The interface's form does
+         * not carry this field, so treating undefined as "disable" would switch
+         * a channel off every time someone renamed it there.
+         */
+        if (notification.active !== undefined) {
+            bean.active = Boolean(notification.active);
+        } else if (bean.active === undefined) {
+            bean.active = true;
+        }
         await R.store(bean);
 
         if (applyExisting) {
