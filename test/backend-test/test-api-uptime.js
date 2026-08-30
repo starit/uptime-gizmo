@@ -1,6 +1,11 @@
 const { describe, test } = require("node:test");
 const assert = require("node:assert");
-const { uptimePointToAPI, parseBoundedInteger, UPTIME_WINDOWS } = require("../../server/routers/v1-router").internals;
+const {
+    uptimePointToAPI,
+    summarizeUptime,
+    parseBoundedInteger,
+    UPTIME_WINDOWS,
+} = require("../../server/routers/v1-router").internals;
 
 describe("uptimePointToAPI()", () => {
     test("reports the share of successful checks in a bucket", () => {
@@ -41,6 +46,53 @@ describe("uptimePointToAPI()", () => {
 
         assert.equal(point.maintenance, 50);
         assert.equal(point.uptime, 1);
+    });
+});
+
+describe("summarizeUptime()", () => {
+    const bucket = (up, down, avgPing = null) => uptimePointToAPI({
+        timestamp: 1756512000,
+        up,
+        down,
+        avgPing,
+        minPing: avgPing,
+        maxPing: avgPing,
+    });
+
+    test("reports the share of checks that succeeded across the window", () => {
+        const summary = summarizeUptime([ bucket(57, 3), bucket(60, 0) ]);
+
+        assert.equal(summary.uptime, 117 / 120);
+    });
+
+    test("says nothing about a window that holds no checks", () => {
+        // Not zero. A window nobody checked in is not a window of downtime, and
+        // the calculator's own summary answers zero here, or worse, answers
+        // with a bucket from outside the window entirely.
+        const summary = summarizeUptime([]);
+
+        assert.equal(summary.uptime, null);
+        assert.equal(summary.avgPing, null);
+    });
+
+    test("ignores buckets that recorded nothing rather than counting them down", () => {
+        const summary = summarizeUptime([ uptimePointToAPI({ timestamp: 1 }), bucket(10, 0) ]);
+
+        assert.equal(summary.uptime, 1);
+    });
+
+    test("weights latency by the checks behind each average", () => {
+        const summary = summarizeUptime([ bucket(90, 0, 10), bucket(10, 0, 110) ]);
+
+        // Not 60: the fast bucket holds nine times as many checks.
+        assert.equal(summary.avgPing, 20);
+    });
+
+    test("reports no latency for a window whose checks all failed", () => {
+        const summary = summarizeUptime([ bucket(0, 30) ]);
+
+        assert.equal(summary.uptime, 0);
+        assert.equal(summary.avgPing, null);
     });
 });
 

@@ -664,7 +664,15 @@ router.get(
             return;
         }
 
-        const summary = calculator.getData(shape.count, shape.bucket);
+        /*
+         * Oldest first. The calculator walks backwards from now, which is the
+         * reverse of how every chart reads, and sorting is the kind of step a
+         * caller forgets exactly once.
+         */
+        const points = calculator
+            .getDataArray(shape.count, shape.bucket)
+            .map(uptimePointToAPI)
+            .sort((a, b) => a.timestamp - b.timestamp);
 
         res.json({
             ok: true,
@@ -672,23 +680,51 @@ router.get(
                 window,
                 bucket: shape.bucket,
                 bucketSeconds: UPTIME_BUCKET_SECONDS[shape.bucket],
-                /*
-                 * Oldest first. The calculator walks backwards from now, which
-                 * is the reverse of how every chart reads, and sorting is the
-                 * kind of step a caller forgets exactly once.
-                 */
-                points: calculator
-                    .getDataArray(shape.count, shape.bucket)
-                    .map(uptimePointToAPI)
-                    .sort((a, b) => a.timestamp - b.timestamp),
-                summary: {
-                    uptime: summary.uptime,
-                    avgPing: summary.avgPing,
-                },
+                points,
+                summary: summarizeUptime(points),
             },
         });
     })
 );
+
+/**
+ * Summarise the buckets inside the window.
+ *
+ * Computed from the same buckets the caller receives rather than asked of the
+ * calculator, whose own summary substitutes the last bucket it saw when the
+ * window holds nothing — data from outside the period that was asked about,
+ * and, in a process that has not seen a check since starting, a flat zero that
+ * is indistinguishable from a total outage.
+ *
+ * A window with no checks in it reports null on both counts, which is the same
+ * rule the buckets follow: nothing recorded is not the same as nothing working.
+ * @param {object[]} points The window's buckets, as this API reports them
+ * @returns {object} uptime and avgPing over the window
+ */
+function summarizeUptime(points) {
+    let up = 0;
+    let down = 0;
+    let pingTotal = 0;
+    let pingWeight = 0;
+
+    for (const point of points) {
+        up += point.up;
+        down += point.down;
+        if (point.avgPing !== null) {
+            // Weighted by the checks behind each average, the way the
+            // calculator accumulates it, so a bucket holding six checks does
+            // not count the same as one holding sixty.
+            pingTotal += point.avgPing * point.up;
+            pingWeight += point.up;
+        }
+    }
+
+    const checks = up + down;
+    return {
+        uptime: checks === 0 ? null : up / checks,
+        avgPing: pingWeight === 0 ? null : pingTotal / pingWeight,
+    };
+}
 
 /**
  * Present one rolled-up bucket.
@@ -2509,6 +2545,7 @@ module.exports.internals = {
     buildOpenAPI,
     readCertificates,
     uptimePointToAPI,
+    summarizeUptime,
     parseBoundedInteger,
     UPTIME_WINDOWS,
 };

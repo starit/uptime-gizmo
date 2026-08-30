@@ -91,9 +91,11 @@ same as an outage, and drawing it as zero invents downtime that never happened â
 a monitor created an hour ago has 23 empty hours behind it. `avgPing`, `minPing`
 and `maxPing` are likewise null for a bucket whose checks all failed.
 
-`summary` covers the whole requested window. A monitor that has never been
-checked returns an empty `points` array with a null summary rather than a 404:
-the question was fair, there is simply no history yet.
+`summary` covers the requested window and nothing outside it. A window holding
+no checks reports `uptime: null` and `avgPing: null`, on the same principle as
+the buckets: nothing recorded is not the same as nothing working. A monitor that
+has never been checked returns an empty `points` array and that null summary
+rather than a 404 â€” the question was fair, there is simply no history yet.
 
 `heartbeats` carries the `message` a failed check recorded, which is usually the
 first thing anyone wants after seeing a dip in the chart. `limit` defaults to
@@ -117,6 +119,13 @@ The types `POST /api/v1/monitors` accepts are the `enum` on `MonitorInput.type` 
 Field enums (`dnsResolveType`, the web3 value fields) come from the same lists the check engines enforce. A value the UI's Globalping form offers (`ANY`, and the rest) is still `400` here: this API cannot create a Globalping monitor, and native `dns` cannot read those records.
 
 Deleting a **group** needs `?children=unlink` (default: leave children parentless) or `?children=delete` (remove the subtree). Pause and resume are safe to retry.
+
+### Disabling a notification channel
+
+`active: false` on a channel stops it receiving, without detaching it from every
+monitor first. It is a property of the channel, not of any monitor: a disabled
+channel is skipped for every monitor it is attached to, and re-enabling it
+restores all of them at once.
 
 ## High-count load check
 
