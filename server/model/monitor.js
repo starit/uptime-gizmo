@@ -43,6 +43,7 @@ const {
     checkCertExpiryNotifications,
 } = require("../util-server");
 const { R } = require("redbean-node");
+const { notificationRecipients } = require("../notification-recipients");
 const { BeanModel } = require("redbean-node/dist/bean-model");
 const { Notification } = require("../notification");
 const { Proxy } = require("../proxy");
@@ -1561,17 +1562,7 @@ class Monitor extends BeanModel {
      * @returns {Promise<LooseObject<any>[]>} List of notifications
      */
     static async getNotificationList(monitor) {
-        let notificationList = await R.getAll(
-            /*
-             * Disabled channels are filtered here rather than at each caller:
-             * both callers are delivery paths, and a channel switched off has
-             * to stop receiving without being detached from every monitor
-             * first — which is the only reason to switch one off.
-             */
-            "SELECT notification.* FROM notification, monitor_notification WHERE monitor_id = ? AND monitor_notification.notification_id = notification.id AND notification.active = 1 ",
-            [monitor.id]
-        );
-        return notificationList;
+        return notificationRecipients(monitor.id);
     }
 
     /**

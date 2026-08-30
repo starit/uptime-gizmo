@@ -124,8 +124,11 @@ Deleting a **group** needs `?children=unlink` (default: leave children parentles
 
 `active: false` on a channel stops it receiving, without detaching it from every
 monitor first. It is a property of the channel, not of any monitor: a disabled
-channel is skipped for every monitor it is attached to, and re-enabling it
-restores all of them at once.
+channel is skipped for every monitor it is attached to — status changes and
+certificate-expiry warnings alike — and re-enabling it restores all of them at
+once. It stays listed under
+`GET /api/v1/monitors/{id}/notifications`, because a channel you cannot see is
+one you cannot switch back on.
 
 ## High-count load check
 

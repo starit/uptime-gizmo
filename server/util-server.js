@@ -15,6 +15,7 @@ const chardet = require("chardet");
 const chroma = require("chroma-js");
 const { NtlmClient } = require("./modules/axios-ntlm/lib/ntlmClient.js");
 const { Settings } = require("./settings");
+const { notificationRecipients } = require("./notification-recipients");
 const RadiusClient = require("./radius-client");
 const oidc = require("openid-client");
 const tls = require("tls");
@@ -1006,10 +1007,7 @@ async function checkCertExpiryNotifications(monitor, tlsInfoObject) {
         return;
     }
 
-    let notificationList = await R.getAll(
-        "SELECT notification.* FROM notification, monitor_notification WHERE monitor_id = ? AND monitor_notification.notification_id = notification.id ",
-        [monitor.id]
-    );
+    let notificationList = await notificationRecipients(monitor.id);
 
     if (!notificationList.length > 0) {
         // fail fast. If no notification is set, all the following checks can be skipped.
