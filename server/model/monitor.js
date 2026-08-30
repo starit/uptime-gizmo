@@ -1130,14 +1130,25 @@ class Monitor extends BeanModel {
             try {
                 await beat();
             } catch (e) {
+                /*
+                 * A check that was already in flight when the monitor stopped
+                 * fails against a database that is closing, every time. That is
+                 * the shutdown working, not a fault: reporting it prints a
+                 * stack trace and asks the operator to file a bug for each
+                 * running monitor, which is how a clean shutdown comes to look
+                 * like a crash.
+                 */
+                if (this.isStop) {
+                    log.debug("monitor", `[${this.name}] Stopped while a check was in flight`);
+                    return;
+                }
+
                 console.trace(e);
                 UptimeGizmoServer.errorLog(e, false);
                 log.error("monitor", "Please report to https://github.com/starit/uptime-gizmo/issues");
 
-                if (!this.isStop) {
-                    log.info("monitor", "Try to restart the monitor");
-                    this.heartbeatInterval = setTimeout(safeBeat, this.interval * 1000);
-                }
+                log.info("monitor", "Try to restart the monitor");
+                this.heartbeatInterval = setTimeout(safeBeat, this.interval * 1000);
             }
         };
 
