@@ -9,6 +9,9 @@ class TestDB {
     }
 
     async create() {
+        // A previously interrupted test run may leave a complete database here.
+        // Start each fixture from the same empty state.
+        rimrafSync(this.dataDir);
         Database.initDataDir({ "data-dir": this.dataDir });
         Database.dbConfig = {
             type: "sqlite",

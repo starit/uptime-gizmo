@@ -138,6 +138,27 @@ exports.ping = async (
 };
 
 /**
+ * Normalize a hostname or IP address before passing it to the ping process.
+ * URL handles IDN-to-ASCII conversion and may retain brackets around IPv6
+ * literals, which the ping command does not accept.
+ * @param {string} destAddr Hostname / IP address of machine to ping
+ * @returns {string} normalized hostname or IP address
+ */
+exports.normalizePingAddress = function (destAddr) {
+    try {
+        const url = new URL(`http://${destAddr}`);
+        destAddr = url.hostname;
+        if (destAddr.startsWith("[") && destAddr.endsWith("]")) {
+            destAddr = destAddr.slice(1, -1);
+        }
+    } catch (e) {
+        // Leave malformed input unchanged so node-ping reports the error.
+    }
+
+    return destAddr;
+};
+
+/**
  * Ping the specified machine
  * @param {string} destAddr Hostname / IP address of machine to ping
  * @param {boolean} ipv6 Should IPv6 be used?
@@ -159,15 +180,7 @@ exports.pingAsync = function (
     deadline = PING_GLOBAL_TIMEOUT_DEFAULT,
     timeout = PING_PER_REQUEST_TIMEOUT_DEFAULT
 ) {
-    try {
-        const url = new URL(`http://${destAddr}`);
-        destAddr = url.hostname;
-        if (destAddr.startsWith("[") && destAddr.endsWith("]")) {
-            destAddr = destAddr.slice(1, -1);
-        }
-    } catch (e) {
-        // ignore
-    }
+    destAddr = exports.normalizePingAddress(destAddr);
 
     return new Promise((resolve, reject) => {
         ping.promise

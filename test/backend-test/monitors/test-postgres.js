@@ -29,7 +29,7 @@ describe(
                 await postgresMonitor.check(monitor, heartbeat, {});
                 assert.strictEqual(heartbeat.status, UP);
             } finally {
-                postgresContainer.stop();
+                await postgresContainer.stop();
             }
         });
 

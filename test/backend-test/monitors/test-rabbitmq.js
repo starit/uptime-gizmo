@@ -33,7 +33,7 @@ describe(
                 assert.strictEqual(heartbeat.status, UP);
                 assert.strictEqual(heartbeat.msg, "Node is reachable and there are no alerts in the cluster");
             } finally {
-                rabbitMQContainer.stop();
+                await rabbitMQContainer.stop();
             }
         });
 
@@ -73,7 +73,7 @@ describe(
                 // Should not throw - just validates the node is healthy
                 await rabbitMQMonitor.checkSingleNode(monitor, connectionString, "1/1");
             } finally {
-                rabbitMQContainer.stop();
+                await rabbitMQContainer.stop();
             }
         });
 

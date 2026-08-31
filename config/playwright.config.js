@@ -59,7 +59,7 @@ export default defineConfig({
 
     // Run your local dev server before starting the tests.
     webServer: {
-        command: `node extra/remove-playwright-test-data.js && cross-env NODE_ENV=development node server/server.js --port=${port} --data-dir=./data/playwright-test`,
+        command: `node extra/remove-playwright-test-data.js && cross-env NODE_ENV=development UPTIME_GIZMO_DEBUG_INSPECTOR=0 UPTIME_GIZMO_CLOUD_EVENT_URL= UPTIME_GIZMO_CLOUD_INSTANCE_ID= UPTIME_GIZMO_CLOUD_EVENT_SECRET= node server/server.js --port=${port} --data-dir=./data/playwright-test`,
         url,
         reuseExistingServer: false,
         cwd: "../",

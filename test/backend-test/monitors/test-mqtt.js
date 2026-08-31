@@ -1,9 +1,39 @@
-const { describe, test } = require("node:test");
+const { after, before, describe, test } = require("node:test");
 const assert = require("node:assert");
+const net = require("node:net");
 const { HiveMQContainer } = require("@testcontainers/hivemq");
 const mqtt = require("mqtt");
 const { MqttMonitorType } = require("../../../server/monitor-types/mqtt");
 const { UP, PENDING } = require("../../../src/util");
+
+let hiveMQContainer;
+
+/**
+ * Wait until Docker Desktop has published a container's mapped port.
+ * @param {string} host Host to connect to
+ * @param {number} port Port to connect to
+ * @returns {Promise<void>}
+ */
+async function waitForTcp(host, port) {
+    for (let attempt = 0; attempt < 50; attempt += 1) {
+        const connected = await new Promise((resolve) => {
+            const socket = net.createConnection({ host, port });
+            socket.once("connect", () => {
+                socket.destroy();
+                resolve(true);
+            });
+            socket.once("error", () => {
+                socket.destroy();
+                resolve(false);
+            });
+        });
+        if (connected) {
+            return;
+        }
+        await new Promise((resolve) => setTimeout(resolve, 100));
+    }
+    throw new Error("HiveMQ mapped port did not become ready");
+}
 
 /**
  * Runs an MQTT test with the
@@ -23,7 +53,6 @@ async function testMqtt(
     publishTopic = "test",
     conditions = null
 ) {
-    const hiveMQContainer = await new HiveMQContainer().start();
     const connectionString = hiveMQContainer.getConnectionString();
     const mqttMonitorType = new MqttMonitorType();
     const monitor = {
@@ -57,8 +86,7 @@ async function testMqtt(
     try {
         await mqttMonitorType.check(monitor, heartbeat, {});
     } finally {
-        testMqttClient.end();
-        hiveMQContainer.stop();
+        await new Promise((resolve) => testMqttClient.end(false, {}, resolve));
     }
     return heartbeat;
 }
@@ -66,10 +94,28 @@ async function testMqtt(
 describe(
     "MqttMonitorType",
     {
-        concurrency: 4,
+        // A shared broker makes concurrent publish/subscribe cases interfere
+        // with one another, so this suite is intentionally serial.
+        concurrency: 1,
         skip: !!process.env.CI && (process.platform !== "linux" || process.arch !== "x64"),
     },
     () => {
+        before(async () => {
+            /*
+             * @testcontainers/hivemq 10.x defaults to the amd64-only 2023.5
+             * image. It crashes in Java's cgroup setup when emulated on Apple
+             * Silicon, so pin a stable official multi-architecture release.
+             * One broker serves this serial suite; starting 19 containers made
+             * the tests slow and dependent on Docker host capacity.
+             */
+            hiveMQContainer = await new HiveMQContainer("hivemq/hivemq-ce:2025.5").start();
+            await waitForTcp(hiveMQContainer.getHost(), hiveMQContainer.getPort());
+        });
+
+        after(async () => {
+            await hiveMQContainer?.stop();
+        });
+
         test("check() sets status to UP when keyword is found in message (type=default)", async () => {
             const heartbeat = await testMqtt("KEYWORD", null, "-> KEYWORD <-");
             assert.strictEqual(heartbeat.status, UP);

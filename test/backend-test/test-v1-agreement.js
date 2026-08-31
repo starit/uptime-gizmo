@@ -140,8 +140,10 @@ describe("v1 summary endpoints agree with their sources", () => {
          * runner waits on it forever with nothing printed — which is how this
          * file first appeared to hang rather than fail.
          */
-        server.closeAllConnections();
-        await new Promise((resolve) => server.close(resolve));
+        if (server) {
+            server.closeAllConnections();
+            await new Promise((resolve) => server.close(resolve));
+        }
         /*
          * Settings.get starts an interval to expire its cache the first time it
          * is called, and only server.js ever stops it. Left running it outlives

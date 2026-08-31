@@ -69,7 +69,7 @@ if (process.env.UPTIME_GIZMO_WS_ORIGIN_CHECK === "bypass") {
     log.warn("server", "WebSocket Origin Check: " + process.env.UPTIME_GIZMO_WS_ORIGIN_CHECK);
 }
 
-if (isDev || process.env.UPTIME_GIZMO_DEBUG_INSPECTOR === "1") {
+if ((isDev && process.env.UPTIME_GIZMO_DEBUG_INSPECTOR !== "0") || process.env.UPTIME_GIZMO_DEBUG_INSPECTOR === "1") {
     const inspector = require("inspector");
     let inspectorHost = "127.0.0.1";
 
@@ -326,7 +326,23 @@ let needSetup = false;
 
         const fs = require("fs");
 
+        /**
+         * Stop runtime monitor state before replacing the SQLite file.
+         *
+         * Closing Knex first leaves in-flight checks writing through a pool
+         * that no longer exists. Besides noisy false crash reports, an old
+         * monitor object can survive after the snapshot has removed its row.
+         * @returns {Promise<void>}
+         */
+        const stopE2EMonitors = async () => {
+            for (const monitor of Object.values(server.monitorList)) {
+                await monitor.stop();
+            }
+            server.monitorList = {};
+        };
+
         app.get("/_e2e/take-sqlite-snapshot", async (request, response) => {
+            await stopE2EMonitors();
             await Database.close();
             try {
                 fs.cpSync(Database.sqlitePath, `${Database.sqlitePath}.e2e-snapshot`);
@@ -334,6 +350,7 @@ let needSetup = false;
                 throw new Error("Unable to copy SQLite DB.");
             }
             await Database.connect();
+            await startMonitors();
 
             response.send("Snapshot taken.");
         });
@@ -343,6 +360,7 @@ let needSetup = false;
                 throw new Error("Snapshot doesn't exist.");
             }
 
+            await stopE2EMonitors();
             await Database.close();
             try {
                 fs.cpSync(`${Database.sqlitePath}.e2e-snapshot`, Database.sqlitePath);
@@ -350,6 +368,7 @@ let needSetup = false;
                 throw new Error("Unable to copy snapshot file.");
             }
             await Database.connect();
+            await startMonitors();
 
             response.send("Snapshot restored.");
         });

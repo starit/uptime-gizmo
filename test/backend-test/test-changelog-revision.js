@@ -11,9 +11,9 @@ describe("resolvePreviousVersionRevision()", () => {
     test("rejects a missing tag with a clear error", async () => {
         const { resolvePreviousVersionRevision } = await import("../../extra/generate-changelog.mjs");
         assert.throws(
-            () => resolvePreviousVersionRevision("3.0.0-beta.1", { fetchTags: false }),
+            () => resolvePreviousVersionRevision("99.0.0-definitely-missing", { fetchTags: false }),
             (error) => {
-                assert.match(error.message, /3\.0\.0-beta\.1/);
+                assert.match(error.message, /99\.0\.0-definitely-missing/);
                 assert.match(error.message, /not a git tag or commit/);
                 return true;
             }

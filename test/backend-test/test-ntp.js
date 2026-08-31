@@ -248,7 +248,7 @@ describe("NTPMonitorType", () => {
     test(
         "queryNTP() can reach a public NTP server",
         {
-            skip: !!process.env.CI,
+            skip: process.env.TEST_EXTERNAL !== "1",
         },
         async () => {
             const result = await ntp.queryNTP("time.google.com", 123, 10000);
