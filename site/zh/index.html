@@ -6,10 +6,10 @@
         <meta name="color-scheme" content="dark" />
         <meta name="theme-color" content="#0A151E" />
         <meta name="robots" content="index, follow" />
-        <title>Uptime Gizmo — 面向 AI Agent 的监控，盯住 AI 服务与 Web3</title>
+        <title>Uptime Gizmo — 面向 AI 与 Web3 的 Agent 友好型监控</title>
         <meta
             name="description"
-            content="自托管监控：对 AI Agent 友好，并盯住 AI 服务与 Web3（Crypto）。REST、MCP、skills，以及 EVM 链上检查。"
+            content="自托管监控平台，支持 Agent 通过 REST、MCP 和 Skills 接入，并提供 AI 服务、Web3 与 EVM 链上监控。"
         />
         <link rel="canonical" href="https://starit.github.io/uptime-gizmo/zh/" />
         <link rel="alternate" hreflang="en" href="https://starit.github.io/uptime-gizmo/" />
@@ -20,24 +20,24 @@
         <meta property="og:locale" content="zh_CN" />
         <meta property="og:locale:alternate" content="en_US" />
         <meta property="og:url" content="https://starit.github.io/uptime-gizmo/zh/" />
-        <meta property="og:title" content="Uptime Gizmo — 面向 AI Agent 的监控，盯住 AI 服务与 Web3" />
+        <meta property="og:title" content="Uptime Gizmo — 面向 AI 与 Web3 的 Agent 友好型监控" />
         <meta
             property="og:description"
-            content="自托管监控：对 AI Agent 友好，并盯住 AI 服务与 Web3（Crypto）。"
+            content="自托管监控平台，方便 Agent 接入，覆盖 AI 服务、Web3 与 EVM 链上监控。"
         />
         <meta property="og:image" content="https://starit.github.io/uptime-gizmo/images/og.png" />
-        <meta property="og:image:alt" content="Uptime Gizmo 标志：深海军蓝底上的金色 gizmo。" />
+        <meta property="og:image:alt" content="Uptime Gizmo 标志：深蓝色背景上的金色机械装置图案。" />
         <meta property="og:image:type" content="image/png" />
         <meta property="og:image:width" content="1254" />
         <meta property="og:image:height" content="1254" />
         <meta name="twitter:card" content="summary" />
-        <meta name="twitter:title" content="Uptime Gizmo — 面向 AI Agent 的监控，盯住 AI 服务与 Web3" />
+        <meta name="twitter:title" content="Uptime Gizmo — 面向 AI 与 Web3 的 Agent 友好型监控" />
         <meta
             name="twitter:description"
-            content="自托管监控：对 AI Agent 友好，并盯住 AI 服务与 Web3（Crypto）。"
+            content="自托管监控平台，方便 Agent 接入，覆盖 AI 服务、Web3 与 EVM 链上监控。"
         />
         <meta name="twitter:image" content="https://starit.github.io/uptime-gizmo/images/og.png" />
-        <meta name="twitter:image:alt" content="Uptime Gizmo 标志：深海军蓝底上的金色 gizmo。" />
+        <meta name="twitter:image:alt" content="Uptime Gizmo 标志：深蓝色背景上的金色机械装置图案。" />
         <link rel="icon" href="../favicon.png" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -56,7 +56,7 @@
                 "url": "https://starit.github.io/uptime-gizmo/zh/",
                 "downloadUrl": "https://github.com/starit/uptime-gizmo",
                 "license": "https://github.com/starit/uptime-gizmo/blob/main/LICENSE",
-                "description": "自托管监控：对 AI Agent 友好，并盯住 AI 服务与 Web3（Crypto）。",
+                "description": "自托管监控平台，支持 Agent 接入，并提供 AI 服务、Web3 与 EVM 链上监控。",
                 "image": "https://starit.github.io/uptime-gizmo/images/og.png",
                 "inLanguage": ["zh-Hans", "en"],
                 "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
@@ -84,24 +84,27 @@
                     src="../images/mascot.webp"
                     width="448"
                     height="448"
-                    alt="吉祥物 Gizmo，工程师造型，手里拿着扳手。"
+                    alt="工程师吉祥物 Gizmo 手持扳手。"
                 />
                 <blockquote>
-                    <p>Uptime is <em>money</em>, friend.</p>
+                    <p>稳定在线，就是<em>收益</em>，朋友。</p>
                 </blockquote>
             </figure>
             <p class="lede">
-                自托管监控：对 <strong>AI Agent 友好</strong>，并盯住 <strong>AI 服务与 Web3（Crypto）</strong>。
+                一套<strong>方便 Agent 接入</strong>的自托管监控系统，覆盖 <strong>AI 服务与 Web3</strong>。
             </p>
             <ul>
                 <li>
-                    <strong>对 Agent 友好。</strong> REST、MCP 与 skills。Agent 能看到谁挂了，也能创建监控。
+                    <strong>Agent 可直接接入。</strong> 提供 REST、MCP 和 Skills，让 Agent 能查询服务状态、创建监控。
                 </li>
                 <li>
-                    <strong>AI 与 Web3（Crypto）。</strong> 盯 API 或模型端点。链上是 EVM：余额、RPC 是否新鲜、合约里的一个值。
+                    <strong>AI 服务。</strong> 可监控 API 和模型端点。
                 </li>
                 <li>
-                    <strong>UI 用 Tailwind CSS 重做。</strong> 更丰富的主题，以及更现代的公开状态页。
+                    <strong>Web3（Crypto）。</strong> 在 EVM 链上检查账户余额、RPC 数据是否及时更新，以及指定合约的返回值。
+                </li>
+                <li>
+                    <strong>基于 Tailwind CSS 的全新界面。</strong> 提供更丰富的主题和更现代的公开状态页。
                 </li>
             </ul>
             <p>
@@ -109,10 +112,10 @@
                     class="shot"
                     src="../images/dashboard.png"
                     width="760"
-                    alt="仪表盘：三个监控为 Up，下方是简短事件列表。"
+                    alt="仪表盘显示三项监控均正常运行，下方列出近期事件。"
                 />
             </p>
-            <p class="stall">带走一份——跑在你自己的机器上。</p>
+            <p class="stall">一条命令，部署到你自己的机器上。</p>
             <div class="cmd">
                 <pre><code id="docker-run">docker run -d --restart=always -p 3001:3001 -v uptime-gizmo:/app/data --name uptime-gizmo starit/uptime-gizmo:beta</code></pre>
                 <button type="button" class="copy" data-copy="docker-run" data-copied="已复制" aria-label="复制 Docker 命令">
@@ -125,7 +128,7 @@
             </p>
         </main>
         <footer>
-            <p>MIT。Uptime Kuma 的分支。</p>
+            <p>基于 Uptime Kuma 分支开发，采用 MIT 许可证。</p>
         </footer>
         <script src="../site.js"></script>
     </body>

@@ -55,8 +55,9 @@ body {
 
 main,
 footer {
+    width: 100%;
     max-width: 38rem;
-    margin: 0 auto 0 clamp(0.25rem, 10vw, 7rem);
+    margin-inline: auto;
 }
 
 .logo {
