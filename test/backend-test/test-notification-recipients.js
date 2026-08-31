@@ -75,7 +75,9 @@ describe("delivery paths", () => {
                 return /monitor_notification[\s\S]{0,200}?FROM notification|FROM notification[\s\S]{0,200}?monitor_notification/
                     .test(contents);
             })
-            .map(file => path.relative(serverDirectory, file))
+            // path.relative yields backslashes on Windows; the allowlist below
+            // is written with forward slashes, so normalise before comparing.
+            .map(file => path.relative(serverDirectory, file).split(path.sep).join("/"))
             .sort();
 
         assert.deepEqual(
