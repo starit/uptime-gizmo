@@ -74,18 +74,35 @@ async function testMqtt(
         status: PENDING,
     };
 
+    /*
+     * The monitor under test subscribes inside check() below, and this client's
+     * subscribe callback says nothing about whether it has. A QoS 0 message
+     * published before the monitor subscribed is dropped by the broker, and the
+     * check then waits out its full timeout instead of reading the message the
+     * case is about — which is why a different case failed on each run.
+     *
+     * So keep republishing until check() settles. Publishing with retain would
+     * also close the race, but a retained message outlives the case that sent
+     * it and this suite shares one broker across every case.
+     */
+    let republish = null;
     const testMqttClient = mqtt.connect(hiveMQContainer.getConnectionString());
     testMqttClient.on("connect", () => {
         testMqttClient.subscribe(monitorTopic, (error) => {
-            if (!error) {
-                testMqttClient.publish(publishTopic, receivedMessage);
+            if (error) {
+                return;
             }
+            testMqttClient.publish(publishTopic, receivedMessage);
+            republish = setInterval(() => {
+                testMqttClient.publish(publishTopic, receivedMessage);
+            }, 200);
         });
     });
 
     try {
         await mqttMonitorType.check(monitor, heartbeat, {});
     } finally {
+        clearInterval(republish);
         await new Promise((resolve) => testMqttClient.end(false, {}, resolve));
     }
     return heartbeat;
