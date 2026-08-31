@@ -1,12 +1,12 @@
 ---
 name: uptime-gizmo-sync
-version: 1.0.5
-description: Create and update monitors on an Uptime Gizmo instance over its HTTP API, so that a service added during development starts being watched. Use when asked to add monitoring for a new endpoint or service, to change how something is checked, to pause or resume a monitor, or to tag monitors. Covers create, update, pause, resume and tagging; deleting is not supported here and is left to the user.
+version: 1.1.0
+description: Create and update monitors on an Uptime Gizmo instance over its HTTP API, so that a service added during development starts being watched. Use when asked to add monitoring for a new endpoint or service, to change how something is checked, to pause or resume a monitor, or to tag monitors. Covers idempotent create via externalRef, update, pause, resume, tagging, and attaching notification channels; deleting is not supported here and is left to the user.
 ---
 
 # Adding monitoring for what you just built
 
-This is version **1.0.5**. A newer copy, if one exists, is at
+This is version **1.1.0**. A newer copy, if one exists, is at
 [skills/uptime-gizmo-sync/SKILL.md](https://github.com/starit/uptime-gizmo/blob/main/skills/uptime-gizmo-sync/SKILL.md).
 Replace this file with that one before creating monitors: a stale skill omits
 fields the API now accepts, or describes ones it no longer does. See
@@ -50,8 +50,41 @@ is a human creating a writable key, not a retry.
 
 ## Deciding what already exists
 
-There is no upsert. Creating is `POST`, changing is `PATCH`, and choosing between
-them is yours to make. List what is there and look:
+### Give it an `externalRef` and there is nothing to decide
+
+When the monitors come from something you control — a repository, a CI job, a
+provisioning run — put your own key on each one at create time:
+
+```bash
+curl -s -u "api:$KEY" -X POST -H 'Content-Type: application/json' \
+  -d '{"name":"checkout-api","type":"http","url":"https://api.example.com/health","externalRef":"repo:checkout-health"}' \
+  "$URL/api/v1/monitors"
+```
+
+The first call returns `201` and the new monitor. **Repeating the same call
+returns `200`, the monitor that already exists, and `"replayed": true`** — no
+duplicate, whether the repeat is a retry after a timeout or a second run racing
+the first. Look one up directly:
+
+```bash
+curl -s -u "api:$KEY" "$URL/api/v1/monitors?externalRef=repo:checkout-health"
+# data holds that one monitor, or is empty
+```
+
+1 to 128 characters, starting with a letter or digit; after that letters, digits,
+`:`, `.`, `_` and `-`. It is unique per account and **cannot be changed after
+creation** — a `PATCH` carrying it is refused — which is what makes it worth
+storing.
+
+It is still not an upsert: a replayed create returns the existing monitor
+untouched, it does not apply the fields you sent. Follow with `PATCH` when the
+monitor has to match a changed desired state.
+
+### Without one, nothing decides for you
+
+For monitors that are already there — made in the UI, or by an earlier run with no
+reference — creating is `POST`, changing is `PATCH`, and the choice is yours. List
+what is there and look:
 
 ```bash
 curl -s -u "api:$KEY" "$URL/api/v1/monitors?limit=200"
@@ -352,6 +385,42 @@ Attaching is idempotent on the pair: `201` the first time, `200` and an updated
 `DELETE /api/v1/monitors/{monitorId}/tags/{tagId}`; the tag itself survives.
 
 Check `GET /api/v1/tags` before creating one — nothing stops two tags sharing a name.
+
+## Where a monitor's alerts go
+
+A channel is created once and attached to as many monitors as you like. Ask the
+running server which providers it has rather than recalling a list:
+
+```bash
+curl -s -u "api:$KEY" "$URL/api/v1/notification-providers"
+```
+
+Create one, then attach it:
+
+```bash
+curl -s -u "api:$KEY" -X POST -H 'Content-Type: application/json' \
+  -d '{"name":"Ops webhook","type":"webhook","config":{"webhookURL":"https://hooks.example.com/uptime","httpMethod":"post","webhookContentType":"json"}}' \
+  "$URL/api/v1/notifications"
+
+curl -s -u "api:$KEY" -X POST -H 'Content-Type: application/json' \
+  -d '{"notificationID":4}' "$URL/api/v1/monitors/137/notifications"
+```
+
+`name` and `type` are required, and `type` must name a provider the server just
+listed. The provider's own settings go in `config`, and **`config` is never read
+back** — for most providers it *is* the credential. `PATCH
+/api/v1/notifications/{id}` merges over what is stored, so renaming a channel or
+switching it off never means resending a secret you cannot retrieve.
+
+`active: false` switches a channel off without detaching it. It stays on every
+monitor and delivers nothing — status changes, certificate expiry and domain
+expiry alike — and setting it back to `true` restores all of them at once. That is
+the reversible way to stop one channel alerting.
+
+Detach a single monitor with
+`DELETE /api/v1/monitors/{monitorId}/notifications/{notificationId}`. Deleting the
+channel itself removes it from every monitor at once; treat that like deleting a
+monitor and leave it to the user.
 
 ## Deleting
 

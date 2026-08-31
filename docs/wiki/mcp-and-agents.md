@@ -43,7 +43,7 @@ Two skills live in [`skills`](../../skills), each carrying a version in its fron
 | Skill | Version | Does |
 | --- | --- | --- |
 | [`uptime-gizmo-status`](https://github.com/starit/uptime-gizmo/blob/main/skills/uptime-gizmo-status/SKILL.md) | 1.1.0 | Read-only: is anything down, how is the estate, what changed |
-| [`uptime-gizmo-sync`](https://github.com/starit/uptime-gizmo/blob/main/skills/uptime-gizmo-sync/SKILL.md) | 1.0.5 | Create and update monitors (and tags). No delete |
+| [`uptime-gizmo-sync`](https://github.com/starit/uptime-gizmo/blob/main/skills/uptime-gizmo-sync/SKILL.md) | 1.1.0 | Create and update monitors, tags and notification channels. No delete |
 
 ```bash
 mkdir -p .claude/skills/uptime-gizmo-status

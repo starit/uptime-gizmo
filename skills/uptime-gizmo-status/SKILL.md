@@ -81,6 +81,13 @@ curl -s -u "api:$KEY" "$URL/api/v1/overview"
 Every monitor with its current status, when it entered that status, and its 24-hour
 uptime. This is the one call to make when asked for a general picture.
 
+A monitor that has completed a TLS check also carries `certValid` — whether the
+chain validated — and `certExpiresAt`, the certificate's own `notAfter`. Answer
+"is anything expiring soon?" by comparing that timestamp to now, rather than
+looking for a days-remaining count: a count is accurate only at the moment of the
+check that produced it, while the timestamp is right whenever you ask. Both are
+`null` on a monitor that makes no TLS connection.
+
 ### "What changed recently?"
 
 ```bash
@@ -149,6 +156,11 @@ cause from the status alone.
 | Remote browsers | `GET /api/v1/remote-browsers` |
 | Web3 networks | `GET /api/v1/web3-networks` |
 | AI credentials | `GET /api/v1/ai-credentials` |
+
+A channel with `active: false` is switched off: it stays attached to its monitors
+and keeps appearing in both lists, but delivers nothing — no status change, no
+certificate-expiry warning, no domain-expiry warning. When asked why an alert
+never arrived, check this before concluding the monitor never failed.
 
 `GET /api/v1/monitors` is paginated. `limit` defaults to 100 and is clamped to 500
 rather than refused. Follow the cursor until it runs out:
