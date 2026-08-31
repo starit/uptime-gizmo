@@ -30,6 +30,10 @@
     box-sizing: border-box;
 }
 
+figure {
+    margin: 0;
+}
+
 html {
     color: var(--color-text);
     background: var(--color-bg);
@@ -141,8 +145,10 @@ li {
 }
 
 .lede {
+    margin: 1em 0;
     color: var(--color-text);
     font-size: 1.12rem;
+    font-weight: 400;
     line-height: 1.45;
 }
 

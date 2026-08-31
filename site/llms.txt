@@ -1,0 +1,21 @@
+# Uptime Gizmo
+
+> Self-hosted monitoring that is agent-friendly, and that watches AI services and Web3 (crypto).
+
+- English: https://starit.github.io/uptime-gizmo/
+- 中文: https://starit.github.io/uptime-gizmo/zh/
+- Source: https://github.com/starit/uptime-gizmo
+- Docs: https://github.com/starit/uptime-gizmo/tree/main/docs/wiki
+- License: MIT
+
+## What it does
+
+A self-hosted fork of Uptime Kuma. HTTP checks, notifications, and status pages still work.
+
+- Agent-friendly: REST, MCP, and skills. An agent can see what is down and create monitors.
+- AI services: watch an API or a model endpoint.
+- Web3 (crypto): on-chain EVM checks for balances, RPC freshness, and one contract value.
+
+## Install
+
+docker run -d --restart=always -p 3001:3001 -v uptime-gizmo:/app/data --name uptime-gizmo starit/uptime-gizmo:beta

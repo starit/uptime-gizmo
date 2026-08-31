@@ -22,18 +22,28 @@ disabled and re-enabled in its normal notification dialog, and disabled rows
 are marked in the settings list. Recipient selection remains centralized so
 status, certificate-expiry, and domain-expiry delivery cannot disagree.
 
-### Correct the SQL Server upgrade path
+### Correct a claim the migration made, not a break anyone could hit
 
-The first `externalRef` migration used an ordinary unique constraint over
-`(user_id, external_ref)` and claimed every supported database allowed multiple
-NULL values. SQL Server does not: an existing user with two ordinary monitors
-would fail the beta.4 migration because both rows have a NULL reference.
+The first `externalRef` migration's comment asserted that every supported
+database permits multiple NULL values in a unique constraint. SQL Server does
+not, so the claim as written was false.
 
-The migration now adds the nullable column first and uses a SQL Server filtered
-unique index (`WHERE external_ref IS NOT NULL`). SQLite, MySQL/MariaDB, and
-PostgreSQL keep their normal unique constraint. A regression test starts with
-multiple legacy rows, applies the migration, verifies every row remains, and
-checks both per-user uniqueness and the SQL Server predicate.
+It was not, however, describing a reachable failure. This application keeps its
+own data in SQLite, MariaDB/MySQL or embedded MariaDB and nothing else —
+`Database.connect()` has no other branch — while SQL Server and PostgreSQL
+appear in this repository only as monitor types, things an instance watches. No
+installation can migrate a SQL Server backing store because none exists.
+
+The migration now adds the nullable column first and, on the `mssql` dialect,
+creates a filtered unique index (`WHERE external_ref IS NOT NULL`); every engine
+this project actually runs on keeps its ordinary constraint. That branch is
+defensive code against a port that has not happened, not a fix.
+
+The regression test covers the part that matters: several legacy rows with no
+reference survive the migration on SQLite, and per-user uniqueness holds
+afterwards. A second case asserts the `mssql` branch emits the filtered
+predicate, but it does so against a stub rather than a real dialect, so it
+guards the string the code produces and not the behaviour of any database.
 
 ### Make the test entry points reproducible
 

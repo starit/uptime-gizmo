@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
         <meta name="color-scheme" content="dark" />
         <meta name="theme-color" content="#0A151E" />
-        <meta name="robots" content="index, follow" />
+        <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
         <title>Uptime Gizmo — 面向 AI 与 Web3 的 Agent 友好型监控</title>
         <meta
             name="description"
@@ -38,7 +38,9 @@
         />
         <meta name="twitter:image" content="https://starit.github.io/uptime-gizmo/images/og.png" />
         <meta name="twitter:image:alt" content="Uptime Gizmo 标志：深蓝色背景上的金色机械装置图案。" />
-        <link rel="icon" href="../favicon.png" />
+        <link rel="icon" href="../favicon.png" type="image/png" sizes="32x32" />
+        <link rel="apple-touch-icon" href="../images/og.png" />
+        <link rel="license" href="https://github.com/starit/uptime-gizmo/blob/main/LICENSE" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
         <link
@@ -49,35 +51,98 @@
         <script type="application/ld+json">
             {
                 "@context": "https://schema.org",
-                "@type": "SoftwareApplication",
-                "name": "Uptime Gizmo",
-                "applicationCategory": "DeveloperApplication",
-                "operatingSystem": "Linux, Docker",
-                "url": "https://starit.github.io/uptime-gizmo/zh/",
-                "downloadUrl": "https://github.com/starit/uptime-gizmo",
-                "license": "https://github.com/starit/uptime-gizmo/blob/main/LICENSE",
-                "description": "自托管监控平台，支持 Agent 接入，并提供 AI 服务、Web3 与 EVM 链上监控。",
-                "image": "https://starit.github.io/uptime-gizmo/images/og.png",
-                "inLanguage": ["zh-Hans", "en"],
-                "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+                "@graph": [
+                    {
+                        "@type": "SoftwareApplication",
+                        "@id": "https://starit.github.io/uptime-gizmo/#app",
+                        "name": "Uptime Gizmo",
+                        "applicationCategory": "DeveloperApplication",
+                        "operatingSystem": "Linux, Docker",
+                        "softwareVersion": "3.0.0-beta.3",
+                        "url": "https://starit.github.io/uptime-gizmo/zh/",
+                        "downloadUrl": "https://github.com/starit/uptime-gizmo",
+                        "installUrl": "https://github.com/starit/uptime-gizmo",
+                        "license": "https://github.com/starit/uptime-gizmo/blob/main/LICENSE",
+                        "description": "自托管监控平台，支持 Agent 通过 REST、MCP 和 Skills 接入，并提供 AI 服务、Web3 与 EVM 链上监控。",
+                        "image": "https://starit.github.io/uptime-gizmo/images/og.png",
+                        "screenshot": "https://starit.github.io/uptime-gizmo/images/dashboard.png",
+                        "inLanguage": ["zh-Hans", "en"],
+                        "isAccessibleForFree": true,
+                        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+                        "sameAs": ["https://github.com/starit/uptime-gizmo"],
+                        "featureList": [
+                            "REST、MCP 与 Agent Skills",
+                            "AI API 与模型端点监控",
+                            "EVM 链上检查：余额、RPC 时效、合约返回值",
+                            "公开状态页"
+                        ],
+                        "softwareHelp": {
+                            "@type": "WebPage",
+                            "url": "https://github.com/starit/uptime-gizmo/tree/main/docs/wiki"
+                        },
+                        "author": { "@id": "https://github.com/starit" }
+                    },
+                    {
+                        "@type": "SoftwareSourceCode",
+                        "@id": "https://github.com/starit/uptime-gizmo",
+                        "name": "uptime-gizmo",
+                        "codeRepository": "https://github.com/starit/uptime-gizmo",
+                        "license": "https://github.com/starit/uptime-gizmo/blob/main/LICENSE",
+                        "programmingLanguage": ["JavaScript", "Vue"],
+                        "runtimePlatform": "Node.js, Docker"
+                    },
+                    {
+                        "@type": "WebSite",
+                        "@id": "https://starit.github.io/uptime-gizmo/#website",
+                        "name": "Uptime Gizmo",
+                        "url": "https://starit.github.io/uptime-gizmo/",
+                        "inLanguage": ["en", "zh-Hans"],
+                        "publisher": { "@id": "https://github.com/starit" }
+                    },
+                    {
+                        "@type": "WebPage",
+                        "@id": "https://starit.github.io/uptime-gizmo/zh/#webpage",
+                        "url": "https://starit.github.io/uptime-gizmo/zh/",
+                        "name": "Uptime Gizmo — 面向 AI 与 Web3 的 Agent 友好型监控",
+                        "description": "自托管监控平台，支持 Agent 通过 REST、MCP 和 Skills 接入，并提供 AI 服务、Web3 与 EVM 链上监控。",
+                        "inLanguage": "zh-Hans",
+                        "dateModified": "2026-09-01",
+                        "isPartOf": { "@id": "https://starit.github.io/uptime-gizmo/#website" },
+                        "about": { "@id": "https://starit.github.io/uptime-gizmo/#app" },
+                        "primaryImageOfPage": {
+                            "@type": "ImageObject",
+                            "url": "https://starit.github.io/uptime-gizmo/images/og.png"
+                        }
+                    },
+                    {
+                        "@type": "Person",
+                        "@id": "https://github.com/starit",
+                        "name": "starit",
+                        "url": "https://github.com/starit"
+                    }
+                ]
             }
         </script>
     </head>
     <body>
         <main>
-            <p>
-                <img
-                    class="logo"
-                    src="../images/logo.png"
-                    width="280"
-                    height="93"
-                    alt="Uptime Gizmo"
-                />
-            </p>
-            <nav class="lang" aria-label="语言">
-                <a href="../" lang="en">English</a>
-                <a href="./" aria-current="page">中文</a>
-            </nav>
+            <header>
+                <p>
+                    <img
+                        class="logo"
+                        src="../images/logo.png"
+                        width="280"
+                        height="93"
+                        alt="Uptime Gizmo"
+                        fetchpriority="high"
+                        decoding="async"
+                    />
+                </p>
+                <nav class="lang" aria-label="语言">
+                    <a href="../" hreflang="en" lang="en">English</a>
+                    <a href="./" hreflang="zh-Hans" lang="zh-Hans" aria-current="page">中文</a>
+                </nav>
+            </header>
             <figure class="line">
                 <img
                     class="mascot"
@@ -85,14 +150,15 @@
                     width="448"
                     height="448"
                     alt="工程师吉祥物 Gizmo 手持扳手。"
+                    decoding="async"
                 />
                 <blockquote>
                     <p>稳定在线，就是<em>收益</em>，朋友。</p>
                 </blockquote>
             </figure>
-            <p class="lede">
+            <h1 class="lede">
                 一套<strong>方便 Agent 接入</strong>的自托管监控系统，覆盖 <strong>AI 服务与 Web3</strong>。
-            </p>
+            </h1>
             <ul>
                 <li>
                     <strong>Agent 可直接接入。</strong> 提供 REST、MCP 和 Skills，让 Agent 能查询服务状态、创建监控。
@@ -107,14 +173,17 @@
                     <strong>基于 Tailwind CSS 的全新界面。</strong> 提供更丰富的主题和更现代的公开状态页。
                 </li>
             </ul>
-            <p>
+            <figure>
                 <img
                     class="shot"
                     src="../images/dashboard.png"
                     width="760"
+                    height="475"
                     alt="仪表盘显示三项监控均正常运行，下方列出近期事件。"
+                    loading="lazy"
+                    decoding="async"
                 />
-            </p>
+            </figure>
             <p class="stall">一条命令，部署到你自己的机器上。</p>
             <div class="cmd">
                 <pre><code id="docker-run">docker run -d --restart=always -p 3001:3001 -v uptime-gizmo:/app/data --name uptime-gizmo starit/uptime-gizmo:beta</code></pre>

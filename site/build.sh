@@ -13,7 +13,7 @@ fi
 rm -rf "$out"
 mkdir -p "$out/images" "$out/zh"
 
-cp "$root/site/index.html" "$root/site/styles.css" "$root/site/site.js" "$root/site/robots.txt" "$root/site/sitemap.xml" "$out/"
+cp "$root/site/index.html" "$root/site/styles.css" "$root/site/site.js" "$root/site/robots.txt" "$root/site/sitemap.xml" "$root/site/llms.txt" "$out/"
 cp "$root/site/zh/index.html" "$out/zh/"
 cp "$root/public/favicon-dark-32x32.png" "$out/favicon.png"
 cp "$root/public/images/uptime-gizmo-logo-horizontal-on-dark.png" "$out/images/logo.png"
