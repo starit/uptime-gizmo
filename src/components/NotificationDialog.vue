@@ -42,6 +42,23 @@
                 <div>
                     <div class="gizmo-native-check gizmo-native-switch">
                         <input
+                            id="notification-active"
+                            v-model="notification.active"
+                            class="gizmo-native-check__input"
+                            type="checkbox"
+                        />
+                        <label class="gizmo-native-check__label" for="notification-active">
+                            {{ $t("notificationEnabled") }}
+                        </label>
+                    </div>
+                    <div class="gizmo-field-help">
+                        {{ $t("notificationEnabledDescription") }}
+                    </div>
+                </div>
+
+                <div>
+                    <div class="gizmo-native-check gizmo-native-switch">
+                        <input
                             id="notification-default-enabled"
                             v-model="notification.isDefault"
                             class="gizmo-native-check__input"
@@ -129,6 +146,7 @@ export default {
                 /** @type { null | keyof NotificationFormList } */
                 type: null,
                 isDefault: false,
+                active: true,
                 // Do not set default value here, please scroll to show()
             },
         };
@@ -408,7 +426,12 @@ export default {
 
                 for (let n of this.$root.notificationList) {
                     if (n.id === notificationID) {
-                        this.notification = JSON.parse(n.config);
+                        this.notification = {
+                            ...JSON.parse(n.config),
+                            // `active` is a real column. Prefer it over the
+                            // historical copy that may exist in config.
+                            active: n.active !== false,
+                        };
 
                         // applyExisting is one time only, but it got saved to database previously. Workaround fix, set it to false here to deal with the problem.
                         this.notification.applyExisting = false;
@@ -422,6 +445,7 @@ export default {
                     name: "",
                     type: "telegram",
                     isDefault: false,
+                    active: true,
                 };
             }
 

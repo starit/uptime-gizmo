@@ -35,13 +35,6 @@ describe("notificationRecipients()", () => {
  * The reason this selection lives in one module is that it used to live in two,
  * and when the active flag was made to mean something only one of them learned
  * about it: a disabled channel stopped receiving outage alerts and kept
- * receiving certificate warnings. A third copy would fail the same way, so the
- * absence of one is asserted rather than left to review.
- */
-/*
- * The reason this selection lives in one module is that it used to live in two,
- * and when the active flag was made to mean something only one of them learned
- * about it: a disabled channel stopped receiving outage alerts and kept
  * receiving certificate warnings. That is worse than the flag never having
  * worked, because the operator has evidence it is off.
  *

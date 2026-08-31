@@ -29,6 +29,7 @@ test.describe("Notification dialog", () => {
 
         // The default provider renders its own fields only if the lookup worked.
         await expect(dialog.getByLabel("Friendly Name")).toBeVisible();
+        await expect(dialog.getByLabel("Notification channel enabled")).toBeChecked();
 
         // Switching provider remounts a different form against the same object.
         await dialog.locator("#notification-type").selectOption("webhook");

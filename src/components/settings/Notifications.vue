@@ -11,6 +11,9 @@
             <ul class="gizmo-list-group tw-mb-3">
                 <li v-for="(notification, index) in $root.notificationList" :key="index" class="gizmo-list-group__item">
                     {{ notification.name }}
+                    <span v-if="notification.active === false" class="gizmo-inline-badge tw-ms-2">
+                        {{ $t("Disabled") }}
+                    </span>
                     <br />
                     <a href="#" @click="$refs.notificationDialog.show(notification.id)">{{ $t("Edit") }}</a>
                 </li>
