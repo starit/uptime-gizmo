@@ -1,12 +1,12 @@
 ---
 name: uptime-gizmo-status
-version: 1.0.1
+version: 1.1.0
 description: Read the state of an Uptime Gizmo instance over its HTTP API — what is being monitored, what is broken and for how long, what changed recently, and which notification channels, proxies and maintenance windows exist. Use when asked whether something is up or down, why a service was unreachable, what the uptime of a monitor is, or what an instance is watching. Read-only; never changes anything.
 ---
 
 # Reading an Uptime Gizmo instance
 
-This is version **1.0.1**. A newer copy, if one exists, is at
+This is version **1.1.0**. A newer copy, if one exists, is at
 [skills/uptime-gizmo-status/SKILL.md](https://github.com/starit/uptime-gizmo/blob/main/skills/uptime-gizmo-status/SKILL.md).
 Replace this file with that one before answering from it: a stale skill will
 describe endpoints the instance no longer has, or miss ones it does. See
@@ -106,12 +106,38 @@ looks complete.
 Only transitions are recorded, not every check. A monitor that has been up for a
 month contributes nothing to this list, which is what makes the call cheap.
 
+## Reading a monitor's history
+
+Use the rolled-up series for uptime and latency over a named window:
+
+```bash
+curl -s -u "api:$KEY" "$URL/api/v1/monitors/3/uptime?window=24h"
+```
+
+`window` is one of `3h`, `6h`, `24h`, `7d`, `30d`, `1y`. The response names
+the chosen bucket and its length in seconds; `points` are oldest first. A point
+with `uptime: null` means no check ran in that bucket, not that every check
+failed. The same rule applies to an empty window's `summary`, whose `uptime`
+and `avgPing` are both null.
+
+When the chart shows a failure, read the checks behind it newest first:
+
+```bash
+curl -s -u "api:$KEY" "$URL/api/v1/monitors/3/heartbeats?limit=100"
+```
+
+`limit` defaults to 100 and must be between 1 and 500. Each result includes
+the recorded `message`; use that to explain the failure instead of inferring a
+cause from the status alone.
+
 ## Resources
 
 | What | Endpoint |
 | --- | --- |
 | Monitors, with configuration | `GET /api/v1/monitors` |
 | One monitor | `GET /api/v1/monitors/{id}` |
+| Uptime and latency history | `GET /api/v1/monitors/{id}/uptime` |
+| Individual checks | `GET /api/v1/monitors/{id}/heartbeats` |
 | Tags | `GET /api/v1/tags` |
 | Maintenance windows | `GET /api/v1/maintenances` |
 | Status pages | `GET /api/v1/status-pages` |

@@ -36,8 +36,10 @@ Everything in this section works today. Planned work is in the
 - **REST API at `/api/v1`.** Monitors, tags, notification channels and
   `whoami`, plus `overview`, `incidents/active` and `changes`. A monitor's
   history comes back as buckets to draw a chart from, and as the individual
-  checks behind them. Maintenance windows, status pages, proxies and the other
-  integrations are readable; their write side is still to come.
+  checks behind them. Notification channels can be created, updated, deleted
+  and attached; their settings go in and are never returned. Maintenance
+  windows, status pages, proxies and the other integrations are readable;
+  their write side is still to come.
 - **API keys can be read-only**, and new keys are read-only by default. An agent
   can be given a key that sees everything and changes nothing.
 - **An OpenAPI description** at `/api/v1/openapi.json`, generated from the field
@@ -51,9 +53,9 @@ Everything in this section works today. Planned work is in the
   `curl` and an API key, so no part of them is tied to one agent runtime. Fetch
   one into wherever your agent reads skills from (`.claude/skills` for Claude
   Code). Current copies:
-  [`uptime-gizmo-status` 1.0.1](https://github.com/starit/uptime-gizmo/blob/main/skills/uptime-gizmo-status/SKILL.md)
+  [`uptime-gizmo-status` 1.1.0](https://github.com/starit/uptime-gizmo/blob/main/skills/uptime-gizmo-status/SKILL.md)
   (reads an instance) and
-  [`uptime-gizmo-sync` 1.0.4](https://github.com/starit/uptime-gizmo/blob/main/skills/uptime-gizmo-sync/SKILL.md)
+  [`uptime-gizmo-sync` 1.0.5](https://github.com/starit/uptime-gizmo/blob/main/skills/uptime-gizmo-sync/SKILL.md)
   (creates and updates monitors). Re-fetch from those URLs to update a copy.
   Neither needs a checkout of this repository.
 

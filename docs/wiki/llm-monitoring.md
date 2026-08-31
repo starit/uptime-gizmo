@@ -50,7 +50,7 @@ A completion delivered as an array of content parts is read as well as a plain s
 
 ## The API key is not settable over the HTTP API
 
-There is no `llmApiKey` field on `POST /api/v1/monitors`. Accepting a credential through that API is a decision this project has not taken, and every other credential-bearing resource — notification channels, proxies, Web3 network RPC URLs — is entered by a human for the same reason.
+There is no `llmApiKey` field on `POST /api/v1/monitors`. Accepting an inference key through that API is a decision this project has not taken. Notification channels take the other path: their settings go in over `/api/v1` and are never returned. Proxies and Web3 network RPC URLs stay in the UI.
 
 A monitor created over the API reaches an endpoint that needs no key, one whose key is already set in the monitor's own form, or one it names with `llmCredentialId` — a credential saved in the settings, whose key stays on the server:
 

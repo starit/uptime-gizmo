@@ -12,7 +12,7 @@ it needs to say something concrete.
 
 | Skill | Version | What it does |
 | --- | --- | --- |
-| [uptime-gizmo-status](uptime-gizmo-status/SKILL.md) | 1.0.1 | Reads an instance: what is monitored, what is broken and for how long, what changed, which channels and windows exist. Never writes. |
+| [uptime-gizmo-status](uptime-gizmo-status/SKILL.md) | 1.1.0 | Reads an instance: what is monitored, what is broken and for how long, what changed, which channels and windows exist. Never writes. |
 | [uptime-gizmo-sync](uptime-gizmo-sync/SKILL.md) | 1.0.5 | Creates and updates monitors, pauses and resumes them, and manages tags. Does not delete. |
 
 ## Installing one

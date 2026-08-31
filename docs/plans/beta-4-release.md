@@ -12,7 +12,7 @@ documentation are in the tree. Execution is recorded separately under
 
 ## What is in this release
 
-Thirty-four commits have landed since the `3.0.0-beta.3` tag. The substantial
+Thirty-six commits have landed since the `3.0.0-beta.3` tag. The substantial
 ones:
 
 - **LLM monitoring credentials.** A key is saved once and named by the monitors
@@ -64,27 +64,28 @@ between betas. Where it does, the OpenAPI document and
 
 ### Review
 
-- [ ] Read the diff since beta.3 for defects rather than style, and fix what it
+- [x] Read the diff since beta.3 for defects rather than style, and fix what it
       finds.
-- [ ] Decide whether `active` ships with an interface control or not at all. A
+- [x] Decide whether `active` ships with an interface control or not at all. A
       capability only one client can reach, with no way to see or undo it in the
-      product, is a trap rather than a feature.
+      product, is a trap rather than a feature. It ships with a control in the
+      existing notification dialog and a disabled marker in the list.
 
 ### Verification
 
 - [x] End-to-end suite green (30 specs).
-- [ ] Backend suite green under `TEST_BACKEND=1`, which is how the harness runs
+- [x] Backend suite green under `TEST_BACKEND=1`, which is how the harness runs
       it — without that variable the calculator's year-long simulation takes the
       database path and exhausts the heap, which is a measurement artifact and
       not a defect.
 - [x] `pnpm lint:js` clean.
-- [ ] `pnpm build` succeeds.
+- [x] `pnpm build` succeeds.
 
 ### Documentation
 
 - [x] README and roadmap describe shipped work as shipped.
-- [ ] Changelog for the release.
-- [ ] An execution record under `docs/execution`.
+- [x] Changelog for the release.
+- [x] An execution record under `docs/execution`.
 
 ## Not in this release
 
