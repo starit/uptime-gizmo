@@ -1,0 +1,84 @@
+# Two engines on one host, so Cloud placement and migration can be exercised
+# against real instances instead of the stub the drills use.
+#
+# The image is built from this checkout rather than pulled. Migration depends on
+# `externalRef`, which arrived in 3.0.0-beta.4, and the published nightly may
+# predate it:
+#
+#   pnpm run build
+#   docker build -f docker/dockerfile --target release -t uptime-gizmo:fleet .
+#   docker compose -f docker/docker-compose-fleet.yml up -d
+#
+# Then bootstrap each one and register it with Cloud. The whole sequence is in
+# `docs/operations/local-fleet.md` in the uptime-gizmo-cloud repository.
+#
+# This file is deliberately separate from docker-compose-dev.yml, which mounts
+# ../server and ../db from the host to develop the engine itself. A fleet has to
+# run the built image, and its two members must not share a data directory.
+
+services:
+  gizmo-a:
+    container_name: uptime-gizmo-fleet-a
+    image: uptime-gizmo:fleet
+    restart: unless-stopped
+    ports:
+      - "3011:3001"
+    volumes:
+      - gizmo-fleet-a:/app/data
+    # An empty data directory sends the engine into its database-choice wizard,
+    # which serves a page and waits for a human. A fleet member has nobody to
+    # ask and SQLite is the only answer that suits one, so write the answer
+    # before the server looks for it. Only when absent, so an existing volume
+    # keeps whatever it was set up with.
+    command:
+      - sh
+      - -c
+      - |
+        [ -f /app/data/db-config.json ] || printf '{"type":"sqlite"}\n' > /app/data/db-config.json
+        exec node server/server.js
+    environment:
+      DATA_DIR: /app/data/
+      # Left empty until the instance has been registered and Cloud has issued
+      # its instance id. The engine treats all three being absent as "do not
+      # deliver events" and any partial combination as a configuration error.
+      #
+      # The endpoint must be HTTPS unless its host is 127.0.0.1, localhost or
+      # ::1 — see server/cloud-transition-events.js. host.docker.internal is
+      # therefore refused, which is why event delivery needs the extra step the
+      # runbook describes.
+      UPTIME_GIZMO_CLOUD_EVENT_URL: ${GIZMO_A_CLOUD_EVENT_URL:-}
+      UPTIME_GIZMO_CLOUD_INSTANCE_ID: ${GIZMO_A_CLOUD_INSTANCE_ID:-}
+      UPTIME_GIZMO_CLOUD_EVENT_SECRET: ${GIZMO_A_CLOUD_EVENT_SECRET:-}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  gizmo-b:
+    container_name: uptime-gizmo-fleet-b
+    image: uptime-gizmo:fleet
+    restart: unless-stopped
+    ports:
+      - "3012:3001"
+    volumes:
+      - gizmo-fleet-b:/app/data
+    # An empty data directory sends the engine into its database-choice wizard,
+    # which serves a page and waits for a human. A fleet member has nobody to
+    # ask and SQLite is the only answer that suits one, so write the answer
+    # before the server looks for it. Only when absent, so an existing volume
+    # keeps whatever it was set up with.
+    command:
+      - sh
+      - -c
+      - |
+        [ -f /app/data/db-config.json ] || printf '{"type":"sqlite"}\n' > /app/data/db-config.json
+        exec node server/server.js
+    environment:
+      DATA_DIR: /app/data/
+      UPTIME_GIZMO_CLOUD_EVENT_URL: ${GIZMO_B_CLOUD_EVENT_URL:-}
+      UPTIME_GIZMO_CLOUD_INSTANCE_ID: ${GIZMO_B_CLOUD_INSTANCE_ID:-}
+      UPTIME_GIZMO_CLOUD_EVENT_SECRET: ${GIZMO_B_CLOUD_EVENT_SECRET:-}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+volumes:
+  gizmo-fleet-a:
+  gizmo-fleet-b:
