@@ -4,6 +4,11 @@ Uptime Gizmo has no backup feature in the interface. Backing it up means copying
 its data directory, and there is one way to do that wrong which produces no error
 at the time — this page is mostly about avoiding that.
 
+A simple SQLite and MariaDB/MySQL database export/import is planned for beta.5,
+but it is not part of beta.4. Its scope and safety rules are in the
+[beta.5 release plan](plans/beta-5-release.md). Until that work ships, use the
+manual procedure below.
+
 ## What has to be copied
 
 Everything lives under the data directory, `./data` by default, or whatever
@@ -22,10 +27,14 @@ data/
 
 `error.log` can be left out.
 
-An instance configured for MariaDB or PostgreSQL keeps its monitors and history
+An instance configured for external MariaDB/MySQL keeps its monitors and history
 in that server instead, and `db-config.json` records how to reach it. Back the
 database up with that server's own tools; the directory still holds the uploads,
 the screenshots and the certificates.
+
+Embedded MariaDB stores its database below `data/mariadb/`. Stop the instance
+before copying the complete data volume; copying that directory while MariaDB is
+running is not a consistent backup.
 
 ## The mistake worth avoiding
 

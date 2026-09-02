@@ -30,9 +30,14 @@ Create the key in **Settings → API Keys**. Leave it read-only unless the agent
 
 With a read-only key, only read tools are advertised. The API still refuses writes even if a client tries them.
 
-Read tools cover overview, active incidents, recent changes, monitors, tags, maintenances, notification channels, proxies, Docker hosts, remote browsers, and Web3 networks. Credentials in those records are never returned.
+Read tools cover overview, active incidents, recent changes, monitors, tags,
+maintenances, notification channels, proxies, Docker hosts, remote browsers, AI
+credential summaries, and Web3 networks. Credentials in those records are never
+returned.
 
-Write tools (`create_monitor`, `update_monitor`) appear only when the key may write. They accept the same types as the [REST API](rest-api.md). **Deleting is not offered.**
+Write tools (`create_monitor`, `update_monitor`) appear only when the key may
+write. They accept the same types as the [REST API](rest-api.md). Notification
+channel writes exist in REST but are not MCP tools. **Deleting is not offered.**
 
 Install details and the full tool list: [`mcp-server/README.md`](../../mcp-server/README.md).
 

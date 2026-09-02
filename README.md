@@ -36,10 +36,12 @@ Everything in this section works today. Planned work is in the
 - **REST API at `/api/v1`.** Monitors, tags, notification channels and
   `whoami`, plus `overview`, `incidents/active` and `changes`. A monitor's
   history comes back as buckets to draw a chart from, and as the individual
-  checks behind them. Notification channels can be created, updated, deleted
-  and attached; their settings go in and are never returned. Maintenance
-  windows, status pages, proxies and the other integrations are readable;
-  their write side is still to come.
+  checks behind them. The overview includes certificate validity and expiry,
+  and `externalRef` makes monitor provisioning safe to retry. Notification
+  channels can be created, updated, deleted, attached and disabled; their
+  settings go in and are never returned. Maintenance windows, status pages,
+  proxies and the other integrations are readable; their write side is still
+  to come.
 - **API keys can be read-only**, and new keys are read-only by default. An agent
   can be given a key that sees everything and changes nothing.
 - **An OpenAPI description** at `/api/v1/openapi.json`, generated from the field
@@ -310,6 +312,9 @@ The [Roadmap](ROADMAP.md) has the current list. The short version:
 
 - Better status pages.
 - Checks that report health, not just whether something answered.
+- A simple SQLite and MariaDB/MySQL database export and replace-only restore in
+  the interface; filesystem assets and full-volume backups remain manual in the
+  first version.
 - The rest of the write side of the API: maintenance windows, status-page
   incidents, proxies and integrations.
 - More context around an incident.
