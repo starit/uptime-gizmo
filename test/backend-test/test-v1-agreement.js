@@ -173,6 +173,60 @@ describe("v1 summary endpoints agree with their sources", () => {
         assert.deepStrictEqual(summarised, listed, "the overview and the monitor list describe different populations");
     });
 
+    it("narrows the overview to what has been checked since a caller last asked", async () => {
+        const everything = (await get("/api/v1/overview")).data;
+        const recent = (await get(`/api/v1/overview?since=${new Date(minutesAgo(30)).toISOString()}`)).data;
+
+        /*
+         * A caller keeping a copy in step re-reads the whole estate otherwise,
+         * most of which has not moved since it last looked.
+         */
+        assert.ok(recent.length < everything.length, "since returned the whole estate");
+        for (const row of recent) {
+            assert.ok(
+                new Date(row.lastCheck).getTime() > new Date(minutesAgo(30)).getTime(),
+                `${row.name} was returned but was last checked at ${row.lastCheck}`
+            );
+        }
+        const excluded = everything.filter((row) => !recent.some((kept) => kept.id === row.id));
+        for (const row of excluded) {
+            assert.ok(
+                row.lastCheck === null || new Date(row.lastCheck).getTime() <= new Date(minutesAgo(30)).getTime(),
+                `${row.name} was left out but was checked at ${row.lastCheck}`
+            );
+        }
+    });
+
+    it("leaves a monitor that has never been checked out of a since response", async () => {
+        const recent = (await get(`/api/v1/overview?since=${new Date(minutesAgo(60 * 24 * 365)).toISOString()}`)).data;
+
+        /*
+         * It has nothing to say the previous answer did not already contain,
+         * which is the same reason an unchanged monitor is left out.
+         */
+        assert.ok(
+            !recent.some((row) => row.name === "e-never-checked"),
+            "a monitor with no heartbeat appeared in a since response"
+        );
+    });
+
+    it("answers the whole estate when since is absent, as it always did", async () => {
+        const listed = (await get("/api/v1/monitors?limit=500")).data.map((m) => m.id).sort();
+        const summarised = (await get("/api/v1/overview")).data.map((m) => m.id).sort();
+
+        assert.deepStrictEqual(summarised, listed, "adding since changed what the unfiltered overview covers");
+    });
+
+    it("refuses a since it cannot read rather than ignoring it", async () => {
+        const response = await fetch(`${base}/api/v1/overview?since=yesterday`, {
+            headers: { Authorization: CREDENTIALS },
+        });
+        const body = await response.json();
+
+        assert.strictEqual(response.status, 400);
+        assert.strictEqual(body.error.code, "invalid_request");
+    });
+
     it("reports the status each monitor's own heartbeats support", async () => {
         const overview = (await get("/api/v1/overview")).data;
 

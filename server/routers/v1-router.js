@@ -845,10 +845,56 @@ router.get(
     "/api/v1/overview",
     apiAuth,
     route(async (req, res) => {
+        /*
+         * `since` narrows the answer to the monitors that have actually been
+         * checked since the caller last asked. A client polling this to keep a
+         * mirror in step re-reads every monitor otherwise, most of which have
+         * not moved: at a minute's polling and a five-minute check interval,
+         * four readings in five say what the previous one already did.
+         *
+         * Absence is not a filter. Without it the whole estate comes back, so
+         * an existing caller sees exactly what it saw before.
+         */
+        const rawSince = req.query.since;
+        let since = null;
+        if (rawSince !== undefined) {
+            since = new Date(String(rawSince));
+            if (Number.isNaN(since.getTime())) {
+                res.status(400).json({
+                    ok: false,
+                    error: { code: "invalid_request", message: "since must be an ISO 8601 timestamp" },
+                });
+                return;
+            }
+        }
+
         const rows = await R.getAll("SELECT * FROM monitor WHERE user_id = ? ORDER BY name", [
             req.principal?.estateID ?? null,
         ]);
-        const monitors = R.convertToBeans("monitor", rows);
+        let monitors = R.convertToBeans("monitor", rows);
+
+        if (since !== null && monitors.length > 0) {
+            /*
+             * A monitor's latest beat is at least as recent as any of its
+             * beats, so "has one after this" and "its last one is after this"
+             * select the same rows — and the first is a plain index range over
+             * monitor_time_index rather than a per-monitor maximum.
+             *
+             * A monitor never checked has no beat at all and so is not
+             * reported. It has nothing to say that the previous answer did not
+             * already contain, which is the same reason an unchanged one is
+             * left out.
+             */
+            const placeholders = monitors.map(() => "?").join(",");
+            const moved = await R.getAll(
+                `SELECT DISTINCT monitor_id FROM heartbeat
+                 WHERE time > ? AND monitor_id IN (${placeholders})`,
+                [ R.isoDateTime(since), ...monitors.map((monitor) => monitor.id) ]
+            );
+            const movedIds = new Set(moved.map((row) => row.monitor_id));
+            monitors = monitors.filter((monitor) => movedIds.has(monitor.id));
+        }
+
         const certificates = await readCertificates(monitors.map((monitor) => monitor.id));
 
         const data = [];
@@ -2313,8 +2359,18 @@ function buildOpenAPI() {
                 get: {
                     summary: "Current state of every monitor",
                     description:
-                        "One row per monitor with its status, when it entered that status, 24-hour uptime, and — for a monitor that has completed a TLS check — whether the peer's certificate validated and when it expires. `certExpiresAt` is the certificate's notAfter; judge expiry from it rather than from a count taken at check time.",
+                        "One row per monitor with its status, when it entered that status, 24-hour uptime, and — for a monitor that has completed a TLS check — whether the peer's certificate validated and when it expires. `certExpiresAt` is the certificate's notAfter; judge expiry from it rather than from a count taken at check time.\n\n`since` returns only the monitors checked after that moment, for a caller keeping a copy in step rather than reading the estate each time. A monitor missing from a `since` response has not been checked in that window — it is **not** absent from the estate, so do not treat it as deleted the way an absence from the full list would be.",
                     security: authed,
+                    parameters: [
+                        {
+                            name: "since",
+                            in: "query",
+                            required: false,
+                            description:
+                                "ISO 8601 timestamp. Only monitors whose last check is later than this are returned. Omit for the whole estate.",
+                            schema: { type: "string", format: "date-time" },
+                        },
+                    ],
                     responses: { 200: { description: "Overview" } },
                 },
             },
