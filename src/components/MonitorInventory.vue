@@ -55,6 +55,30 @@
                             {{ entry.label }} ({{ entry.count }})
                         </option>
                     </select>
+                    <!--
+                        Beside the layout switch, not inside the card toolbar.
+                        It hides the table's heartbeat column too, and a control
+                        that reaches a layout it cannot be seen from is one a
+                        reader cannot undo.
+
+                        Absent when the account has turned the bar off
+                        everywhere: this hides history rather than granting it.
+                    -->
+                    <div
+                        v-if="historyAvailable && $root.windowWidth > 960"
+                        class="gizmo-native-check gizmo-native-switch history-toggle"
+                    >
+                        <input
+                            id="inventory-show-history"
+                            v-model="showHistory"
+                            class="gizmo-native-check__input"
+                            type="checkbox"
+                            @change="persistShowHistory"
+                        />
+                        <label class="gizmo-native-check__label" for="inventory-show-history">
+                            {{ $t("monitorInventoryShowHistory") }}
+                        </label>
+                    </div>
                     <div
                         v-if="$root.windowWidth > 960"
                         class="gizmo-action-group layout-toggle"
@@ -71,19 +95,7 @@
                             @change="persistLayout"
                         />
                         <label class="gizmo-native-button gizmo-native-button--outline" for="inventory-layout-table">
-                            {{ $t("monitorInventoryLayoutTable") }}
-                        </label>
-                        <input
-                            id="inventory-layout-compact"
-                            v-model="layoutPreference"
-                            type="radio"
-                            class="gizmo-choice-input"
-                            name="monitorInventoryLayout"
-                            value="compact"
-                            @change="persistLayout"
-                        />
-                        <label class="gizmo-native-button gizmo-native-button--outline" for="inventory-layout-compact">
-                            {{ $t("monitorInventoryLayoutCompact") }}
+                            {{ $t("monitorInventoryLayoutList") }}
                         </label>
                         <input
                             id="inventory-layout-grid"
@@ -96,6 +108,18 @@
                         />
                         <label class="gizmo-native-button gizmo-native-button--outline" for="inventory-layout-grid">
                             {{ $t("monitorInventoryLayoutGrid") }}
+                        </label>
+                        <input
+                            id="inventory-layout-cards"
+                            v-model="layoutPreference"
+                            type="radio"
+                            class="gizmo-choice-input"
+                            name="monitorInventoryLayout"
+                            value="cards"
+                            @change="persistLayout"
+                        />
+                        <label class="gizmo-native-button gizmo-native-button--outline" for="inventory-layout-cards">
+                            {{ $t("monitorInventoryLayoutCards") }}
                         </label>
                     </div>
                 </div>
@@ -303,12 +327,7 @@
                     </tbody>
                 </GizmoTable>
 
-                <div
-                    v-else
-                    class="inventory-cards"
-                    :class="{ 'inventory-cards--grid': effectiveLayout === 'grid' }"
-                    role="list"
-                >
+                <div v-else class="inventory-card-view">
                     <div class="inventory-cards__toolbar" @click.stop>
                         <label class="select-all">
                             <input
@@ -320,86 +339,175 @@
                             />
                             {{ $t("selectAllMonitorsAria") }}
                         </label>
-                    </div>
-                    <article
-                        v-for="item in visibleMonitorList"
-                        :key="item.id"
-                        class="inventory-card"
-                        :class="[rowClass(item), { 'inventory-card--group': item.type === 'group' }]"
-                        role="listitem"
-                        @click="onRowClick($event, item)"
-                    >
-                        <div class="inventory-card__select" @click.stop>
+                        <div
+                            v-if="isMultiColumnLayout"
+                            class="gizmo-action-group inventory-density-toggle"
+                            role="group"
+                            :aria-label="$t('monitorInventoryDensity')"
+                        >
                             <input
-                                class="gizmo-native-check__input"
-                                type="checkbox"
-                                :aria-label="$t('Check/Uncheck')"
-                                :checked="isSelected(item.id)"
-                                @change="toggleSelection(item.id)"
+                                id="inventory-columns-2"
+                                type="radio"
+                                class="gizmo-choice-input"
+                                name="monitorInventoryDensity"
+                                :checked="activeColumnCount === 2"
+                                @change="setColumnCount(2)"
                             />
+                            <label class="gizmo-native-button gizmo-native-button--outline" for="inventory-columns-2">
+                                {{ $t("monitorInventoryDensityComfortable") }}
+                            </label>
+                            <input
+                                id="inventory-columns-4"
+                                type="radio"
+                                class="gizmo-choice-input"
+                                name="monitorInventoryDensity"
+                                :checked="activeColumnCount === 4"
+                                @change="setColumnCount(4)"
+                            />
+                            <label class="gizmo-native-button gizmo-native-button--outline" for="inventory-columns-4">
+                                {{ $t("monitorInventoryDensityDense") }}
+                            </label>
                         </div>
-                        <div class="inventory-card__body">
-                            <div class="inventory-card__top">
-                                <div class="inventory-identity-cell" :style="inventoryDepthStyle(item)">
-                                    <button
-                                        v-if="item._inventoryHasChildren"
-                                        type="button"
-                                        class="group-toggle"
-                                        :aria-expanded="!isGroupCollapsedForDisplay(item)"
-                                        :aria-label="groupToggleLabel(item)"
-                                        @click.stop="toggleGroup(item.id)"
-                                    >
-                                        <font-awesome-icon
-                                            icon="chevron-down"
-                                            :class="{ collapsed: isGroupCollapsedForDisplay(item) }"
-                                        />
-                                    </button>
-                                    <span v-else class="group-toggle-spacer" aria-hidden="true"></span>
-                                    <div class="inventory-identity-content">
-                                        <MonitorInventoryIdentity
-                                            :monitor="item"
-                                            :href="monitorURL(item.id)"
-                                            :type-label="typeLabel(item)"
-                                            :target="targetLabel(item)"
-                                            :group-label="parentPath(item)"
-                                        />
+                    </div>
+                    <transition-group
+                        name="inventory-group"
+                        tag="div"
+                        class="inventory-cards"
+                        :class="[
+                            {
+                                'inventory-cards--grid': effectiveLayout === 'grid',
+                                'inventory-cards--cards': effectiveLayout === 'cards',
+                            },
+                            isMultiColumnLayout ? `inventory-cards--columns-${activeColumnCount}` : '',
+                        ]"
+                        role="list"
+                    >
+                        <article
+                            v-for="item in visibleMonitorList"
+                            :key="item.id"
+                            class="inventory-card"
+                            :class="[
+                                rowClass(item),
+                                {
+                                    'inventory-card--group': item.type === 'group',
+                                    'inventory-card--expanded-group':
+                                        item._inventoryHasChildren && !isGroupCollapsedForDisplay(item),
+                                },
+                            ]"
+                            role="listitem"
+                            @click="onRowClick($event, item)"
+                        >
+                            <router-link
+                                v-if="effectiveLayout === 'cards'"
+                                class="inventory-card__surface-link"
+                                :to="monitorURL(item.id)"
+                                :aria-label="$t('monitorInventoryOpenMonitor', { name: item.name })"
+                            />
+                            <div class="inventory-card__select" @click.stop>
+                                <input
+                                    class="gizmo-native-check__input"
+                                    type="checkbox"
+                                    :aria-label="$t('Check/Uncheck')"
+                                    :checked="isSelected(item.id)"
+                                    @change="toggleSelection(item.id)"
+                                />
+                            </div>
+                            <div class="inventory-card__body">
+                                <div
+                                    v-if="isMultiColumnLayout && item._inventoryDepth > 0"
+                                    class="inventory-card__group-context"
+                                    :title="parentPath(item)"
+                                >
+                                    <font-awesome-icon icon="folder-open" fixed-width aria-hidden="true" />
+                                    <span>{{ parentPath(item) }}</span>
+                                </div>
+                                <div class="inventory-card__top">
+                                    <div class="inventory-identity-cell" :style="inventoryDepthStyle(item)">
+                                        <button
+                                            v-if="item._inventoryHasChildren"
+                                            type="button"
+                                            class="group-toggle"
+                                            :aria-expanded="!isGroupCollapsedForDisplay(item)"
+                                            :aria-label="groupToggleLabel(item)"
+                                            @click.stop="toggleGroup(item.id)"
+                                        >
+                                            <font-awesome-icon
+                                                icon="chevron-down"
+                                                :class="{ collapsed: isGroupCollapsedForDisplay(item) }"
+                                            />
+                                        </button>
+                                        <span
+                                            v-else-if="effectiveLayout === 'compact' || item._inventoryDepth > 0"
+                                            class="group-toggle-spacer"
+                                            aria-hidden="true"
+                                        ></span>
+                                        <div class="inventory-identity-content">
+                                            <MonitorInventoryIdentity
+                                                :monitor="item"
+                                                :href="monitorURL(item.id)"
+                                                :type-label="typeLabel(item)"
+                                                :target="targetLabel(item)"
+                                                :group-label="isMultiColumnLayout ? '' : parentPath(item)"
+                                                :linked="effectiveLayout !== 'cards'"
+                                                :max-tags="cardTagLimit"
+                                            />
+                                        </div>
+                                    </div>
+                                    <div class="inventory-card__status">
+                                        <span v-if="!isActive(item)" class="gizmo-status gizmo-status--unknown">
+                                            <span class="gizmo-status__dot" aria-hidden="true"></span>
+                                            {{ $t("pauseDashboardHome") }}
+                                        </span>
+                                        <Status v-else :status="heartbeatStatus(item)" />
                                     </div>
                                 </div>
-                                <div class="inventory-card__status">
-                                    <span v-if="!isActive(item)" class="gizmo-status gizmo-status--unknown">
-                                        <span class="gizmo-status__dot" aria-hidden="true"></span>
-                                        {{ $t("pauseDashboardHome") }}
+                                <div
+                                    v-if="showHeartbeatBelow && effectiveLayout !== 'grid'"
+                                    class="inventory-card__signal"
+                                >
+                                    <span class="inventory-card__section-label">
+                                        {{ $t("monitorInventoryHeartbeat") }}
                                     </span>
-                                    <Status v-else :status="heartbeatStatus(item)" />
+                                    <HeartbeatBar size="small" class="heartbeat-below" :monitor-id="item.id" />
+                                </div>
+                                <div class="inventory-card__metrics">
+                                    <div class="inventory-card__metric">
+                                        <span class="inventory-card__metric-label">{{ $t("Uptime") }}</span>
+                                        <Uptime :monitor="item" type="24" :pill="true" />
+                                    </div>
+                                    <div class="inventory-card__metric">
+                                        <span class="inventory-card__metric-label">
+                                            {{ $t("monitorInventoryLastCheck") }}
+                                        </span>
+                                        <span
+                                            v-if="lastBeat(item)?.time"
+                                            class="last-check"
+                                            :title="$root.datetime(lastBeat(item).time)"
+                                        >
+                                            {{ lastCheckLabel(item) }}
+                                            <span v-if="showPing(item)" class="ping-value">
+                                                {{ lastBeat(item).ping }}ms
+                                            </span>
+                                        </span>
+                                        <span v-else class="empty-value">{{ $t("notAvailableShort") }}</span>
+                                    </div>
+                                    <div v-if="effectiveLayout !== 'grid'" class="inventory-card__metric">
+                                        <span class="inventory-card__metric-label">
+                                            {{ $t("monitorInventoryInterval") }}
+                                        </span>
+                                        <span
+                                            v-if="hasInterval(item)"
+                                            class="interval-value"
+                                            :title="$t('checkEverySecond', [item.interval])"
+                                        >
+                                            {{ item.interval }}s
+                                        </span>
+                                        <span v-else class="empty-value">—</span>
+                                    </div>
                                 </div>
                             </div>
-                            <HeartbeatBar
-                                v-if="showHeartbeatBelow"
-                                size="small"
-                                class="heartbeat-below"
-                                :monitor-id="item.id"
-                            />
-                            <div class="inventory-card__metrics">
-                                <Uptime :monitor="item" type="24" :pill="true" />
-                                <span
-                                    v-if="lastBeat(item)?.time"
-                                    class="last-check"
-                                    :title="$root.datetime(lastBeat(item).time)"
-                                >
-                                    {{ lastCheckLabel(item) }}
-                                    <span v-if="showPing(item)" class="ping-value">{{ lastBeat(item).ping }}ms</span>
-                                </span>
-                                <span v-else class="empty-value">{{ $t("notAvailableShort") }}</span>
-                                <span
-                                    v-if="hasInterval(item)"
-                                    class="interval-value"
-                                    :title="$t('checkEverySecond', [item.interval])"
-                                >
-                                    {{ item.interval }}s
-                                </span>
-                            </div>
-                        </div>
-                    </article>
+                        </article>
+                    </transition-group>
                 </div>
             </div>
         </GizmoPanel>
@@ -442,6 +550,9 @@ import {
 import { getMonitorRelativeURL } from "../util.ts";
 
 const LAYOUT_STORAGE_KEY = "monitorInventoryLayout";
+const GRID_COLUMNS_STORAGE_KEY = "monitorInventoryGridColumns";
+const CARD_COLUMNS_STORAGE_KEY = "monitorInventoryCardColumns";
+const HISTORY_STORAGE_KEY = "monitorInventoryShowHistory";
 const COLLAPSE_STORAGE_KEY = "monitorCollapsed";
 
 /**
@@ -507,6 +618,13 @@ export default {
     },
     data() {
         const storedLayout = readStored(LAYOUT_STORAGE_KEY);
+        const storedGridColumns = Number(readStored(GRID_COLUMNS_STORAGE_KEY));
+        const storedCardColumns = Number(readStored(CARD_COLUMNS_STORAGE_KEY));
+        /*
+         * Absent means shown. The bar is the reason most people open this page,
+         * so a browser that has never been told otherwise should still have it.
+         */
+        const storedHistory = readStored(HISTORY_STORAGE_KEY);
         return {
             searchText: "",
             selectedMonitors: {},
@@ -514,7 +632,10 @@ export default {
             typeFilter: "",
             sortKey: null,
             sortDir: "asc",
-            layoutPreference: ["table", "compact", "grid"].includes(storedLayout) ? storedLayout : "table",
+            layoutPreference: ["table", "grid", "cards"].includes(storedLayout) ? storedLayout : "table",
+            gridColumnPreference: [2, 4].includes(storedGridColumns) ? storedGridColumns : 4,
+            cardColumnPreference: [2, 4].includes(storedCardColumns) ? storedCardColumns : 2,
+            showHistory: storedHistory !== "false",
             collapsedGroups: storedCollapsedGroups(),
             filterState: {
                 status: null,
@@ -564,17 +685,62 @@ export default {
             }
             return this.layoutPreference;
         },
+        /*
+         * How many chips a card can hold before the line is better spent on the
+         * address. Four across leaves room for one; two across for three.
+         */
+        cardTagLimit() {
+            if (!this.isMultiColumnLayout) {
+                return 0;
+            }
+            return this.activeColumnCount === 4 ? 1 : 3;
+        },
+        isMultiColumnLayout() {
+            return this.effectiveLayout === "grid" || this.effectiveLayout === "cards";
+        },
+        activeColumnCount() {
+            return this.effectiveLayout === "grid" ? this.gridColumnPreference : this.cardColumnPreference;
+        },
         heartbeatMode() {
             return this.$root.userHeartbeatBar || "normal";
         },
         showHeartbeatColumn() {
-            return this.effectiveLayout === "table" && this.heartbeatMode === "normal";
+            return this.effectiveShowHistory
+                && this.effectiveLayout === "table"
+                && this.heartbeatMode === "normal";
         },
         showHeartbeatBelow() {
-            if (this.heartbeatMode === "none") {
+            /*
+             * The account-wide setting still wins. This switch hides the bar on
+             * this page; it does not bring one back that the account has turned
+             * off everywhere.
+             */
+            if (!this.effectiveShowHistory || this.heartbeatMode === "none") {
                 return false;
             }
             return this.effectiveLayout !== "table" || this.heartbeatMode === "bottom";
+        },
+        historyAvailable() {
+            /*
+             * Grid is the layout that trades history for density — it carries
+             * no bar at any setting, and neither does it show the check
+             * interval. A switch offered there would be one that does nothing,
+             * which is worse than one that is not offered.
+             */
+            return this.heartbeatMode !== "none" && this.effectiveLayout !== "grid";
+        },
+        /*
+         * The switch applies where it can be reached.
+         *
+         * It is a desktop control, like the layout buttons beside it, and below
+         * that width the page chooses for itself — effectiveLayout already
+         * ignores the stored layout there for the same reason. Letting the
+         * switch keep acting on a screen that cannot show it would leave the
+         * bar off with nothing to turn it back on. The account-wide setting
+         * still governs every width.
+         */
+        effectiveShowHistory() {
+            return this.$root.windowWidth <= 960 ? true : this.showHistory;
         },
         sortedMonitorList() {
             let result = Object.values(this.$root.monitorList).filter(this.filterFunc);
@@ -672,6 +838,21 @@ export default {
     methods: {
         persistLayout() {
             writeStored(LAYOUT_STORAGE_KEY, this.layoutPreference);
+        },
+        persistShowHistory() {
+            writeStored(HISTORY_STORAGE_KEY, String(this.showHistory));
+        },
+        setColumnCount(count) {
+            if (![2, 4].includes(count)) {
+                return;
+            }
+            if (this.effectiveLayout === "grid") {
+                this.gridColumnPreference = count;
+                writeStored(GRID_COLUMNS_STORAGE_KEY, String(count));
+            } else if (this.effectiveLayout === "cards") {
+                this.cardColumnPreference = count;
+                writeStored(CARD_COLUMNS_STORAGE_KEY, String(count));
+            }
         },
         persistCollapsedGroups() {
             writeStored(COLLAPSE_STORAGE_KEY, JSON.stringify(this.collapsedGroups));
@@ -842,6 +1023,14 @@ export default {
             ) {
                 return;
             }
+            this.openMonitor(monitor);
+        },
+        /**
+         * Open one monitor from a clickable inventory surface.
+         * @param {object} monitor Monitor row
+         * @returns {void}
+         */
+        openMonitor(monitor) {
             this.$router.push(this.monitorURL(monitor.id));
         },
         ariaSort(key) {
@@ -1211,7 +1400,9 @@ export default {
     background: transparent;
     color: var(--color-text-muted);
     cursor: pointer;
-    transition: background-color 140ms var(--easing-out), color 140ms var(--easing-out);
+    transition:
+        background-color 140ms var(--easing-out),
+        color 140ms var(--easing-out);
 
     &:hover {
         background: var(--color-surface-hover);
@@ -1419,34 +1610,302 @@ export default {
 
 .inventory-cards--grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(19rem, 1fr));
-    gap: 0.75rem;
-    padding: 0.75rem;
+    gap: 0.5rem;
+    padding: 0.5rem;
     background: var(--color-surface-subtle);
-
-    .inventory-cards__toolbar,
-    .inventory-card--group {
-        grid-column: 1 / -1;
-    }
-
-    .inventory-cards__toolbar {
-        padding: 0;
-        border-bottom: 0;
-        background: transparent;
-    }
 
     .inventory-card {
         align-self: stretch;
+        padding-block: 0.6rem;
         border: 1px solid var(--color-border);
-        border-radius: var(--radius-md);
+        border-radius: var(--radius-sm);
         background: var(--color-surface);
+    }
+
+    .inventory-card__body {
+        gap: 0.25rem;
+    }
+
+    .inventory-card__metrics {
+        display: flex;
+        justify-content: space-between;
+        gap: 0.5rem 1rem;
+        padding-top: 0.35rem;
+    }
+
+    .inventory-card__metric {
+        display: flex;
+        min-width: 0;
+        flex: 0 1 auto;
+        flex-direction: row;
+        align-items: baseline;
+        gap: 0.35rem;
+    }
+
+    .inventory-card__metric-label {
+        display: block;
+        font-size: 0.6875rem;
+    }
+}
+
+.inventory-cards--cards {
+    display: grid;
+    align-items: start;
+    gap: 1rem;
+    padding: 1rem;
+    background: var(--color-surface-subtle);
+
+    .inventory-card {
+        align-self: stretch;
+        min-height: 0;
+        padding: 1rem 1rem 1rem 0.65rem;
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-lg);
+        background: var(--color-surface);
+        transition:
+            border-color 140ms var(--easing-out),
+            background-color 140ms var(--easing-out);
+
+        &:hover {
+            border-color: var(--color-border-strong);
+            background: var(--color-surface);
+        }
+    }
+
+    .inventory-card__body {
+        gap: 0.75rem;
+        pointer-events: none;
+
+        button {
+            pointer-events: auto;
+        }
+    }
+
+    .inventory-card__top {
+        padding-bottom: 0.7rem;
+        border-bottom: 1px solid var(--color-border);
+    }
+
+
+    .heartbeat-below {
+        width: 100%;
+        max-width: none;
+        margin-top: 0;
+    }
+
+    /*
+     * Pushed to sit directly above the readings rather than following the name.
+     *
+     * A card carrying tags is taller at the top, so anchoring the signal to the
+     * identity left the bars of one row at different heights. Held down here
+     * they line up, and the space a shorter card has spare opens between the
+     * name and the signal, where it reads as breathing room instead.
+     */
+    .inventory-card__signal {
+        display: flex;
+        flex-direction: column;
+        gap: 0.3rem;
+        margin-top: auto;
+        padding: 0.15rem 0 0.55rem;
+        border-bottom: 1px solid var(--color-border);
+    }
+
+    .inventory-card__signal + .inventory-card__metrics {
+        margin-top: 0;
+    }
+
+    /*
+     * The readings are not equally long, so they do not get equal thirds.
+     *
+     * Uptime and interval are a percentage and a number of seconds; last check
+     * is a phrase, and how long a phrase depends on the language — six
+     * characters of "5m ago" against fourteen of "đã qua 5m giây". Giving each
+     * a third left the only variable one the least able to show itself, so the
+     * fixed pair take what they need and the phrase takes the rest.
+     */
+    .inventory-card__metrics {
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr) auto;
+        align-items: stretch;
+        gap: 0.5rem;
+        margin-top: auto;
+        padding-top: 0;
+    }
+
+    .inventory-card__metric {
+        display: flex;
+        min-width: 0;
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: flex-end;
+        gap: 0.15rem;
+        padding: 0.15rem 0.65rem;
+
+        &:first-child {
+            padding-inline-start: 0;
+        }
+
+        & + .inventory-card__metric {
+            border-inline-start: 1px solid var(--color-border);
+        }
+    }
+
+    /*
+     * One line, whatever the column count or the language.
+     *
+     * Both halves of a reading wrapped in a four-across card, which made one of
+     * the three boxes taller than its neighbours and left the row ragged. The
+     * label is a heading for a number, and the value carries its full form on
+     * the element's title, so losing a tail to an ellipsis costs less than
+     * losing the alignment.
+     *
+     * The value is the half that varies by language: English says "5m ago" in
+     * six characters where Vietnamese says "đã qua 5m giây" in fourteen, so a
+     * width that never wrapped in one wraps in the next.
+     */
+    .inventory-card__metric-label,
+    .inventory-card__metric > .last-check,
+    .inventory-card__metric > .interval-value,
+    .inventory-card__metric > .empty-value {
+        display: block;
+        max-width: 100%;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+}
+
+/*
+ * Dense cards should read as a compact dashboard, not merely the same card in
+ * narrower columns. Remove the vertical alignment spacers that are useful in
+ * the comfortable view and let each section follow the one above it.
+ */
+.inventory-cards--cards.inventory-cards--columns-4 {
+    gap: 0.75rem;
+    padding: 0.75rem;
+
+    .inventory-card {
+        padding: 0.75rem 0.75rem 0.75rem 0.5rem;
+    }
+
+    .inventory-card__body {
+        gap: 0.5rem;
+    }
+
+    .inventory-card__top {
+        padding-bottom: 0.5rem;
+    }
+
+    .inventory-card__signal {
+        gap: 0.2rem;
+        margin-top: 0;
+        padding: 0 0 0.45rem;
+    }
+
+    .inventory-card__metrics {
+        gap: 0;
+        margin-top: 0;
+    }
+
+    .inventory-card__metric {
+        min-height: 2.5rem;
+        padding-block: 0;
+    }
+}
+
+.inventory-cards--columns-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.inventory-cards--columns-4 {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.inventory-cards--grid,
+.inventory-cards--cards {
+    /*
+     * Two lines, always: a name, and a line about it.
+     *
+     * Cards in a row stretch to the tallest, so one monitor carrying five tags
+     * set the height of every card beside it and pushed everything below them
+     * down the page. A card is now the same shape whatever it holds, and the
+     * line that would have wrapped is clipped instead — what does not fit is
+     * still on the monitor's own page, and the row keeps its rhythm.
+     */
+    :deep(.monitor-meta),
+    :deep(.monitor-tags) {
+        flex-wrap: nowrap;
+        overflow: hidden;
+    }
+
+    :deep(.monitor-name-link) {
+        display: block;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+
+    .inventory-card__group-context {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        min-width: 0;
+        padding: 0.35rem 0.5rem;
+        border-inline-start: 2px solid var(--color-interactive);
+        border-radius: var(--radius-xs);
+        background: var(--color-interactive-subtle);
+        color: var(--color-interactive);
+        font-size: 0.75rem;
+        font-weight: var(--weight-semibold);
+
+        span {
+            min-width: 0;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+    }
+
+    .inventory-card--expanded-group {
+        border-color: var(--color-border-strong);
     }
 }
 
 .inventory-cards__toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
     padding: 0.5rem 0.75rem;
     border-bottom: 1px solid var(--color-border);
     background: var(--color-surface-subtle);
+}
+
+/*
+ * Sits with the density control rather than the filters: both decide how much
+ * of each monitor is drawn, not which monitors are drawn.
+ */
+.history-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-inline-start: 0.75rem;
+    white-space: nowrap;
+
+    .gizmo-native-check__label {
+        color: var(--color-text-muted);
+        font-size: 0.8125rem;
+    }
+}
+
+.inventory-density-toggle {
+    flex: 0 0 auto;
+
+    .gizmo-native-button {
+        min-height: 2rem;
+        padding: 0.3rem 0.65rem;
+        font-size: 0.75rem;
+    }
 }
 
 .select-all {
@@ -1459,6 +1918,7 @@ export default {
 }
 
 .inventory-card {
+    position: relative;
     display: grid;
     grid-template-columns: 2.5rem minmax(0, 1fr);
     gap: 0.25rem 0.35rem;
@@ -1483,7 +1943,29 @@ export default {
     }
 }
 
+/* Status is already expressed by the inset rail and pill in Cards. */
+.inventory-cards--cards > .inventory-card:hover,
+.inventory-cards--cards > .inventory-card.is-down:hover,
+.inventory-cards--cards > .inventory-card.is-pending:hover,
+.inventory-cards--cards > .inventory-card.is-maintenance:hover {
+    background: var(--color-surface);
+}
+
+.inventory-card__surface-link {
+    position: absolute;
+    z-index: 0;
+    inset: 0;
+    border-radius: inherit;
+
+    &:focus-visible {
+        outline: 2px solid var(--color-focus-ring);
+        outline-offset: 2px;
+    }
+}
+
 .inventory-card__select {
+    position: relative;
+    z-index: 1;
     display: flex;
     align-items: flex-start;
     padding-top: 0.15rem;
@@ -1498,6 +1980,8 @@ export default {
  * why no two cards in a row lined up.
  */
 .inventory-card__body {
+    position: relative;
+    z-index: 1;
     min-width: 0;
     display: flex;
     flex-direction: column;
@@ -1528,6 +2012,47 @@ export default {
     gap: 0.35rem 0.75rem;
 }
 
+.inventory-card__metric {
+    display: contents;
+}
+
+.inventory-card__metric-label {
+    display: none;
+    color: var(--color-text-subtle);
+    font-size: 0.75rem;
+    font-weight: var(--weight-semibold);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.inventory-card__section-label {
+    color: var(--color-text-subtle);
+    font-size: 0.75rem;
+    font-weight: var(--weight-semibold);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.inventory-group-enter-active,
+.inventory-group-leave-active {
+    transition:
+        opacity 160ms var(--easing-out),
+        transform 160ms var(--easing-out);
+}
+
+.inventory-group-enter-from,
+.inventory-group-leave-to {
+    opacity: 0;
+    transform: translateY(-0.25rem);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .inventory-group-enter-active,
+    .inventory-group-leave-active {
+        transition: none;
+    }
+}
+
 :deep(.gizmo-empty-state) {
     margin: 0.75rem;
 }
@@ -1535,6 +2060,41 @@ export default {
 @media (max-width: 1100px) {
     .col-interval {
         display: none;
+    }
+}
+
+/*
+ * Four full-detail cards still fit above the mobile breakpoint, but their
+ * header and three readings no longer fit side by side near tablet width.
+ * Keep four tracks and reflow the content inside each card instead.
+ */
+@media (min-width: 961px) and (max-width: 1199.98px) {
+    .inventory-cards--cards.inventory-cards--columns-4 {
+        .inventory-card__top {
+            grid-template-columns: minmax(0, 1fr);
+        }
+
+        .inventory-card__status {
+            justify-self: start;
+            margin-inline-start: 2.5rem;
+        }
+
+        .inventory-card__metrics {
+            grid-template-columns: minmax(0, 1fr);
+            gap: 0;
+        }
+
+        .inventory-card__metric {
+            min-height: 2.25rem;
+            flex-direction: row;
+            align-items: center;
+            padding: 0.35rem 0;
+
+            & + .inventory-card__metric {
+                border-inline-start: 0;
+                border-top: 1px solid var(--color-border);
+            }
+        }
     }
 }
 

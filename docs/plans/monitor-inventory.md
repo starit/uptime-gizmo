@@ -41,10 +41,17 @@ session. No new API, schema, or socket event is required.
 
 Desktop `/list` uses the existing dashboard shell but a single full-width
 column, still capped by the workspace max width. Wide viewports default to a
-table and can switch between Table, Compact, and Grid; the choice is stored in
-`localStorage`. Grid uses responsive monitor cards while group cards span the
-full row to preserve hierarchy. Viewports at or below 960px use stacked Compact
-cards.
+list and can switch between List, Grid, and Cards; the choice is stored in
+`localStorage`. Grid is a flat, dense status overview. Cards uses a real primary
+link surface and adds heartbeat history, interval, and separated metric blocks.
+Each multi-column layout separately remembers a Comfortable or Dense preference.
+Group entries use the same track size as other monitors in both multi-column
+layouts. Expanded child cards
+carry a dedicated parent-path strip, including the full path for nested groups,
+so their ownership stays visible after the grid wraps. Collapse controls and a
+short reveal transition preserve the hierarchy without disrupting the grid.
+Viewports at or below 960px use stacked List rows without exposing a separate
+layout choice.
 
 The identity cell is type-aware:
 

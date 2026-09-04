@@ -7,9 +7,15 @@
 ## Implemented
 
 - `/list` always renders `MonitorInventory`. Phones and viewports at or below
-  960px use stacked cards. Wider desktops default to the table and can switch
-  to Compact or a responsive Grid. Group cards span the Grid so their expanded
-  children remain visually scoped.
+  960px use stacked cards. Wider desktops default to List and can switch to a
+  responsive Grid or the more strongly separated Cards layout. Grid and Cards
+  separately remember Comfortable or Dense preferences. Grid favors quick
+  scanning, while Cards uses a primary link surface and retains heartbeat
+  history and interval.
+  Group entries share the same track width as other monitors; collapse controls
+  and dedicated child parent-path strips retain the hierarchy without forcing a
+  new row. Nested children show their full parent path, and expansion uses a
+  short reveal transition.
 - Each row shows a friendly type label and a type-specific target (HTTP URL,
   host:port, LLM model, Web3 address, group child count, and so on). Passwords
   in URLs and connection strings are stripped. Search matches the displayed

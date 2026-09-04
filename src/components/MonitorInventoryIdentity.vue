@@ -1,8 +1,9 @@
 <template>
     <div class="inventory-identity">
-        <router-link :to="href" class="monitor-name-link">
+        <router-link v-if="linked" :to="href" class="monitor-name-link monitor-name-link--linked">
             {{ monitor.name }}
         </router-link>
+        <span v-else class="monitor-name-link">{{ monitor.name }}</span>
         <div v-if="hasMeta" class="monitor-meta">
             <!--
                 Two groups, not one run of words. The written metadata reads as a
@@ -14,8 +15,16 @@
                 <span v-if="target" class="target-label" :title="target">{{ target }}</span>
                 <span v-if="groupLabel" class="group-path" :title="groupLabel">{{ groupLabel }}</span>
             </span>
-            <span v-if="(monitor.tags || []).length > 0" class="monitor-tags">
-                <Tag v-for="tag in monitor.tags" :key="tag.tag_id" :item="tag" size="sm" :title="tag.name" />
+            <!--
+                Whole tags or none. A chip cut down the middle by an overflow
+                reads as a rendering fault rather than as "there are more", so
+                where the room runs out a count says so instead.
+            -->
+            <span v-if="shownTags.length > 0" class="monitor-tags">
+                <Tag v-for="tag in shownTags" :key="tag.tag_id" :item="tag" size="sm" :title="tag.name" />
+                <span v-if="hiddenTagCount > 0" class="tag-overflow" :title="hiddenTagNames">
+                    +{{ hiddenTagCount }}
+                </span>
             </span>
         </div>
     </div>
@@ -49,11 +58,36 @@ export default {
             type: String,
             default: "",
         },
+        /*
+         * How many tags a caller has room for. Zero means as many as there are,
+         * which is what a table row can take; a card in a four-across grid
+         * cannot, and says how many it left out.
+         */
+        maxTags: {
+            type: Number,
+            default: 0,
+        },
+        linked: {
+            type: Boolean,
+            default: true,
+        },
     },
     computed: {
+        shownTags() {
+            const tags = this.monitor.tags || [];
+            return this.maxTags > 0 ? tags.slice(0, this.maxTags) : tags;
+        },
+        hiddenTagCount() {
+            return (this.monitor.tags || []).length - this.shownTags.length;
+        },
+        hiddenTagNames() {
+            return (this.monitor.tags || [])
+                .slice(this.shownTags.length)
+                .map(tag => tag.name)
+                .join(", ");
+        },
         hasMeta() {
-            return Boolean(this.typeLabel || this.target || this.groupLabel)
-                || (this.monitor.tags || []).length > 0;
+            return Boolean(this.typeLabel || this.target || this.groupLabel) || (this.monitor.tags || []).length > 0;
         },
     },
 };
@@ -68,7 +102,9 @@ export default {
     color: var(--color-text);
     font-weight: var(--weight-semibold);
     text-decoration: none;
+}
 
+.monitor-name-link--linked {
     &:hover {
         color: var(--color-interactive);
         text-decoration: underline;
@@ -142,10 +178,23 @@ export default {
  */
 .monitor-tags {
     display: flex;
-    flex: 0 1 auto;
-    flex-wrap: wrap;
+
+    /*
+     * Never squeezed. A chip narrowed until its own label needs an ellipsis
+     * looks broken, while the address beside it loses a few characters and is
+     * merely shorter — and the name above is already complete, so the address
+     * is the supporting detail of the two.
+     */
+    flex: 0 0 auto;
+    flex-wrap: nowrap;
     align-items: center;
     gap: 0.25rem;
-    min-width: 0;
+}
+
+.tag-overflow {
+    flex: 0 0 auto;
+    color: var(--color-text-muted);
+    font-size: 0.6875rem;
+    font-variant-numeric: tabular-nums;
 }
 </style>
