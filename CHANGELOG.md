@@ -41,7 +41,8 @@ accounts and authentication identity in place.
   filenames, including a 320 px mobile viewport; settings navigation and panel
   edges use RTL-aware logical properties. Import effects use visible semantic
   icons and describe preserved data from the importing administrator's point
-  of view.
+  of view. The required post-import restart is shown in a dedicated warning
+  before the file and password fields.
 - Imported ownership is mapped to the target instance owner. Existing target
   accounts, passwords, 2FA, API keys, administrator flags, JWT secret, and
   authentication policy remain unchanged.
