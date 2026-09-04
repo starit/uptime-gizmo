@@ -15,12 +15,12 @@ Full recovery still uses the manual data-volume/database procedure in
 
 ## Product boundary
 
-Beta.5 provides **configuration import/export only**. It is not a database
+Beta.5 provides **configuration backup only**. It is not a database
 backup, account migration, or disaster-recovery replacement.
 
 The archive is a versioned, engine-neutral configuration document assembled
 through Knex. The same implementation supports SQLite, external MariaDB/MySQL,
-and embedded MariaDB, including configuration export/import between those
+and embedded MariaDB, including configuration backup and restore between those
 engines.
 It does not contain a SQLite file or executable SQL and does not require
 `sqlite3`, `mariadb-dump`, or another database client binary.
@@ -126,10 +126,11 @@ change must add an explicit adapter before that version is accepted. Invalid
 UTF-8, dangerous nested object keys, duplicate ids, and broken relations are
 rejected rather than guessed.
 
-## Export flow
+## Backup interface and export flow
 
-Add **Settings → Export / Import**, visible to administrators. The previous
-`/settings/configuration-transfer` URL redirects to the new page.
+Add **Settings → Backup**, visible to administrators. The previous
+`/settings/export-import` and `/settings/configuration-transfer` URLs redirect
+to `/settings/backup`.
 
 Export:
 
@@ -258,7 +259,7 @@ The UI must not imply that an unencrypted configuration archive is safe to share
 
 ### P1 — monitor inventory
 
-Independent of configuration import/export. The dashboard rail stays the
+Independent of configuration backup. The dashboard rail stays the
 selector for a monitor that is already in hand; it is too narrow to scan an
 estate. Scope is in [the monitor inventory plan](monitor-inventory.md).
 

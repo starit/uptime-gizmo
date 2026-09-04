@@ -96,10 +96,10 @@ The key id is the number in its prefix: `uk2_…` is key `2`. Exempt only a key
 belonging to a trusted controller the instance is operated by, not an ordinary
 busy client.
 
-## Export and import are not REST APIs
+## Configuration backup is not a REST API
 
-Beta.5 configuration import/export is available only to an administrator in
-**Settings → Export / Import**. It is intentionally **not** part of
+Beta.5 configuration backup is available only to an administrator in
+**Settings → Backup**. It is intentionally **not** part of
 `/api/v1`, the OpenAPI document, MCP, or the agent skills.
 
 The browser obtains a short-lived, random, single-use ticket over its
@@ -113,7 +113,7 @@ This boundary is deliberate. A configuration archive can contain notification
 tokens, monitor passwords, proxy credentials, AI keys, and RPC URLs. It does not
 contain user password hashes, 2FA configuration, personal API keys, or history,
 but it is still a sensitive file. For scope and the supported workflow, see
-[Export and import](export-import.md).
+[Backup](backup.md).
 
 ## Endpoint map
 
