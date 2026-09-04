@@ -340,16 +340,20 @@ export default {
 .configuration-transfer {
     display: grid;
     gap: 1rem;
+    width: 100%;
+    min-width: 0;
     max-width: 52rem;
 }
 
 .configuration-callout,
 .configuration-status {
+    min-width: 0;
     padding: 1rem 1.125rem;
     border: 1px solid var(--color-border);
     border-inline-start: 0.25rem solid var(--color-interactive);
     border-radius: var(--radius-md);
     background: var(--color-surface-subtle);
+    overflow-wrap: anywhere;
 }
 
 .configuration-callout p {
@@ -362,6 +366,7 @@ export default {
 }
 
 .configuration-section {
+    min-width: 0;
     padding: 1.25rem;
     border: 1px solid var(--color-border);
     border-radius: var(--radius-md);
@@ -379,11 +384,16 @@ export default {
     gap: 1rem;
 }
 
+.configuration-section__heading > div {
+    min-width: 0;
+}
+
 .configuration-section__description {
     color: var(--color-text-muted);
 }
 
 .configuration-section__icon {
+    flex: none;
     margin-top: 0.15rem;
     color: var(--color-interactive);
     font-size: 1.15rem;
@@ -409,13 +419,24 @@ export default {
     min-width: 0;
 }
 
+.configuration-action__field .gizmo-field-help {
+    overflow-wrap: anywhere;
+}
+
 .configuration-action__button {
+    max-width: 100%;
     min-height: 2.5rem;
-    white-space: nowrap;
+    white-space: normal;
+    overflow-wrap: anywhere;
 }
 
 .configuration-file {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
     padding: 0.35rem;
+    overflow: hidden;
 }
 
 .configuration-exclusions {
@@ -458,7 +479,9 @@ export default {
     font-weight: 600;
 }
 
-@media (max-width: 900px) {
+/* The app and settings rails both consume width at tablet/compact-desktop
+   sizes, so this breakpoint follows the usable form area rather than a phone. */
+@media (max-width: 1100px) {
     .configuration-action,
     .configuration-section--danger .configuration-action,
     .configuration-summary {
@@ -467,6 +490,22 @@ export default {
 
     .configuration-action__button {
         width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .configuration-callout,
+    .configuration-status,
+    .configuration-section {
+        padding: 0.875rem;
+    }
+
+    .configuration-section__heading {
+        gap: 0.75rem;
+    }
+
+    .configuration-action__button {
+        min-height: 2.75rem;
     }
 }
 </style>
