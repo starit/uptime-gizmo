@@ -34,7 +34,7 @@ const Security = () => import("./components/settings/Security.vue");
 import Proxies from "./components/settings/Proxies.vue";
 import About from "./components/settings/About.vue";
 import RemoteBrowsers from "./components/settings/RemoteBrowsers.vue";
-const ConfigurationTransfer = () => import("./components/settings/ConfigurationTransfer.vue");
+const ConfigurationExportImport = () => import("./components/settings/ConfigurationTransfer.vue");
 
 const routes = [
     {
@@ -121,8 +121,12 @@ const routes = [
                                 component: MonitorHistory,
                             },
                             {
+                                path: "export-import",
+                                component: ConfigurationExportImport,
+                            },
+                            {
                                 path: "configuration-transfer",
-                                component: ConfigurationTransfer,
+                                redirect: "/settings/export-import",
                             },
                             {
                                 path: "docker-hosts",

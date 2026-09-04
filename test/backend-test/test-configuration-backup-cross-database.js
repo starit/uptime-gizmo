@@ -183,7 +183,94 @@ describe("configuration archive across database engines", () => {
                     created_date: "2026-09-04 00:00:00",
                 });
                 await source("monitor_tag").insert({ id: 29, monitor_id: 17, tag_id: 23, value: "api" });
+                await source("status_page").insert({
+                    id: 31,
+                    slug: "cross-engine-status",
+                    title: "Cross-engine status",
+                    description: "Portable status-page configuration",
+                    icon: "/icon.svg",
+                    theme: "auto",
+                    published: 1,
+                    search_engine_index: 0,
+                    show_tags: 1,
+                    password: "portable-status-page-password",
+                    created_date: "2026-09-04 00:00:00",
+                    modified_date: "2026-09-04 00:00:00",
+                    footer_text: "Portable footer",
+                    custom_css: ".status-page { color: #123456; }",
+                    show_powered_by: 0,
+                    show_certificate_expiry: 1,
+                    auto_refresh_interval: 120,
+                    show_only_last_heartbeat: 1,
+                    rss_title: "Portable status feed",
+                    icon_size: "lg",
+                    icon_position: "top",
+                    title_size: "lg",
+                    title_font: "serif",
+                    text_size: "lg",
+                });
+                await source("group").insert({
+                    id: 37,
+                    name: "Public services",
+                    created_date: "2026-09-04 00:00:00",
+                    public: 1,
+                    active: 1,
+                    weight: 10,
+                    status_page_id: 31,
+                });
+                await source("monitor_group").insert({
+                    id: 41,
+                    monitor_id: 17,
+                    group_id: 37,
+                    weight: 20,
+                    send_url: 1,
+                    custom_url: "https://status.example.com/service",
+                });
+                await source("maintenance").insert({
+                    id: 43,
+                    title: "Portable maintenance",
+                    description: "Planned work",
+                    user_id: 1,
+                    active: 1,
+                    strategy: "manual",
+                });
+                await source("maintenance_status_page").insert({
+                    id: 47,
+                    status_page_id: 31,
+                    maintenance_id: 43,
+                });
+                await source("incident").insert([
+                    {
+                        id: 53,
+                        title: "Portable active incident",
+                        content: "Investigating",
+                        active: 1,
+                        status_page_id: 31,
+                    },
+                    {
+                        id: 54,
+                        title: "Historical incident",
+                        content: "Resolved",
+                        active: 0,
+                        status_page_id: 31,
+                    },
+                ]);
+                await source("status_page_cname").insert({
+                    id: 59,
+                    status_page_id: 31,
+                    domain: "status.example.com",
+                });
                 const document = await createConfigurationDocument(source, "sqlite-source");
+
+                assert.strictEqual(document.resources.statusPages[0].password, "portable-status-page-password");
+                assert.strictEqual(document.resources.groups[0].status_page_id, 31);
+                assert.strictEqual(document.resources.monitorGroups[0].monitor_id, 17);
+                assert.strictEqual(document.resources.maintenanceStatusPages[0].maintenance_id, 43);
+                assert.strictEqual(document.resources.statusPageCnames[0].domain, "status.example.com");
+                assert.deepStrictEqual(
+                    document.resources.activeIncidents.map((incident) => incident.id),
+                    [53]
+                );
 
                 for (const [db, engine] of [
                     [mariadb, "mariadb"],

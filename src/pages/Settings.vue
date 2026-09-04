@@ -88,7 +88,7 @@ export default {
             const items = { ...this.subMenus };
             delete items["api-docs"];
             if (!this.$root.info.isAdmin) {
-                delete items["configuration-transfer"];
+                delete items["export-import"];
             }
             return items;
         },
@@ -131,9 +131,9 @@ export default {
                     title: this.$t("Monitor History"),
                     icon: "heartbeat",
                 },
-                "configuration-transfer": {
+                "export-import": {
                     title: this.$t("configurationTransferMenu"),
-                    icon: "exchange-alt",
+                    icon: "download",
                 },
                 "docker-hosts": {
                     title: this.$t("Docker Hosts"),

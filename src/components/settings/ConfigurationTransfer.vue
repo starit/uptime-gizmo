@@ -67,6 +67,7 @@
                 </div>
 
                 <ul class="configuration-exclusions">
+                    <li>{{ $t("configurationImportTrustedSource") }}</li>
                     <li>{{ $t("configurationImportKeepsIdentity") }}</li>
                     <li>{{ $t("configurationImportClearsHistory") }}</li>
                     <li>{{ $t("configurationImportNextStart") }}</li>

@@ -7,9 +7,11 @@ const {
     RESOURCE_NAMES,
     TABLE_REGISTRY,
 } = require("./registry");
+const { TextDecoder } = require("util");
 
 const TOP_LEVEL_KEYS = ["format", "formatVersion", "appVersion", "createdAt", "scope", "resources"];
 const RESOURCE_KEYS = [...RESOURCE_NAMES, "settings"].sort();
+const DANGEROUS_OBJECT_KEYS = new Set(["__proto__", "constructor", "prototype"]);
 
 /** Error raised for an invalid or unsupported configuration document. */
 class ConfigurationDocumentError extends Error {
@@ -197,6 +199,9 @@ function assertValueLimits(value, path, depth = 0, state = { nodes: 0 }) {
     } else if (value !== null && typeof value === "object") {
         assertPlainObject(value, path);
         for (const [key, child] of Object.entries(value)) {
+            if (DANGEROUS_OBJECT_KEYS.has(key)) {
+                throw new ConfigurationDocumentError(`${path}.${key} is not allowed`);
+            }
             assertValueLimits(child, `${path}.${key}`, depth + 1, state);
         }
     }
@@ -383,9 +388,16 @@ function parseConfigurationDocument(buffer, maxBytes = LIMITS.maxBytes) {
         throw new ConfigurationDocumentError("The uploaded archive exceeds the configured size limit");
     }
 
+    let json;
+    try {
+        json = new TextDecoder("utf-8", { fatal: true }).decode(buffer);
+    } catch (_) {
+        throw new ConfigurationDocumentError("The uploaded file is not valid UTF-8");
+    }
+
     let parsed;
     try {
-        parsed = JSON.parse(buffer.toString("utf8"));
+        parsed = JSON.parse(json);
     } catch (_) {
         throw new ConfigurationDocumentError("The uploaded file is not valid JSON");
     }

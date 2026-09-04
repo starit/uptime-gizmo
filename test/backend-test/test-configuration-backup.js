@@ -3,6 +3,7 @@ const assert = require("node:assert/strict");
 const fs = require("fs");
 const os = require("os");
 const path = require("path");
+const { Readable } = require("stream");
 const { R } = require("redbean-node");
 
 const {
@@ -18,7 +19,11 @@ const {
     replaceConfiguration,
     stageConfigurationImport,
 } = require("../../server/configuration-backup/service");
-const { consumeTransferTicket, issueTransferTicket } = require("../../server/configuration-backup/transfer");
+const {
+    consumeTransferTicket,
+    issueTransferTicket,
+    readBoundedBody,
+} = require("../../server/configuration-backup/transfer");
 
 let directory;
 
@@ -277,6 +282,7 @@ describe("configuration archive document", () => {
 
     test("rejects invalid JSON and unknown archive versions", () => {
         assert.throws(() => parseConfigurationDocument(Buffer.from("not-json")), /not valid JSON/);
+        assert.throws(() => parseConfigurationDocument(Buffer.from([0xc3, 0x28])), /not valid UTF-8/);
         const document = emptyDocument();
         document.formatVersion = 99;
         assert.throws(
@@ -291,6 +297,30 @@ describe("configuration archive document", () => {
             /exceeds the configured size limit/
         );
         assert.throws(() => serializeConfigurationDocument(emptyDocument(), 10), /exceeds the configured size limit/);
+    });
+
+    test("rejects prototype-pollution keys nested inside portable settings", () => {
+        const document = emptyDocument();
+        document.resources.settings.customThemes = JSON.parse('{"__proto__":{"polluted":true}}');
+
+        assert.throws(() => canonicalizeConfigurationDocument(document), /__proto__ is not allowed/);
+        assert.strictEqual({}.polluted, undefined);
+    });
+});
+
+describe("configuration import upload reader", () => {
+    test("rejects compression, malformed lengths, and streamed bodies over the limit", async () => {
+        const compressed = Readable.from([Buffer.from("data")]);
+        compressed.headers = { "content-encoding": "gzip" };
+        await assert.rejects(readBoundedBody(compressed, 10), /Compressed configuration uploads are not accepted/);
+
+        const malformedLength = Readable.from([Buffer.from("data")]);
+        malformedLength.headers = { "content-length": "4x" };
+        await assert.rejects(readBoundedBody(malformedLength, 10), /invalid content length/);
+
+        const oversized = Readable.from([Buffer.from("123456"), Buffer.from("78901")]);
+        oversized.headers = {};
+        await assert.rejects(readBoundedBody(oversized, 10), /exceeds the configured size limit/);
     });
 });
 
@@ -333,8 +363,59 @@ describe("configuration replace import", () => {
                 id: 43,
                 slug: "imported-status",
                 title: "Imported status",
+                description: "Status page description",
                 icon: "/icon.svg",
                 theme: "auto",
+                published: 1,
+                search_engine_index: 0,
+                show_tags: 1,
+                password: "STATUS-PAGE-PASSWORD",
+                footer_text: "Status page footer",
+                custom_css: ".status-page { color: #123456; }",
+                show_powered_by: 0,
+                show_certificate_expiry: 1,
+                auto_refresh_interval: 120,
+                show_only_last_heartbeat: 1,
+                rss_title: "Imported status feed",
+                icon_size: "lg",
+                icon_position: "top",
+                title_size: "lg",
+                title_font: "serif",
+                text_size: "lg",
+            });
+            await source("group").insert({
+                id: 53,
+                name: "Public services",
+                public: 1,
+                active: 1,
+                weight: 10,
+                status_page_id: 43,
+            });
+            await source("monitor_group").insert({
+                id: 59,
+                monitor_id: 41,
+                group_id: 53,
+                weight: 20,
+                send_url: 1,
+                custom_url: "https://status.example.com/service",
+            });
+            await source("maintenance").insert({
+                id: 61,
+                title: "Status maintenance",
+                description: "Planned work",
+                user_id: 1,
+                active: 1,
+                strategy: "manual",
+            });
+            await source("maintenance_status_page").insert({
+                id: 67,
+                status_page_id: 43,
+                maintenance_id: 61,
+            });
+            await source("status_page_cname").insert({
+                id: 71,
+                status_page_id: 43,
+                domain: "status.example.com",
             });
             await source("incident").insert({
                 id: 47,
@@ -412,6 +493,70 @@ describe("configuration replace import", () => {
                     active: 1,
                     status_page_id: 43,
                 },
+            ]);
+            assert.deepStrictEqual(
+                await target("status_page").select(
+                    "id",
+                    "slug",
+                    "password",
+                    "custom_css",
+                    "show_tags",
+                    "show_certificate_expiry",
+                    "show_only_last_heartbeat",
+                    "icon_size",
+                    "icon_position",
+                    "title_size",
+                    "title_font",
+                    "text_size"
+                ),
+                [
+                    {
+                        id: 43,
+                        slug: "imported-status",
+                        password: "STATUS-PAGE-PASSWORD",
+                        custom_css: ".status-page { color: #123456; }",
+                        show_tags: 1,
+                        show_certificate_expiry: 1,
+                        show_only_last_heartbeat: 1,
+                        icon_size: "lg",
+                        icon_position: "top",
+                        title_size: "lg",
+                        title_font: "serif",
+                        text_size: "lg",
+                    },
+                ]
+            );
+            assert.deepStrictEqual(await target("group").select("id", "status_page_id", "name", "weight"), [
+                { id: 53, status_page_id: 43, name: "Public services", weight: 10 },
+            ]);
+            assert.deepStrictEqual(
+                await target("monitor_group").select(
+                    "id",
+                    "monitor_id",
+                    "group_id",
+                    "weight",
+                    "send_url",
+                    "custom_url"
+                ),
+                [
+                    {
+                        id: 59,
+                        monitor_id: 41,
+                        group_id: 53,
+                        weight: 20,
+                        send_url: 1,
+                        custom_url: "https://status.example.com/service",
+                    },
+                ]
+            );
+            assert.deepStrictEqual(await target("maintenance").select("id", "title", "user_id"), [
+                { id: 61, title: "Status maintenance", user_id: 2 },
+            ]);
+            assert.deepStrictEqual(await target("maintenance_status_page").select("status_page_id", "maintenance_id"), [
+                { status_page_id: 43, maintenance_id: 61 },
+            ]);
+            assert.deepStrictEqual(await target("status_page_cname").select("status_page_id", "domain"), [
+                { status_page_id: 43, domain: "status.example.com" },
             ]);
 
             await target("heartbeat").insert({

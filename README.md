@@ -137,21 +137,24 @@ Everyone signs in with their own password, and everyone manages the whole
 instance. The [multi-user plan](docs/plans/multi-user.md) says what that does and
 does not mean.
 
-### Configuration transfer
+### Export and import
 
 Administrators can export a versioned `.ugbackup` configuration archive under
-**Settings → Configuration transfer**, then stage it on another instance for a
-replace import at the next restart. The format is database-independent: it can
-move configuration between SQLite, external MariaDB/MySQL, and embedded
-MariaDB instances.
+**Settings → Export / Import**, then import it on another instance for replacement
+at the next restart. The format is database-independent: it can move
+configuration between SQLite, external MariaDB/MySQL, and embedded MariaDB
+instances.
 
 This is deliberately **configuration import/export, not a full backup**. It
-includes monitors, notification channels, status pages, maintenances, tags,
-integrations, custom themes, and the operational credentials those resources
-need. It excludes users, login password hashes, two-factor settings, personal
-API keys, monitoring history, generated results, files, and database settings.
-The target instance keeps its own identities and authentication configuration.
-The archive is unencrypted and can contain secrets, so store it accordingly.
+includes monitors, notification channels, status pages (including page settings,
+groups, monitor and maintenance links, custom domains, and active incidents),
+maintenances, tags, integrations, custom themes, and the operational credentials
+those resources need. It excludes users, login password hashes, two-factor
+settings, personal API keys, monitoring history, generated results, files, and
+database settings. The target instance keeps its own identities and
+authentication configuration. The archive is unencrypted and can contain
+secrets and active destinations; store it securely and import only a file you
+created or trust.
 
 ## Inherited from Uptime Kuma
 
@@ -310,7 +313,7 @@ docker run -d --restart=always -p 3001:3001 -v uptime-gizmo:/app/data --name upt
 
 ### Backing up
 
-The interface's configuration transfer is not a disaster-recovery backup. It
+The interface's configuration export is not a disaster-recovery backup. It
 does not contain users, login credentials, history, uploads, screenshots,
 Docker TLS files, or database configuration. Backing up a complete instance
 still means copying its data directory and, for MariaDB/MySQL, taking a native
