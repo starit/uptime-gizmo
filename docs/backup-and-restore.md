@@ -4,8 +4,9 @@ Uptime Gizmo has no backup feature in the interface. Backing it up means copying
 its data directory, and there is one way to do that wrong which produces no error
 at the time — this page is mostly about avoiding that.
 
-A simple SQLite and MariaDB/MySQL database export/import is planned for beta.5,
-but it is not part of beta.4. Its scope and safety rules are in the
+A portable configuration export/import is planned for beta.5, but it is not
+part of beta.4. It will preserve target users and omit monitoring history; its
+scope and safety rules are in the
 [beta.5 release plan](plans/beta-5-release.md). Until that work ships, use the
 manual procedure below.
 

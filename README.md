@@ -299,6 +299,14 @@ copying its data directory, and one way of doing that loses recent data without
 saying so. Read [Backing up and restoring](docs/backup-and-restore.md) before
 relying on a copy.
 
+Beta.5 plans **configuration import/export only**, not a database backup. It
+will move monitors, notification channels, integrations, status pages, and
+other monitoring settings across SQLite and MariaDB/MySQL instances. Target
+users, passwords, two-factor settings, API keys, and authentication identity
+stay unchanged; monitoring history and filesystem assets are not included.
+Full disaster recovery will continue to require a data-volume and native
+database backup.
+
 The short version, safe while the instance is running:
 
 ```bash
@@ -312,16 +320,17 @@ The [Roadmap](ROADMAP.md) has the current list. The short version:
 
 - Better status pages.
 - Checks that report health, not just whether something answered.
-- A simple SQLite and MariaDB/MySQL database export and replace-only restore in
-  the interface; filesystem assets and full-volume backups remain manual in the
-  first version.
+- A portable configuration export and replace import in the interface, across
+  SQLite and MariaDB/MySQL. It preserves target logins and omits history;
+  filesystem assets and full disaster recovery remain manual.
 - The rest of the write side of the API: maintenance windows, status-page
   incidents, proxies and integrations.
 - More context around an incident.
 
 Design notes: [REST API plan](docs/plans/rest-api.md),
 [MCP and agent-facing API plan](docs/plans/mcp-and-agent-api.md),
-[multi-user plan](docs/plans/multi-user.md).
+[multi-user plan](docs/plans/multi-user.md), and
+[beta.5 configuration import/export plan](docs/plans/beta-5-release.md).
 
 ## How this is built
 

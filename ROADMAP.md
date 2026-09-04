@@ -32,9 +32,9 @@ areas of planned work and may change as the project develops.
 
 ## Short-term
 
-- Add an administrator-facing SQLite and MariaDB/MySQL database export and
-  replace-only restore, with validation and rollback. Filesystem assets remain
-  on the documented manual backup path for the first version.
+- Add an administrator-facing, database-independent configuration export and
+  replace import. It preserves target logins and omits monitoring history;
+  filesystem assets and full disaster recovery remain manual.
 - Finish the write side of the HTTP API: maintenance windows and status-page
   incidents.
 - Proxies and integrations over the API. Notification channels answered the
