@@ -306,7 +306,10 @@ export default {
     color: var(--color-text);
     text-decoration: none;
 }
-.settings-mobile-link:hover { background: var(--color-surface-hover); }
+
+.settings-mobile-link:hover {
+    background: var(--color-surface-hover);
+}
 
 .settings-workspace-surface {
     border: 1px solid var(--color-border);
@@ -335,8 +338,11 @@ export default {
         margin: 0.5em;
         padding: 0.7em 1em;
         cursor: pointer;
-        border-left-width: 0;
-        transition: background-color 160ms ease, color 160ms ease, border-color 160ms ease;
+        border-inline-start-width: 0;
+        transition:
+            background-color 160ms ease,
+            color 160ms ease,
+            border-color 160ms ease;
     }
 
     /* Quieter than the label it accompanies: it is there to make the list
@@ -358,9 +364,9 @@ export default {
     .active .menu-item {
         color: var(--color-text);
         background: var(--color-interactive-subtle);
-        border-left: 4px solid var(--color-interactive);
-        border-top-left-radius: 0;
-        border-bottom-left-radius: 0;
+        border-inline-start: 4px solid var(--color-interactive);
+        border-start-start-radius: 0;
+        border-end-start-radius: 0;
     }
 }
 
@@ -371,7 +377,7 @@ export default {
     .settings-content-header {
         width: calc(100% + 1.25rem);
         border-bottom: 1px solid var(--color-border);
-        border-radius: 0 var(--radius-md) 0 0;
+        border-start-end-radius: var(--radius-md);
         margin-top: -1.25rem;
         margin-inline-end: -1.25rem;
         padding: 0.75rem 1rem;
@@ -393,8 +399,14 @@ export default {
         grid-template-columns: 1fr;
         min-height: 0;
     }
-    .settings-menu { border-inline-end: 0; }
-    .settings-content { padding: 0.75rem; }
+
+    .settings-menu {
+        border-inline-end: 0;
+    }
+
+    .settings-content {
+        padding: 0.75rem;
+    }
 
     .settings-content .settings-content-header {
         width: calc(100% + 0.75rem);

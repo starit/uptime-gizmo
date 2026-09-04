@@ -37,6 +37,9 @@ accounts and authentication identity in place.
 - Import rejects compressed uploads, malformed lengths, invalid UTF-8,
   oversized or excessively nested documents, unknown fields, dangerous object
   keys, duplicate ids, and broken relations before it writes a staged file.
+- Export / Import controls wrap and stack safely for long translations and
+  filenames, including a 320 px mobile viewport; settings navigation and panel
+  edges use RTL-aware logical properties.
 - Imported ownership is mapped to the target instance owner. Existing target
   accounts, passwords, 2FA, API keys, administrator flags, JWT secret, and
   authentication policy remain unchanged.

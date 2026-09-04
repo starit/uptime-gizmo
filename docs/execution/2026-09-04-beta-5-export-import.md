@@ -109,4 +109,9 @@ passed.
 A 2026-09-05 follow-up added malicious-upload and complete status-page graph
 coverage. The focused backend suite passed 11 tests, the SQLite/MariaDB/MySQL
 round-trip passed, the production build passed, and the focused Playwright run
-passed its three Export / Import scenarios plus five setup checks.
+passed its Export / Import scenarios plus setup checks. A subsequent responsive
+pass made long text, filenames, controls, and summaries shrink or wrap safely;
+stacked the form while the two application rails still constrain its usable
+width; and changed settings-shell edges to logical properties for RTL. Browser
+coverage now includes English at 390 × 844, Simplified Chinese with a long
+filename and confirmation dialog at 320 × 700, and Arabic RTL at 1024 × 768.
