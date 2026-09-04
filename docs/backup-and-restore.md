@@ -1,14 +1,42 @@
 # Backing up and restoring
 
-Uptime Gizmo has no backup feature in the interface. Backing it up means copying
-its data directory, and there is one way to do that wrong which produces no error
-at the time — this page is mostly about avoiding that.
+Uptime Gizmo has two deliberately different operations:
 
-A portable configuration export/import is planned for beta.5, but it is not
-part of beta.4. It will preserve target users and omit monitoring history; its
-scope and safety rules are in the
-[beta.5 release plan](plans/beta-5-release.md). Until that work ships, use the
-manual procedure below.
+- **Configuration transfer** in **Settings → Configuration transfer** moves how
+  an instance monitors between SQLite, MariaDB, and MySQL. It is not a backup.
+- **Full backup and restore** copies the database and filesystem state described
+  on this page.
+
+Do not substitute the first for the second when you need disaster recovery.
+
+## Configuration transfer is not a full backup
+
+The beta.5 `.ugbackup` archive contains monitors, notification channels, status
+pages, maintenances, tags, integrations, custom themes, and the operational
+credentials those resources require. It deliberately excludes:
+
+- users, password hashes, administrator flags, 2FA settings, and personal API
+  keys;
+- authentication identity and database configuration;
+- monitoring history, aggregate statistics, cached results, and completed
+  incidents; and
+- uploads, screenshots, Docker TLS material, and logs.
+
+Import is a replace operation staged for the next restart. It keeps the target
+instance's accounts and authentication configuration and starts imported
+monitors with empty history. The archive is database-independent and supports
+cross-engine transfer; it is not a SQLite file or SQL dump.
+
+See [Configuration transfer](wiki/configuration-transfer.md) for the workflow
+and [the beta.5 release plan](plans/beta-5-release.md) for the format and safety
+decisions.
+
+## Full backup and restore
+
+Backing up the complete instance means copying its data directory and, when an
+external database is used, taking a native database backup. There is one way to
+copy SQLite incorrectly which produces no error at the time — the rest of this
+page is mostly about avoiding that.
 
 ## What has to be copied
 

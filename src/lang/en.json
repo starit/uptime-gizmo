@@ -1822,5 +1822,44 @@
     "monitorInventoryDensityDense": "Dense",
     "monitorInventoryOpenMonitor": "Open monitor {name}",
     "monitorInventoryExpandGroup": "Expand group {name}",
-    "monitorInventoryCollapseGroup": "Collapse group {name}"
+    "monitorInventoryCollapseGroup": "Collapse group {name}",
+    "configurationTransferMenu": "Configuration transfer",
+    "configurationTransferAdminOnlyTitle": "Administrator access required",
+    "configurationTransferAdminOnlyBody": "Only an administrator can import or export instance configuration.",
+    "configurationTransferScopeTitle": "Configuration only — this is not a full backup",
+    "configurationTransferScopeBody": "The archive contains monitors, notification channels, status pages, maintenances, tags, integrations, custom themes, and their operational credentials. It does not contain users, login password hashes, two-factor authentication, personal API keys, monitoring history, generated results, files, or database settings.",
+    "configurationTransferSensitive": "The archive is unencrypted and can contain notification tokens, monitor passwords, proxy credentials, AI keys, and RPC URLs. Store it as a secret.",
+    "configurationExportTitle": "Export configuration",
+    "configurationExportBody": "Create a database-independent .ugbackup file that can move configuration between SQLite, MariaDB, and MySQL instances.",
+    "configurationExportAction": "Export configuration",
+    "configurationExporting": "Exporting…",
+    "configurationExportReady": "Configuration archive downloaded.",
+    "configurationImportTitle": "Replace configuration",
+    "configurationImportBody": "Validate and stage a .ugbackup file. It will replace the target instance's monitoring configuration on its next start.",
+    "configurationImportKeepsIdentity": "Keeps target users, login password hashes, two-factor authentication, personal API keys, authentication policy, and database connection settings.",
+    "configurationImportClearsHistory": "Removes current monitors and their history when the staged import is successfully applied. A failed apply rolls everything back.",
+    "configurationImportNextStart": "Does not modify the running database now; restart the Uptime Gizmo process or container to apply it.",
+    "configurationArchiveFile": "Configuration archive",
+    "configurationImportAction": "Stage replace import",
+    "configurationImporting": "Validating…",
+    "configurationImportStaged": "Configuration validated and staged. Restart Uptime Gizmo to apply it.",
+    "configurationImportConfirmTitle": "Replace this instance's monitoring configuration on next start?",
+    "configurationImportConfirmBody": "When Uptime Gizmo next starts, its monitors, notification channels, status pages, maintenances, tags, portable settings, and current monitoring history will be removed and replaced by this file. Target login accounts stay unchanged.",
+    "configurationImportConfirmRestart": "The staged file is validated now, but no database rows change until restart.",
+    "configurationImportConfirmAction": "Stage replacement",
+    "configurationTransferFailed": "Configuration transfer failed.",
+    "configurationImportStatus": {
+        "pending": {
+            "title": "Configuration import staged",
+            "body": "Restart Uptime Gizmo to apply this configuration before monitors start."
+        },
+        "applied": {
+            "title": "Configuration import applied",
+            "body": "The staged configuration was applied successfully during startup."
+        },
+        "failed": {
+            "title": "Configuration import failed",
+            "body": "The target database was left unchanged. The private staged file was retained for diagnosis."
+        }
+    }
 }
