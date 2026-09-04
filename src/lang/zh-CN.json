@@ -1899,5 +1899,20 @@
     "apiDocsSchemas": "数据形状",
     "apiDocsFieldCount": "{0} 个字段",
     "apiDocsLink": "查看 API 文档",
-    "Saving...": "保存中…"
+    "Saving...": "保存中…",
+    "monitorInventory": "监控项",
+    "monitorInventoryEmpty": "没有符合筛选条件的监控项。",
+    "monitorInventoryLastCheck": "最近检查",
+    "monitorInventoryTypeFilter": "类型",
+    "monitorInventoryAllTypes": "全部类型",
+    "monitorInventoryHeartbeat": "心跳",
+    "monitorInventoryInterval": "间隔",
+    "monitorInventoryCountFiltered": "{shown} / {total}",
+    "monitorInventoryClearSearch": "清除搜索",
+    "monitorInventoryLayout": "布局",
+    "monitorInventoryLayoutTable": "表格",
+    "monitorInventoryLayoutCompact": "紧凑",
+    "monitorInventoryLayoutGrid": "网格",
+    "monitorInventoryExpandGroup": "展开分组 {name}",
+    "monitorInventoryCollapseGroup": "收起分组 {name}"
 }

@@ -33,15 +33,21 @@
 
             <ul class="app-nav">
                 <li v-if="$root.loggedIn" class="app-nav-item">
-                    <router-link to="/manage-status-page" class="app-nav-link">
+                    <router-link to="/manage-status-page" class="app-nav-link" :class="{ active: onStatusPages }">
                         <font-awesome-icon icon="stream" />
                         {{ $t("Status Pages") }}
                     </router-link>
                 </li>
                 <li v-if="$root.loggedIn" class="app-nav-item">
-                    <router-link to="/dashboard" class="app-nav-link">
+                    <router-link to="/dashboard" class="app-nav-link" :class="{ active: onDashboard }">
                         <font-awesome-icon icon="tachometer-alt" />
                         {{ $t("Dashboard") }}
+                    </router-link>
+                </li>
+                <li v-if="$root.loggedIn" class="app-nav-item">
+                    <router-link to="/list" class="app-nav-link" :class="{ active: onMonitors }">
+                        <font-awesome-icon icon="list" />
+                        {{ $t("monitorInventory") }}
                     </router-link>
                 </li>
                 <li v-if="$root.loggedIn" class="app-nav-item">
@@ -211,6 +217,24 @@ export default {
             return /^\/(maintenance|add-maintenance)(\/|$)/.test(this.$route.path);
         },
 
+        onMonitors() {
+            return this.$route.path === "/list";
+        },
+
+        /*
+         * Which entry is current is decided here rather than left to
+         * router-link-active, which marks any route beginning with the link's
+         * path. Dashboard would light up on a monitor's own page, and both
+         * Dashboard and Monitors would claim the list.
+         */
+        onDashboard() {
+            return /^\/dashboard(\/|$)/.test(this.$route.path);
+        },
+
+        onStatusPages() {
+            return /^\/(manage-status-page|add-status-page)(\/|$)/.test(this.$route.path);
+        },
+
         // Theme or Mobile
         classes() {
             const classes = {};
@@ -327,8 +351,18 @@ export default {
     font-weight: var(--weight-semibold);
     text-decoration: none;
 
-    &:hover,
-    &.router-link-active {
+    &:hover {
+        background-color: var(--color-interactive-subtle);
+        color: var(--color-interactive);
+    }
+
+    /*
+     * The current entry, marked from the route rather than by
+     * router-link-active. That class matches on a path prefix, so it lit
+     * Dashboard on every monitor page and never lit the entry the template was
+     * already computing an `active` class for.
+     */
+    &.active {
         background-color: var(--color-interactive-subtle);
         color: var(--color-interactive);
     }

@@ -1,163 +1,172 @@
 <template>
-    <MonitorListFilterDropdown :filterActive="filterState.status?.length > 0 || filterState.active?.length > 0">
-        <template #status>
-            <Status
-                v-if="filterState.status?.length === 1 && !filterState.active?.length"
-                :status="filterState.status[0]"
-            />
-            <span
-                v-else-if="!filterState.status?.length && filterState.active?.length === 1"
-                class="gizmo-inline-badge status-pill"
-                :class="filterState.active[0] ? 'running' : 'paused'"
-            >
-                <font-awesome-icon :icon="filterState.active[0] ? 'play' : 'pause'" class="icon-small" />
-                {{ filterState.active[0] ? $t("Running") : $t("filterActivePaused") }}
-            </span>
-            <span v-else>
-                {{ $t("Status") }}
-            </span>
-        </template>
-        <template #dropdown>
-            <li>
-                <div class="gizmo-menu__item" tabindex="0" @click.stop="toggleStatusFilter(1)">
-                    <div class="tw-flex tw-items-center tw-justify-between">
-                        <Status :status="1" />
-                        <span class="tw-ps-3">
-                            {{ $root.stats.up }}
-                            <span v-if="filterState.status?.includes(1)" class="tw-px-1 filter-active">
-                                <font-awesome-icon icon="check" />
+    <div class="monitor-list-filter">
+        <MonitorListFilterDropdown :filterActive="filterState.status?.length > 0 || filterState.active?.length > 0">
+            <template #status>
+                <Status
+                    v-if="filterState.status?.length === 1 && !filterState.active?.length"
+                    :status="filterState.status[0]"
+                />
+                <span
+                    v-else-if="!filterState.status?.length && filterState.active?.length === 1"
+                    class="gizmo-inline-badge status-pill"
+                    :class="filterState.active[0] ? 'running' : 'paused'"
+                >
+                    <font-awesome-icon :icon="filterState.active[0] ? 'play' : 'pause'" class="icon-small" />
+                    {{ filterState.active[0] ? $t("Running") : $t("filterActivePaused") }}
+                </span>
+                <span v-else>
+                    {{ $t("Status") }}
+                </span>
+            </template>
+            <template #dropdown>
+                <li>
+                    <div class="gizmo-menu__item" tabindex="0" @click.stop="toggleStatusFilter(1)">
+                        <div class="tw-flex tw-items-center tw-justify-between">
+                            <Status :status="1" />
+                            <span class="tw-ps-3">
+                                {{ $root.stats.up }}
+                                <span v-if="filterState.status?.includes(1)" class="tw-px-1 filter-active">
+                                    <font-awesome-icon icon="check" />
+                                </span>
                             </span>
-                        </span>
+                        </div>
                     </div>
-                </div>
-            </li>
-            <li>
-                <div class="gizmo-menu__item" tabindex="0" @click.stop="toggleStatusFilter(0)">
-                    <div class="tw-flex tw-items-center tw-justify-between">
-                        <Status :status="0" />
-                        <span class="tw-ps-3">
-                            {{ $root.stats.down }}
-                            <span v-if="filterState.status?.includes(0)" class="tw-px-1 filter-active">
-                                <font-awesome-icon icon="check" />
+                </li>
+                <li>
+                    <div class="gizmo-menu__item" tabindex="0" @click.stop="toggleStatusFilter(0)">
+                        <div class="tw-flex tw-items-center tw-justify-between">
+                            <Status :status="0" />
+                            <span class="tw-ps-3">
+                                {{ $root.stats.down }}
+                                <span v-if="filterState.status?.includes(0)" class="tw-px-1 filter-active">
+                                    <font-awesome-icon icon="check" />
+                                </span>
                             </span>
-                        </span>
+                        </div>
                     </div>
-                </div>
-            </li>
-            <li>
-                <div class="gizmo-menu__item" tabindex="0" @click.stop="toggleStatusFilter(2)">
-                    <div class="tw-flex tw-items-center tw-justify-between">
-                        <Status :status="2" />
-                        <span class="tw-ps-3">
-                            {{ $root.stats.pending }}
-                            <span v-if="filterState.status?.includes(2)" class="tw-px-1 filter-active">
-                                <font-awesome-icon icon="check" />
+                </li>
+                <li>
+                    <div class="gizmo-menu__item" tabindex="0" @click.stop="toggleStatusFilter(2)">
+                        <div class="tw-flex tw-items-center tw-justify-between">
+                            <Status :status="2" />
+                            <span class="tw-ps-3">
+                                {{ $root.stats.pending }}
+                                <span v-if="filterState.status?.includes(2)" class="tw-px-1 filter-active">
+                                    <font-awesome-icon icon="check" />
+                                </span>
                             </span>
-                        </span>
+                        </div>
                     </div>
-                </div>
-            </li>
-            <li>
-                <div class="gizmo-menu__item" tabindex="0" @click.stop="toggleStatusFilter(3)">
-                    <div class="tw-flex tw-items-center tw-justify-between">
-                        <Status :status="3" />
-                        <span class="tw-ps-3">
-                            {{ $root.stats.maintenance }}
-                            <span v-if="filterState.status?.includes(3)" class="tw-px-1 filter-active">
-                                <font-awesome-icon icon="check" />
+                </li>
+                <li>
+                    <div class="gizmo-menu__item" tabindex="0" @click.stop="toggleStatusFilter(3)">
+                        <div class="tw-flex tw-items-center tw-justify-between">
+                            <Status :status="3" />
+                            <span class="tw-ps-3">
+                                {{ $root.stats.maintenance }}
+                                <span v-if="filterState.status?.includes(3)" class="tw-px-1 filter-active">
+                                    <font-awesome-icon icon="check" />
+                                </span>
                             </span>
-                        </span>
+                        </div>
                     </div>
-                </div>
-            </li>
-            <li>
-                <hr class="filter-dropdown-divider" />
-            </li>
-            <li>
-                <div class="gizmo-menu__item" tabindex="0" @click.stop="toggleActiveFilter(true)">
-                    <div class="tw-flex tw-items-center tw-justify-between">
-                        <span class="gizmo-inline-badge status-pill running">
-                            <font-awesome-icon icon="play" class="icon-small" />
-                            {{ $t("Running") }}
-                        </span>
-                        <span class="tw-ps-3">
-                            {{ $root.stats.active }}
-                            <span v-if="filterState.active?.includes(true)" class="tw-px-1 filter-active">
-                                <font-awesome-icon icon="check" />
+                </li>
+                <li>
+                    <hr class="filter-dropdown-divider" />
+                </li>
+                <li>
+                    <div class="gizmo-menu__item" tabindex="0" @click.stop="toggleActiveFilter(true)">
+                        <div class="tw-flex tw-items-center tw-justify-between">
+                            <span class="gizmo-inline-badge status-pill running">
+                                <font-awesome-icon icon="play" class="icon-small" />
+                                {{ $t("Running") }}
                             </span>
-                        </span>
-                    </div>
-                </div>
-            </li>
-            <li>
-                <div class="gizmo-menu__item" tabindex="0" @click.stop="toggleActiveFilter(false)">
-                    <div class="tw-flex tw-items-center tw-justify-between">
-                        <span class="gizmo-inline-badge status-pill paused">
-                            <font-awesome-icon icon="pause" class="icon-small" />
-                            {{ $t("filterActivePaused") }}
-                        </span>
-                        <span class="tw-ps-3">
-                            {{ $root.stats.pause }}
-                            <span v-if="filterState.active?.includes(false)" class="tw-px-1 filter-active">
-                                <font-awesome-icon icon="check" />
+                            <span class="tw-ps-3">
+                                {{ $root.stats.active }}
+                                <span v-if="filterState.active?.includes(true)" class="tw-px-1 filter-active">
+                                    <font-awesome-icon icon="check" />
+                                </span>
                             </span>
-                        </span>
+                        </div>
                     </div>
-                </div>
-            </li>
-        </template>
-    </MonitorListFilterDropdown>
-    <MonitorListFilterDropdown :filterActive="filterState.tags?.length > 0" @open-menu="getExistingTags">
-        <template #status>
-            <span
-                v-if="filterState.tags?.length === 1"
-                class="selected-tag-wrapper"
-                :title="tagsList.find((tag) => tag.id === filterState.tags[0])?.name"
-            >
-                <Tag :item="tagsList.find((tag) => tag.id === filterState.tags[0])" :size="'sm'" :constrained="true" />
-            </span>
-            <span v-else>
-                {{ $t("Tags") }}
-            </span>
-        </template>
-        <template #dropdown>
-            <li class="tw-list-none tw-p-0 tw-m-0">
-                <div class="tags-dropdown-scroll">
-                    <ul class="tw-list-none tw-p-0 tw-m-0">
-                        <li v-for="tag in tagsList" :key="tag.id">
-                            <div class="gizmo-menu__item" tabindex="0" @click.stop="toggleTagFilter(tag)">
-                                <div class="tw-flex tw-items-center tw-justify-between">
-                                    <span class="tag-name-wrapper" :title="tag.name">
-                                        <Tag :item="tag" :size="'sm'" :scrollable="true" :constrained="true" />
-                                    </span>
-                                    <span class="tw-ps-3">
-                                        {{ getTaggedMonitorCount(tag) }}
-                                        <span v-if="filterState.tags?.includes(tag.id)" class="tw-px-1 filter-active">
-                                            <font-awesome-icon icon="check" />
+                </li>
+                <li>
+                    <div class="gizmo-menu__item" tabindex="0" @click.stop="toggleActiveFilter(false)">
+                        <div class="tw-flex tw-items-center tw-justify-between">
+                            <span class="gizmo-inline-badge status-pill paused">
+                                <font-awesome-icon icon="pause" class="icon-small" />
+                                {{ $t("filterActivePaused") }}
+                            </span>
+                            <span class="tw-ps-3">
+                                {{ $root.stats.pause }}
+                                <span v-if="filterState.active?.includes(false)" class="tw-px-1 filter-active">
+                                    <font-awesome-icon icon="check" />
+                                </span>
+                            </span>
+                        </div>
+                    </div>
+                </li>
+            </template>
+        </MonitorListFilterDropdown>
+        <MonitorListFilterDropdown :filterActive="filterState.tags?.length > 0" @open-menu="getExistingTags">
+            <template #status>
+                <span
+                    v-if="filterState.tags?.length === 1"
+                    class="selected-tag-wrapper"
+                    :title="tagsList.find((tag) => tag.id === filterState.tags[0])?.name"
+                >
+                    <Tag
+                        :item="tagsList.find((tag) => tag.id === filterState.tags[0])"
+                        :size="'sm'"
+                        :constrained="true"
+                    />
+                </span>
+                <span v-else>
+                    {{ $t("Tags") }}
+                </span>
+            </template>
+            <template #dropdown>
+                <li class="tw-list-none tw-p-0 tw-m-0">
+                    <div class="tags-dropdown-scroll">
+                        <ul class="tw-list-none tw-p-0 tw-m-0">
+                            <li v-for="tag in tagsList" :key="tag.id">
+                                <div class="gizmo-menu__item" tabindex="0" @click.stop="toggleTagFilter(tag)">
+                                    <div class="tw-flex tw-items-center tw-justify-between">
+                                        <span class="tag-name-wrapper" :title="tag.name">
+                                            <Tag :item="tag" :size="'sm'" :scrollable="true" :constrained="true" />
                                         </span>
-                                    </span>
+                                        <span class="tw-ps-3">
+                                            {{ getTaggedMonitorCount(tag) }}
+                                            <span
+                                                v-if="filterState.tags?.includes(tag.id)"
+                                                class="tw-px-1 filter-active"
+                                            >
+                                                <font-awesome-icon icon="check" />
+                                            </span>
+                                        </span>
+                                    </div>
                                 </div>
-                            </div>
-                        </li>
-                        <li v-if="tagsList.length === 0">
-                            <div class="gizmo-menu__item disabled tw-px-3">
-                                {{ $t("No tags found.") }}
-                            </div>
-                        </li>
-                    </ul>
-                </div>
-            </li>
-        </template>
-    </MonitorListFilterDropdown>
-    <button
-        v-if="hasGroups"
-        type="button"
-        class="gizmo-native-button gizmo-native-button--secondary btn-collapse-all"
-        :title="allCollapsed ? $t('Expand All Groups') : $t('Collapse All Groups')"
-        @click="$emit('toggle-collapse-all')"
-    >
-        <font-awesome-icon :icon="allCollapsed ? 'folder' : 'folder-open'" fixed-width />
-    </button>
+                            </li>
+                            <li v-if="tagsList.length === 0">
+                                <div class="gizmo-menu__item disabled tw-px-3">
+                                    {{ $t("No tags found.") }}
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+            </template>
+        </MonitorListFilterDropdown>
+        <button
+            v-if="hasGroups"
+            type="button"
+            class="gizmo-native-button gizmo-native-button--secondary btn-collapse-all"
+            :title="allCollapsed ? $t('Expand All Groups') : $t('Collapse All Groups')"
+            @click="$emit('toggle-collapse-all')"
+        >
+            <font-awesome-icon :icon="allCollapsed ? 'folder' : 'folder-open'" fixed-width />
+        </button>
+    </div>
 </template>
 
 <script>
@@ -278,6 +287,9 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.monitor-list-filter {
+    display: contents;
+}
 
 .gizmo-menu__item {
     cursor: pointer;

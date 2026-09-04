@@ -83,6 +83,7 @@ const routes = [
                         ],
                     },
                     {
+                        name: "MonitorInventory",
                         path: "/list",
                         component: List,
                     },

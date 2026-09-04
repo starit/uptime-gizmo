@@ -1,6 +1,6 @@
 <template>
-    <div class="dashboard-shell">
-        <aside v-if="!$root.isMobile" class="monitor-rail">
+    <div class="dashboard-shell" :class="{ 'dashboard-shell--inventory': isInventoryPage }">
+        <aside v-if="showMonitorRail" class="monitor-rail">
             <div class="monitor-rail-action">
                 <router-link to="/add" class="gizmo-native-button gizmo-native-button--primary tw-mb-3">
                     <font-awesome-icon icon="plus" />
@@ -29,6 +29,14 @@ export default {
             height: 0,
         };
     },
+    computed: {
+        isInventoryPage() {
+            return this.$route.path === "/list";
+        },
+        showMonitorRail() {
+            return !this.$root.isMobile && !this.isInventoryPage;
+        },
+    },
     mounted() {
         this.height = this.$refs.container.offsetHeight;
     },
@@ -42,6 +50,11 @@ export default {
     gap: clamp(1rem, 2vw, 2rem);
     width: min(100% - 2rem, 1540px);
     margin: 0 auto;
+}
+
+.dashboard-shell--inventory {
+    grid-template-columns: minmax(0, 1fr);
+    width: min(100% - 2rem, 1680px);
 }
 
 .monitor-rail {

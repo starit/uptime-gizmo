@@ -1801,5 +1801,20 @@
     "llmMaxLatencyHelp": "Milliseconds. The check fails when an otherwise successful answer takes longer than this — the case where the endpoint works but your application has already given up. Leave empty to record latency without alerting on it.",
     "llmKeywordHelp": "Optional. Must appear in the completion text, not in the whole response body. An endpoint answering 200 with an empty completion fails whether or not this is set.",
     "llmCostTitle": "Every check spends tokens.",
-    "llmCostHelp": "One completion request every {0} seconds, all day. Against a metered endpoint, prefer an interval measured in minutes."
+    "llmCostHelp": "One completion request every {0} seconds, all day. Against a metered endpoint, prefer an interval measured in minutes.",
+    "monitorInventory": "Monitors",
+    "monitorInventoryEmpty": "No monitors match these filters.",
+    "monitorInventoryLastCheck": "Last Check",
+    "monitorInventoryTypeFilter": "Type",
+    "monitorInventoryAllTypes": "All types",
+    "monitorInventoryHeartbeat": "Heartbeat",
+    "monitorInventoryInterval": "Interval",
+    "monitorInventoryCountFiltered": "{shown} of {total}",
+    "monitorInventoryClearSearch": "Clear search",
+    "monitorInventoryLayout": "Layout",
+    "monitorInventoryLayoutTable": "Table",
+    "monitorInventoryLayoutCompact": "Compact",
+    "monitorInventoryLayoutGrid": "Grid",
+    "monitorInventoryExpandGroup": "Expand group {name}",
+    "monitorInventoryCollapseGroup": "Collapse group {name}"
 }
