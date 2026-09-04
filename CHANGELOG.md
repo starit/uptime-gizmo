@@ -1,5 +1,51 @@
 # Changelog
 
+## 3.0.0-beta.5 — 2026-09-04
+
+Beta.5 adds database-independent configuration transfer and a full-width
+monitor inventory. Configuration transfer is intentionally not a complete
+backup: it moves monitoring behaviour while leaving the target instance's
+accounts and authentication identity in place.
+
+### Added
+
+- Administrator-only configuration export and staged replace import under
+  **Settings → Configuration transfer**, protected by a fresh current-password
+  check and short-lived, single-use transfer tickets.
+- A versioned, bounded `.ugbackup` format for monitors, notifications, status
+  pages, active incidents, maintenances, tags, integrations, custom themes, and
+  allow-listed settings. Operational credentials needed by those resources are
+  included, so archives must be handled as secrets.
+- Cross-database configuration transfer between SQLite, external
+  MariaDB/MySQL, and embedded MariaDB, with schema coverage that requires every
+  table, configuration column, and known setting to be classified.
+- A full-width monitor inventory with search, status/tag/type filters, sorting,
+  bulk actions, responsive mobile cards, and a per-monitor history display
+  control.
+- Incremental overview reads through `/api/v1/overview?since=<timestamp>`.
+
+### Safety and compatibility
+
+- Configuration archives never contain users, login password hashes, 2FA
+  configuration, personal API keys, JWT/authentication identity, monitoring
+  history, completed incidents, filesystem assets, or database settings.
+- Import validates and stages the archive without changing the running
+  database. Replacement happens on the next start, before monitors and jobs,
+  in one transaction. A failure rolls back both configuration and history
+  changes.
+- Imported ownership is mapped to the target instance owner. Existing target
+  accounts, passwords, 2FA, API keys, administrator flags, JWT secret, and
+  authentication policy remain unchanged.
+- Existing beta.4 data directories still open in place. Configuration transfer
+  adds no database migration; private import-state files appear only after an
+  administrator stages an import.
+
+### API notes
+
+Configuration transfer is not part of `/api/v1`, OpenAPI, MCP, or the agent
+skills. Its private transfer routes are UI implementation details and cannot be
+used with an API key.
+
 ## 3.0.0-beta.4 — 2026-08-31
 
 This beta focuses on making the work since beta.3 safe to operate and safe to

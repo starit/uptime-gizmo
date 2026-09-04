@@ -29,12 +29,14 @@ areas of planned work and may change as the project develops.
   the individual checks behind them.
 - Per-key request allowances separated from the limit on guessing a key, so a
   busy integration cannot be throttled by someone else's failed logins.
+- A full-width monitor inventory with search, filtering, sorting, bulk actions,
+  responsive cards, and per-monitor history display controls.
+- Administrator configuration export and replace import across SQLite,
+  MariaDB, and MySQL. It preserves target accounts and authentication while
+  intentionally omitting history and filesystem state.
 
 ## Short-term
 
-- Add an administrator-facing, database-independent configuration export and
-  replace import. It preserves target logins and omits monitoring history;
-  filesystem assets and full disaster recovery remain manual.
 - Finish the write side of the HTTP API: maintenance windows and status-page
   incidents.
 - Proxies and integrations over the API. Notification channels answered the

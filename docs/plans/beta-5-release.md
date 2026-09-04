@@ -8,11 +8,10 @@ configuration of another instance without transferring login identities or
 monitoring history. The same release also ships a full-width monitor
 inventory so a large estate can be scanned without the dashboard rail.
 
-This is a plan, not current behaviour. Until it ships, full recovery still uses
-the manual data-volume/database procedure in
-[Backing up and restoring](../backup-and-restore.md). Execution results belong
-under [`docs/execution`](../execution), and the changelog changes only when the
-feature is implemented and verified.
+**Status:** implemented; release verification is recorded in
+[the execution report](../execution/2026-09-04-beta-5-configuration-transfer.md).
+Full recovery still uses the manual data-volume/database procedure in
+[Backing up and restoring](../backup-and-restore.md).
 
 ## Product boundary
 
@@ -27,8 +26,8 @@ It does not contain a SQLite file or executable SQL and does not require
 
 The old monitor-and-notification JSON backup removed in `Drop backup (#3892)` is
 not restored. It became incomplete as the schema grew. Beta.5 instead defines a
-single backup schema registry and tests that fail whenever a new table, column,
-or setting has not been classified.
+single configuration schema registry and tests that fail whenever a new table,
+column, or statically named server setting has not been classified.
 
 ## Included configuration
 
@@ -83,7 +82,9 @@ still requires a data-volume and database-native backup.
 
 ## Archive contract
 
-The `.ugbackup` file is bounded JSON with an independently versioned format:
+The `.ugbackup` file is bounded JSON with an independently versioned format.
+This is an abridged shape; an actual archive includes every registered resource
+key even when its value is empty:
 
 ```json
 {
@@ -117,22 +118,22 @@ configuration table must be included, transformed, or excluded with a reason.
 SQLite and MariaDB schema-coverage tests enforce this rule, preventing new
 features from silently disappearing from exports.
 
-Unknown format versions, resources, or fields are rejected. Older known formats
-are upgraded in memory through explicit adapters before validation. Duplicate
+Unknown format versions, resources, or fields are rejected. A future format
+change must add an explicit adapter before that version is accepted. Duplicate
 ids and broken relations are rejected rather than guessed.
 
 ## Export flow
 
-Add **Settings → Backup and Restore**, visible to administrators.
+Add **Settings → Configuration transfer**, visible to administrators.
 
-Export will:
+Export:
 
 1. require the signed-in administrator's current password;
 2. open a consistent read transaction;
 3. read only registry-classified configuration;
 4. normalize booleans, dates, nulls, and JSON fields across database engines;
 5. validate ids and relations before producing the file; and
-6. stream the response with `Cache-Control: no-store` and no public temporary
+6. return the response with `Cache-Control: no-store` and no public temporary
    file.
 
 `UPTIME_GIZMO_BACKUP_MAX_BYTES` defaults to 128 MiB and can be raised for
@@ -142,7 +143,7 @@ unusually large monitor bodies, protobuf definitions, themes, or page content.
 
 Beta.5 offers **replace configuration**, not merge/skip/overwrite modes.
 
-Import will:
+Import:
 
 1. require administrator authority and the current password;
 2. parse the upload with byte, object-count, string-length, and nesting limits;
@@ -155,7 +156,7 @@ Import will:
 
 One database transaction will:
 
-1. lock and preserve the target instance owner and identity settings;
+1. resolve and preserve the target instance owner and identity settings;
 2. clear history and derived rows tied to current monitors;
 3. delete current configuration relations and resources in dependency order;
 4. insert the staged resources and remap estate ownership;
@@ -185,7 +186,9 @@ integrations. Identity and internal keys such as `jwtSecret`, `instanceOwnerId`,
 `disableAuth`, `apiKeysEnabled`, `database_version`, `databasePatchedFiles`, and
 aggregate-migration state always remain those of the target instance.
 
-Every new setting must be classified by the schema-coverage test.
+Every statically named server setting must be classified by the schema-coverage
+test. Dynamically supplied or future settings remain excluded until explicitly
+allow-listed.
 
 ## Security model
 
@@ -207,35 +210,36 @@ The UI must not imply that an unencrypted configuration archive is safe to share
 
 ### Phase 1 — registry and format
 
-- Classify every current table, configuration column, and setting key.
-- Define v1 schemas, transforms, relation rules, and limits.
-- Add SQLite/MariaDB schema-coverage and malicious-payload tests.
+- [x] Classify every current table, configuration column, and statically named
+      server setting key.
+- [x] Define v1 schemas, transforms, relation rules, and limits.
+- [x] Add schema-coverage and malformed/oversized-payload tests.
 
 ### Phase 2 — export
 
-- Add password-gated transfer tickets and streaming response.
-- Implement transactional reads and engine normalization.
-- Prove identity and history sentinel values never appear in an archive.
-- Prove equivalent SQLite, MariaDB, and MySQL fixtures produce equivalent
-  canonical configuration.
+- [x] Add password-gated transfer tickets and a no-store download response.
+- [x] Implement transactional reads and engine normalization.
+- [x] Prove identity and history sentinel values never appear in an archive.
+- [x] Prove equivalent SQLite, MariaDB, and MySQL fixtures produce equivalent
+      canonical configuration.
 
 ### Phase 3 — staged import
 
-- Add bounded upload, canonical staging, and confirmation summary.
-- Implement transactional replace, owner remapping, settings preservation,
-  sequence reset, and post-write verification.
-- Test same-engine and SQLite/MariaDB/MySQL cross-engine imports.
-- Inject failure at every write step and verify target configuration, identity,
-  and history remain unchanged.
+- [x] Add bounded upload, canonical staging, and confirmation summary.
+- [x] Implement transactional replace, owner remapping, settings preservation,
+      sequence reset, and post-write verification.
+- [x] Test same-engine and SQLite/MariaDB/MySQL cross-engine imports.
+- [x] Inject a database write failure and verify target configuration, identity,
+      and history remain unchanged.
 
 ### Phase 4 — interface and release hardening
 
-- Add desktop and narrow-viewport loading, validation, staged, applied, and
-  failed states.
-- Remove the dead `uploadBackup` helper left by the old JSON feature.
-- Update README, wiki, backup guidance, changelog, and execution record only
-  after implementation passes its release gate.
-- Keep the full backend and Playwright suites green.
+- [x] Add desktop and narrow-viewport loading, validation, staged, applied, and
+      failed states.
+- [x] Remove the dead `uploadBackup` helper left by the old JSON feature.
+- [x] Update README, wiki, backup guidance, changelog, and execution record only
+      after implementation passes its release gate.
+- [x] Keep the full backend and Playwright suites green.
 
 ### P1 — monitor inventory
 
@@ -262,21 +266,21 @@ the P0 release gate.
 
 Beta.5 is releasable only when:
 
-- SQLite, MariaDB, and MySQL exports contain equivalent configuration;
-- no user, password hash, 2FA value, API key, JWT/identity setting, heartbeat,
-  aggregate statistic, cached check result, or completed incident appears;
-- operational configuration secrets restore correctly and never reach logs;
-- every target user, password, 2FA setting, API key, admin flag, JWT secret,
-  authentication mode, and database connection remains unchanged;
-- old history is cleared only on successful import and failed imports leave it
-  untouched;
-- active incidents restore while completed incident history does not;
-- corrupt, oversized, future-format, unknown-field, duplicate-id, and
-  broken-relation documents are rejected before writes;
-- same-engine and cross-engine imports pass;
-- a beta.4 data directory still upgrades unchanged; and
-- `pnpm run tsc`, JavaScript/style lint, build, full backend tests, and full
-  Playwright tests pass.
+- [x] SQLite, MariaDB, and MySQL exports contain equivalent configuration;
+- [x] No user, password hash, 2FA value, API key, JWT/identity setting, heartbeat,
+      aggregate statistic, cached check result, or completed incident appears;
+- [x] Operational configuration secrets restore correctly and never reach logs;
+- [x] Every target user, password, 2FA setting, API key, admin flag, JWT secret,
+      authentication mode, and database connection remains unchanged;
+- [x] Old history is cleared only on successful import and failed imports leave it
+      untouched;
+- [x] Active incidents restore while completed incident history does not;
+- [x] Corrupt, oversized, future-format, unknown-field, duplicate-id, and
+      broken-relation documents are rejected before writes;
+- [x] Same-engine and cross-engine imports pass;
+- [x] A beta.4 data directory still upgrades unchanged; and
+- [x] `pnpm run tsc`, JavaScript/style lint, build, full backend tests, and full
+      Playwright tests pass.
 
 ## Explicitly deferred
 

@@ -1,5 +1,6 @@
-const { checkLogin } = require("../util-server");
+const { checkAdmin, checkLogin, doubleCheckPassword } = require("../util-server");
 const Database = require("../database");
+const { getConfigurationImportStatus, issueTransferTicket } = require("../configuration-backup/transfer");
 
 /**
  * Handlers for database
@@ -29,6 +30,37 @@ module.exports.databaseSocketHandler = (socket) => {
             await Database.shrink();
             callback({
                 ok: true,
+            });
+        } catch (error) {
+            callback({
+                ok: false,
+                msg: error.message,
+            });
+        }
+    });
+
+    socket.on("createConfigurationTransferTicket", async (purpose, currentPassword, callback) => {
+        try {
+            await checkAdmin(socket);
+            await doubleCheckPassword(socket, currentPassword);
+            callback({
+                ok: true,
+                ...issueTransferTicket(purpose, socket.loginUserID),
+            });
+        } catch (error) {
+            callback({
+                ok: false,
+                msg: error.message,
+            });
+        }
+    });
+
+    socket.on("getConfigurationImportStatus", async (callback) => {
+        try {
+            await checkAdmin(socket);
+            callback({
+                ok: true,
+                data: await getConfigurationImportStatus(Database.dataDir),
             });
         } catch (error) {
             callback({

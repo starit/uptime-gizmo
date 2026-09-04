@@ -137,6 +137,22 @@ Everyone signs in with their own password, and everyone manages the whole
 instance. The [multi-user plan](docs/plans/multi-user.md) says what that does and
 does not mean.
 
+### Configuration transfer
+
+Administrators can export a versioned `.ugbackup` configuration archive under
+**Settings → Configuration transfer**, then stage it on another instance for a
+replace import at the next restart. The format is database-independent: it can
+move configuration between SQLite, external MariaDB/MySQL, and embedded
+MariaDB instances.
+
+This is deliberately **configuration import/export, not a full backup**. It
+includes monitors, notification channels, status pages, maintenances, tags,
+integrations, custom themes, and the operational credentials those resources
+need. It excludes users, login password hashes, two-factor settings, personal
+API keys, monitoring history, generated results, files, and database settings.
+The target instance keeps its own identities and authentication configuration.
+The archive is unencrypted and can contain secrets, so store it accordingly.
+
 ## Inherited from Uptime Kuma
 
 - HTTP(S), TCP, WebSocket, Ping, DNS, Push and Docker container monitoring
@@ -294,18 +310,13 @@ docker run -d --restart=always -p 3001:3001 -v uptime-gizmo:/app/data --name upt
 
 ### Backing up
 
-There is no backup feature in the interface. Backing Uptime Gizmo up means
-copying its data directory, and one way of doing that loses recent data without
-saying so. Read [Backing up and restoring](docs/backup-and-restore.md) before
-relying on a copy.
-
-Beta.5 plans **configuration import/export only**, not a database backup. It
-will move monitors, notification channels, integrations, status pages, and
-other monitoring settings across SQLite and MariaDB/MySQL instances. Target
-users, passwords, two-factor settings, API keys, and authentication identity
-stay unchanged; monitoring history and filesystem assets are not included.
-Full disaster recovery will continue to require a data-volume and native
-database backup.
+The interface's configuration transfer is not a disaster-recovery backup. It
+does not contain users, login credentials, history, uploads, screenshots,
+Docker TLS files, or database configuration. Backing up a complete instance
+still means copying its data directory and, for MariaDB/MySQL, taking a native
+database backup. One way of copying SQLite loses recent data without saying so;
+read [Backing up and restoring](docs/backup-and-restore.md) before relying on a
+copy.
 
 The short version, safe while the instance is running:
 
@@ -320,9 +331,6 @@ The [Roadmap](ROADMAP.md) has the current list. The short version:
 
 - Better status pages.
 - Checks that report health, not just whether something answered.
-- A portable configuration export and replace import in the interface, across
-  SQLite and MariaDB/MySQL. It preserves target logins and omits history;
-  filesystem assets and full disaster recovery remain manual.
 - The rest of the write side of the API: maintenance windows, status-page
   incidents, proxies and integrations.
 - More context around an incident.

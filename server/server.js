@@ -226,6 +226,8 @@ const { resetChrome } = require("./monitor-types/real-browser-monitor-type");
 const { EmbeddedMariaDB } = require("./embedded-mariadb");
 const { SetupDatabase } = require("./setup-database");
 const { chartSocketHandler } = require("./socket-handlers/chart-socket-handler");
+const { applyPendingConfigurationImport } = require("./configuration-backup/service");
+const { registerConfigurationTransferRoutes } = require("./configuration-backup/transfer");
 
 app.use(express.json());
 
@@ -263,6 +265,13 @@ let needSetup = false;
         process.exit(1);
     }
 
+    const configurationImportStatus = await applyPendingConfigurationImport(Database.dataDir);
+    if (configurationImportStatus.state === "applied") {
+        log.info("server", "Applied the staged configuration import before runtime initialization");
+    } else if (configurationImportStatus.state === "failed") {
+        log.error("server", "The staged configuration import failed; the existing database was left unchanged");
+    }
+
     // Database should be ready now
     await server.initAfterDatabaseReady();
     server.entryPage = await Settings.get("entryPage");
@@ -272,6 +281,8 @@ let needSetup = false;
     await Prometheus.init();
 
     log.debug("server", "Adding route");
+
+    registerConfigurationTransferRoutes(app, Database.dataDir, require("../package.json").version);
 
     // ***************************
     // Normal Router here

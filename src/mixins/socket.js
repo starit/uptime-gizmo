@@ -675,18 +675,6 @@ export default {
         },
 
         /**
-         * Upload the provided backup
-         * @param {string} uploadedJSON JSON to upload
-         * @param {string} importHandle Type of import. If set to
-         * most data in database will be replaced
-         * @param {socketCB} callback Callback for socket response
-         * @returns {void}
-         */
-        uploadBackup(uploadedJSON, importHandle, callback) {
-            socket.emit("uploadBackup", uploadedJSON, importHandle, callback);
-        },
-
-        /**
          * Clear events for a specified monitor
          * @param {number} monitorID ID of monitor to clear
          * @param {socketCB} callback Callback for socket response

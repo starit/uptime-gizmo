@@ -56,6 +56,7 @@ The product logo is a gear, a “G,” and goggles. Gizmo is the engineer mascot
 | [Web3 monitoring](web3-monitoring.md) | Watch balances, RPC freshness, and one value from a contract |
 | [Themes](themes.md) | Shared palettes, including ones generated from a description |
 | [Multiple logins](multiple-logins.md) | Separate passwords for the same instance |
+| [Configuration transfer](configuration-transfer.md) | Move monitoring configuration between SQLite, MariaDB, and MySQL instances without moving accounts or history |
 | [Public status page](status-page.md) | The public page was rebuilt; overall status leads |
 
-Install and backup stay in the [README](../../README.md).
+Install and full-backup guidance stay in the [README](../../README.md).

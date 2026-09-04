@@ -96,6 +96,25 @@ The key id is the number in its prefix: `uk2_…` is key `2`. Exempt only a key
 belonging to a trusted controller the instance is operated by, not an ordinary
 busy client.
 
+## Configuration transfer is not a REST API
+
+Beta.5 configuration import/export is available only to an administrator in
+**Settings → Configuration transfer**. It is intentionally **not** part of
+`/api/v1`, the OpenAPI document, MCP, or the agent skills.
+
+The browser obtains a short-lived, random, single-use ticket over its
+authenticated Socket.IO session after checking the administrator's current
+password. It then uses private `/api/internal/configuration-export` or
+`/api/internal/configuration-import` transfer endpoints. Those routes are UI
+implementation details, not a supported automation contract: an API key cannot
+mint their ticket, and clients must not depend on them.
+
+This boundary is deliberate. A configuration archive can contain notification
+tokens, monitor passwords, proxy credentials, AI keys, and RPC URLs. It does not
+contain user password hashes, 2FA configuration, personal API keys, or history,
+but it is still a sensitive file. For scope and the supported workflow, see
+[Configuration transfer](configuration-transfer.md).
+
 ## Endpoint map
 
 Every route below requires authentication except `GET /api/v1/openapi.json`.
@@ -188,7 +207,7 @@ Writable monitor routes are:
 | `DELETE /api/v1/monitors/{id}` | Delete the monitor; group child policy is explicit |
 
 The accepted monitor types are generated into `MonitorInput.type` in the live
-OpenAPI document. In beta.4 they are `http`, `keyword`, `ping`, `port`, `dns`,
+OpenAPI document. In beta.5 they are `http`, `keyword`, `ping`, `port`, `dns`,
 `group`, `web3-balance`, `web3-rpc`, `web3-contract`, and `llm`. MQTT, gRPC,
 Kafka, SNMP, and other UI types are not half-configurable here: the API rejects
 them with `400`.
@@ -254,7 +273,7 @@ monitor links were removed.
 
 ## Notification channels
 
-Beta.4 can create, update, delete, attach, detach, disable, and re-enable
+Beta.5 can create, update, delete, attach, detach, disable, and re-enable
 notification channels over the API.
 
 | Method and path | Behaviour |
@@ -301,7 +320,7 @@ the API correctly refuses to reveal.
 the channel without removing any monitor links. Disabled channels remain in
 list and attachment responses so they can be found and enabled again.
 
-There is no REST endpoint to send a test notification in beta.4; use the normal
+There is no REST endpoint to send a test notification in beta.5; use the normal
 notification dialog when validating provider credentials.
 
 ## High-count load check
@@ -327,6 +346,8 @@ Run with `--help` for all options.
 - Writing proxies, Docker hosts, remote browsers, Web3 networks, or AI
   credentials.
 - Managing users or API keys.
+- Importing or exporting configuration; use the administrator UI described
+  above.
 - Sending a notification-channel test.
 - Bulk writes and destructive history cleanup.
 

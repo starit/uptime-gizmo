@@ -34,6 +34,7 @@ const Security = () => import("./components/settings/Security.vue");
 import Proxies from "./components/settings/Proxies.vue";
 import About from "./components/settings/About.vue";
 import RemoteBrowsers from "./components/settings/RemoteBrowsers.vue";
+const ConfigurationTransfer = () => import("./components/settings/ConfigurationTransfer.vue");
 
 const routes = [
     {
@@ -118,6 +119,10 @@ const routes = [
                             {
                                 path: "monitor-history",
                                 component: MonitorHistory,
+                            },
+                            {
+                                path: "configuration-transfer",
+                                component: ConfigurationTransfer,
                             },
                             {
                                 path: "docker-hosts",
