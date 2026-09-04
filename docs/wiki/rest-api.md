@@ -9,7 +9,7 @@ between beta releases rather than assuming every beta has the same fields.
 
 Two references are generated from the running server:
 
-- **Settings → API Documentation** renders the implemented routes in the UI.
+- **User menu → API Documentation** renders the implemented routes in the UI.
 - `GET /api/v1/openapi.json` returns OpenAPI 3.1 and requires no key.
 
 Unknown paths below `/api/v1` return a JSON `404`, not the single-page

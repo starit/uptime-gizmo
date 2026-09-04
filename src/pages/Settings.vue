@@ -18,7 +18,7 @@
         <div class="gizmo-workspace-panel settings-workspace-surface">
             <div class="settings-layout">
                 <div v-if="showSubMenu" class="settings-menu">
-                    <router-link v-for="(item, key) in subMenus" :key="key" :to="`/settings/${key}`">
+                    <router-link v-for="(item, key) in settingsMenuItems" :key="key" :to="`/settings/${key}`">
                         <div class="menu-item">
                             <font-awesome-icon :icon="item.icon" class="menu-item__icon" fixed-width />
                             {{ item.title }}
@@ -84,6 +84,12 @@ export default {
             }
         },
 
+        settingsMenuItems() {
+            const items = { ...this.subMenus };
+            delete items["api-docs"];
+            return items;
+        },
+
         subMenus() {
             return {
                 general: {
@@ -103,7 +109,7 @@ export default {
                     icon: "robot",
                 },
                 web3: {
-                    title: this.$t("Web3 Networks"),
+                    title: this.$t("Web3"),
                     icon: "cubes",
                 },
                 notifications: {

@@ -45,7 +45,12 @@
                                         <code>{{ p.name }}</code>
                                         <span class="api-docs__meta">{{ p.in }}{{ p.required ? " · " + $t("required") : "" }}</span>
                                     </dt>
-                                    <dd>{{ describeSchema(p.schema) }}</dd>
+                                    <dd>
+                                        {{ describeSchema(p.schema) }}
+                                        <span v-if="p.description" class="api-docs__field-description">
+                                            {{ p.description }}
+                                        </span>
+                                    </dd>
                                 </template>
                             </dl>
                         </template>
@@ -58,7 +63,12 @@
                                         <code>{{ f.name }}</code>
                                         <span class="api-docs__meta">{{ f.required ? $t("required") : $t("optional") }}</span>
                                     </dt>
-                                    <dd>{{ describeSchema(f.schema) }}</dd>
+                                    <dd>
+                                        {{ describeSchema(f.schema) }}
+                                        <span v-if="f.schema.description" class="api-docs__field-description">
+                                            {{ f.schema.description }}
+                                        </span>
+                                    </dd>
                                 </template>
                             </dl>
                         </template>
@@ -106,7 +116,12 @@
                                     <code>{{ f.name }}</code>
                                     <span v-if="f.required" class="api-docs__meta">{{ $t("required") }}</span>
                                 </dt>
-                                <dd>{{ describeSchema(f.schema) }}</dd>
+                                <dd>
+                                    {{ describeSchema(f.schema) }}
+                                    <span v-if="f.schema.description" class="api-docs__field-description">
+                                        {{ f.schema.description }}
+                                    </span>
+                                </dd>
                             </template>
                         </dl>
                     </div>
@@ -260,6 +275,12 @@ export default {
             if (resolved.enum) {
                 parts.push(`one of ${resolved.enum.join(", ")}`);
             }
+            if (resolved.format) {
+                parts.push(resolved.format);
+            }
+            if (resolved.minimum !== undefined) {
+                parts.push(`min ${resolved.minimum}`);
+            }
             if (resolved.maximum !== undefined) {
                 parts.push(`max ${resolved.maximum}`);
             }
@@ -290,6 +311,13 @@ export default {
                 schema,
                 required: required.has(name),
             }));
+            const parameters = (operation.parameters ?? []).map((p) => ({
+                name: p.name,
+                in: p.in,
+                required: Boolean(p.required),
+                description: p.description ?? "",
+                schema: p.schema,
+            }));
 
             return {
                 key: `${method} ${path}`,
@@ -297,12 +325,7 @@ export default {
                 method,
                 summary: operation.summary ?? "",
                 description: operation.description ?? "",
-                parameters: (operation.parameters ?? []).map((p) => ({
-                    name: p.name,
-                    in: p.in,
-                    required: Boolean(p.required),
-                    schema: p.schema,
-                })),
+                parameters,
                 bodyFields,
                 responses: Object.entries(operation.responses ?? {}).map(([ status, r ]) => ({
                     status,
@@ -311,7 +334,7 @@ export default {
                     // shape is what the reader needs to look it up below.
                     schema: this.schemaName(r.content?.["application/json"]?.schema),
                 })),
-                curl: this.buildCurl(path, method, bodyFields),
+                curl: this.buildCurl(path, method, bodyFields, parameters),
             };
         },
 
@@ -325,10 +348,19 @@ export default {
          * @param {string} path templated path
          * @param {string} method HTTP method
          * @param {Array<object>} bodyFields fields the body may carry
+         * @param {Array<object>} parameters path and query parameters
          * @returns {string} the command
          */
-        buildCurl(path, method, bodyFields) {
-            const url = `${location.origin}${path}`;
+        buildCurl(path, method, bodyFields, parameters) {
+            const values = new Map(
+                parameters
+                    .filter((p) => p.in === "path")
+                    .map((p) => [ p.name, this.sampleValue(p.schema) ])
+            );
+            const concretePath = path.replace(/\{([^}]+)\}/g, (match, name) =>
+                encodeURIComponent(values.get(name) ?? name)
+            );
+            const url = `${location.origin}${concretePath}`;
             const lines = [ `curl -u "api:$UPTIME_GIZMO_API_KEY" \\` ];
 
             if (method !== "get") {
@@ -336,9 +368,10 @@ export default {
             }
 
             const required = bodyFields.filter((f) => f.required);
-            if (required.length) {
+            const exampleFields = required.length ? required : bodyFields.slice(0, 1);
+            if (exampleFields.length) {
                 const body = Object.fromEntries(
-                    required.map((f) => [ f.name, this.sampleValue(f.schema) ])
+                    exampleFields.map((f) => [ f.name, this.sampleValue(f.schema) ])
                 );
                 lines.push(`  -H 'Content-Type: application/json' \\`);
                 lines.push(`  -d '${JSON.stringify(body)}' \\`);
@@ -355,6 +388,9 @@ export default {
          */
         sampleValue(schema) {
             const resolved = this.resolve(schema);
+            if (resolved.example !== undefined) {
+                return resolved.example;
+            }
             if (resolved.enum?.length) {
                 return resolved.enum[0];
             }
@@ -366,6 +402,9 @@ export default {
             }
             if (resolved.type === "array") {
                 return [];
+            }
+            if (resolved.type === "object") {
+                return {};
             }
             return "…";
         },
@@ -541,6 +580,12 @@ export default {
     margin-left: 0.4rem;
     color: var(--color-text-subtle);
     font-size: 0.75rem;
+}
+
+.api-docs__field-description {
+    display: block;
+    margin-top: 0.15rem;
+    color: var(--color-text-subtle);
 }
 
 .api-docs__example {

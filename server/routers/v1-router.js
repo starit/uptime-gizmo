@@ -2167,7 +2167,25 @@ function buildOpenAPI() {
             },
         },
     });
+    const requestBody = (schema) => ({
+        required: true,
+        content: { "application/json": { schema } },
+    });
     const monitorRef = { $ref: "#/components/schemas/Monitor" };
+    const notificationInputProperties = {
+        name: { type: "string" },
+        type: {
+            type: "string",
+            example: "webhook",
+            description: "A provider name returned by GET /api/v1/notification-providers.",
+        },
+        active: { type: "boolean" },
+        isDefault: { type: "boolean" },
+        config: {
+            type: "object",
+            description: "Provider-specific settings. Accepted on write and never returned.",
+        },
+    };
     // Named once; several routes take the same path parameters.
     const pathParam = (name) => ({ name, in: "path", required: true, schema: { type: "integer" } });
     const idParam = pathParam("id");
@@ -2191,6 +2209,30 @@ function buildOpenAPI() {
                 MonitorInput: { type: "object", required, properties: writableProperties },
                 Tag: { type: "object", properties: schemaFor(TAG_FIELDS).read },
                 TagInput: { type: "object", ...schemaFor(TAG_FIELDS).write },
+                TagPatch: { type: "object", properties: schemaFor(TAG_FIELDS).write.properties },
+                MonitorTagInput: {
+                    type: "object",
+                    required: [ "tagID" ],
+                    properties: {
+                        tagID: { type: "integer" },
+                        value: { type: "string", nullable: true },
+                    },
+                },
+                Notification: { type: "object", properties: schemaFor(NOTIFICATION_FIELDS).read },
+                NotificationInput: {
+                    type: "object",
+                    required: [ "name", "type" ],
+                    properties: notificationInputProperties,
+                },
+                NotificationPatch: {
+                    type: "object",
+                    properties: notificationInputProperties,
+                },
+                MonitorNotificationInput: {
+                    type: "object",
+                    required: [ "notificationID" ],
+                    properties: { notificationID: { type: "integer" } },
+                },
                 StatusPage: { type: "object", properties: schemaFor(STATUS_PAGE_FIELDS).read },
             },
         },
@@ -2296,6 +2338,7 @@ function buildOpenAPI() {
                     description:
                         "Body takes tagID and an optional value. Idempotent on the pair: attaching a tag already present updates its value instead of adding a second row.",
                     security: authed,
+                    requestBody: requestBody({ $ref: "#/components/schemas/MonitorTagInput" }),
                     responses: {
                         200: { description: "The tag was already attached; its value was updated" },
                         201: { description: "Attached" },
@@ -2376,7 +2419,7 @@ function buildOpenAPI() {
             },
             "/api/v1/incidents/active": {
                 get: {
-                    summary: "Monitors that are down or degraded now",
+                    summary: "Active monitors that are down or pending now",
                     security: authed,
                     responses: { 200: { description: "Active incidents" } },
                 },
@@ -2418,7 +2461,7 @@ function buildOpenAPI() {
                     description: "Partial. Requires a key that is not read-only.",
                     security: authed,
                     parameters: [ { name: "id", in: "path", required: true, schema: { type: "integer" } } ],
-                    requestBody: { required: true, content: { "application/json": { schema: { $ref: "#/components/schemas/TagInput" } } } },
+                    requestBody: requestBody({ $ref: "#/components/schemas/TagPatch" }),
                     responses: { 200: { description: "Updated" }, 403: { description: "The key is read-only" }, 404: { description: "No such tag" } },
                 },
                 delete: {
@@ -2444,6 +2487,7 @@ function buildOpenAPI() {
                         "Takes `notificationID`. Read fresh when a notification is sent, so it applies from the next transition. Attaching one already attached is the state asked for, not a second link.",
                     security: authed,
                     parameters: [ monitorIdParam ],
+                    requestBody: requestBody({ $ref: "#/components/schemas/MonitorNotificationInput" }),
                     responses: { 200: { description: "Already attached" }, 201: { description: "Attached" }, 400: { description: "Invalid body" }, 403: { description: "The key is read-only" }, 404: { description: "No such monitor or notification" } },
                 },
             },
@@ -2472,6 +2516,7 @@ function buildOpenAPI() {
                         "Merged over what is stored, so changing a name does not mean resending a credential the caller cannot read back.",
                     security: authed,
                     parameters: [ idParam ],
+                    requestBody: requestBody({ $ref: "#/components/schemas/NotificationPatch" }),
                     responses: { 200: { description: "Updated" }, 400: { description: "Invalid body" }, 403: { description: "The key is read-only" }, 404: { description: "No such notification" } },
                 },
                 delete: {
@@ -2488,6 +2533,7 @@ function buildOpenAPI() {
                     description:
                         "`config` holds the provider's own settings and is accepted but never returned: for most providers that object is the credential. `type` must name a provider from /api/v1/notification-providers.",
                     security: authed,
+                    requestBody: requestBody({ $ref: "#/components/schemas/NotificationInput" }),
                     responses: { 201: { description: "Created" }, 400: { description: "Invalid body" }, 403: { description: "The key is read-only" } },
                 },
                 get: {

@@ -189,4 +189,39 @@ describe("the API reference page can render everything the document contains", (
 
         assert.deepStrictEqual(bare, [], "these operations would render with no title");
     });
+
+    it("documents the bodies consumed by relationship and notification writes", () => {
+        const bodies = [
+            [ "/api/v1/monitors/{monitorId}/tags", "post", [ "tagID" ] ],
+            [ "/api/v1/monitors/{monitorId}/notifications", "post", [ "notificationID" ] ],
+            [ "/api/v1/notifications", "post", [ "name", "type" ] ],
+            [ "/api/v1/notifications/{id}", "patch", [] ],
+        ];
+
+        for (const [ path, method, required ] of bodies) {
+            const schema = spec.paths[path][method].requestBody?.content?.["application/json"]?.schema;
+            assert.ok(schema, `${method.toUpperCase()} ${path} consumes a body that the reference omitted`);
+
+            const resolved = schema.$ref
+                ? spec.components.schemas[schema.$ref.split("/").pop()]
+                : schema;
+            assert.deepStrictEqual(resolved.required ?? [], required);
+            assert.ok(Object.keys(resolved.properties ?? {}).length > 0);
+        }
+    });
+
+    it("documents tag PATCH as partial", () => {
+        const schema = spec.paths["/api/v1/tags/{id}"].patch.requestBody.content["application/json"].schema;
+        const resolved = spec.components.schemas[schema.$ref.split("/").pop()];
+
+        assert.deepStrictEqual(resolved.required ?? [], []);
+        assert.deepStrictEqual(Object.keys(resolved.properties).sort(), [ "color", "name" ]);
+    });
+
+    it("describes active incidents with the statuses the query returns", () => {
+        assert.strictEqual(
+            spec.paths["/api/v1/incidents/active"].get.summary,
+            "Active monitors that are down or pending now"
+        );
+    });
 });
