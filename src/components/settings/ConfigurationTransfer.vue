@@ -66,6 +66,24 @@
                     <font-awesome-icon icon="upload" class="configuration-section__icon" />
                 </div>
 
+                <div
+                    class="configuration-restart-notice"
+                    role="note"
+                    aria-labelledby="configuration-import-restart-title"
+                >
+                    <font-awesome-icon
+                        icon="exclamation-triangle"
+                        class="configuration-restart-notice__icon"
+                        fixed-width
+                    />
+                    <div>
+                        <strong id="configuration-import-restart-title">
+                            {{ $t("configurationImportRestartTitle") }}
+                        </strong>
+                        <p class="tw-mb-0">{{ $t("configurationImportRestartBody") }}</p>
+                    </div>
+                </div>
+
                 <ul class="configuration-exclusions">
                     <li>
                         <font-awesome-icon
@@ -90,14 +108,6 @@
                             fixed-width
                         />
                         <span>{{ $t("configurationImportClearsHistory") }}</span>
-                    </li>
-                    <li>
-                        <font-awesome-icon
-                            icon="info-circle"
-                            class="configuration-exclusions__icon configuration-exclusions__icon--info"
-                            fixed-width
-                        />
-                        <span>{{ $t("configurationImportNextStart") }}</span>
                     </li>
                 </ul>
 
@@ -431,6 +441,34 @@ export default {
     color: var(--status-down);
 }
 
+.configuration-restart-notice {
+    display: grid;
+    grid-template-columns: 1.25rem minmax(0, 1fr);
+    align-items: start;
+    gap: 0.75rem;
+    margin-top: 1rem;
+    padding: 0.8rem 0.9rem;
+    border: 1px solid var(--status-degraded-border);
+    border-inline-start: 0.25rem solid var(--status-degraded);
+    border-radius: var(--radius-sm);
+    color: var(--color-text);
+    background: var(--status-degraded-bg);
+}
+
+.configuration-restart-notice__icon {
+    margin-top: 0.2em;
+    color: var(--status-degraded-fg);
+    font-size: 1rem;
+}
+
+.configuration-restart-notice strong {
+    color: var(--status-degraded-fg);
+}
+
+.configuration-restart-notice p {
+    margin-top: 0.2rem;
+}
+
 .configuration-action {
     display: grid;
     grid-template-columns: minmax(14rem, 1fr) auto;
@@ -499,10 +537,6 @@ export default {
 
 .configuration-exclusions__icon--danger {
     color: var(--status-down-fg);
-}
-
-.configuration-exclusions__icon--info {
-    color: var(--color-interactive);
 }
 
 .configuration-status--applied {

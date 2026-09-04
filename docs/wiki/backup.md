@@ -63,6 +63,11 @@ It does not change the running database. On the next start, Uptime Gizmo applies
 the replacement in one transaction before monitors and background jobs begin.
 A failed import rolls back the configuration and history changes together.
 
+Beta.5 requires restarting the Uptime Gizmo process or container after import.
+There is no live **Apply now** action: applying before runtime services start
+prevents old monitor objects, caches, and in-flight checks from continuing to
+use the configuration that was just replaced.
+
 Successful replacement clears existing monitoring history because old monitor
 ids could otherwise attach old checks to a different imported monitor. Imported
 monitors therefore start with empty history. The archive's active status-page

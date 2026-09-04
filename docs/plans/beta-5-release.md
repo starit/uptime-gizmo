@@ -164,6 +164,14 @@ Import:
    and
 6. apply it on the next start before monitors and jobs initialize.
 
+Beta.5 deliberately requires that next start. A safe live apply would need a
+runtime coordinator that blocks configuration writes, stops every monitor and
+background job, waits for in-flight checks, replaces the database state,
+rebuilds settings and status-page caches, restarts monitors, and tells connected
+clients to reload. Simply exiting the process is not a portable **Restart now**
+implementation because bare processes may have no supervisor to start them
+again. That broader lifecycle remains future work.
+
 One database transaction will:
 
 1. resolve and preserve the target instance owner and identity settings;

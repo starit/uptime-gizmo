@@ -119,3 +119,7 @@ filename and confirmation dialog at 320 × 700, and Arabic RTL at 1024 × 768.
 The import impact list now uses semantic icons instead of relying on globally
 reset list markers, and its identity wording explicitly refers to the current
 instance the administrator is importing into.
+The restart requirement is promoted to a warning before the import fields. It
+remains mandatory in beta.5 because replacement runs before monitors and other
+runtime services initialize; live apply would require a separate runtime
+quiesce-and-reload lifecycle.
