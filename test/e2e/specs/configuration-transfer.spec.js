@@ -15,6 +15,15 @@ test.describe("Configuration export and import", () => {
         await expect(page.getByText("Configuration export — this is not a full backup")).toBeVisible();
         await expect(page.getByText(/It does not contain users, login password hashes/)).toBeVisible();
         await expect(page.getByText(/Import only an archive you created or trust/)).toBeVisible();
+        await expect(
+            page.getByRole("link", { name: "Export / Import", exact: true }).locator('[data-icon="download"]')
+        ).toBeVisible();
+        await expect(
+            page.locator(".configuration-section").first().locator('.configuration-section__icon[data-icon="download"]')
+        ).toBeVisible();
+        await expect(
+            page.getByRole("button", { name: "Export configuration", exact: true }).locator('[data-icon="download"]')
+        ).toBeVisible();
 
         await page.locator("#configuration-export-password").fill("admin123");
         const downloadPromise = page.waitForEvent("download");

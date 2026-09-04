@@ -63,6 +63,7 @@ import {
     faBook,
     faNetworkWired,
     faDesktop,
+    faDownload,
 } from "@fortawesome/free-solid-svg-icons";
 
 library.add(
@@ -122,7 +123,8 @@ library.add(
     faKey,
     faBook,
     faNetworkWired,
-    faDesktop
+    faDesktop,
+    faDownload,
 );
 
 export { FontAwesomeIcon };
