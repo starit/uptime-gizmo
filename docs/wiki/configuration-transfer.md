@@ -1,3 +1,3 @@
-# Export and import
+# Backup
 
-This page was renamed. See [Export and import](export-import.md).
+This page was renamed. See [Backup](backup.md).

@@ -1,12 +1,12 @@
-# Beta.5 export/import execution
+# Beta.5 configuration backup execution
 
 **Release:** [3.0.0-beta.5](../plans/beta-5-release.md) P0
 
-**Scope:** configuration import/export only; not full backup or account/history migration
+**Scope:** configuration backup only; not full backup or account/history migration
 
 ## Outcome
 
-Beta.5 adds an administrator-only **Settings → Export / Import** page.
+Beta.5 adds an administrator-only **Settings → Backup** page.
 It exports a versioned `.ugbackup` document and stages a validated replace
 import for the next application start. The implementation uses Knex records,
 not a SQLite file or SQL dump, and is exercised against SQLite, MariaDB 12, and
@@ -48,8 +48,8 @@ configuration.
 
 ## Interface
 
-The settings page names the feature **Export / Import** and states above
-the actions that it is not a full backup. It lists both included resources and
+The settings page names the feature **Backup** and states above the actions that
+it is a configuration-only backup, not a full backup. It lists both included resources and
 excluded identity/history/files, warns that archives may contain operational
 secrets, tells administrators to import only a file they created or trust,
 requires the current password for each action, confirms destructive replace
@@ -72,8 +72,9 @@ column at narrow widths. It was visually checked at desktop width and at
 - Re-importing the same archive later is an intentional operation and runs
   again; the internal digest marker only protects recovery from a committed
   import whose staged file could not be removed.
-- `/settings/configuration-transfer` redirects to `/settings/export-import` so
-  existing bookmarks do not break after the user-facing rename.
+- `/settings/export-import` and `/settings/configuration-transfer` redirect to
+  `/settings/backup` so existing bookmarks do not break after the user-facing
+  rename.
 
 ## Verification
 
@@ -109,7 +110,7 @@ passed.
 A 2026-09-05 follow-up added malicious-upload and complete status-page graph
 coverage. The focused backend suite passed 11 tests, the SQLite/MariaDB/MySQL
 round-trip passed, the production build passed, and the focused Playwright run
-passed its Export / Import scenarios plus setup checks. A subsequent responsive
+passed its Backup scenarios plus setup checks. A subsequent responsive
 pass made long text, filenames, controls, and summaries shrink or wrap safely;
 stacked the form while the two application rails still constrain its usable
 width; and changed settings-shell edges to logical properties for RTL. Browser

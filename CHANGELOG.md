@@ -2,14 +2,14 @@
 
 ## 3.0.0-beta.5 — 2026-09-04
 
-Beta.5 adds database-independent configuration export/import and a full-width
-monitor inventory. The exported configuration is intentionally not a complete
-backup: it moves monitoring behaviour while leaving the target instance's
+Beta.5 adds database-independent configuration backup and a full-width monitor
+inventory. The configuration archive is intentionally not a complete backup:
+it moves monitoring behaviour while leaving the target instance's
 accounts and authentication identity in place.
 
 ### Added
 
-- Administrator-only **Export / Import** under **Settings → Export / Import**,
+- Administrator-only **Backup** under **Settings → Backup**,
   protected by a fresh current-password
   check and short-lived, single-use transfer tickets.
 - A versioned, bounded `.ugbackup` format for monitors, notifications, status
@@ -17,7 +17,7 @@ accounts and authentication identity in place.
   integrations, custom themes, and allow-listed settings. Operational
   credentials needed by those resources are included, so archives must be
   handled as secrets.
-- Cross-database configuration export/import between SQLite, external
+- Cross-database configuration backup between SQLite, external
   MariaDB/MySQL, and embedded MariaDB, with schema coverage that requires every
   table, configuration column, and known setting to be classified.
 - A full-width monitor inventory with search, status/tag/type filters, sorting,
@@ -37,19 +37,19 @@ accounts and authentication identity in place.
 - Import rejects compressed uploads, malformed lengths, invalid UTF-8,
   oversized or excessively nested documents, unknown fields, dangerous object
   keys, duplicate ids, and broken relations before it writes a staged file.
-- Export / Import controls wrap and stack safely for long translations and
+- Backup controls wrap and stack safely for long translations and
   filenames, including a 320 px mobile viewport; settings navigation and panel
   edges use RTL-aware logical properties.
 - Imported ownership is mapped to the target instance owner. Existing target
   accounts, passwords, 2FA, API keys, administrator flags, JWT secret, and
   authentication policy remain unchanged.
-- Existing beta.4 data directories still open in place. Export/import
+- Existing beta.4 data directories still open in place. Configuration backup
   adds no database migration; private import-state files appear only after an
   administrator stages an import.
 
 ### API notes
 
-Configuration export/import is not part of `/api/v1`, OpenAPI, MCP, or the agent
+Configuration backup is not part of `/api/v1`, OpenAPI, MCP, or the agent
 skills. Its private transfer routes are UI implementation details and cannot be
 used with an API key.
 

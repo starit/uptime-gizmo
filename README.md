@@ -137,15 +137,15 @@ Everyone signs in with their own password, and everyone manages the whole
 instance. The [multi-user plan](docs/plans/multi-user.md) says what that does and
 does not mean.
 
-### Export and import
+### Configuration backup
 
 Administrators can export a versioned `.ugbackup` configuration archive under
-**Settings → Export / Import**, then import it on another instance for replacement
+**Settings → Backup**, then import it on another instance for replacement
 at the next restart. The format is database-independent: it can move
 configuration between SQLite, external MariaDB/MySQL, and embedded MariaDB
 instances.
 
-This is deliberately **configuration import/export, not a full backup**. It
+This is deliberately a **configuration-only backup, not a full backup**. It
 includes monitors, notification channels, status pages (including page settings,
 groups, monitor and maintenance links, custom domains, and active incidents),
 maintenances, tags, integrations, custom themes, and the operational credentials
@@ -313,7 +313,7 @@ docker run -d --restart=always -p 3001:3001 -v uptime-gizmo:/app/data --name upt
 
 ### Backing up
 
-The interface's configuration export is not a disaster-recovery backup. It
+The interface's **Backup** feature is not a disaster-recovery backup. It
 does not contain users, login credentials, history, uploads, screenshots,
 Docker TLS files, or database configuration. Backing up a complete instance
 still means copying its data directory and, for MariaDB/MySQL, taking a native
@@ -341,7 +341,7 @@ The [Roadmap](ROADMAP.md) has the current list. The short version:
 Design notes: [REST API plan](docs/plans/rest-api.md),
 [MCP and agent-facing API plan](docs/plans/mcp-and-agent-api.md),
 [multi-user plan](docs/plans/multi-user.md), and
-[beta.5 configuration import/export plan](docs/plans/beta-5-release.md).
+[beta.5 configuration backup plan](docs/plans/beta-5-release.md).
 
 ## How this is built
 

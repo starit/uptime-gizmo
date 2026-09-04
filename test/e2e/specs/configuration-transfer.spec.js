@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test";
 import fs from "fs";
 import { login, restoreSqliteSnapshot } from "../util-test";
 
-test.describe("Configuration export and import", () => {
+test.describe("Configuration backup", () => {
     test.beforeEach(async ({ page }) => {
         await restoreSqliteSnapshot(page);
         await page.goto("./dashboard");
@@ -10,13 +10,13 @@ test.describe("Configuration export and import", () => {
     });
 
     test("exports a configuration-only archive and stages it for next start", async ({ page }) => {
-        await page.goto("./settings/export-import");
+        await page.goto("./settings/backup");
 
-        await expect(page.getByText("Configuration export — this is not a full backup")).toBeVisible();
+        await expect(page.getByText("Configuration backup — settings only")).toBeVisible();
         await expect(page.getByText(/It does not contain users, login password hashes/)).toBeVisible();
         await expect(page.getByText(/Import only an archive you created or trust/)).toBeVisible();
         await expect(
-            page.getByRole("link", { name: "Export / Import", exact: true }).locator('[data-icon="download"]')
+            page.getByRole("link", { name: "Backup", exact: true }).locator('[data-icon="save"]')
         ).toBeVisible();
         await expect(
             page.locator(".configuration-section").first().locator('.configuration-section__icon[data-icon="download"]')
@@ -58,7 +58,7 @@ test.describe("Configuration export and import", () => {
 
     test("keeps the actions usable on a narrow viewport", async ({ page }) => {
         await page.setViewportSize({ width: 390, height: 844 });
-        await page.goto("./settings/export-import");
+        await page.goto("./settings/backup");
 
         await expect(page.getByRole("heading", { name: "Export configuration" })).toBeVisible();
         await expect(page.getByRole("heading", { name: "Import configuration" })).toBeVisible();
@@ -68,16 +68,18 @@ test.describe("Configuration export and import", () => {
         await expect(page.getByRole("button", { name: "Import configuration" })).toBeVisible();
     });
 
-    test("redirects the previous settings URL", async ({ page }) => {
-        await page.goto("./settings/configuration-transfer");
-        await expect(page).toHaveURL(/\/settings\/export-import$/);
-        await expect(page.getByRole("link", { name: "Export / Import", exact: true })).toBeVisible();
+    test("redirects the previous settings URLs", async ({ page }) => {
+        for (const oldPath of ["export-import", "configuration-transfer"]) {
+            await page.goto(`./settings/${oldPath}`);
+            await expect(page).toHaveURL(/\/settings\/backup$/);
+        }
+        await expect(page.getByRole("link", { name: "Backup", exact: true })).toBeVisible();
     });
 
     test("fits Chinese mobile content and mirrors the settings shell in RTL", async ({ page }) => {
         await page.setViewportSize({ width: 320, height: 700 });
         await page.evaluate(() => localStorage.setItem("locale", "zh-CN"));
-        await page.goto("./settings/export-import");
+        await page.goto("./settings/backup");
 
         await expect(page.locator("html")).toHaveAttribute("lang", "zh-CN");
         await expect(page.locator("html")).toHaveAttribute("dir", "ltr");
@@ -113,7 +115,7 @@ test.describe("Configuration export and import", () => {
 
         await expect(page.locator("html")).toHaveAttribute("lang", "ar-SY");
         await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
-        const menuItem = page.getByRole("link", { name: "Export / Import", exact: true }).locator(".menu-item");
+        const menuItem = page.getByRole("link", { name: "Backup", exact: true }).locator(".menu-item");
         await expect(menuItem).toBeVisible();
         expect(await menuItem.evaluate((element) => getComputedStyle(element).borderInlineStartWidth)).toBe("4px");
         const workspaceOverflow = await page.locator(".settings-workspace").evaluate((workspace) => {
