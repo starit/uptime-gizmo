@@ -2,14 +2,14 @@
 
 Uptime Gizmo has two deliberately different operations:
 
-- **Configuration transfer** in **Settings → Configuration transfer** moves how
-  an instance monitors between SQLite, MariaDB, and MySQL. It is not a backup.
+- **Export / Import** in **Settings → Export / Import** moves how an instance
+  monitors between SQLite, MariaDB, and MySQL. It is not a backup.
 - **Full backup and restore** copies the database and filesystem state described
   on this page.
 
 Do not substitute the first for the second when you need disaster recovery.
 
-## Configuration transfer is not a full backup
+## Configuration export is not a full backup
 
 The beta.5 `.ugbackup` archive contains monitors, notification channels, status
 pages, maintenances, tags, integrations, custom themes, and the operational
@@ -27,7 +27,7 @@ instance's accounts and authentication configuration and starts imported
 monitors with empty history. The archive is database-independent and supports
 cross-engine transfer; it is not a SQLite file or SQL dump.
 
-See [Configuration transfer](wiki/configuration-transfer.md) for the workflow
+See [Export and import](wiki/export-import.md) for the workflow
 and [the beta.5 release plan](plans/beta-5-release.md) for the format and safety
 decisions.
 

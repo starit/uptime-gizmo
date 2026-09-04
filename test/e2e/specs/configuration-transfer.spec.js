@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test";
 import fs from "fs";
 import { login, restoreSqliteSnapshot } from "../util-test";
 
-test.describe("Configuration transfer", () => {
+test.describe("Configuration export and import", () => {
     test.beforeEach(async ({ page }) => {
         await restoreSqliteSnapshot(page);
         await page.goto("./dashboard");
@@ -10,10 +10,11 @@ test.describe("Configuration transfer", () => {
     });
 
     test("exports a configuration-only archive and stages it for next start", async ({ page }) => {
-        await page.goto("./settings/configuration-transfer");
+        await page.goto("./settings/export-import");
 
-        await expect(page.getByText("Configuration only — this is not a full backup")).toBeVisible();
+        await expect(page.getByText("Configuration export — this is not a full backup")).toBeVisible();
         await expect(page.getByText(/It does not contain users, login password hashes/)).toBeVisible();
+        await expect(page.getByText(/Import only an archive you created or trust/)).toBeVisible();
 
         await page.locator("#configuration-export-password").fill("admin123");
         const downloadPromise = page.waitForEvent("download");
@@ -31,7 +32,7 @@ test.describe("Configuration transfer", () => {
 
         await page.locator("#configuration-import-file").setInputFiles(downloadPath);
         await page.locator("#configuration-import-password").fill("admin123");
-        await page.getByRole("button", { name: "Stage replace import" }).click();
+        await page.getByRole("button", { name: "Import configuration" }).click();
 
         const dialog = page.getByRole("dialog");
         await expect(dialog.getByText("Replace this instance's monitoring configuration on next start?")).toBeVisible();
@@ -48,13 +49,19 @@ test.describe("Configuration transfer", () => {
 
     test("keeps the actions usable on a narrow viewport", async ({ page }) => {
         await page.setViewportSize({ width: 390, height: 844 });
-        await page.goto("./settings/configuration-transfer");
+        await page.goto("./settings/export-import");
 
         await expect(page.getByRole("heading", { name: "Export configuration" })).toBeVisible();
-        await expect(page.getByRole("heading", { name: "Replace configuration" })).toBeVisible();
+        await expect(page.getByRole("heading", { name: "Import configuration" })).toBeVisible();
         await page.locator("#configuration-export-password").fill("admin123");
         await expect(page.getByRole("button", { name: "Export configuration", exact: true })).toBeEnabled();
         await expect(page.locator("#configuration-import-file")).toBeVisible();
-        await expect(page.getByRole("button", { name: "Stage replace import" })).toBeVisible();
+        await expect(page.getByRole("button", { name: "Import configuration" })).toBeVisible();
+    });
+
+    test("redirects the previous settings URL", async ({ page }) => {
+        await page.goto("./settings/configuration-transfer");
+        await expect(page).toHaveURL(/\/settings\/export-import$/);
+        await expect(page.getByRole("link", { name: "Export / Import", exact: true })).toBeVisible();
     });
 });

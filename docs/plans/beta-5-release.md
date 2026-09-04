@@ -9,7 +9,7 @@ monitoring history. The same release also ships a full-width monitor
 inventory so a large estate can be scanned without the dashboard rail.
 
 **Status:** implemented; release verification is recorded in
-[the execution report](../execution/2026-09-04-beta-5-configuration-transfer.md).
+[the execution report](../execution/2026-09-04-beta-5-export-import.md).
 Full recovery still uses the manual data-volume/database procedure in
 [Backing up and restoring](../backup-and-restore.md).
 
@@ -20,7 +20,8 @@ backup, account migration, or disaster-recovery replacement.
 
 The archive is a versioned, engine-neutral configuration document assembled
 through Knex. The same implementation supports SQLite, external MariaDB/MySQL,
-and embedded MariaDB, including configuration transfer between those engines.
+and embedded MariaDB, including configuration export/import between those
+engines.
 It does not contain a SQLite file or executable SQL and does not require
 `sqlite3`, `mariadb-dump`, or another database client binary.
 
@@ -37,7 +38,9 @@ The archive contains the records required to recreate monitoring behaviour:
 - notification channels and monitor attachments;
 - proxies, Docker hosts, remote browsers, Web3 networks, and AI credentials;
 - maintenance definitions and their monitor/status-page relations;
-- status pages, groups, page settings, and currently active incidents;
+- status pages and all database-backed page configuration: page settings and
+  passwords, groups and monitor links, custom domains, maintenance links, and
+  currently active incidents;
 - custom themes and allow-listed application settings; and
 - operational secrets required by those resources, such as notification tokens,
   monitor authentication, proxy credentials, AI keys, and RPC URLs.
@@ -119,12 +122,14 @@ SQLite and MariaDB schema-coverage tests enforce this rule, preventing new
 features from silently disappearing from exports.
 
 Unknown format versions, resources, or fields are rejected. A future format
-change must add an explicit adapter before that version is accepted. Duplicate
-ids and broken relations are rejected rather than guessed.
+change must add an explicit adapter before that version is accepted. Invalid
+UTF-8, dangerous nested object keys, duplicate ids, and broken relations are
+rejected rather than guessed.
 
 ## Export flow
 
-Add **Settings → Configuration transfer**, visible to administrators.
+Add **Settings → Export / Import**, visible to administrators. The previous
+`/settings/configuration-transfer` URL redirects to the new page.
 
 Export:
 
@@ -138,6 +143,8 @@ Export:
 
 `UPTIME_GIZMO_BACKUP_MAX_BYTES` defaults to 128 MiB and can be raised for
 unusually large monitor bodies, protobuf definitions, themes, or page content.
+Uploads must be uncompressed UTF-8 JSON so the byte bound is enforced before
+parsing and cannot be bypassed with a compression bomb.
 
 ## Import flow
 
@@ -146,7 +153,9 @@ Beta.5 offers **replace configuration**, not merge/skip/overwrite modes.
 Import:
 
 1. require administrator authority and the current password;
-2. parse the upload with byte, object-count, string-length, and nesting limits;
+2. reject compression, malformed lengths, invalid UTF-8, dangerous object keys,
+   and uploads outside the byte, object-count, string-length, and nesting
+   limits;
 3. validate every field, id, relation, and resource count without writing;
 4. summarize what will be replaced and explicitly warn that current monitoring
    configuration and history will be removed;
@@ -174,6 +183,12 @@ Current history cannot safely remain after replace import: imported monitor ids
 may refer to different monitors. Keeping it would attach old checks to new
 configuration. History is therefore cleared only as part of the successful
 transaction; a failed import leaves it untouched.
+
+The Import UI tells administrators to use only an archive they created or
+trust. Configuration is intentionally operational: imported URLs, notification
+destinations, credentials, integrations, and status-page CSS become active after
+restart. The format contains no SQL and is never extracted as an archive, so it
+does not expose a SQL-execution, path-traversal, or decompression path.
 
 ## Settings policy
 

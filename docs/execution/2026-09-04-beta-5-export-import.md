@@ -1,4 +1,4 @@
-# Beta.5 configuration transfer execution
+# Beta.5 export/import execution
 
 **Release:** [3.0.0-beta.5](../plans/beta-5-release.md) P0
 
@@ -6,7 +6,7 @@
 
 ## Outcome
 
-Beta.5 adds an administrator-only **Settings → Configuration transfer** page.
+Beta.5 adds an administrator-only **Settings → Export / Import** page.
 It exports a versioned `.ugbackup` document and stages a validated replace
 import for the next application start. The implementation uses Knex records,
 not a SQLite file or SQL dump, and is exercised against SQLite, MariaDB 12, and
@@ -29,8 +29,10 @@ configuration.
 - A current-password check mints a random 60-second, purpose-bound, single-use
   ticket. The ticket travels in a header, never in a URL or log.
 - Uploads use a bounded octet-stream reader. Unknown versions, resources,
-  fields, duplicate ids, broken relations, invalid booleans, excessive nesting,
-  too many values, and oversized files are rejected before staging.
+  fields, duplicate ids, broken relations, invalid booleans, invalid UTF-8,
+  dangerous nested object keys, excessive nesting, too many values, and
+  oversized files are rejected before staging. Compressed bodies and malformed
+  content lengths are also refused.
 - Staging writes only the canonical archive and a non-secret status record to
   the private data directory. The running database is untouched.
 - Startup applies the archive before monitors and jobs initialize. One
@@ -39,17 +41,19 @@ configuration.
   settings, verifies resource counts, and commits.
 - Users, account credentials, 2FA, personal API keys, JWT/authentication state,
   database settings, and migration state are not deleted or overwritten.
-- Active status-page incidents are current configuration and transfer;
-  completed incidents are history and do not.
+- Status-page settings and passwords, groups and monitor links, custom domains,
+  maintenance links, and active incidents transfer. Completed incidents and
+  uploaded page assets do not.
 - The dead pre-existing `uploadBackup` socket helper was removed.
 
 ## Interface
 
-The settings page names the feature **Configuration transfer** and states above
+The settings page names the feature **Export / Import** and states above
 the actions that it is not a full backup. It lists both included resources and
 excluded identity/history/files, warns that archives may contain operational
-secrets, requires the current password for each action, confirms destructive
-replace staging, and shows pending/applied/failed state with resource counts.
+secrets, tells administrators to import only a file they created or trust,
+requires the current password for each action, confirms destructive replace
+staging, and shows pending/applied/failed state with resource counts.
 
 The page follows the existing settings navigation, controls, type, spacing,
 status colours, and light/dark design tokens. The action layout collapses to one
@@ -68,6 +72,8 @@ column at narrow widths. It was visually checked at desktop width and at
 - Re-importing the same archive later is an intentional operation and runs
   again; the internal digest marker only protects recovery from a committed
   import whose staged file could not be removed.
+- `/settings/configuration-transfer` redirects to `/settings/export-import` so
+  existing bookmarks do not break after the user-facing rename.
 
 ## Verification
 
@@ -99,3 +105,8 @@ ports and a listener that could outlive its test. Its mock now binds an
 operating-system-assigned port before sending and always closes before the test
 settles. The isolated regression and the subsequent full backend run both
 passed.
+
+A 2026-09-05 follow-up added malicious-upload and complete status-page graph
+coverage. The focused backend suite passed 11 tests, the SQLite/MariaDB/MySQL
+round-trip passed, the production build passed, and the focused Playwright run
+passed its three Export / Import scenarios plus five setup checks.

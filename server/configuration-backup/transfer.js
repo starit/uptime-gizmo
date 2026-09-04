@@ -65,9 +65,23 @@ function consumeTransferTicket(candidate, purpose) {
  * @returns {Promise<Buffer>} body
  */
 async function readBoundedBody(request, maxBytes) {
-    const declaredLength = Number.parseInt(request.headers["content-length"] ?? "", 10);
-    if (Number.isFinite(declaredLength) && declaredLength > maxBytes) {
-        throw new TransferRequestError("The uploaded archive exceeds the configured size limit");
+    const contentEncoding = request.headers["content-encoding"];
+    if (contentEncoding !== undefined && String(contentEncoding).toLowerCase() !== "identity") {
+        throw new TransferRequestError("Compressed configuration uploads are not accepted");
+    }
+
+    const rawLength = request.headers["content-length"];
+    if (rawLength !== undefined) {
+        if (typeof rawLength !== "string" || !/^\d+$/.test(rawLength)) {
+            throw new TransferRequestError("The uploaded archive has an invalid content length");
+        }
+        const declaredLength = Number(rawLength);
+        if (!Number.isSafeInteger(declaredLength)) {
+            throw new TransferRequestError("The uploaded archive has an invalid content length");
+        }
+        if (declaredLength > maxBytes) {
+            throw new TransferRequestError("The uploaded archive exceeds the configured size limit");
+        }
     }
 
     const chunks = [];
@@ -139,5 +153,6 @@ module.exports = {
     consumeTransferTicket,
     getConfigurationImportStatus,
     issueTransferTicket,
+    readBoundedBody,
     registerConfigurationTransferRoutes,
 };
