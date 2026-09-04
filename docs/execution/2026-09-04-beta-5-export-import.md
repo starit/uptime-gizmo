@@ -116,3 +116,6 @@ stacked the form while the two application rails still constrain its usable
 width; and changed settings-shell edges to logical properties for RTL. Browser
 coverage now includes English at 390 × 844, Simplified Chinese with a long
 filename and confirmation dialog at 320 × 700, and Arabic RTL at 1024 × 768.
+The import impact list now uses semantic icons instead of relying on globally
+reset list markers, and its identity wording explicitly refers to the current
+instance the administrator is importing into.

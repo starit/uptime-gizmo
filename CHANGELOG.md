@@ -39,7 +39,9 @@ accounts and authentication identity in place.
   keys, duplicate ids, and broken relations before it writes a staged file.
 - Backup controls wrap and stack safely for long translations and
   filenames, including a 320 px mobile viewport; settings navigation and panel
-  edges use RTL-aware logical properties.
+  edges use RTL-aware logical properties. Import effects use visible semantic
+  icons and describe preserved data from the importing administrator's point
+  of view.
 - Imported ownership is mapped to the target instance owner. Existing target
   accounts, passwords, 2FA, API keys, administrator flags, JWT secret, and
   authentication policy remain unchanged.

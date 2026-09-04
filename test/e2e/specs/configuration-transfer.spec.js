@@ -15,6 +15,11 @@ test.describe("Configuration backup", () => {
         await expect(page.getByText("Configuration backup — settings only")).toBeVisible();
         await expect(page.getByText(/It does not contain users, login password hashes/)).toBeVisible();
         await expect(page.getByText(/Import only an archive you created or trust/)).toBeVisible();
+        await expect(page.locator(".configuration-exclusions > li")).toHaveCount(4);
+        await expect(page.locator(".configuration-exclusions__icon")).toHaveCount(4);
+        for (let index = 0; index < 4; index += 1) {
+            await expect(page.locator(".configuration-exclusions__icon").nth(index)).toBeVisible();
+        }
         await expect(
             page.getByRole("link", { name: "Backup", exact: true }).locator('[data-icon="save"]')
         ).toBeVisible();
@@ -85,6 +90,7 @@ test.describe("Configuration backup", () => {
         await expect(page.locator("html")).toHaveAttribute("dir", "ltr");
         await expect(page.getByRole("heading", { name: "导出配置" })).toBeVisible();
         await expect(page.getByRole("heading", { name: "导入配置" })).toBeVisible();
+        await expect(page.getByText(/你当前正在导入的这台 Uptime Gizmo/)).toBeVisible();
         await page.locator("#configuration-import-file").setInputFiles({
             name: `${"跨数据库状态页面配置-".repeat(8)}.ugbackup`,
             mimeType: "application/vnd.uptime-gizmo.configuration+json",

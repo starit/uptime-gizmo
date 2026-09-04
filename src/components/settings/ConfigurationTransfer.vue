@@ -67,10 +67,38 @@
                 </div>
 
                 <ul class="configuration-exclusions">
-                    <li>{{ $t("configurationImportTrustedSource") }}</li>
-                    <li>{{ $t("configurationImportKeepsIdentity") }}</li>
-                    <li>{{ $t("configurationImportClearsHistory") }}</li>
-                    <li>{{ $t("configurationImportNextStart") }}</li>
+                    <li>
+                        <font-awesome-icon
+                            icon="exclamation-triangle"
+                            class="configuration-exclusions__icon configuration-exclusions__icon--warning"
+                            fixed-width
+                        />
+                        <span>{{ $t("configurationImportTrustedSource") }}</span>
+                    </li>
+                    <li>
+                        <font-awesome-icon
+                            icon="check-circle"
+                            class="configuration-exclusions__icon configuration-exclusions__icon--kept"
+                            fixed-width
+                        />
+                        <span>{{ $t("configurationImportKeepsIdentity") }}</span>
+                    </li>
+                    <li>
+                        <font-awesome-icon
+                            icon="exclamation-circle"
+                            class="configuration-exclusions__icon configuration-exclusions__icon--danger"
+                            fixed-width
+                        />
+                        <span>{{ $t("configurationImportClearsHistory") }}</span>
+                    </li>
+                    <li>
+                        <font-awesome-icon
+                            icon="info-circle"
+                            class="configuration-exclusions__icon configuration-exclusions__icon--info"
+                            fixed-width
+                        />
+                        <span>{{ $t("configurationImportNextStart") }}</span>
+                    </li>
                 </ul>
 
                 <form class="configuration-action" autocomplete="off" @submit.prevent="confirmImport">
@@ -440,9 +468,41 @@ export default {
 }
 
 .configuration-exclusions {
+    display: grid;
+    gap: 0.65rem;
     margin: 1rem 0 0;
-    padding-inline-start: 1.2rem;
+    padding: 0;
     color: var(--color-text-muted);
+    list-style: none;
+}
+
+.configuration-exclusions li {
+    display: grid;
+    grid-template-columns: 1.1rem minmax(0, 1fr);
+    align-items: start;
+    gap: 0.65rem;
+}
+
+.configuration-exclusions__icon {
+    width: 1rem;
+    margin-top: 0.2em;
+    font-size: 0.875rem;
+}
+
+.configuration-exclusions__icon--warning {
+    color: var(--status-degraded-fg);
+}
+
+.configuration-exclusions__icon--kept {
+    color: var(--status-up-fg);
+}
+
+.configuration-exclusions__icon--danger {
+    color: var(--status-down-fg);
+}
+
+.configuration-exclusions__icon--info {
+    color: var(--color-interactive);
 }
 
 .configuration-status--applied {

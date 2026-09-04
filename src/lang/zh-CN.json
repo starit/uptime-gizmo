@@ -1933,9 +1933,9 @@
     "configurationExporting": "正在导出…",
     "configurationExportReady": "配置归档已下载。",
     "configurationImportTitle": "导入配置",
-    "configurationImportBody": "校验并暂存 .ugbackup 文件；Uptime Gizmo 下次启动时会用它替换目标实例的监控配置。",
+    "configurationImportBody": "校验并暂存 .ugbackup 文件；当前这台 Uptime Gizmo 下次启动时会用它替换自身的监控配置。",
     "configurationImportTrustedSource": "只导入由你创建或信任的归档；应用后，它可以更改请求目标、凭据、集成和状态页自定义 CSS。",
-    "configurationImportKeepsIdentity": "保留目标实例的用户、登录密码哈希、两步验证、个人 API 密钥、认证策略和数据库连接设置。",
+    "configurationImportKeepsIdentity": "你当前正在导入的这台 Uptime Gizmo 会继续使用现有的用户账号、登录密码、两步验证、个人 API 密钥、认证策略和数据库连接设置；备份文件不会覆盖这些内容。",
     "configurationImportClearsHistory": "暂存内容成功应用时会删除当前监控项及其历史；应用失败会整体回滚。",
     "configurationImportNextStart": "现在不会修改运行中的数据库；重启 Uptime Gizmo 进程或容器后才会应用。",
     "configurationArchiveFile": "配置归档",
@@ -1943,7 +1943,7 @@
     "configurationImporting": "正在校验…",
     "configurationImportStaged": "配置已校验并暂存。重启 Uptime Gizmo 后应用。",
     "configurationImportConfirmTitle": "下次启动时替换此实例的监控配置？",
-    "configurationImportConfirmBody": "Uptime Gizmo 下次启动时，会删除当前的监控项、通知渠道、状态页、维护计划、标签、可迁移设置和监控历史，再以此文件替换；目标实例的登录账号保持不变。",
+    "configurationImportConfirmBody": "Uptime Gizmo 下次启动时，会删除当前的监控项、通知渠道、状态页、维护计划、标签、可迁移设置和监控历史，再以此文件替换；当前这台实例上的登录账号保持不变。",
     "configurationImportConfirmRestart": "文件现在只会被校验并暂存，重启前不会改动任何数据库记录。",
     "configurationImportConfirmAction": "暂存替换",
     "configurationTransferFailed": "配置导出或导入失败。",
@@ -1958,7 +1958,7 @@
         },
         "failed": {
             "title": "配置导入失败",
-            "body": "目标数据库没有发生变化，私有暂存文件已保留以便诊断。"
+            "body": "当前这台实例的数据库没有发生变化，私有暂存文件已保留以便诊断。"
         }
     }
 }

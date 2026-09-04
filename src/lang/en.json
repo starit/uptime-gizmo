@@ -1835,9 +1835,9 @@
     "configurationExporting": "Exporting…",
     "configurationExportReady": "Configuration archive downloaded.",
     "configurationImportTitle": "Import configuration",
-    "configurationImportBody": "Validate and stage a .ugbackup file. It will replace the target instance's monitoring configuration on its next start.",
+    "configurationImportBody": "Validate and stage a .ugbackup file. It will replace this Uptime Gizmo instance's monitoring configuration on its next start.",
     "configurationImportTrustedSource": "Import only an archive you created or trust. It can change destinations, credentials, integrations, and custom status-page CSS when applied.",
-    "configurationImportKeepsIdentity": "Keeps target users, login password hashes, two-factor authentication, personal API keys, authentication policy, and database connection settings.",
+    "configurationImportKeepsIdentity": "This Uptime Gizmo instance—the one you are importing into—keeps its existing user accounts, login passwords, two-factor authentication, personal API keys, authentication policy, and database connection settings. The backup file does not overwrite them.",
     "configurationImportClearsHistory": "Removes current monitors and their history when the staged import is successfully applied. A failed apply rolls everything back.",
     "configurationImportNextStart": "Does not modify the running database now; restart the Uptime Gizmo process or container to apply it.",
     "configurationArchiveFile": "Configuration archive",
@@ -1845,7 +1845,7 @@
     "configurationImporting": "Validating…",
     "configurationImportStaged": "Configuration validated and staged. Restart Uptime Gizmo to apply it.",
     "configurationImportConfirmTitle": "Replace this instance's monitoring configuration on next start?",
-    "configurationImportConfirmBody": "When Uptime Gizmo next starts, its monitors, notification channels, status pages, maintenances, tags, portable settings, and current monitoring history will be removed and replaced by this file. Target login accounts stay unchanged.",
+    "configurationImportConfirmBody": "When Uptime Gizmo next starts, its monitors, notification channels, status pages, maintenances, tags, portable settings, and current monitoring history will be removed and replaced by this file. The login accounts on this instance stay unchanged.",
     "configurationImportConfirmRestart": "The staged file is validated now, but no database rows change until restart.",
     "configurationImportConfirmAction": "Stage replacement",
     "configurationTransferFailed": "Configuration export or import failed.",
@@ -1860,7 +1860,7 @@
         },
         "failed": {
             "title": "Configuration import failed",
-            "body": "The target database was left unchanged. The private staged file was retained for diagnosis."
+            "body": "This instance's database was left unchanged. The private staged file was retained for diagnosis."
         }
     }
 }
