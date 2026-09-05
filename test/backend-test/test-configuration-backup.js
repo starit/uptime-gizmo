@@ -280,6 +280,28 @@ describe("configuration archive document", () => {
         assert.throws(() => canonicalizeConfigurationDocument(nested), /nested too deeply/);
     });
 
+    test("rejects self-referencing and multi-monitor parent cycles", () => {
+        const selfCycle = emptyDocument();
+        selfCycle.resources.monitors.push({ id: 1, type: "group", parent: 1 });
+        assert.throws(() => canonicalizeConfigurationDocument(selfCycle), /parent cycle/);
+
+        const multiMonitorCycle = emptyDocument();
+        multiMonitorCycle.resources.monitors.push(
+            { id: 1, type: "group", parent: 2 },
+            { id: 2, type: "group", parent: 3 },
+            { id: 3, type: "group", parent: 1 }
+        );
+        assert.throws(() => canonicalizeConfigurationDocument(multiMonitorCycle), /parent cycle/);
+
+        const hierarchy = emptyDocument();
+        hierarchy.resources.monitors.push(
+            { id: 1, type: "group", parent: null },
+            { id: 2, type: "group", parent: 1 },
+            { id: 3, type: "http", parent: 2 }
+        );
+        assert.doesNotThrow(() => canonicalizeConfigurationDocument(hierarchy));
+    });
+
     test("rejects invalid JSON and unknown archive versions", () => {
         assert.throws(() => parseConfigurationDocument(Buffer.from("not-json")), /not valid JSON/);
         assert.throws(() => parseConfigurationDocument(Buffer.from([0xc3, 0x28])), /not valid UTF-8/);

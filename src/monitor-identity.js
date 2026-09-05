@@ -7,8 +7,42 @@
  * types apart and to search without putting passwords on the screen.
  */
 
+const SENSITIVE_PARAMETER_NAMES = new Set([
+    "access_token",
+    "apikey",
+    "api_key",
+    "key",
+    "passwd",
+    "password",
+    "pwd",
+    "secret",
+    "token",
+]);
+
 /**
- * Hide passwords in URLs and SQL-style connection strings.
+ * Redact key/value credentials from non-URL connection strings.
+ * @param {string} text connection string
+ * @returns {string} redacted connection string
+ */
+function redactConnectionStringValues(text) {
+    return text.replaceAll(
+        /(\b(?:password|passwd|pwd|access\s*token|access_token|accesstoken|api\s*key|api_key|apikey|secret|token)\s*=\s*)(?:\{(?:[^}]|}})*\}|"(?:[^"]|"")*"|'(?:[^']|'')*'|[^;]*)(?=;|$)/gi,
+        "$1******"
+    );
+}
+
+/**
+ * Redact userinfo in URL-like values whose leading wrapper prevents WHATWG URL
+ * from recognizing it, for example jdbc:postgresql://user:password@host/db.
+ * @param {string} text URL-like value
+ * @returns {string} redacted value
+ */
+function redactURLUserInfo(text) {
+    return text.replaceAll(/:([^:@/]+)@/g, ":******@");
+}
+
+/**
+ * Hide credentials in URLs and SQL-style connection strings.
  * @param {unknown} value URL or connection string
  * @returns {string} Displayable value
  */
@@ -27,11 +61,18 @@ function redactSecret(value) {
         if (parsed.password !== "") {
             parsed.password = "******";
         }
-        return parsed.toString();
+        for (const key of parsed.searchParams.keys()) {
+            if (SENSITIVE_PARAMETER_NAMES.has(key.toLowerCase())) {
+                parsed.searchParams.set(key, "******");
+            }
+        }
+        const redactedURL = redactURLUserInfo(parsed.toString());
+        return /^jdbc:/i.test(text) ? redactConnectionStringValues(redactedURL) : redactedURL;
     } catch {
-        return text
-            .replaceAll(/Password=(.+?)(;|$)/gi, "Password=******$2")
-            .replaceAll(/:([^:@/]+)@/g, ":******@");
+        // Connection-string values may be unquoted, quoted, or wrapped in
+        // braces. If an unfamiliar unquoted form has no semicolon delimiter,
+        // masking the remainder is preferable to displaying part of a secret.
+        return redactURLUserInfo(redactConnectionStringValues(text));
     }
 }
 

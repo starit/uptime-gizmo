@@ -226,6 +226,39 @@ function validateID(value, path, nullable = false) {
 }
 
 /**
+ * Reject monitor parent graphs that would never reach a root. This is
+ * iterative so a valid archive containing a very deep hierarchy cannot exhaust
+ * the JavaScript call stack while it is still untrusted input.
+ * @param {object[]} monitors canonical monitor rows
+ * @returns {void}
+ * @throws {ConfigurationDocumentError} when a parent cycle exists
+ */
+function assertAcyclicMonitorParents(monitors) {
+    const parentByID = new Map(monitors.map((monitor) => [ monitor.id, monitor.parent ?? null ]));
+    const resolved = new Set();
+
+    for (const monitor of monitors) {
+        if (resolved.has(monitor.id)) {
+            continue;
+        }
+
+        const path = new Set();
+        let currentID = monitor.id;
+        while (currentID !== null && !resolved.has(currentID)) {
+            if (path.has(currentID)) {
+                throw new ConfigurationDocumentError("archive.resources.monitors contains a parent cycle");
+            }
+            path.add(currentID);
+            currentID = parentByID.get(currentID) ?? null;
+        }
+
+        for (const resolvedID of path) {
+            resolved.add(resolvedID);
+        }
+    }
+}
+
+/**
  * Return a safe canonical copy and validate all relations.
  * @param {unknown} input parsed archive
  * @returns {object} canonical archive
@@ -328,6 +361,8 @@ function canonicalizeConfigurationDocument(input) {
             }
         }
     }
+
+    assertAcyclicMonitorParents(canonicalResources.monitors);
 
     for (const [index, incident] of canonicalResources.activeIncidents.entries()) {
         if (incident.active !== true && incident.active !== 1) {
