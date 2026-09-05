@@ -123,3 +123,13 @@ The restart requirement is promoted to a warning before the import fields. It
 remains mandatory in beta.5 because replacement runs before monitors and other
 runtime services initialize; live apply would require a separate runtime
 quiesce-and-reload lifecycle.
+A security follow-up also rejects self-referencing and multi-monitor parent
+cycles while the uploaded document is still being validated. The graph walk is
+iterative and linear, so a deeply nested but valid monitor hierarchy does not
+consume the JavaScript call stack.
+The focused configuration-document and shared monitor-identity regression
+suites pass 17 tests after these changes. Release-level verification passes all
+580 runnable backend tests (with one public-NTP test skipped), all 37 Playwright
+tests, ESLint and Stylelint with no errors, all TypeScript/Vue type checks, and
+the production build. The backend matrix includes the same configuration moved
+from SQLite to MariaDB and MySQL.

@@ -126,7 +126,7 @@ Every `POST`, `PATCH`, and `DELETE` requires a writable key.
 | --- | --- |
 | `GET /api/v1/whoami` | Calling account id and read-only state |
 | `GET /api/v1/overview` | Every monitor's current state, state start, last check, ping, 24-hour uptime, and TLS certificate fields |
-| `GET /api/v1/overview?since=<timestamp>` | Only the monitors checked since that moment |
+| `GET /api/v1/overview?since=<unix-seconds>` | Only the monitors checked since that moment |
 | `GET /api/v1/incidents/active` | Active monitors currently down or pending; paused monitors are omitted |
 | `GET /api/v1/changes?hours=24&limit=500` | Status transitions, newest first |
 | `GET /api/v1/monitors/{id}/uptime?window=24h` | Rolled-up uptime and latency buckets, oldest first |
@@ -134,14 +134,16 @@ Every `POST`, `PATCH`, and `DELETE` requires a writable key.
 
 `changes` defaults to 24 hours and 500 rows. Lookback is capped at 168 hours,
 and the response's `window.capped` and `window.truncated` flags say when the
-answer was bounded. `since` on an overview row or incident is a timestamp, not
-a duration.
+answer was bounded. The `since` fields returned on overview rows and incidents
+remain UTC date-time strings; the `since` query parameter described below is a
+number of Unix seconds.
 
-`since` takes an ISO 8601 timestamp and returns only the monitors whose last
-check is later than it. It is for a caller keeping a copy of this in step: at a
-minute's polling against a five-minute check interval, four readings in five
-otherwise repeat what the last one said. Omit it and the whole estate comes
-back, exactly as before.
+`since` takes a non-negative Unix timestamp in whole seconds, for example
+`1788566400`, and returns only the monitors whose last check is later than it.
+Milliseconds, fractions, scientific notation, and date strings are rejected.
+It is for a caller keeping a copy of this in step: at a minute's polling against
+a five-minute check interval, four readings in five otherwise repeat what the
+last one said. Omit it and the whole estate comes back, exactly as before.
 
 **An absence means something different in the two answers.** A monitor missing
 from the full overview is not in the estate. A monitor missing from a `since`

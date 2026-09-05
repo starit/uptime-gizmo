@@ -459,6 +459,12 @@ work in [the MCP plan](mcp-and-agent-api.md): `overview`, `incidents/active`,
 Recorded here because each one departs from, or resolves something left open by,
 the sections above.
 
+**Incremental overview cursors use Unix seconds.** `GET /overview?since=`
+accepts only a non-negative integer count of seconds since the Unix epoch. This
+keeps polling clients independent of JavaScript's implementation-dependent date
+string parsing and makes accidental millisecond input fail visibly instead of
+querying the wrong window.
+
 **Secrets are not always a whole column.** The field tables mark columns, which
 covers `monitor.basic_auth_pass` or `proxy.password`. It cannot express
 `notification.config`, a single JSON blob that for most of the hundred-odd
