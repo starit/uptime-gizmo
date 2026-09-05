@@ -836,6 +836,10 @@ function parseBoundedInteger(raw, fallback, min, max) {
     return value >= min && value <= max ? value : null;
 }
 
+// Latest whole Unix second representable by the four-digit years used by the
+// supported database DATETIME types.
+const MAX_UNIX_SECONDS = 253402300799;
+
 /*
  * The question an agent actually asks, answered in one call: what is the state
  * of everything right now. Assembled here rather than left to the caller, so a
@@ -856,16 +860,20 @@ router.get(
          * an existing caller sees exactly what it saw before.
          */
         const rawSince = req.query.since;
-        let since = null;
+        let sinceDateTime = null;
         if (rawSince !== undefined) {
-            since = new Date(String(rawSince));
-            if (Number.isNaN(since.getTime())) {
+            const sinceSeconds = parseBoundedInteger(rawSince, null, 0, MAX_UNIX_SECONDS);
+            if (sinceSeconds === null) {
                 res.status(400).json({
                     ok: false,
-                    error: { code: "invalid_request", message: "since must be an ISO 8601 timestamp" },
+                    error: {
+                        code: "invalid_request",
+                        message: "since must be a Unix timestamp in whole seconds",
+                    },
                 });
                 return;
             }
+            sinceDateTime = new Date(sinceSeconds * 1000).toISOString().slice(0, 19).replace("T", " ");
         }
 
         const rows = await R.getAll("SELECT * FROM monitor WHERE user_id = ? ORDER BY name", [
@@ -873,7 +881,7 @@ router.get(
         ]);
         let monitors = R.convertToBeans("monitor", rows);
 
-        if (since !== null && monitors.length > 0) {
+        if (sinceDateTime !== null && monitors.length > 0) {
             /*
              * A monitor's latest beat is at least as recent as any of its
              * beats, so "has one after this" and "its last one is after this"
@@ -889,7 +897,7 @@ router.get(
             const moved = await R.getAll(
                 `SELECT DISTINCT monitor_id FROM heartbeat
                  WHERE time > ? AND monitor_id IN (${placeholders})`,
-                [ R.isoDateTime(since), ...monitors.map((monitor) => monitor.id) ]
+                [ sinceDateTime, ...monitors.map((monitor) => monitor.id) ]
             );
             const movedIds = new Set(moved.map((row) => row.monitor_id));
             monitors = monitors.filter((monitor) => movedIds.has(monitor.id));
@@ -2410,11 +2418,20 @@ function buildOpenAPI() {
                             in: "query",
                             required: false,
                             description:
-                                "ISO 8601 timestamp. Only monitors whose last check is later than this are returned. Omit for the whole estate.",
-                            schema: { type: "string", format: "date-time" },
+                                "Unix timestamp in whole seconds (UTC). Only monitors whose last check is later than this are returned. Omit for the whole estate.",
+                            schema: {
+                                type: "integer",
+                                format: "int64",
+                                minimum: 0,
+                                maximum: MAX_UNIX_SECONDS,
+                                example: 1788566400,
+                            },
                         },
                     ],
-                    responses: { 200: { description: "Overview" } },
+                    responses: {
+                        200: { description: "Overview" },
+                        400: { description: "since is not a supported Unix timestamp in whole seconds" },
+                    },
                 },
             },
             "/api/v1/incidents/active": {

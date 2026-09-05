@@ -38,6 +38,15 @@ function minutesAgo(minutes) {
 }
 
 /**
+ * A Unix timestamp in whole seconds for an incremental overview request.
+ * @param {number} minutes how far back
+ * @returns {number} timestamp in seconds
+ */
+function unixSecondsAgo(minutes) {
+    return Math.floor((Date.now() - minutes * 60000) / 1000);
+}
+
+/**
  * Insert a monitor owned by the test user.
  * @param {object} fields the monitor to insert
  * @param {number} fields.id primary key to use
@@ -175,7 +184,8 @@ describe("v1 summary endpoints agree with their sources", () => {
 
     it("narrows the overview to what has been checked since a caller last asked", async () => {
         const everything = (await get("/api/v1/overview")).data;
-        const recent = (await get(`/api/v1/overview?since=${new Date(minutesAgo(30)).toISOString()}`)).data;
+        const since = unixSecondsAgo(30);
+        const recent = (await get(`/api/v1/overview?since=${since}`)).data;
 
         /*
          * A caller keeping a copy in step re-reads the whole estate otherwise,
@@ -184,21 +194,21 @@ describe("v1 summary endpoints agree with their sources", () => {
         assert.ok(recent.length < everything.length, "since returned the whole estate");
         for (const row of recent) {
             assert.ok(
-                new Date(row.lastCheck).getTime() > new Date(minutesAgo(30)).getTime(),
+                Date.parse(`${row.lastCheck.replace(" ", "T")}Z`) > since * 1000,
                 `${row.name} was returned but was last checked at ${row.lastCheck}`
             );
         }
         const excluded = everything.filter((row) => !recent.some((kept) => kept.id === row.id));
         for (const row of excluded) {
             assert.ok(
-                row.lastCheck === null || new Date(row.lastCheck).getTime() <= new Date(minutesAgo(30)).getTime(),
+                row.lastCheck === null || Date.parse(`${row.lastCheck.replace(" ", "T")}Z`) <= since * 1000,
                 `${row.name} was left out but was checked at ${row.lastCheck}`
             );
         }
     });
 
     it("leaves a monitor that has never been checked out of a since response", async () => {
-        const recent = (await get(`/api/v1/overview?since=${new Date(minutesAgo(60 * 24 * 365)).toISOString()}`)).data;
+        const recent = (await get(`/api/v1/overview?since=${unixSecondsAgo(60 * 24 * 365)}`)).data;
 
         /*
          * It has nothing to say the previous answer did not already contain,
@@ -217,14 +227,42 @@ describe("v1 summary endpoints agree with their sources", () => {
         assert.deepStrictEqual(summarised, listed, "adding since changed what the unfiltered overview covers");
     });
 
-    it("refuses a since it cannot read rather than ignoring it", async () => {
-        const response = await fetch(`${base}/api/v1/overview?since=yesterday`, {
-            headers: { Authorization: CREDENTIALS },
-        });
-        const body = await response.json();
+    it("accepts only Unix timestamps in whole seconds", async () => {
+        const validAttempts = await Promise.all(
+            [ "0", "253402300799" ].map((value) =>
+                fetch(`${base}/api/v1/overview?since=${value}`, {
+                    headers: { Authorization: CREDENTIALS },
+                })
+            )
+        );
+        for (const response of validAttempts) {
+            assert.strictEqual(response.status, 200);
+            await response.json();
+        }
 
-        assert.strictEqual(response.status, 400);
-        assert.strictEqual(body.error.code, "invalid_request");
+        const invalidValues = [
+            "yesterday",
+            "2026-09-05T00:00:00Z",
+            "1.5",
+            "1e3",
+            "-1",
+            "1788566400000",
+            "253402300800",
+        ];
+        const attempts = await Promise.all(
+            invalidValues.map(async (value) => {
+                const response = await fetch(`${base}/api/v1/overview?since=${encodeURIComponent(value)}`, {
+                    headers: { Authorization: CREDENTIALS },
+                });
+                return { value, response, body: await response.json() };
+            })
+        );
+
+        for (const { value, response, body } of attempts) {
+            assert.strictEqual(response.status, 400, `${value} was accepted`);
+            assert.strictEqual(body.error.code, "invalid_request");
+            assert.match(body.error.message, /whole seconds/);
+        }
     });
 
     it("reports the status each monitor's own heartbeats support", async () => {
