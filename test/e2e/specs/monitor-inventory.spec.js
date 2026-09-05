@@ -228,19 +228,30 @@ test.describe("Monitor inventory", () => {
                         })
                     )
                     .toEqual({ offenders: [], overflow: 0 });
-                if (width >= 360 && width < 768) {
+                if (width < 768) {
                     await expect
                         .poll(async () =>
                             page.locator(".inventory-toolbar").evaluate((toolbar) => {
-                                const controls = [
-                                    toolbar.querySelector(".search-wrapper"),
+                                const search = toolbar.querySelector(".search-wrapper").getBoundingClientRect();
+                                const filters = [
                                     ...toolbar.querySelectorAll(".filter-dropdown-status"),
-                                ];
-                                const tops = controls.map((control) => Math.round(control.getBoundingClientRect().top));
-                                return Math.max(...tops) - Math.min(...tops) <= 1;
+                                    toolbar.querySelector(".type-filter"),
+                                ].map((control) => control.getBoundingClientRect());
+                                const filterButtonTops = filters.slice(0, -1).map(({ top }) => Math.round(top));
+                                return {
+                                    filterButtonsAligned:
+                                        Math.max(...filterButtonTops) - Math.min(...filterButtonTops) <= 1,
+                                    searchAboveFilters:
+                                        Math.round(search.bottom) <= Math.min(...filters.map(({ top }) => top)),
+                                    typeFilterWideEnough: filters.at(-1).width >= 128,
+                                };
                             })
                         )
-                        .toBe(true);
+                        .toEqual({
+                            filterButtonsAligned: true,
+                            searchAboveFilters: true,
+                            typeFilterWideEnough: true,
+                        });
                 }
             });
         }

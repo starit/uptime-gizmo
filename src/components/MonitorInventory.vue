@@ -2110,38 +2110,21 @@ export default {
     }
 
     .inventory-toolbar {
-        display: flex;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
     }
 
-    /*
-     * Search and the filters share the row here rather than stacking.
-     *
-     * Both were given a 100% basis, and a flex line wraps before it shrinks, so
-     * the second one always fell to its own row and the toolbar took two. The
-     * search field takes what is left after the filters, down to nothing, which
-     * keeps them level and the toolbar one row deep.
-     */
     .search-wrapper {
-        flex: 1 1 6rem;
+        width: 100%;
         max-width: none;
         min-width: 0;
     }
 
     .filters-group {
-        /*
-         * A basis small enough for the line to hold both, because wrapping is
-         * decided on the basis and only then is anything shrunk. Left at auto
-         * the group asks for its content width, which never leaves room for the
-         * search field beside it.
-         *
-         * The width is capped as well: a basis only sets where the line breaks,
-         * and the children were free to lay themselves out wider than the group
-         * and push past the viewport edge.
-         */
-        flex: 0 1 12rem;
-        max-width: 12rem;
+        width: 100%;
+        max-width: none;
         min-width: 0;
-        overflow: hidden;
+        flex-wrap: wrap;
 
         :deep(.filter-dropdown-status) {
             width: auto;
@@ -2149,19 +2132,13 @@ export default {
         }
 
         .type-filter {
-            flex: 1 1 4rem;
-            min-width: 0;
+            flex: 1 1 8rem;
+            min-width: 8rem;
         }
 
         :deep(.monitor-list-filter > .filter-dropdown:last-of-type .filter-dropdown-menu) {
             inset-inline: auto 0;
         }
-    }
-
-    .type-filter {
-        flex: 1 1 8rem;
-        min-width: 8rem;
-        width: 100%;
     }
 
     .inventory-heading {
@@ -2170,9 +2147,4 @@ export default {
     }
 }
 
-@media (max-width: 359.98px) {
-    .filters-group {
-        flex-wrap: wrap;
-    }
-}
 </style>

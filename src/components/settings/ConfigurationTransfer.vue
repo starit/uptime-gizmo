@@ -381,6 +381,7 @@ export default {
     width: 100%;
     min-width: 0;
     max-width: 52rem;
+    container-type: inline-size;
 }
 
 .configuration-callout,
@@ -573,13 +574,28 @@ export default {
     font-weight: 600;
 }
 
-/* The app and settings rails both consume width at tablet/compact-desktop
-   sizes, so this breakpoint follows the usable form area rather than a phone. */
-@media (max-width: 1100px) {
+/* The page can sit beside both the monitor and settings rails. Respond to the
+   component's usable width instead of the browser viewport. */
+@container (max-width: 48rem) {
+    .configuration-section--danger .configuration-action {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .configuration-section--danger .configuration-action__button {
+        grid-column: 1 / -1;
+        width: 100%;
+    }
+}
+
+@container (max-width: 34rem) {
     .configuration-action,
     .configuration-section--danger .configuration-action,
     .configuration-summary {
         grid-template-columns: 1fr;
+    }
+
+    .configuration-section--danger .configuration-action__button {
+        grid-column: auto;
     }
 
     .configuration-action__button {
