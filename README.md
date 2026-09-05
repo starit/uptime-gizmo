@@ -37,7 +37,8 @@ Everything in this section works today. Planned work is in the
   `whoami`, plus `overview`, `incidents/active` and `changes`. A monitor's
   history comes back as buckets to draw a chart from, and as the individual
   checks behind them. The overview includes certificate validity and expiry,
-  and `externalRef` makes monitor provisioning safe to retry. Notification
+  accepts Unix seconds through `?since=` for incremental polling, and
+  `externalRef` makes monitor provisioning safe to retry. Notification
   channels can be created, updated, deleted, attached and disabled; their
   settings go in and are never returned. Maintenance windows, status pages,
   proxies and the other integrations are readable; their write side is still

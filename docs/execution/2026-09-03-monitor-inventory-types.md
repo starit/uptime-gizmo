@@ -17,9 +17,10 @@
   new row. Nested children show their full parent path, and expansion uses a
   short reveal transition.
 - Each row shows a friendly type label and a type-specific target (HTTP URL,
-  host:port, LLM model, Web3 address, group child count, and so on). Passwords
-  in URLs and connection strings are stripped. Search matches the displayed
-  target and type label.
+  host:port, LLM model, Web3 address, group child count, and so on). Credentials
+  in URL userinfo, sensitive query parameters, and common database connection
+  string forms are redacted. The inventory and detail page share this logic.
+  Search matches the displayed target and type label.
 - Heartbeat placement follows Appearance (column, under the identity, or none).
   Interval `0` is shown. Groups omit interval. Ping milliseconds are omitted
   for group and manual monitors.

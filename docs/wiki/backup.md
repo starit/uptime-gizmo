@@ -89,8 +89,9 @@ stream under a configured byte limit, requires valid UTF-8 JSON, and accepts
 only the current format, resources, fields, scalar types, ids, and relations.
 Malformed lengths, compressed uploads, dangerous nested object keys, excessive
 depth or value counts, oversized strings, duplicate ids, and broken references
-are rejected. The accepted document is serialized again into canonical JSON
-and written as a private file; the uploaded filename is never used.
+or cyclic monitor parent graphs are rejected. The accepted document is
+serialized again into canonical JSON and written as a private file; the
+uploaded filename is never used.
 
 `.ugbackup` is JSON despite its extension. Uptime Gizmo does not unpack it and
 does not execute SQL from it, removing archive path-traversal, decompression-bomb,

@@ -23,7 +23,9 @@ accounts and authentication identity in place.
 - A full-width monitor inventory with search, status/tag/type filters, sorting,
   bulk actions, responsive mobile cards, and a per-monitor history display
   control.
-- Incremental overview reads through `/api/v1/overview?since=<timestamp>`.
+- Incremental overview reads through
+  `/api/v1/overview?since=<unix-seconds>`, using whole Unix seconds rather than
+  implementation-dependent date-string parsing.
 
 ### Safety and compatibility
 
@@ -36,7 +38,11 @@ accounts and authentication identity in place.
   changes.
 - Import rejects compressed uploads, malformed lengths, invalid UTF-8,
   oversized or excessively nested documents, unknown fields, dangerous object
-  keys, duplicate ids, and broken relations before it writes a staged file.
+  keys, duplicate ids, broken relations, and cyclic monitor parent graphs before
+  it writes a staged file.
+- Monitor inventory and detail targets share conservative credential redaction
+  for URL userinfo and sensitive query parameters as well as common database
+  connection-string password forms.
 - Backup controls wrap and stack safely for long translations and
   filenames, including a 320 px mobile viewport; settings navigation and panel
   edges use RTL-aware logical properties. Import effects use visible semantic
