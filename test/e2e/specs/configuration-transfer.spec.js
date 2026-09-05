@@ -65,6 +65,21 @@ test.describe("Configuration backup", () => {
     });
 
     test("keeps the actions usable on a narrow viewport", async ({ page }) => {
+        await page.setViewportSize({ width: 1280, height: 720 });
+        await page.goto("./settings/backup");
+
+        const desktopImportAction = page.locator(".configuration-section--danger .configuration-action");
+        const desktopImportButton = page.getByRole("button", { name: "Import configuration" });
+        const [desktopActionBox, desktopButtonBox] = await Promise.all([
+            desktopImportAction.boundingBox(),
+            desktopImportButton.boundingBox(),
+        ]);
+        expect(desktopActionBox).not.toBeNull();
+        expect(desktopButtonBox).not.toBeNull();
+        expect(desktopButtonBox.width).toBeGreaterThan(200);
+        expect(desktopButtonBox.height).toBeLessThanOrEqual(48);
+        expect(desktopButtonBox.y).toBeGreaterThan(desktopActionBox.y);
+
         await page.setViewportSize({ width: 390, height: 844 });
         await page.goto("./settings/backup");
 

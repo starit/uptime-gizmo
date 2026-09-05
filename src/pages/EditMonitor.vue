@@ -5124,6 +5124,13 @@ message HealthCheckResponse {
     }
 }
 
+@media (max-width: 767.98px) {
+    /* Keep the sticky primary action above the fixed mobile navigation. */
+    .monitor-editor-actions {
+        bottom: calc(64px + 0.75rem + env(safe-area-inset-bottom));
+    }
+}
+
 textarea {
     min-height: 200px;
 }

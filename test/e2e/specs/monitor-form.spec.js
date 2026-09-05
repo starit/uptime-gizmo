@@ -45,6 +45,35 @@ test.describe("Monitor Form", () => {
         await screenshot(testInfo, page);
     });
 
+    test("mobile save action stays above the bottom navigation", async ({ page }) => {
+        await page.goto("./add");
+        await login(page);
+        await page.setViewportSize({ width: 390, height: 844 });
+
+        const saveButton = page.getByTestId("save-button");
+        const bottomNavigation = page.locator(".bottom-nav");
+        await expect(saveButton).toBeVisible();
+        await expect(bottomNavigation).toBeVisible();
+
+        const [saveBox, navigationBox] = await Promise.all([
+            saveButton.boundingBox(),
+            bottomNavigation.boundingBox(),
+        ]);
+        expect(saveBox).not.toBeNull();
+        expect(navigationBox).not.toBeNull();
+        expect(saveBox.y + saveBox.height).toBeLessThanOrEqual(navigationBox.y);
+        expect(
+            await saveButton.evaluate((button) => {
+                const bounds = button.getBoundingClientRect();
+                const hit = document.elementFromPoint(
+                    bounds.left + bounds.width / 2,
+                    bounds.top + bounds.height / 2
+                );
+                return button.contains(hit);
+            })
+        ).toBe(true);
+    });
+
     test("successful condition", async ({ page }, testInfo) => {
         await page.goto("./add");
         await login(page);
