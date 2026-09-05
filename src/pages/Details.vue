@@ -438,7 +438,7 @@ const PingChart = defineAsyncComponent(() => import("../components/PingChart.vue
 import Tag from "../components/Tag.vue";
 import CertificateInfo from "../components/CertificateInfo.vue";
 import { getMonitorRelativeURL } from "../util.ts";
-import { URL } from "whatwg-url";
+import { redactSecret } from "../monitor-identity.js";
 import DOMPurify from "dompurify";
 import { marked } from "marked";
 import { getResBaseURL, timeDurationFormatter } from "../util-frontend";
@@ -813,16 +813,7 @@ export default {
          * @returns {string} Censored URL
          */
         filterPassword(urlString) {
-            try {
-                let parsedUrl = new URL(urlString);
-                if (parsedUrl.password !== "") {
-                    parsedUrl.password = "******";
-                }
-                return parsedUrl.toString();
-            } catch (e) {
-                // Handle SQL Server
-                return urlString.replaceAll(/Password=(.+);/gi, "Password=******;");
-            }
+            return redactSecret(urlString);
         },
 
         /**

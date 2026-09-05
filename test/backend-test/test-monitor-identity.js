@@ -17,6 +17,12 @@ describe("monitor identity", () => {
             "https://user:******@example.com/path"
         );
         assert.match(redactSecret("Server=db;Password=hunter2;Database=app"), /Password=\*{6}/);
+        assert.doesNotMatch(redactSecret("Server=db;Pwd={h;unt}}er};Database=app"), /h;unt|er}/);
+        assert.doesNotMatch(redactSecret("host=db user=app password='secret value' sslmode=require"), /secret value/);
+        assert.doesNotMatch(redactSecret("Server=db;Access Token=azure-secret;Database=app"), /azure-secret/);
+        assert.doesNotMatch(redactSecret("jdbc:postgresql://user:jdbc-secret@db/app"), /jdbc-secret/);
+        assert.doesNotMatch(redactSecret("https://example.com/check?token=secret-token&region=west"), /secret-token/);
+        assert.match(redactSecret("https://example.com/check?token=secret-token&region=west"), /region=west/);
         assert.strictEqual(redactSecret(""), "");
     });
 
