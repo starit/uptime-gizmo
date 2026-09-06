@@ -25,6 +25,21 @@ server, monitoring for AI and on-chain infrastructure, and a rebuilt interface.
 screenshots of the current UI (login, dashboard, dark theme, public status
 page), plus the mascot and logo.
 
+### 3.0.0-beta.5 highlights
+
+- **[Monitor inventory](docs/articles/monitor-inventory.md).** A full-width
+  Monitors page with searchable, sortable List, Grid and Cards layouts,
+  type-aware targets, bulk actions and a compact mobile view.
+- **[MCP and agent access](docs/articles/mcp-and-agents.md).** A separate MCP
+  server and portable agent skills use the REST API with read-only keys by
+  default; writable keys can create and update monitors without deleting them.
+- **[EVM monitoring](docs/articles/web3-monitoring.md).** Read-only checks cover
+  RPC freshness, native or ERC-20 balances, and decoded contract values without
+  accepting a wallet private key.
+- **[Configuration Backup](docs/articles/backup.md).** Administrators can move
+  monitoring configuration—including status pages—between SQLite, MariaDB and
+  MySQL instances without moving users, authentication settings or history.
+
 ## What the fork adds
 
 Everything in this section works today. Planned work is in the
