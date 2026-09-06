@@ -57,8 +57,31 @@ function commit(version) {
     let stdout = res.stdout.toString().trim();
     console.log(stdout);
 
-    if (stdout.includes("no changes added to commit")) {
-        throw new Error("commit error");
+    if (res.status !== 0) {
+        /*
+         * Nothing was committed. The release owns the version bump, so the only
+         * way to reach here is that the branch already carries the version being
+         * released — a bump that landed with feature work, or a half-finished
+         * release. Either way the operator has to decide, and guessing is worse
+         * than stopping: an empty release commit would hide the mistake it was
+         * made to paper over.
+         *
+         * The tree is read rather than git's message. Git's wording is English,
+         * varies by version, and the string this used to look for — "no changes
+         * added to commit" — is one `git commit -a` never prints. So the empty
+         * case sailed through, an identical branch was pushed, and the run died
+         * three steps later on a GraphQL error about a branch with no commits,
+         * naming neither the version nor the cause.
+         */
+        const onDisk = JSON.parse(fs.readFileSync("package.json", "utf8")).version;
+        if (onDisk === version) {
+            throw new Error(
+                `package.json already says ${version}, so this release has nothing to commit. `
+                + "The release sets the version; the branch it is cut from should still carry "
+                + "the previous one. Take the premature bump off that branch and run this again."
+            );
+        }
+        throw new Error(`Nothing was committed and package.json says ${onDisk}, not ${version}`);
     }
 
     // Get the current branch name
