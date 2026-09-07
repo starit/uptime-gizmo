@@ -10,8 +10,8 @@ accounts and authentication identity in place.
 ### Added
 
 - Administrator-only **Backup** under **Settings → Backup**,
-  protected by a fresh current-password
-  check and short-lived, single-use transfer tickets.
+  protected by the administrator's current password and short-lived,
+  single-use transfer tickets.
 - A versioned, bounded `.ugbackup` format for monitors, notifications, status
   pages and their groups/links/domains/active incidents, maintenances, tags,
   integrations, custom themes, and allow-listed settings. Operational
@@ -55,6 +55,15 @@ accounts and authentication identity in place.
 - Existing beta.4 data directories still open in place. Configuration backup
   adds no database migration; private import-state files appear only after an
   administrator stages an import.
+
+### Full-database compatibility
+
+- Kuma `2.5.0` → Gizmo beta.5 has been verified with a stopped SQLite data
+  directory, including accounts, monitors, status pages, and history.
+- Beta.5 does not support complete databases from Kuma `2.5.1` or newer because
+  it does not include their full migration history.
+- `.ugbackup` remains portable between Gizmo SQLite, MariaDB, and MySQL
+  instances. It moves configuration and does not import a Kuma database.
 
 ### API notes
 

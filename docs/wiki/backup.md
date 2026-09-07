@@ -4,9 +4,9 @@ Beta.5 can back up monitoring configuration and restore it to another Uptime
 Gizmo instance. Open **Settings → Backup** as an administrator to export or
 import a `.ugbackup` file.
 
-This is a **configuration-only backup, not a full backup**. Use it to reproduce
-how an instance monitors; do not use it as the only copy needed to recover the
-instance, its accounts, or its history.
+This is a **configuration-only backup**. Use it to copy monitoring setup between
+Gizmo instances. To preserve accounts, history, files, and database state, use a
+[full backup](../backup-and-restore.md) instead.
 
 ## What the archive contains
 
@@ -34,8 +34,8 @@ not contain login credentials.
   settings; and
 - database migration or internal bookkeeping state.
 
-An imported estate belongs to the target instance's existing owner. The target
-keeps all of its accounts and authentication settings.
+Imported configuration is assigned to the target instance's existing owner. The
+target keeps its accounts and authentication settings.
 
 ## Exporting
 
@@ -43,9 +43,8 @@ keeps all of its accounts and authentication settings.
 2. Under **Export configuration**, enter your current password.
 3. Download the `.ugbackup` file and store it somewhere protected.
 
-The export is assembled through the application's database layer. It works with
-SQLite, external MariaDB/MySQL, and embedded MariaDB; it is not a copied SQLite
-database or a SQL dump.
+The archive works with SQLite, external MariaDB/MySQL, and embedded MariaDB. It
+is not a copied SQLite database or SQL dump.
 
 ## Importing
 
@@ -58,15 +57,14 @@ Import is a replace operation, not a merge.
 4. Restart Uptime Gizmo.
 5. Return to the same page to check whether the import was applied or failed.
 
-Uploading only validates and stages the archive in the private data directory.
-It does not change the running database. On the next start, Uptime Gizmo applies
-the replacement in one transaction before monitors and background jobs begin.
-A failed import rolls back the configuration and history changes together.
+Uploading validates the archive and stages it in the private data directory. It
+does not change the running database. On the next start, Uptime Gizmo applies
+the replacement in one transaction before monitors and background jobs start.
+A failed import rolls back the complete transaction.
 
-Beta.5 requires restarting the Uptime Gizmo process or container after import.
-There is no live **Apply now** action: applying before runtime services start
-prevents old monitor objects, caches, and in-flight checks from continuing to
-use the configuration that was just replaced.
+Beta.5 requires a process or container restart after import. There is no live
+**Apply now** action. Applying during startup prevents old monitor objects,
+caches, and in-flight checks from using replaced configuration.
 
 Successful replacement clears existing monitoring history because old monitor
 ids could otherwise attach old checks to a different imported monitor. Imported
@@ -83,26 +81,27 @@ configuration archive can intentionally change monitor targets, notification
 destinations, integration credentials, external URLs, and custom status-page
 CSS. Those settings become active after the restart.
 
-Before staging, the server requires a fresh administrator password and consumes
-a random, purpose-bound, single-use ticket. It reads an uncompressed octet
-stream under a configured byte limit, requires valid UTF-8 JSON, and accepts
-only the current format, resources, fields, scalar types, ids, and relations.
-Malformed lengths, compressed uploads, dangerous nested object keys, excessive
-depth or value counts, oversized strings, duplicate ids, and broken references
-or cyclic monitor parent graphs are rejected. The accepted document is
-serialized again into canonical JSON and written as a private file; the
-uploaded filename is never used.
+Before staging, the server requires the administrator's current password and a
+short-lived, single-use ticket. It rejects:
 
-`.ugbackup` is JSON despite its extension. Uptime Gizmo does not unpack it and
-does not execute SQL from it, removing archive path-traversal, decompression-bomb,
-and SQL-script execution paths. These checks make parsing safer; they do not
-make an intentionally harmful but structurally valid configuration trustworthy.
+- compressed, oversized, or non-UTF-8 uploads;
+- unsupported formats, resources, fields, or value types;
+- dangerous object keys or excessive nesting;
+- duplicate ids, broken references, and cyclic monitor parent graphs; and
+- malformed content lengths and oversized strings or value collections.
+
+The server writes a validated, canonical JSON document to a private file. It
+does not use the uploaded filename.
+
+`.ugbackup` is JSON despite its extension. Uptime Gizmo does not unpack it or
+execute SQL from it. Validation protects the parser, but a structurally valid
+file can still contain harmful destinations or credentials.
 
 ## Full recovery is separate
 
 To preserve users, authentication, history, files, and database state, follow
-[Backing up and restoring](../backup-and-restore.md). Configuration backup
-does not replace that procedure.
+[Backing up and restoring](../backup-and-restore.md). That guide also lists the
+Uptime Kuma versions that can be migrated to Gizmo.
 
 Configuration backup is intentionally unavailable through `/api/v1`, MCP, or
 agent skills. See the [REST API reference](rest-api.md#configuration-backup-is-not-a-rest-api)

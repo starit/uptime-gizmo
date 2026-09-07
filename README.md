@@ -14,16 +14,12 @@
 
 > **Uptime is money, friend!**
 
-Uptime Gizmo is a self-hosted monitoring platform. It is a fork of
-[Uptime Kuma](https://github.com/louislam/uptime-kuma).
+Uptime Gizmo is a self-hosted monitoring platform based on
+[Uptime Kuma](https://github.com/louislam/uptime-kuma). It keeps Kuma's monitor
+types, notification providers, and deployment model, and adds a REST API, an MCP
+server, AI and EVM monitoring, and a rebuilt interface.
 
-Everything Kuma is good at is still here: easy self-hosting, twenty-odd monitor
-types, a long list of notification providers. This fork adds an API and an MCP
-server, monitoring for AI and on-chain infrastructure, and a rebuilt interface.
-
-**[Wiki](docs/wiki)** — what this fork added, in short. Open it for
-screenshots of the current UI (login, dashboard, dark theme, public status
-page), plus the mascot and logo.
+See the **[Wiki](docs/wiki)** for feature guides and current screenshots.
 
 ### 3.0.0-beta.5 highlights
 
@@ -46,7 +42,7 @@ Everything in this section works today. Planned work is in the
 [Roadmap](ROADMAP.md). The same notes, with screenshots, are in the
 [wiki](docs/wiki).
 
-### An API, and an MCP server on top of it
+### REST API and MCP server
 
 - **REST API at `/api/v1`.** Monitors, tags, notification channels and
   `whoami`, plus `overview`, `incidents/active` and `changes`. A monitor's
@@ -155,22 +151,18 @@ does not mean.
 
 ### Configuration backup
 
-Administrators can export a versioned `.ugbackup` configuration archive under
-**Settings → Backup**, then import it on another instance for replacement
-at the next restart. The format is database-independent: it can move
-configuration between SQLite, external MariaDB/MySQL, and embedded MariaDB
-instances.
+**Settings → Backup** creates a versioned `.ugbackup` file that works across
+SQLite, external MariaDB/MySQL, and embedded MariaDB. Import replaces the
+target's monitoring configuration on its next restart.
 
-This is deliberately a **configuration-only backup, not a full backup**. It
-includes monitors, notification channels, status pages (including page settings,
-groups, monitor and maintenance links, custom domains, and active incidents),
-maintenances, tags, integrations, custom themes, and the operational credentials
-those resources need. It excludes users, login password hashes, two-factor
-settings, personal API keys, monitoring history, generated results, files, and
-database settings. The target instance keeps its own identities and
-authentication configuration. The archive is unencrypted and can contain
-secrets and active destinations; store it securely and import only a file you
-created or trust.
+This is a **configuration-only backup**. It includes monitors, notification
+channels, status pages, maintenances, tags, integrations, custom themes, and the
+credentials those resources use. It excludes accounts, authentication settings,
+history, files, and database settings. The archive is unencrypted and may
+contain secrets; store it securely and import only a file you trust.
+
+See [Backup](docs/wiki/backup.md) for the exact scope and import procedure. For
+complete recovery, use [a full backup](docs/backup-and-restore.md).
 
 ## Inherited from Uptime Kuma
 
@@ -183,14 +175,14 @@ created or trust.
 - Response-time charts, certificate information, maintenance windows
 - Proxies, two-factor authentication, multi-language support
 
-## 🔧 How to Install
+## Install
 
 Images are on [Docker Hub](https://hub.docker.com/r/starit/uptime-gizmo) and
 [GHCR](https://github.com/starit/uptime-gizmo/pkgs/container/uptime-gizmo), for
 linux/amd64, linux/arm64 and linux/arm/v7. Docker is the supported way to run an
 instance.
 
-### 🐳 Docker Compose
+### Docker Compose
 
 ```bash
 mkdir uptime-gizmo
@@ -213,7 +205,7 @@ To expose the UI on localhost only, change the published port to
 > SQLite does not work on NFS. Map `/app/data` to a local directory or a Docker
 > volume.
 
-### 🐳 Docker Command
+### Docker
 
 ```bash
 docker run -d --restart=always -p 3001:3001 -v uptime-gizmo:/app/data --name uptime-gizmo starit/uptime-gizmo:beta
@@ -239,7 +231,7 @@ Then open http://localhost:3002. Any free host port works the same way (`3003:30
 
 The same tags are on GHCR as `ghcr.io/starit/uptime-gizmo`.
 
-### 💪🏻 Non-Docker
+### From source
 
 Requirements:
 
@@ -327,15 +319,32 @@ docker rm uptime-gizmo
 docker run -d --restart=always -p 3001:3001 -v uptime-gizmo:/app/data --name uptime-gizmo starit/uptime-gizmo:beta
 ```
 
+### Upgrading from Uptime Kuma
+
+Uptime Gizmo `3.0.0-beta.5` supports only the following tested database upgrade
+paths:
+
+| Source | Beta.5 support | Notes |
+| --- | --- | --- |
+| Uptime Kuma `2.5.0` with SQLite | Supported | Stop Kuma and migrate a copy of the complete data directory |
+| Uptime Kuma `2.5.1` or newer | Not supported | Use a later Gizmo release that explicitly supports the source version |
+| Uptime Gizmo `3.0.0-beta.4` | Supported | The existing database migrates at startup |
+
+Always migrate a backup, not the only copy of the source data. Do not downgrade
+Kuma or edit its migration records to bypass this limit.
+
+This table covers a complete database upgrade. **Settings → Backup** moves only
+configuration between Gizmo instances; it does not import a Kuma database. See
+[Backing up and restoring](docs/backup-and-restore.md#uptime-kuma-migration-compatibility)
+for the full compatibility matrix and procedure.
+
 ### Backing up
 
-The interface's **Backup** feature is not a disaster-recovery backup. It
-does not contain users, login credentials, history, uploads, screenshots,
-Docker TLS files, or database configuration. Backing up a complete instance
-still means copying its data directory and, for MariaDB/MySQL, taking a native
-database backup. One way of copying SQLite loses recent data without saying so;
-read [Backing up and restoring](docs/backup-and-restore.md) before relying on a
-copy.
+**Settings → Backup** exports configuration only. It excludes users, login
+credentials, history, files, and database settings. To recover the complete
+instance, copy the data directory and back up any external MariaDB/MySQL
+database. Read [Backing up and restoring](docs/backup-and-restore.md) before
+relying on a copy.
 
 The short version, safe while the instance is running:
 

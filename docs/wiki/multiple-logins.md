@@ -23,7 +23,8 @@ To let someone **watch without touching**, give them a public status page (optio
 
 A disabled account cannot sign in, and its API keys stop working.
 
-The first account on the instance owns the estate in the database. Deleting that account is refused unless another administrator exists, and resources are reassigned first.
+The first account owns the instance's resources in the database. It cannot be
+deleted until another administrator exists and the resources can be reassigned.
 
 ## LLM settings
 

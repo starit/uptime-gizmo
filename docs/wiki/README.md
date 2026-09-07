@@ -8,7 +8,17 @@ Uptime Gizmo is a fork of [Uptime Kuma](https://github.com/louislam/uptime-kuma)
 
 Planned work is in the [Roadmap](../../ROADMAP.md), not here.
 
-## Look
+## Database compatibility
+
+Beta.5 supports a full SQLite migration from Uptime Kuma `2.5.0`. It does not
+support Kuma `2.5.1` or newer databases. Keep an untouched backup; do not
+downgrade Kuma or edit its migration records.
+
+**Settings → Backup** moves configuration between Gizmo instances. It does not
+import a Kuma database. See the full matrix and procedure in
+[Backing up and restoring](../backup-and-restore.md#uptime-kuma-migration-compatibility).
+
+## Interface
 
 The interface was rebuilt on a token system (light and dark). These shots are a demo instance with three public HTTP checks.
 

@@ -1,19 +1,18 @@
 # Backing up and restoring
 
-Uptime Gizmo has two deliberately different operations:
+## Choose the right backup
 
-- **Backup** in **Settings → Backup** moves how an instance monitors between
-  SQLite, MariaDB, and MySQL. It is a configuration-only backup.
-- **Full backup and restore** copies the database and filesystem state described
-  on this page.
+| Goal | Method | Preserves |
+| --- | --- | --- |
+| Copy monitoring configuration to another Gizmo instance | **Settings → Backup** | Monitors, notifications, status pages, and other configuration |
+| Recover the complete instance | Full backup | Accounts, authentication, history, database state, and local files |
+| Move an Uptime Kuma database to Gizmo | Full backup plus the [compatibility matrix](#uptime-kuma-migration-compatibility) | Everything supported by the source-version upgrade |
 
-Do not substitute the first for the second when you need disaster recovery.
+## Configuration backup
 
-## Configuration backup is not a full backup
-
-The beta.5 `.ugbackup` archive contains monitors, notification channels, status
-pages, maintenances, tags, integrations, custom themes, and the operational
-credentials those resources require. It deliberately excludes:
+The beta.5 `.ugbackup` file contains monitors, notification channels, status
+pages, maintenances, tags, integrations, custom themes, and the credentials
+those resources use. It excludes:
 
 - users, password hashes, administrator flags, 2FA settings, and personal API
   keys;
@@ -22,10 +21,12 @@ credentials those resources require. It deliberately excludes:
   incidents; and
 - uploads, screenshots, Docker TLS material, and logs.
 
-Import is a replace operation staged for the next restart. It keeps the target
-instance's accounts and authentication configuration and starts imported
-monitors with empty history. The archive is database-independent and supports
-cross-engine transfer; it is not a SQLite file or SQL dump.
+Import replaces the target's monitoring configuration on its next restart. The
+target keeps its accounts and authentication settings. Imported monitors start
+with no history.
+
+The format works across SQLite, MariaDB, and MySQL. It is not a database dump
+and cannot import an Uptime Kuma database.
 
 See [Backup](wiki/backup.md) for the workflow
 and [the beta.5 release plan](plans/beta-5-release.md) for the format and safety
@@ -33,15 +34,39 @@ decisions.
 
 ## Full backup and restore
 
-Backing up the complete instance means copying its data directory and, when an
-external database is used, taking a native database backup. There is one way to
-copy SQLite incorrectly which produces no error at the time — the rest of this
-page is mostly about avoiding that.
+A full backup includes the data directory. If the instance uses an external
+database, it also includes a native backup of that database.
+
+## Uptime Kuma migration compatibility
+
+Gizmo must recognize every migration recorded by the source database. Use only
+a source version listed below.
+
+The compatibility matrix for Uptime Gizmo `3.0.0-beta.5` is:
+
+| Source | Database | Status |
+| --- | --- | --- |
+| Uptime Gizmo `3.0.0-beta.4` | SQLite, MariaDB, or MySQL | Supported |
+| Uptime Kuma `2.5.0` | SQLite | Supported and tested with a stopped data-directory copy |
+| Uptime Kuma `2.5.0` | MariaDB or MySQL | Not yet tested |
+| Uptime Kuma `2.5.1` or newer | Any engine | Not supported by beta.5 |
+
+> [!WARNING]
+> Beta.5 does not include an upstream migration added in Kuma `2.5.1`. A newer
+> Kuma database may open while Gizmo's own migrations remain unapplied. Existing
+> monitors can appear normal even though permissions, API keys, Backup, and
+> other Gizmo features have an incomplete schema.
+
+Do not downgrade Kuma or edit `knex_migrations`. Keep an untouched backup and
+use a Gizmo release that explicitly supports the source version.
+
+This matrix applies to complete databases, including accounts and history. It
+does not apply to Gizmo's configuration-only `.ugbackup` files.
 
 ## What has to be copied
 
-Everything lives under the data directory, `./data` by default, or whatever
-`DATA_DIR` or the Docker volume points at.
+Local instance files live under the data directory, `./data` by default, or the
+path selected by `DATA_DIR` or the Docker volume.
 
 ```text
 data/
@@ -56,27 +81,25 @@ data/
 
 `error.log` can be left out.
 
-An instance configured for external MariaDB/MySQL keeps its monitors and history
-in that server instead, and `db-config.json` records how to reach it. Back the
-database up with that server's own tools; the directory still holds the uploads,
-the screenshots and the certificates.
+With external MariaDB/MySQL, monitors and history live in that database.
+`db-config.json` only records how to connect to it. Use the database server's
+backup tools, and also copy the data directory for uploads, screenshots, and
+certificates.
 
 Embedded MariaDB stores its database below `data/mariadb/`. Stop the instance
 before copying the complete data volume; copying that directory while MariaDB is
 running is not a consistent backup.
 
-## The mistake worth avoiding
+## Do not copy a live SQLite file by itself
 
 **Copying `kuma.db` on its own, while the server is running, silently loses
 data.**
 
-SQLite runs in WAL mode here. Recent writes go to `kuma.db-wal` and are folded
-into `kuma.db` later, so a copy of `kuma.db` alone is the database as of some
-earlier moment — with no indication of how much later the rest of it was. It
-opens cleanly, it contains most of what you expect, and the monitors that were
-added in the last few minutes are simply not in it.
+SQLite runs in WAL mode. Recent writes may still be in `kuma.db-wal`. Copying
+only `kuma.db` can therefore produce an older but apparently valid database.
 
-Either copy all three files together, or take a snapshot the way described below.
+While the server is running, use the snapshot method below. To copy database
+files directly, stop the server first and copy the complete data directory.
 
 ## Taking a snapshot without stopping the server
 
@@ -96,47 +119,50 @@ Copy the directories alongside it, since the database does not contain them:
 tar czf uploads-$(date +%F).tar.gz -C data upload screenshots docker-tls
 ```
 
-## Stopping first, if you prefer
+## Taking a stopped copy
 
-A clean shutdown folds the WAL into the database and removes it, after which the
-directory can be copied as it stands.
+A clean shutdown stops writes. You can then copy the complete data directory.
 
-Stop the service the ordinary way — `docker compose stop`, or `SIGTERM` to the
-process. Do not use `kill -9`: it gives the database no chance to checkpoint, and
-leaves the `-wal` file that the previous section warns about.
+Stop the service normally with `docker compose stop` or `SIGTERM`. Do not use
+`kill -9`.
 
-Confirm before copying. When `kuma.db-wal` and `kuma.db-shm` are gone, the
-database is complete on its own:
+Confirm that the process has stopped, then copy the directory. Include
+`kuma.db-wal` and `kuma.db-shm` if they remain; do not delete source files before
+the backup.
 
 ```bash
 ls data/
 ```
 
-## Restoring
+## Restoring SQLite
 
 1. Stop the instance.
-2. Put the files back where they came from. A snapshot taken with `VACUUM INTO`
-   is restored by placing it at `data/kuma.db` — there is no `-wal` to restore
-   with it, and any `-wal` or `-shm` left over from the old database must be
-   deleted, or SQLite will apply it on top of the file you just restored.
-3. Restore the directories from their archive.
-4. Start the instance. Migrations run at startup, so a backup from an older
-   version is brought forward automatically.
+2. Remove the target's old `kuma.db-wal` and `kuma.db-shm` files.
+3. Restore the backup. For a `VACUUM INTO` snapshot, place the file at
+   `data/kuma.db`. For a stopped directory backup, restore the complete directory,
+   including its `-wal` and `-shm` files if present.
+4. If you used `VACUUM INTO`, restore the separately archived uploads,
+   screenshots, and Docker TLS files.
+5. Confirm that the source version appears in the compatibility matrix above,
+   then start the instance. Supported older data is brought forward by startup
+   migrations.
 
-Restoring into an **older** version than the backup came from is not supported:
-migrations only run forwards.
+You cannot restore into an older version than the source. Migrations only run
+forward.
+
+For external MariaDB/MySQL, restore the database with that server's tools and
+restore the data directory before starting Uptime Gizmo.
 
 ## Verifying a backup
 
-A backup nobody has restored is a hypothesis. The cheap version of the test:
+Run a basic SQLite integrity check:
 
 ```bash
 sqlite3 backup-2026-08-20.db "PRAGMA integrity_check; SELECT count(*) FROM monitor;"
 ```
 
-`ok` and a count that matches what the instance has is enough to show the file is
-a real database rather than a truncated copy. Restoring into a scratch instance
-and signing in is the honest version.
+Expect `ok` and the same monitor count as the source. For a complete test,
+restore the backup into a temporary instance and sign in.
 
 ## What is not included
 

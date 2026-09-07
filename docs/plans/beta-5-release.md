@@ -6,7 +6,7 @@ Make beta.5 the configuration portability release: administrators can export
 monitoring configuration from any supported database and replace the
 configuration of another instance without transferring login identities or
 monitoring history. The same release also ships a full-width monitor
-inventory so a large estate can be scanned without the dashboard rail.
+inventory so a large monitor list can be scanned without the dashboard rail.
 
 **Status:** implemented; release verification is recorded in
 [the execution report](../execution/2026-09-04-beta-5-export-import.md).
@@ -61,7 +61,7 @@ The archive never contains or replaces:
 - database migration state.
 
 Import keeps the target instance's accounts and authentication settings. Every
-imported estate-owned `user_id` is remapped to the target `instanceOwnerId`.
+imported owner `user_id` is remapped to the target `instanceOwnerId`.
 
 ### Monitoring history and derived state
 
@@ -177,7 +177,7 @@ One database transaction will:
 1. resolve and preserve the target instance owner and identity settings;
 2. clear history and derived rows tied to current monitors;
 3. delete current configuration relations and resources in dependency order;
-4. insert the staged resources and remap estate ownership;
+4. insert the staged resources and remap ownership;
 5. replace only allow-listed portable settings;
 6. retain users, passwords, 2FA, API keys, authentication/JWT identity, database
    configuration, and migration state;
@@ -216,8 +216,8 @@ allow-listed.
 
 ## Security model
 
-- Import and export are administrator-only and require a fresh current-password
-  check.
+- Import and export are administrator-only and require the administrator's
+  current password.
 - The authenticated socket issues a random, single-use, purpose-bound transfer
   ticket that expires quickly.
 - Transfer endpoints are private UI endpoints, not `/api/v1`.
@@ -268,8 +268,8 @@ The UI must not imply that an unencrypted configuration archive is safe to share
 ### P1 — monitor inventory
 
 Independent of configuration backup. The dashboard rail stays the
-selector for a monitor that is already in hand; it is too narrow to scan an
-estate. Scope is in [the monitor inventory plan](monitor-inventory.md).
+selector for a monitor that is already in hand; it is too narrow to scan a
+large monitor list. Scope is in [the monitor inventory plan](monitor-inventory.md).
 
 - [x] Desktop header link to `/list`; that route no longer redirects to the
       dashboard.

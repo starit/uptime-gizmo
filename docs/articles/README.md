@@ -6,5 +6,5 @@ isolated demo instance.
 
 - [Give Your AI Agent a Read-Only Window Into Uptime Gizmo](mcp-and-agents.md)
 - [Monitor EVM Infrastructure Without Giving Up a Private Key](web3-monitoring.md)
-- [Move Uptime Gizmo Configuration Without Moving the Database](backup.md)
-- [See Your Whole Monitor Estate at a Glance](monitor-inventory.md)
+- [Move Configuration Between Uptime Gizmo Instances](backup.md)
+- [View All Monitors in One Place](monitor-inventory.md)

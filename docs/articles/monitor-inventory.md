@@ -1,4 +1,4 @@
-# See Your Whole Monitor Estate at a Glance
+# View All Monitors in One Place
 
 _Use Uptime Gizmo's full-width monitor inventory to scan health, find a target,
 and act on a group of monitors without fighting a narrow sidebar._
@@ -16,7 +16,7 @@ desktop layouts, and a compact mobile view.
 
 If you are coming from Uptime Kuma, the familiar dashboard rail has not
 disappeared. The inventory complements it: use the rail while working on one
-monitor, and use **Monitors** when you need to understand the whole estate.
+monitor, and use **Monitors** when you need to understand the complete list.
 
 ## Step 1: open the full inventory
 

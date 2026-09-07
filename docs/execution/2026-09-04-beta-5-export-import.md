@@ -49,11 +49,10 @@ configuration.
 ## Interface
 
 The settings page names the feature **Backup** and states above the actions that
-it is a configuration-only backup, not a full backup. It lists both included resources and
-excluded identity/history/files, warns that archives may contain operational
-secrets, tells administrators to import only a file they created or trust,
-requires the current password for each action, confirms destructive replace
-staging, and shows pending/applied/failed state with resource counts.
+it is a configuration-only backup, not a full backup. It lists included and
+excluded data, warns that archives may contain operational secrets, requires
+the current password for each action, confirms replacement, and shows pending,
+applied, or failed state with resource counts.
 
 The page follows the existing settings navigation, controls, type, spacing,
 status colours, and light/dark design tokens. The action layout collapses to one
@@ -102,34 +101,32 @@ remain green, so an existing beta.4 data directory follows the same startup
 path unchanged.
 
 During the full backend run, the Domain Expiry webhook test exposed fixed local
-ports and a listener that could outlive its test. Its mock now binds an
-operating-system-assigned port before sending and always closes before the test
-settles. The isolated regression and the subsequent full backend run both
-passed.
+ports and a listener that could outlive its test. Its mock now uses an
+operating-system-assigned port and always closes before the test settles. The
+isolated regression and full backend run both passed.
 
-A 2026-09-05 follow-up added malicious-upload and complete status-page graph
-coverage. The focused backend suite passed 11 tests, the SQLite/MariaDB/MySQL
-round-trip passed, the production build passed, and the focused Playwright run
-passed its Backup scenarios plus setup checks. A subsequent responsive
-pass made long text, filenames, controls, and summaries shrink or wrap safely;
-stacked the form while the two application rails still constrain its usable
-width; and changed settings-shell edges to logical properties for RTL. Browser
-coverage now includes English at 390 × 844, Simplified Chinese with a long
+## Follow-up verification
+
+The 2026-09-05 follow-up added:
+
+- malicious-upload and complete status-page graph coverage;
+- safe wrapping and stacking for long text, filenames, controls, and summaries;
+- RTL-aware settings-shell edges;
+- semantic icons and target-instance wording in the import impact list;
+- a prominent restart warning before the import fields; and
+- validation for self-referencing and multi-monitor parent cycles. The graph
+  walk is iterative and linear, so deep valid hierarchies do not consume the
+  JavaScript call stack.
+
+Browser coverage includes English at 390 × 844, Simplified Chinese with a long
 filename and confirmation dialog at 320 × 700, and Arabic RTL at 1024 × 768.
-The import impact list now uses semantic icons instead of relying on globally
-reset list markers, and its identity wording explicitly refers to the current
-instance the administrator is importing into.
-The restart requirement is promoted to a warning before the import fields. It
-remains mandatory in beta.5 because replacement runs before monitors and other
-runtime services initialize; live apply would require a separate runtime
-quiesce-and-reload lifecycle.
-A security follow-up also rejects self-referencing and multi-monitor parent
-cycles while the uploaded document is still being validated. The graph walk is
-iterative and linear, so a deeply nested but valid monitor hierarchy does not
-consume the JavaScript call stack.
-The focused configuration-document and shared monitor-identity regression
-suites pass 17 tests after these changes. Release-level verification passes all
-580 runnable backend tests (with one public-NTP test skipped), all 37 Playwright
-tests, ESLint and Stylelint with no errors, all TypeScript/Vue type checks, and
-the production build. The backend matrix includes the same configuration moved
-from SQLite to MariaDB and MySQL.
+
+Restart remains mandatory in beta.5 because replacement runs before monitors
+and other runtime services start. Applying configuration without a restart
+would require a separate pause-and-reload lifecycle.
+
+Final release checks passed all 580 runnable backend tests (with one public-NTP
+test skipped), all 37 Playwright tests, ESLint, Stylelint, TypeScript/Vue type
+checks, and the production build. The backend matrix includes configuration
+moved from SQLite to MariaDB and MySQL. The focused configuration-document and
+monitor-identity suites passed 17 tests.

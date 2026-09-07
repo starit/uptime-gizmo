@@ -15,7 +15,7 @@ Two references are generated from the running server:
 Unknown paths below `/api/v1` return a JSON `404`, not the single-page
 application's HTML.
 
-## Authentication and authority
+## Authentication and permissions
 
 Create a key in **Settings → API Keys**. New keys are **read-only** unless you
 turn that off. Send the key as the HTTP Basic password; the username is ignored:
@@ -46,7 +46,7 @@ curl -sS -u "api:$UPTIME_GIZMO_API_KEY" \
 | `401` | Missing, expired, inactive, or wrong key, or its account is disabled |
 | `403` | The key is read-only and the request would change something |
 | `404` | The route or an accessible resource does not exist |
-| `429` | The source or key has spent its current allowance; honour `Retry-After` when present |
+| `429` | The source or key exceeded its rate limit; honour `Retry-After` when present |
 
 Leave a key read-only unless its holder must change monitoring. A writable key
 can create a monitor whose first result sends notifications, alter where alerts
@@ -139,17 +139,16 @@ remain UTC date-time strings; the `since` query parameter described below is a
 number of Unix seconds.
 
 `since` takes a non-negative Unix timestamp in whole seconds, for example
-`1788566400`, and returns only the monitors whose last check is later than it.
-Milliseconds, fractions, scientific notation, and date strings are rejected.
-It is for a caller keeping a copy of this in step: at a minute's polling against
-a five-minute check interval, four readings in five otherwise repeat what the
-last one said. Omit it and the whole estate comes back, exactly as before.
+`1788566400`. Milliseconds, fractions, scientific notation, and date strings are
+rejected.
 
-**An absence means something different in the two answers.** A monitor missing
-from the full overview is not in the estate. A monitor missing from a `since`
-response has simply not been checked in that window — it is still there, and
-treating it as gone is the mistake this parameter makes easy. A monitor that has
-never been checked is never in a `since` response.
+Use it for incremental polling:
+
+- Omit `since` to return every monitor.
+- Include it to return only monitors checked after that timestamp.
+- Do not treat an omitted monitor as deleted. It may simply have had no check in
+  the requested period.
+- A monitor that has never run is not included in a `since` response.
 
 A monitor that completed a TLS check carries `certValid` and `certExpiresAt`.
 The latter is the certificate's own `notAfter`; compute expiry from that
@@ -181,7 +180,7 @@ Each row includes `status`, `time`, `ping`, `message`, `important`, and
 | `GET /api/v1/proxies` | Safe proxy fields; password omitted |
 | `GET /api/v1/docker-hosts` | Safe Docker host fields; daemon connection omitted |
 | `GET /api/v1/remote-browsers` | Names only; endpoint omitted |
-| `GET /api/v1/web3-networks` | EVM network id, name, chain id, and state; RPC URL omitted |
+| `GET /api/v1/web3-networks` | EVM network id, name, chain id, host, and state; RPC URL omitted |
 | `GET /api/v1/ai-credentials` | Credential id, name, provider, model, and monitor usability; API key omitted |
 
 Monitor pagination defaults to 100 and is capped at 500. Follow
@@ -235,7 +234,7 @@ copying a field list into a client.
 ### Idempotent provisioning with `externalRef`
 
 `externalRef` is an optional caller-owned correlation key. It is unique inside
-the monitor estate, immutable after create, 1–128 characters, starts with an
+the instance, immutable after create, 1–128 characters, starts with an
 ASCII letter or digit, and otherwise accepts letters, digits, `:`, `.`, `_`,
 and `-`.
 
