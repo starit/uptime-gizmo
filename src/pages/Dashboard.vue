@@ -7,7 +7,9 @@
                     {{ $t("Add New Monitor") }}
                 </router-link>
             </div>
-            <MonitorList :scrollbar="true" />
+            <div class="monitor-rail-body">
+                <MonitorList :scrollbar="true" />
+            </div>
         </aside>
 
         <section ref="container" class="workspace-canvas">
@@ -61,6 +63,9 @@ export default {
     position: sticky;
     top: 4.5rem;
     align-self: start;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
     max-height: calc(100vh - 5.5rem);
     padding: 1rem;
     overflow: hidden;
@@ -71,7 +76,16 @@ export default {
 
 .monitor-rail-action {
     display: flex;
+    flex: 0 0 auto;
     justify-content: flex-end;
+}
+
+.monitor-rail-body {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
 }
 
 .workspace-canvas {

@@ -1,5 +1,5 @@
 <template>
-    <div class="gizmo-workspace-panel monitor-list-panel tw-mb-3 tw-p-0" :style="boxStyle">
+    <div class="gizmo-workspace-panel monitor-list-panel tw-p-0">
         <div class="list-header">
             <!-- Line 1: Checkbox + Status + Tags + Search Bar -->
             <div class="filter-row">
@@ -85,7 +85,6 @@
             ref="monitorList"
             class="monitor-list tw-px-2"
             :class="{ scrollbar: scrollbar }"
-            :style="monitorListStyle"
             data-testid="monitor-list"
         >
             <div v-if="Object.keys($root.monitorList).length === 0" class="tw-text-center tw-mt-3">
@@ -145,7 +144,6 @@ export default {
             selectAll: false,
             disableSelectAllWatcher: false,
             selectedMonitors: {},
-            windowTop: 0,
             bulkActionInProgress: false,
             filterState: {
                 status: null,
@@ -156,24 +154,6 @@ export default {
         };
     },
     computed: {
-        /**
-         * Improve the sticky appearance of the list by increasing its
-         * height as user scrolls down.
-         * Not used on mobile.
-         * @returns {object} Style for monitor list
-         */
-        boxStyle() {
-            if (window.innerWidth > 550) {
-                return {
-                    height: `calc(100vh - 160px + ${this.windowTop}px)`,
-                };
-            } else {
-                return {
-                    height: "calc(100vh - 160px)",
-                };
-            }
-        },
-
         /**
          * Returns a sorted list of monitors based on the applied filters and search text.
          * @returns {Array} The sorted list of monitors.
@@ -198,21 +178,6 @@ export default {
 
         isDarkTheme() {
             return document.body.classList.contains("dark");
-        },
-
-        monitorListStyle() {
-            // The header height has to be changed in case it is modified in the future.
-            // +10px is the margin-bottom of the header
-            let listHeaderHeight = 58 + 10;
-
-            // Only add extra height when selection row is visible
-            if (this.selectMode && this.selectedMonitorCount > 0) {
-                listHeaderHeight += 42;
-            }
-
-            return {
-                height: `calc(100% - ${listHeaderHeight}px)`,
-            };
         },
 
         selectedMonitorCount() {
@@ -297,24 +262,7 @@ export default {
             }
         },
     },
-    mounted() {
-        window.addEventListener("scroll", this.onScroll);
-    },
-    beforeUnmount() {
-        window.removeEventListener("scroll", this.onScroll);
-    },
     methods: {
-        /**
-         * Handle user scroll
-         * @returns {void}
-         */
-        onScroll() {
-            if (window.top.scrollY <= 133) {
-                this.windowTop = window.top.scrollY;
-            } else {
-                this.windowTop = 133;
-            }
-        },
         /**
          * Get URL of monitor
          * @param {number} id ID of monitor
@@ -601,15 +549,15 @@ export default {
 
 <style lang="scss" scoped>
 .monitor-list-panel {
-    height: calc(100vh - 150px);
-    position: sticky;
-    top: 10px;
+    flex: 1 1 auto;
+    min-height: 0;
     display: flex;
     flex-direction: column;
     overflow: hidden;
 }
 
 .list-header {
+    flex: 0 0 auto;
     padding: 0.875rem;
     background: var(--color-surface-subtle);
     border-bottom: 1px solid var(--color-border);
@@ -716,6 +664,14 @@ export default {
     width: 100%;
     padding-right: 30px;
     transition: none !important;
+}
+
+.monitor-list {
+    flex: 1 1 auto;
+    min-height: 0;
+    height: auto;
+    overflow-y: auto;
+    padding-bottom: 0.75rem;
 }
 
 </style>

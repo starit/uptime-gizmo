@@ -156,12 +156,6 @@ optgroup {
     overflow-y: auto;
 }
 
-@media (max-width: 770px) {
-    .monitor-list.scrollbar {
-        height: calc(100% - 6.0625rem);
-    }
-}
-
 .monitor-list .item {
     display: block;
     padding: 0.8125rem 0.9375rem 0.625rem;
