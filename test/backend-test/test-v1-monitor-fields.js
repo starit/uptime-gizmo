@@ -26,6 +26,7 @@ const FIELD_TABLES = {
     proxy: internals.PROXY_FIELDS,
     dockerHost: internals.DOCKER_HOST_FIELDS,
     remoteBrowser: internals.REMOTE_BROWSER_FIELDS,
+    web3Network: internals.WEB3_NETWORK_FIELDS,
 };
 
 /*
@@ -65,6 +66,7 @@ const SECRET_COLUMNS = {
     proxy: [ "password" ],
     dockerHost: [ "docker_daemon" ],
     remoteBrowser: [ "url" ],
+    web3Network: [ "rpc_url" ],
 };
 
 
@@ -81,6 +83,7 @@ const SECRET_COLUMNS = {
  */
 const DERIVED_FIELDS = {
     notification: [ "type" ],
+    web3Network: [ "rpcHost" ],
 };
 
 describe("v1 field tables", () => {
@@ -332,5 +335,22 @@ describe("v1 monitor field table", () => {
             API_MONITOR_TYPES,
             "the sync skill type table has drifted from the API"
         );
+    });
+});
+
+describe("v1 web3 network projection", () => {
+    it("returns the host and withholds the path", () => {
+        const out = projectWith(internals.WEB3_NETWORK_FIELDS, {
+            id: 2,
+            name: "Base",
+            chain_id: "8453",
+            active: 1,
+            rpc_url: "https://base.example.com/v2/super-secret-key",
+        });
+
+        assert.strictEqual(out.rpcHost, "base.example.com");
+        assert.strictEqual(out.chainId, "8453");
+        assert.ok(!("rpcUrl" in out));
+        assert.doesNotMatch(JSON.stringify(out), /super-secret-key/);
     });
 });

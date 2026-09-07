@@ -50,7 +50,15 @@
                                     </vue-multiselect>
                                 </div>
                                 <div class="tw-w-1/3 tw-ps-1">
-                                    <input id="tag-color-hex" v-model="tag.color" type="text" class="gizmo-native-control" />
+                                    <input
+                                        id="tag-color-hex"
+                                        v-model="tag.color"
+                                        type="text"
+                                        class="gizmo-native-control"
+                                        pattern="#(?:[0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})"
+                                        maxlength="7"
+                                        required
+                                    />
                                 </div>
                             </div>
                         </div>

@@ -1,4 +1,5 @@
 const { BeanModel } = require("redbean-node/dist/bean-model");
+const { rpcHostFromUrl } = require("../modules/web3-rpc");
 
 class Web3Network extends BeanModel {
     /**
@@ -8,6 +9,9 @@ class Web3Network extends BeanModel {
      * `https://eth-mainnet.example.com/v2/<key>` — so the URL is the credential,
      * and anything holding it spends the owner's quota. The settings form loads
      * it separately for editing; nothing that lists networks needs it.
+     *
+     * The host is returned. It is not the credential, and without it a list of
+     * networks named "Mainnet" is indistinguishable from another provider's.
      * @returns {object} Object ready to parse
      */
     toJSON() {
@@ -15,6 +19,7 @@ class Web3Network extends BeanModel {
             id: this.id,
             name: this.name,
             chainId: this.chain_id,
+            rpcHost: rpcHostFromUrl(this.rpc_url),
             active: Boolean(this.active),
         };
     }

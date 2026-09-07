@@ -13,7 +13,9 @@ const {
     formatValue,
     compareValue,
     validateContractRead,
+    rpcHostFromUrl,
 } = require("../../server/modules/web3-rpc");
+const { internals: rpcInternals } = require("../../server/modules/web3-rpc");
 
 /*
  * The arithmetic, which is where this feature can be wrong without saying so.
@@ -497,5 +499,56 @@ describe("web3 contract read configuration", () => {
             () => validateContractRead({ ...ok, type: "uint256", decimals: 2, threshold: "1.234" }),
             /more precise/
         );
+    });
+});
+
+describe("RPC error bodies stay readable", () => {
+    const { describeRpcBody, describeRpcHttpError } = rpcInternals;
+
+    it("prefers a JSON-RPC error message over dumping the object", () => {
+        assert.strictEqual(
+            describeRpcBody({ error: { code: -32000, message: "Must be authenticated!" } }),
+            "Must be authenticated! (-32000)"
+        );
+        assert.strictEqual(describeRpcBody({ error: "nope" }), "nope");
+    });
+
+    it("says so when there is nothing to quote", () => {
+        assert.strictEqual(describeRpcBody(null), "no body");
+        assert.strictEqual(describeRpcBody(""), "no body");
+    });
+
+    it("bounds an HTML or JSON dump rather than putting a page on a heartbeat", () => {
+        assert.ok(describeRpcBody({ a: "x".repeat(500) }).endsWith("…"));
+        assert.ok(describeRpcBody("<html>" + "x".repeat(500) + "</html>").length < 220);
+    });
+
+    it("names the method and the HTTP status together", () => {
+        assert.strictEqual(
+            describeRpcHttpError("eth_chainId", 400, { error: { message: "Must be authenticated!" } }),
+            "RPC eth_chainId returned HTTP 400: Must be authenticated!"
+        );
+    });
+});
+
+describe("RPC host is the host, not the key", () => {
+    it("keeps hostname and port, drops the path", () => {
+        assert.strictEqual(
+            rpcHostFromUrl("https://eth-mainnet.g.alchemy.com/v2/super-secret-key"),
+            "eth-mainnet.g.alchemy.com"
+        );
+        assert.strictEqual(rpcHostFromUrl("http://127.0.0.1:8545"), "127.0.0.1:8545");
+    });
+
+    it("does not leak a path token", () => {
+        const host = rpcHostFromUrl("https://user:pass@node.example:8545/v2/super-secret-key?token=also-secret");
+        assert.strictEqual(host, "node.example:8545");
+        assert.doesNotMatch(host, /secret|pass|token|user/);
+    });
+
+    it("returns empty for anything that is not http(s)", () => {
+        assert.strictEqual(rpcHostFromUrl("not a url"), "");
+        assert.strictEqual(rpcHostFromUrl("file:///etc/passwd"), "");
+        assert.strictEqual(rpcHostFromUrl(""), "");
     });
 });

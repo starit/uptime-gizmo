@@ -55,30 +55,6 @@
                             {{ entry.label }} ({{ entry.count }})
                         </option>
                     </select>
-                    <!--
-                        Beside the layout switch, not inside the card toolbar.
-                        It hides the table's heartbeat column too, and a control
-                        that reaches a layout it cannot be seen from is one a
-                        reader cannot undo.
-
-                        Absent when the account has turned the bar off
-                        everywhere: this hides history rather than granting it.
-                    -->
-                    <div
-                        v-if="historyAvailable && $root.windowWidth > 960"
-                        class="gizmo-native-check gizmo-native-switch history-toggle"
-                    >
-                        <input
-                            id="inventory-show-history"
-                            v-model="showHistory"
-                            class="gizmo-native-check__input"
-                            type="checkbox"
-                            @change="persistShowHistory"
-                        />
-                        <label class="gizmo-native-check__label" for="inventory-show-history">
-                            {{ $t("monitorInventoryShowHistory") }}
-                        </label>
-                    </div>
                     <div
                         v-if="$root.windowWidth > 960"
                         class="gizmo-action-group layout-toggle"
@@ -120,6 +96,29 @@
                         />
                         <label class="gizmo-native-button gizmo-native-button--outline" for="inventory-layout-cards">
                             {{ $t("monitorInventoryLayoutCards") }}
+                        </label>
+                    </div>
+                    <!--
+                        After the layout switch, so the two display controls
+                        read in the order operators use them: choose a layout,
+                        then decide whether that layout includes history.
+
+                        Absent when the account has turned the bar off
+                        everywhere: this hides history rather than granting it.
+                    -->
+                    <div
+                        v-if="historyAvailable && $root.windowWidth > 960"
+                        class="gizmo-native-check gizmo-native-switch history-toggle"
+                    >
+                        <input
+                            id="inventory-show-history"
+                            v-model="showHistory"
+                            class="gizmo-native-check__input"
+                            type="checkbox"
+                            @change="persistShowHistory"
+                        />
+                        <label class="gizmo-native-check__label" for="inventory-show-history">
+                            {{ $t("monitorInventoryShowHistory") }}
                         </label>
                     </div>
                 </div>
@@ -930,9 +929,18 @@ export default {
             if (!monitor?.web3NetworkId) {
                 return "";
             }
-            return (
-                (this.$root.web3NetworkList || []).find((network) => network.id === monitor.web3NetworkId)?.name || ""
-            );
+            const network = (this.$root.web3NetworkList || []).find((item) => item.id === monitor.web3NetworkId);
+            if (!network) {
+                return this.$t("web3NetworkMissing");
+            }
+            const parts = [ network.name ];
+            if (network.rpcHost) {
+                parts.push(network.rpcHost);
+            }
+            if (!network.active) {
+                parts.push(this.$t("Disabled"));
+            }
+            return parts.join(" · ");
         },
         /**
          * Parent names only, so the identity cell does not repeat the row's own name.
@@ -1502,7 +1510,14 @@ export default {
 }
 
 .col-name {
+    /*
+     * Keep long, unbroken targets (most often URLs) out of the table's
+     * intrinsic width calculation. The identity component can then apply its
+     * own ellipsis inside the space left by the fixed-width metric columns.
+     */
+    width: 100%;
     min-width: 14rem;
+    max-width: 0;
 }
 
 .inventory-identity-cell {

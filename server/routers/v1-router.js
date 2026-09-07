@@ -5,11 +5,12 @@ const apicache = require("../modules/apicache");
 const { apiAuth, requireWrite } = require("../auth");
 const { UptimeCalculator } = require("../uptime-calculator");
 const { log } = require("../../src/util");
-const { VALUE_TYPES, VALUE_OPERATORS, BLOCK_TAGS } = require("../modules/web3-rpc");
+const { VALUE_TYPES, VALUE_OPERATORS, BLOCK_TAGS, rpcHostFromUrl } = require("../modules/web3-rpc");
 const { DNS_RESOLVE_TYPES } = require("../monitor-types/dns");
 const { llmCredentialSummaries } = require("../utils/llm-credentials");
 const { Notification } = require("../notification");
 const { NOTIFICATION_FIELDS: PROVIDER_FIELDS } = require("../notification-fields");
+const { validateTagColor } = require("../../src/tag-color");
 
 const router = express.Router();
 
@@ -380,7 +381,14 @@ function monitorFromAPI(body, partial) {
 const TAG_FIELDS = {
     id: { column: "id", type: "int" },
     name: { column: "name", type: "string", writable: true, required: true },
-    color: { column: "color", type: "string", writable: true, required: true },
+    color: {
+        column: "color",
+        type: "string",
+        writable: true,
+        required: true,
+        validate: validateTagColor,
+        description: "A hexadecimal color in #RGB or #RRGGBB format.",
+    },
     createdDate: { column: "created_date", type: "string" },
 };
 
@@ -483,13 +491,16 @@ const REMOTE_BROWSER_FIELDS = {
  * remote_browser.url above.
  *
  * The rest of the row is what a caller needs and none of what it must not have:
- * the id to reference from a monitor, the name to recognise it by, and the chain
- * id so it can tell which chain it is about to monitor.
+ * the id to reference from a monitor, the name to recognise it by, the chain id
+ * so it can tell which chain it is about to monitor, and the host so two
+ * "Mainnet" rows at different providers are distinguishable. The path stays off
+ * the wire: that is where hosted keys live.
  */
 const WEB3_NETWORK_FIELDS = {
     id: { column: "id", type: "int" },
     name: { column: "name", type: "string" },
     chainId: { column: "chain_id", type: "string" },
+    rpcHost: { derive: (bean) => rpcHostFromUrl(bean.rpc_url) || null, type: "string" },
     active: { column: "active", type: "bool" },
     rpcUrl: { column: "rpc_url", type: "string", secret: true },
 };
@@ -2589,7 +2600,7 @@ function buildOpenAPI() {
                 get: {
                     summary: "List Web3 networks",
                     description:
-                        "The id, name and chain id of each configured EVM network (Ethereum JSON-RPC), for a monitor to reference as web3NetworkId. The RPC URL commonly carries an API key and is never returned. Solana and other non-EVM chains are not in this list.",
+                        "The id, name, chain id and RPC host of each configured EVM network (Ethereum JSON-RPC), for a monitor to reference as web3NetworkId. The RPC URL commonly carries an API key in the path and is never returned; rpcHost is the hostname only. Solana and other non-EVM chains are not in this list.",
                     security: authed,
                     responses: { 200: { description: "Web3 networks" } },
                 },

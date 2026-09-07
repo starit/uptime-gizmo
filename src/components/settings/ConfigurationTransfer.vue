@@ -12,6 +12,28 @@
                 <p class="tw-mb-0">{{ $t("configurationTransferSensitive") }}</p>
             </div>
 
+            <div
+                class="configuration-migration-notice"
+                role="note"
+                aria-labelledby="configuration-full-migration-title"
+            >
+                <font-awesome-icon icon="database" class="configuration-migration-notice__icon" fixed-width />
+                <div>
+                    <strong id="configuration-full-migration-title">
+                        {{ $t("configurationFullMigrationTitle") }}
+                    </strong>
+                    <p>{{ $t("configurationFullMigrationBody") }}</p>
+                    <a
+                        href="https://github.com/starit/uptime-gizmo/blob/main/docs/backup-and-restore.md#uptime-kuma-migration-compatibility"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        {{ $t("configurationFullMigrationLink") }}
+                        <font-awesome-icon icon="external-link-square-alt" class="configuration-migration-notice__link-icon" />
+                    </a>
+                </div>
+            </div>
+
             <section class="configuration-section" aria-labelledby="configuration-export-title">
                 <div class="configuration-section__heading">
                     <div>
@@ -404,6 +426,42 @@ export default {
     border-inline-start-color: var(--status-degraded);
 }
 
+.configuration-migration-notice {
+    display: grid;
+    grid-template-columns: 1.25rem minmax(0, 1fr);
+    align-items: start;
+    gap: 0.75rem;
+    min-width: 0;
+    padding: 0.9rem 1rem;
+    border: 1px solid var(--color-border);
+    border-inline-start: 0.25rem solid var(--color-interactive);
+    border-radius: var(--radius-md);
+    color: var(--color-text);
+    background: var(--color-interactive-subtle);
+    overflow-wrap: anywhere;
+}
+
+.configuration-migration-notice__icon {
+    margin-top: 0.2em;
+    color: var(--color-interactive);
+    font-size: 1rem;
+}
+
+.configuration-migration-notice p {
+    margin: 0.25rem 0 0.35rem;
+    color: var(--color-text-muted);
+}
+
+.configuration-migration-notice a {
+    color: var(--color-interactive);
+    font-weight: 600;
+}
+
+.configuration-migration-notice__link-icon {
+    margin-inline-start: 0.25rem;
+    font-size: 0.8em;
+}
+
 .configuration-section {
     min-width: 0;
     padding: 1.25rem;
@@ -605,6 +663,7 @@ export default {
 
 @media (max-width: 480px) {
     .configuration-callout,
+    .configuration-migration-notice,
     .configuration-status,
     .configuration-section {
         padding: 0.875rem;

@@ -85,4 +85,4 @@ Not in this type: events/logs, strings or arrays, multiple conditions, or writin
 
 ## API and agents
 
-`GET /api/v1/web3-networks` returns id, name, and chain id — not the RPC URL. Create the three types through `/api/v1/monitors` or the MCP `create_monitor` tool; pass `web3NetworkId` from that list.
+`GET /api/v1/web3-networks` returns id, name, chain id, host, and whether it is active — not the RPC URL. The host is the hostname only; hosted keys live in the path. Create the three types through `/api/v1/monitors` or the MCP `create_monitor` tool; pass `web3NetworkId` from that list.

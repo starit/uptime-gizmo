@@ -47,6 +47,7 @@ if (!semver.satisfies(nodeVersion, requiredNodeVersions)) {
 
 const args = require("args-parser")(process.argv);
 const { sleep, log, getRandomInt, genSecret, isDev } = require("../src/util");
+const { validateTagColor } = require("../src/tag-color");
 const config = require("./config");
 
 process.title = "uptime-gizmo";
@@ -1328,6 +1329,7 @@ let needSetup = false;
         socket.on("addTag", async (tag, callback) => {
             try {
                 checkLogin(socket);
+                validateTagColor(tag.color);
 
                 let bean = R.dispense("tag");
                 bean.name = tag.name;
@@ -1349,6 +1351,7 @@ let needSetup = false;
         socket.on("editTag", async (tag, callback) => {
             try {
                 checkLogin(socket);
+                validateTagColor(tag.color);
 
                 let bean = await R.findOne("tag", " id = ? ", [tag.id]);
                 if (bean == null) {

@@ -34,8 +34,9 @@ an endpoint that was quietly repointed at another chain.
 
 ![The saved Ethereum Mainnet network showing Chain ID 1](images/web3-monitoring/02-network-ready.jpg)
 
-The RPC URL is stored as a credential. It is not returned by the REST API or MCP
-tools, which matters when the provider URL contains an API token.
+The RPC URL is stored as a credential. The REST API and MCP tools return the host
+so you can tell networks apart, and never the URL itself, which matters when the
+provider URL contains an API token.
 
 Uptime Gizmo currently supports EVM networks: Ethereum, Base, Arbitrum, Optimism,
 Polygon, BSC, compatible testnets, and local EVM nodes. Bitcoin, Solana, and

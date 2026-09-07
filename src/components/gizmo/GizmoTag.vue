@@ -12,6 +12,8 @@
 </template>
 
 <script>
+import { safeTagColor } from "../../tag-color.js";
+
 export default {
     props: {
         label: {
@@ -37,18 +39,17 @@ export default {
     },
     emits: ["remove"],
     computed: {
+        displayColor() {
+            return safeTagColor(this.color);
+        },
         tagStyle() {
             return {
-                "--gizmo-tag-bg": this.color,
+                "--gizmo-tag-bg": this.displayColor,
                 "--gizmo-tag-fg": this.foregroundColor,
             };
         },
         foregroundColor() {
-            if (typeof this.color !== "string") {
-                return "var(--color-tag-text-light)";
-            }
-
-            const match = this.color.match(/^#([\da-f]{3}|[\da-f]{6})$/i);
+            const match = this.displayColor.match(/^#([\da-f]{3}|[\da-f]{6})$/i);
             if (!match) {
                 return "var(--color-tag-text-light)";
             }

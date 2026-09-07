@@ -44,6 +44,9 @@
                     <span class="keyword">{{ llmModelName }}</span>
                     {{ llmTargetName }}
                 </span>
+                <span v-if="isWeb3Monitor" data-testid="web3-target">
+                    {{ web3TargetLabel }}
+                </span>
                 <span v-if="monitor.type === 'port'">TCP Port {{ monitor.hostname }}:{{ monitor.port }}</span>
                 <span v-if="monitor.type === 'ping'">Ping: {{ monitor.hostname }}</span>
                 <span v-if="monitor.type === 'globalping'">
@@ -349,7 +352,7 @@
                             <td :class="{ 'tw-border-0': !beat.msg }">
                                 <Datetime :value="beat.time" />
                             </td>
-                            <td class="tw-border-0">{{ beat.msg }}</td>
+                            <td class="tw-border-0 heartbeat-msg">{{ beat.msg }}</td>
                         </tr>
 
                         <tr v-if="importantHeartBeatListLength === 0">
@@ -520,6 +523,51 @@ export default {
                 return this.filterPassword(this.monitor?.url);
             }
             return this.llmCredential?.name ?? this.$t("llmCredentialMissing");
+        },
+
+        isWeb3Monitor() {
+            return [ "web3-balance", "web3-rpc", "web3-contract" ].includes(this.monitor?.type);
+        },
+
+        web3Network() {
+            if (!this.monitor?.web3NetworkId) {
+                return null;
+            }
+            return (this.$root.web3NetworkList || []).find((network) => network.id === this.monitor.web3NetworkId) ?? null;
+        },
+
+        /**
+         * What this Web3 monitor is actually pointed at.
+         *
+         * The details header used to name HTTP and LLM targets and leave Web3
+         * blank, which made a down RPC check look like it had no destination.
+         * @returns {string} network, host, chain, and the address or contract
+         */
+        web3TargetLabel() {
+            const parts = [];
+            if (this.web3Network) {
+                parts.push(this.web3Network.name);
+                if (this.web3Network.rpcHost) {
+                    parts.push(this.web3Network.rpcHost);
+                }
+                if (this.web3Network.chainId) {
+                    parts.push(`${this.$t("Chain ID")} ${this.web3Network.chainId}`);
+                }
+                if (!this.web3Network.active) {
+                    parts.push(this.$t("Disabled"));
+                }
+            } else if (this.monitor?.web3NetworkId) {
+                parts.push(this.$t("web3NetworkMissing"));
+            }
+
+            if (this.monitor?.type === "web3-balance" && this.monitor.web3Address) {
+                parts.push(this.monitor.web3Address);
+            }
+            if (this.monitor?.type === "web3-contract" && (this.monitor.web3CallTo || this.monitor.web3Address)) {
+                parts.push(this.monitor.web3CallTo || this.monitor.web3Address);
+            }
+
+            return parts.join(" · ");
         },
 
         /**
@@ -1042,6 +1090,11 @@ export default {
     justify-content: center;
 }
 .detail-table-panel { overflow-x: auto; }
+
+.heartbeat-msg {
+    overflow-wrap: anywhere;
+    white-space: normal;
+}
 
 @media (max-width: 640px) {
     .monitor-health-grid { grid-template-columns: 1fr; }

@@ -292,11 +292,18 @@
                                         required
                                     >
                                         <option v-for="net in $root.web3NetworkList" :key="net.id" :value="net.id">
-                                            {{ net.name }}
+                                            {{ web3NetworkOptionLabel(net) }}
                                         </option>
                                     </select>
                                     <div v-if="$root.web3NetworkList.length === 0" class="gizmo-field-help">
                                         <router-link to="/settings/web3">{{ $t("web3NoNetworks") }}</router-link>
+                                    </div>
+                                    <div
+                                        v-else-if="selectedWeb3Network && !selectedWeb3Network.active"
+                                        class="gizmo-native-alert gizmo-native-alert--warning tw-mt-2"
+                                        role="status"
+                                    >
+                                        {{ $t("web3NetworkDisabledHelp") }}
                                     </div>
                                 </div>
 
@@ -506,6 +513,13 @@
                                         </button>
                                         <div v-if="web3ReadResult" class="gizmo-field-help tw-break-all">
                                             {{ web3ReadResult }}
+                                        </div>
+                                        <div
+                                            v-if="web3ReadError"
+                                            class="gizmo-native-alert gizmo-native-alert--danger tw-mt-2 tw-break-all"
+                                            role="alert"
+                                        >
+                                            {{ web3ReadError }}
                                         </div>
                                     </div>
                                 </template>
@@ -3756,6 +3770,7 @@ export default {
             pm2ProcessError: "",
             web3Reading: false,
             web3ReadResult: "",
+            web3ReadError: "",
         };
     },
 
@@ -3833,6 +3848,17 @@ export default {
 
         web3ValueIsNumeric() {
             return this.monitor.web3ValueType === "uint256" || this.monitor.web3ValueType === "int256";
+        },
+
+        /**
+         * The network currently named on this monitor, if it is still in the list.
+         * @returns {object|null} the network, or null
+         */
+        selectedWeb3Network() {
+            if (!this.monitor.web3NetworkId) {
+                return null;
+            }
+            return (this.$root.web3NetworkList || []).find((net) => net.id === this.monitor.web3NetworkId) ?? null;
         },
 
         web3ThresholdPlaceholder() {
@@ -4489,9 +4515,25 @@ message HealthCheckResponse {
         },
 
         /**
-         * Initialize the edit monitor form
-         * @returns {void}
+         * Name, host, chain and disabled state — a dropdown of names alone
+         * cannot tell two "Mainnet" rows apart, or that one is switched off.
+         * @param {object} network a web3 network from the list
+         * @returns {string} the option label
          */
+        web3NetworkOptionLabel(network) {
+            const parts = [ network.name ];
+            if (network.rpcHost) {
+                parts.push(network.rpcHost);
+            }
+            if (network.chainId) {
+                parts.push(`${this.$t("Chain ID")} ${network.chainId}`);
+            }
+            if (!network.active) {
+                parts.push(this.$t("Disabled"));
+            }
+            return parts.join(" · ");
+        },
+
         /**
          * Ask the chain how many decimals the token uses.
          *
@@ -4532,6 +4574,7 @@ message HealthCheckResponse {
         testContractRead() {
             this.web3Reading = true;
             this.web3ReadResult = "";
+            this.web3ReadError = "";
 
             this.$root.getSocket().emit(
                 "web3ContractRead",
@@ -4553,7 +4596,7 @@ message HealthCheckResponse {
                         this.web3ReadResult = this.$t("web3ReadResult", [ res.value, res.raw ]);
                     } else {
                         this.web3ReadResult = "";
-                        this.$root.toastError(res.msg);
+                        this.web3ReadError = res.msg;
                     }
                 }
             );

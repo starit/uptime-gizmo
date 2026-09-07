@@ -17,8 +17,15 @@
 
             <div>
                 <label for="web3-rpc-url" class="gizmo-field-label">{{ $t("RPC URL") }}</label>
-                <HiddenInput id="web3-rpc-url" v-model="network.rpcUrl" autocomplete="off" required />
+                <HiddenInput
+                    id="web3-rpc-url"
+                    v-model="network.rpcUrl"
+                    autocomplete="off"
+                    :maxlength="2048"
+                    required
+                />
                 <div class="gizmo-field-help">{{ $t("web3RpcUrlHelp") }}</div>
+                <div v-if="rpcHost" class="gizmo-field-help">{{ $t("web3RpcHostHint", [ rpcHost ]) }}</div>
             </div>
 
             <div v-if="network.chainId">
@@ -29,6 +36,15 @@
             <div class="gizmo-native-check">
                 <input id="web3-active" v-model="network.active" class="gizmo-native-check__input" type="checkbox" />
                 <label class="gizmo-native-check__label" for="web3-active">{{ $t("Active") }}</label>
+            </div>
+
+            <!--
+                A toast of "HTTP 400" disappears before it can be read, and is
+                how a provider's "Must be authenticated" used to vanish. The
+                probe error stays next to the URL that caused it.
+            -->
+            <div v-if="saveError" ref="saveError" class="gizmo-native-alert gizmo-native-alert--danger" role="alert">
+                {{ saveError }}
             </div>
         </form>
 
@@ -75,8 +91,26 @@ export default {
             open: false,
             processing: false,
             id: null,
+            saveError: "",
             network: this.blank(),
         };
+    },
+    computed: {
+        /**
+         * Host of the URL on screen, with none of the path.
+         * @returns {string} hostname:port, or empty
+         */
+        rpcHost() {
+            try {
+                const parsed = new URL((this.network.rpcUrl || "").trim());
+                if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
+                    return "";
+                }
+                return parsed.host;
+            } catch (e) {
+                return "";
+            }
+        },
     },
     methods: {
         /**
@@ -95,6 +129,8 @@ export default {
         show(id) {
             this.id = id ?? null;
             this.network = this.blank();
+            this.saveError = "";
+            this.processing = false;
 
             if (this.id) {
                 /*
@@ -106,7 +142,7 @@ export default {
                     if (res.ok) {
                         this.network = res.network;
                     } else {
-                        this.$root.toastError(res.msg);
+                        this.saveError = res.msg;
                     }
                 });
             }
@@ -123,6 +159,7 @@ export default {
             this.open = open;
             if (!open) {
                 this.processing = false;
+                this.saveError = "";
             }
         },
 
@@ -132,13 +169,19 @@ export default {
          */
         submit() {
             this.processing = true;
+            this.saveError = "";
             this.$root.getSocket().emit("addWeb3Network", this.network, this.id, (res) => {
                 this.processing = false;
-                this.$root.toastRes(res);
                 if (res.ok) {
+                    this.$root.toastRes(res);
                     this.$emit("saved", res.id);
                     this.setOpen(false);
+                    return;
                 }
+                this.saveError = res.msg;
+                this.$nextTick(() => {
+                    this.$refs.saveError?.scrollIntoView({ block: "nearest" });
+                });
             });
         },
 

@@ -14,6 +14,12 @@ test.describe("Configuration backup", () => {
 
         await expect(page.getByText("Configuration backup — settings only")).toBeVisible();
         await expect(page.getByText(/It does not contain users, login password hashes/)).toBeVisible();
+        const fullMigrationNotice = page.locator(".configuration-migration-notice");
+        await expect(fullMigrationNotice.getByText("Need to move the complete instance?")).toBeVisible();
+        await expect(fullMigrationNotice.locator('[data-icon="database"]')).toBeVisible();
+        await expect(
+            fullMigrationNotice.getByRole("link", { name: /Read the full migration and compatibility guide/ })
+        ).toHaveAttribute("href", /docs\/backup-and-restore\.md#uptime-kuma-migration-compatibility$/);
         await expect(page.getByText(/Import only an archive you created or trust/)).toBeVisible();
         const restartNotice = page.locator(".configuration-restart-notice");
         await expect(restartNotice.getByText("Restart required after import")).toBeVisible();
@@ -108,6 +114,8 @@ test.describe("Configuration backup", () => {
         await expect(page.locator("html")).toHaveAttribute("dir", "ltr");
         await expect(page.getByRole("heading", { name: "导出配置" })).toBeVisible();
         await expect(page.getByRole("heading", { name: "导入配置" })).toBeVisible();
+        await expect(page.getByText("需要完整迁移现有实例？")).toBeVisible();
+        await expect(page.getByText(/请改用完整数据目录与数据库迁移/)).toBeVisible();
         await expect(page.getByText("导入后必须重启")).toBeVisible();
         await expect(page.getByText(/你当前正在导入的这台 Uptime Gizmo/)).toBeVisible();
         await page.locator("#configuration-import-file").setInputFiles({

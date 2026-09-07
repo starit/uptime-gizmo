@@ -78,7 +78,10 @@ module.exports.web3SocketHandler = (socket) => {
             try {
                 bean.chain_id = await getChainId(rpcUrl, PROBE_TIMEOUT_MS);
             } catch (e) {
-                throw new Error(`Could not reach the endpoint: ${e.message}`);
+                // The probe is eth_chainId. Saying "could not reach" was a lie
+                // for HTTP 400: the endpoint answered, and the reason is in
+                // e.message.
+                throw new Error(`Could not read chain ID: ${e.message}`);
             }
 
             await R.store(bean);

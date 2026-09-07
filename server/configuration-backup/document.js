@@ -8,6 +8,7 @@ const {
     TABLE_REGISTRY,
 } = require("./registry");
 const { TextDecoder } = require("util");
+const { DEFAULT_TAG_HEX_COLOR, isValidTagColor } = require("../../src/tag-color");
 
 const TOP_LEVEL_KEYS = ["format", "formatVersion", "appVersion", "createdAt", "scope", "resources"];
 const RESOURCE_KEYS = [...RESOURCE_NAMES, "settings"].sort();
@@ -62,6 +63,9 @@ function normalizeRow(row, entry) {
 
     for (const column of entry.columns) {
         let value = normalizeScalar(row[column]);
+        if (entry.resource === "tags" && column === "color" && !isValidTagColor(value)) {
+            value = DEFAULT_TAG_HEX_COLOR;
+        }
         if (booleanColumns.has(column) && value !== null) {
             value = Boolean(value);
         }
@@ -363,6 +367,14 @@ function canonicalizeConfigurationDocument(input) {
     }
 
     assertAcyclicMonitorParents(canonicalResources.monitors);
+
+    for (const [index, tag] of canonicalResources.tags.entries()) {
+        if (!isValidTagColor(tag.color)) {
+            throw new ConfigurationDocumentError(
+                `archive.resources.tags[${index}].color must be a hexadecimal color in #RGB or #RRGGBB format`
+            );
+        }
+    }
 
     for (const [index, incident] of canonicalResources.activeIncidents.entries()) {
         if (incident.active !== true && incident.active !== 1) {

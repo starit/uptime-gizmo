@@ -206,6 +206,8 @@ withheld on purpose:
 - Proxy passwords. The username is returned, the password never is.
 - A Docker host's daemon address, which may embed a user and password.
 - A remote browser's URL, which commonly carries a token.
+- Web3 RPC URLs. Hosted endpoints carry an API key in the path. `rpcHost` is
+  returned so two networks named "Mainnet" can be told apart; the path never is.
 - Monitor credentials — basic auth passwords, bearer tokens, TLS keys, push tokens
   and the rest are absent from every monitor response.
 

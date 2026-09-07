@@ -105,7 +105,7 @@
                             </td>
                             <td><Status :status="beat.status" /></td>
                             <td :class="{ 'gizmo-cell-no-border': !beat.msg }"><Datetime :value="beat.time" /></td>
-                            <td class="gizmo-cell-no-border">{{ beat.msg }}</td>
+                            <td class="gizmo-cell-no-border heartbeat-msg">{{ beat.msg }}</td>
                         </tr>
 
                         <tr v-if="importantHeartBeatListLength === 0">
@@ -519,6 +519,11 @@ export default {
 
 .gizmo-cell-no-border {
     border-bottom-color: transparent;
+}
+
+.heartbeat-msg {
+    overflow-wrap: anywhere;
+    white-space: normal;
 }
 
 .gizmo-pagination {

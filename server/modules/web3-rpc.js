@@ -29,6 +29,9 @@ const DECIMALS = "0x313ce567";
 /** A response larger than this is not an answer to any call made here. */
 const MAX_RESPONSE_BYTES = 256 * 1024;
 
+/** How much of an error body is worth putting on a heartbeat. */
+const ERROR_BODY_CHARS = 200;
+
 /**
  * Whether a string is a 20-byte hex address.
  * @param {string} value candidate address
@@ -78,21 +81,20 @@ async function rpcCall(rpcUrl, method, params, timeoutMs) {
             }
         );
     } catch (e) {
-        throw new Error(`RPC request failed: ${e.message}`);
+        throw new Error(`RPC ${method} request failed: ${e.message}`);
     }
 
     if (response.status >= 400) {
-        throw new Error(`RPC returned HTTP ${response.status}`);
+        throw new Error(describeRpcHttpError(method, response.status, response.data));
     }
 
     const body = response.data;
     if (!body || typeof body !== "object") {
-        throw new Error("RPC returned a body that is not JSON-RPC");
+        throw new Error(`RPC ${method} returned a body that is not JSON-RPC: ${describeRpcBody(body)}`);
     }
 
     if (body.error) {
-        const message = typeof body.error.message === "string" ? body.error.message : JSON.stringify(body.error);
-        throw new Error(`RPC error: ${message}`);
+        throw new Error(`RPC ${method} error: ${describeRpcBody(body)}`);
     }
 
     /*
@@ -102,7 +104,7 @@ async function rpcCall(rpcUrl, method, params, timeoutMs) {
      * from some methods.
      */
     if (!("result" in body)) {
-        throw new Error(`RPC returned no result for ${method}`);
+        throw new Error(`RPC ${method} returned no result`);
     }
 
     return body.result;
@@ -241,6 +243,79 @@ async function getLatestBlock(rpcUrl, timeoutMs) {
 function blockAgeSeconds(blockTimestamp, nowSeconds) {
     const age = Math.floor(nowSeconds) - Number(blockTimestamp);
     return age < 0 ? 0 : age;
+}
+
+/**
+ * Collapse whitespace and bound a string for a heartbeat or a form error.
+ * @param {string} text whatever arrived
+ * @returns {string} a single line, truncated if long
+ */
+function flattenText(text) {
+    const flat = String(text).replace(/\s+/g, " ").trim();
+    return flat.length > ERROR_BODY_CHARS ? `${flat.slice(0, ERROR_BODY_CHARS)}…` : flat;
+}
+
+/**
+ * A bounded description of whatever the endpoint answered with.
+ *
+ * JSON-RPC errors carry the reason in `error.message`; HTTP 400 from a hosted
+ * provider often does too. A status code alone is how "Must be authenticated"
+ * becomes the unhelpful "RPC returned HTTP 400".
+ * @param {any} body whatever arrived
+ * @returns {string} something safe to put in a heartbeat
+ */
+function describeRpcBody(body) {
+    if (body == null || body === "") {
+        return "no body";
+    }
+
+    if (typeof body === "object") {
+        const err = body.error;
+        if (typeof err === "string" && err.trim()) {
+            return flattenText(err);
+        }
+        if (err && typeof err === "object") {
+            const message = typeof err.message === "string" ? err.message.trim() : "";
+            if (message) {
+                return err.code != null ? flattenText(`${message} (${err.code})`) : flattenText(message);
+            }
+        }
+        try {
+            return flattenText(JSON.stringify(body));
+        } catch (e) {
+            return "unreadable body";
+        }
+    }
+
+    return flattenText(body);
+}
+
+/**
+ * An HTTP failure from an RPC endpoint, with the method and the body.
+ * @param {string} method JSON-RPC method that was sent
+ * @param {number} status HTTP status
+ * @param {any} body whatever arrived
+ * @returns {string} the heartbeat message
+ */
+function describeRpcHttpError(method, status, body) {
+    return `RPC ${method} returned HTTP ${status}: ${describeRpcBody(body)}`;
+}
+
+/**
+ * The host of an RPC URL, with none of the path where hosted keys live.
+ * @param {string} rpcUrl endpoint URL
+ * @returns {string} hostname:port, or empty when the URL is unusable
+ */
+function rpcHostFromUrl(rpcUrl) {
+    try {
+        const parsed = new URL(String(rpcUrl ?? ""));
+        if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
+            return "";
+        }
+        return parsed.host;
+    } catch (e) {
+        return "";
+    }
 }
 
 /**
@@ -697,10 +772,12 @@ module.exports = {
     formatValue,
     compareValue,
     validateContractRead,
+    rpcHostFromUrl,
     BLOCK_TAGS,
     VALUE_TYPES,
     VALUE_OPERATORS,
     OPERATOR_SYMBOLS,
     UNORDERED_TYPES,
     MAX_CALL_DATA_BYTES,
+    internals: { describeRpcBody, describeRpcHttpError, flattenText },
 };

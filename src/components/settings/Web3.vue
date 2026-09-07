@@ -20,6 +20,7 @@
             <ul v-else class="gizmo-list-group tw-mb-3">
                 <li v-for="network in $root.web3NetworkList" :key="network.id" class="gizmo-list-group__item">
                     <strong>{{ network.name }}</strong>
+                    <span v-if="network.rpcHost" class="gizmo-field-help tw-ms-2">{{ network.rpcHost }}</span>
                     <span v-if="network.chainId" class="gizmo-field-help tw-ms-2">
                         {{ $t("Chain ID") }} {{ network.chainId }}
                     </span>

@@ -247,7 +247,7 @@ human enters.
 
 ```bash
 curl -s -u "api:$KEY" "$URL/api/v1/web3-networks"
-# {"ok":true,"data":[{"id":2,"name":"Base","chainId":"8453","active":true}]}
+# {"ok":true,"data":[{"id":2,"name":"Base","chainId":"8453","rpcHost":"mainnet.base.org","active":true}]}
 ```
 
 An empty list means nobody has configured a chain yet. Say so and stop — there is
