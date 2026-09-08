@@ -5,11 +5,12 @@ const os = require("os");
 const path = require("path");
 const { GenericContainer, Wait } = require("testcontainers");
 const { MySqlContainer } = require("@testcontainers/mysql");
-const { R } = require("redbean-node");
+const { R, RedBeanNode } = require("redbean-node");
 
 const { createConfigurationDocument } = require("../../server/configuration-backup/document");
 const { TABLE_REGISTRY } = require("../../server/configuration-backup/registry");
 const { replaceConfiguration } = require("../../server/configuration-backup/service");
+const { internals: web3SocketInternals } = require("../../server/socket-handlers/web3-socket-handler");
 
 /**
  * Open a production-compatible SQLite connection.
@@ -166,6 +167,26 @@ describe("configuration archive across database engines", () => {
                     value: '"Asia/Shanghai"',
                     type: "general",
                 });
+                await source("web3_network").insert([
+                    {
+                        id: 61,
+                        user_id: 1,
+                        name: "Primary RPC",
+                        chain_id: "1",
+                        rpc_url: "https://primary.example/v2/portable-primary-secret",
+                        active: 1,
+                        created_date: "2026-09-09 00:00:00",
+                    },
+                    {
+                        id: 62,
+                        user_id: 1,
+                        name: "Fallback RPC",
+                        chain_id: "1",
+                        rpc_url: "https://fallback.example/v2/portable-fallback-secret",
+                        active: 1,
+                        created_date: "2026-09-09 00:00:00",
+                    },
+                ]);
                 await source("monitor").insert({
                     id: 17,
                     name: "cross-engine monitor",
@@ -175,6 +196,17 @@ describe("configuration archive across database engines", () => {
                     url: "https://example.com/health",
                     created_date: "2026-09-04 00:00:00",
                     basic_auth_pass: "portable-monitor-secret",
+                });
+                await source("monitor").insert({
+                    id: 18,
+                    name: "cross-engine Web3 fallback",
+                    active: 1,
+                    user_id: 1,
+                    type: "web3-balance",
+                    created_date: "2026-09-09 00:00:00",
+                    web3_network_id: 61,
+                    web3_fallback_network_id: 62,
+                    web3_address: "0x0000000000000000000000000000000000000001",
                 });
                 await source("tag").insert({
                     id: 23,
@@ -271,6 +303,10 @@ describe("configuration archive across database engines", () => {
                     document.resources.activeIncidents.map((incident) => incident.id),
                     [53]
                 );
+                assert.strictEqual(
+                    document.resources.monitors.find((monitor) => monitor.id === 18).web3_fallback_network_id,
+                    62
+                );
 
                 for (const [db, engine] of [
                     [mariadb, "mariadb"],
@@ -292,6 +328,10 @@ describe("configuration archive across database engines", () => {
 
                     const roundTrip = await createConfigurationDocument(db, `${engine}-target`);
                     assert.deepStrictEqual(roundTrip.resources, document.resources);
+                    assert.strictEqual(
+                        (await db("monitor").where({ id: 18 }).first()).web3_fallback_network_id,
+                        62
+                    );
                     assert.strictEqual((await db("user").first()).password, `${engine}-password-hash`);
                     assert.strictEqual((await db("user").first()).twofa_secret, `${engine}-admin-twofa`);
                     assert.strictEqual((await db("user").first()).admin, 1);
@@ -312,6 +352,20 @@ describe("configuration archive across database engines", () => {
                     "a MySQL export must import back into SQLite"
                 );
                 assert.strictEqual((await source("user").first()).password, "source-password-hash");
+
+                for (const db of [mariadb, mysql8]) {
+                    const redbean = new RedBeanNode();
+                    redbean.setup(db);
+                    redbean.freeze(true);
+                    const result = await web3SocketInternals.deleteNetworkAndReassign(
+                        redbean,
+                        await redbean.load("web3_network", 61)
+                    );
+                    assert.strictEqual(result.promotedMonitors, 1);
+                    const promotedMonitor = await db("monitor").where({ id: 18 }).first();
+                    assert.strictEqual(promotedMonitor.web3_network_id, 62);
+                    assert.strictEqual(promotedMonitor.web3_fallback_network_id, null);
+                }
             } finally {
                 await Promise.allSettled([source.destroy(), mariadb?.destroy(), mysql8?.destroy()]);
                 await Promise.allSettled([mariadbContainer?.stop(), mysqlContainer?.stop()]);

@@ -207,6 +207,7 @@ class Monitor extends BeanModel {
             conditions: JSON.parse(this.conditions),
             ntpStratumThreshold: this.ntp_stratum_threshold,
             web3NetworkId: this.web3_network_id,
+            web3FallbackNetworkId: this.web3_fallback_network_id,
             web3Address: this.web3_address,
             web3TokenContract: this.web3_token_contract,
             web3TokenDecimals: this.web3_token_decimals,

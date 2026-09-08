@@ -163,6 +163,7 @@ const TABLE_REGISTRY = Object.freeze({
             "bearer_token",
             "gamedig_token",
             "web3_network_id",
+            "web3_fallback_network_id",
             "web3_address",
             "web3_token_contract",
             "web3_token_decimals",
@@ -208,6 +209,7 @@ const TABLE_REGISTRY = Object.freeze({
             proxy_id: "proxies",
             remote_browser: "remoteBrowsers",
             web3_network_id: "web3Networks",
+            web3_fallback_network_id: "web3Networks",
         },
     },
     incident: {

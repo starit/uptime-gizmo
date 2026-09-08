@@ -244,6 +244,10 @@ const WEB3_PROPERTIES = {
         type: "integer",
         description: "Which configured EVM chain to read through, from list_web3_networks. Every web3 type needs it. Solana and other non-EVM chains are not a network you can pick.",
     },
+    web3FallbackNetworkId: {
+        type: [ "integer", "null" ],
+        description: "Optional fallback from list_web3_networks. It must be a different active network on the same chain. It is tried only when the primary RPC cannot return a usable result; null removes it.",
+    },
     web3Address: { type: "string", description: "web3-balance: the address to watch." },
     web3TokenContract: {
         type: "string",

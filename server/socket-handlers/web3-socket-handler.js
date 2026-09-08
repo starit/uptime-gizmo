@@ -32,6 +32,72 @@ async function ownedNetwork(id, userID) {
 }
 
 /**
+ * Delete a network without leaving monitors with a fallback but no primary.
+ * A still-active same-chain fallback becomes the new primary. Any fallback
+ * that no longer meets that boundary is cleared before the foreign key nulls
+ * the deleted primary.
+ * @param {object} database RedBean instance
+ * @param {object} bean owned Web3 network bean
+ * @returns {Promise<object>} affected monitor counts
+ */
+async function deleteNetworkAndReassign(database, bean) {
+    const transaction = await database.begin();
+    try {
+        const primaryMonitors = Number(
+            await transaction.count("monitor", " web3_network_id = ? ", [ bean.id ])
+        );
+        const fallbackMonitors = Number(
+            await transaction.count("monitor", " web3_fallback_network_id = ? ", [ bean.id ])
+        );
+        const promotedMonitors = Number(await transaction.getCell(
+            `SELECT COUNT(*)
+             FROM monitor
+             INNER JOIN web3_network
+                ON web3_network.id = monitor.web3_fallback_network_id
+             WHERE monitor.web3_network_id = ?
+               AND web3_network.active = 1
+               AND web3_network.chain_id = ?`,
+            [ bean.id, bean.chain_id ]
+        ));
+
+        await transaction.exec(
+            `UPDATE monitor
+             SET web3_fallback_network_id = NULL
+             WHERE web3_network_id = ?
+               AND web3_fallback_network_id IS NOT NULL
+               AND NOT EXISTS (
+                   SELECT 1
+                   FROM web3_network
+                   WHERE web3_network.id = monitor.web3_fallback_network_id
+                     AND web3_network.active = 1
+                     AND web3_network.chain_id = ?
+               )`,
+            [ bean.id, bean.chain_id ]
+        );
+        await transaction.exec(
+            `UPDATE monitor
+             SET web3_network_id = web3_fallback_network_id,
+                 web3_fallback_network_id = NULL
+             WHERE web3_network_id = ?
+               AND web3_fallback_network_id IS NOT NULL`,
+            [ bean.id ]
+        );
+        await transaction.trash(bean);
+        await transaction.commit();
+
+        return {
+            affectedMonitors: primaryMonitors + fallbackMonitors,
+            affectedPrimaryMonitors: primaryMonitors - promotedMonitors,
+            affectedFallbackMonitors: fallbackMonitors,
+            promotedMonitors,
+        };
+    } catch (error) {
+        await transaction.rollback();
+        throw error;
+    }
+}
+
+/**
  * Handlers for Web3 networks.
  * @param {Socket} socket Socket.io instance
  * @returns {void}
@@ -105,21 +171,14 @@ module.exports.web3SocketHandler = (socket) => {
 
             const bean = await ownedNetwork(networkID, socket.userID);
 
-            /*
-             * Monitors reference the network, and the foreign key nulls the
-             * column rather than removing them. Saying how many will stop
-             * working is more use than a silent success.
-             */
-            const inUse = await R.count("monitor", " web3_network_id = ? ", [ bean.id ]);
-
-            await R.trash(bean);
+            const affected = await deleteNetworkAndReassign(R, bean);
             await sendWeb3NetworkList(socket);
 
             callback({
                 ok: true,
                 msg: "successDeleted",
                 msgi18n: true,
-                affectedMonitors: inUse,
+                ...affected,
             });
         } catch (e) {
             callback({ ok: false, msg: e.message });
@@ -218,4 +277,8 @@ module.exports.web3SocketHandler = (socket) => {
             callback({ ok: false, msg: e.message });
         }
     });
+};
+
+module.exports.internals = {
+    deleteNetworkAndReassign,
 };

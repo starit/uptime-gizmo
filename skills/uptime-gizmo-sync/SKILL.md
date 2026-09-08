@@ -217,7 +217,7 @@ These names are the writable properties on `MonitorInput` in
 `timeout`, `method`,
 `maxredirects`, `ignoreTls`, `upsideDown`, `keyword`, `invertKeyword`,
 `acceptedStatuscodes`, `dnsResolveType`, `dnsResolveServer`,
-`web3NetworkId`, `web3Address`, `web3TokenContract`, `web3TokenDecimals`,
+`web3NetworkId`, `web3FallbackNetworkId`, `web3Address`, `web3TokenContract`, `web3TokenDecimals`,
 `web3MinBalance`, `web3MaxBlockAge`, `web3CallTo`, `web3CallData`,
 `web3ValueOffset`, `web3ValueType`, `web3ValueDecimals`, `web3ValueOperator`,
 `web3ValueThreshold`, `web3BlockTag`, `llmCredentialId`, `llmModel`, `llmPrompt`,
@@ -253,6 +253,11 @@ curl -s -u "api:$KEY" "$URL/api/v1/web3-networks"
 An empty list means nobody has configured a chain yet. Say so and stop — there is
 nothing to point a monitor at, and the fix is a human adding the endpoint.
 `web3NetworkId` pointing at a network that is not yours is refused with `400`.
+
+`web3FallbackNetworkId` is optional. Choose a different active network with the
+same `chainId`. It is used only when the primary RPC cannot return a usable
+result; a valid low balance, stale block, or failed contract comparison does not
+switch networks. Send `null` in a monitor `PATCH` to remove the fallback.
 
 ### Reading a value out of a contract
 

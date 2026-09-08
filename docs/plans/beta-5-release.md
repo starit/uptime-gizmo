@@ -13,6 +13,10 @@ inventory so a large monitor list can be scanned without the dashboard rail.
 Full recovery still uses the manual data-volume/database procedure in
 [Backing up and restoring](../backup-and-restore.md).
 
+The post-review Web3 fallback addition is specified separately in the
+[Web3 RPC fallback plan](web3-rpc-fallback.md), with verification in its
+[execution report](../execution/2026-09-09-web3-rpc-fallback.md).
+
 ## Product boundary
 
 Beta.5 provides **configuration backup only**. It is not a database

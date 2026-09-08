@@ -1,15 +1,14 @@
 const { MonitorType } = require("./monitor-type");
-const { R } = require("redbean-node");
 const { UP } = require("../../src/util");
 const dayjs = require("dayjs");
 const {
     getNativeBalance,
     getTokenBalance,
-    getChainId,
     scaleToInteger,
     formatUnits,
     isAddress,
 } = require("../modules/web3-rpc");
+const { formatWeb3ResultMessage, runWeb3NetworkOperation } = require("./web3-network");
 
 /**
  * Watch the balance of an address and fail when it falls below a floor.
@@ -34,41 +33,20 @@ class Web3BalanceMonitorType extends MonitorType {
     async check(monitor, heartbeat, _server) {
         const started = dayjs().valueOf();
 
-        const network = await R.findOne("web3_network", " id = ? ", [ monitor.web3_network_id ]);
-        if (!network) {
-            throw new Error("No network is configured for this monitor");
-        }
-        if (!network.active) {
-            throw new Error(`The network "${network.name}" is disabled`);
-        }
-
         const address = (monitor.web3_address ?? "").trim();
         if (!isAddress(address)) {
             throw new Error("A valid address is required");
         }
 
-        const timeout = (monitor.timeout || 20) * 1000;
         const contract = (monitor.web3_token_contract ?? "").trim();
         const decimals = Number.isInteger(monitor.web3_token_decimals) ? monitor.web3_token_decimals : 18;
 
-        /*
-         * Confirm the endpoint is still serving the chain it was configured for
-         * before reading anything from it. An endpoint quietly repointed at a
-         * different network answers every call successfully and reports a
-         * balance that is plausible and wrong.
-         */
-        if (network.chain_id) {
-            const actual = await getChainId(network.rpc_url, timeout);
-            if (actual !== String(network.chain_id)) {
-                throw new Error(
-                    `The endpoint is serving chain ${actual}, but this network is configured as ${network.chain_id}`
-                );
-            }
-        }
-
-        const balance = contract
-            ? await getTokenBalance(network.rpc_url, contract, address, timeout)
-            : await getNativeBalance(network.rpc_url, address, timeout);
+        const result = await runWeb3NetworkOperation(monitor, (network, timeout) => {
+            return contract
+                ? getTokenBalance(network.rpc_url, contract, address, timeout())
+                : getNativeBalance(network.rpc_url, address, timeout());
+        });
+        const balance = result.value;
 
         heartbeat.ping = dayjs().valueOf() - started;
 
@@ -78,7 +56,7 @@ class Web3BalanceMonitorType extends MonitorType {
         // No floor set is a legitimate configuration: it watches that the
         // endpoint answers and records the balance, without alerting on it.
         if (!minimum) {
-            heartbeat.msg = `Balance ${shown}`;
+            heartbeat.msg = formatWeb3ResultMessage(result, `Balance ${shown}`);
             heartbeat.status = UP;
             return;
         }
@@ -89,7 +67,7 @@ class Web3BalanceMonitorType extends MonitorType {
             throw new Error(`Balance ${shown} is below the minimum of ${minimum}`);
         }
 
-        heartbeat.msg = `Balance ${shown}, minimum ${minimum}`;
+        heartbeat.msg = formatWeb3ResultMessage(result, `Balance ${shown}, minimum ${minimum}`);
         heartbeat.status = UP;
     }
 }

@@ -12,6 +12,29 @@ Ethereum JSON-RPC only: Ethereum, Polygon, BSC, Arbitrum, Optimism, Base, testne
 
 Then add a monitor and pick the network.
 
+## RPC fallback
+
+Every Web3 monitor can optionally select a **Fallback network**. It must be an
+active, separately configured network with the same chain ID as the primary.
+
+Fallback runs only when the primary RPC cannot return a usable result, such as
+a timeout, HTTP or JSON-RPC error, malformed response, missing/disabled network,
+or chain-ID mismatch. A valid low balance, stale block, or failed contract-value
+comparison remains a failed check and does not try the fallback.
+
+The primary and fallback share the monitor timeout. A successful fallback
+heartbeat names the network used and includes a bounded, credential-safe primary
+error. If both fail, the heartbeat records both reasons without exposing either
+RPC URL.
+
+For **Web3 RPC Health**, fallback changes the monitor's meaning from “this RPC
+provider is healthy” to “this chain is reachable through either provider.” Use
+separate RPC Health monitors if each provider must alert independently.
+
+If you delete a primary network, an active same-chain fallback becomes that
+monitor's new primary network. Deleting a fallback only removes fallback
+coverage. A disabled or cross-chain fallback is never promoted.
+
 ## Balance
 
 **Web3 Balance.** Watches one address.
@@ -85,4 +108,4 @@ Not in this type: events/logs, strings or arrays, multiple conditions, or writin
 
 ## API and agents
 
-`GET /api/v1/web3-networks` returns id, name, chain id, host, and whether it is active — not the RPC URL. The host is the hostname only; hosted keys live in the path. Create the three types through `/api/v1/monitors` or the MCP `create_monitor` tool; pass `web3NetworkId` from that list.
+`GET /api/v1/web3-networks` returns id, name, chain id, host, and whether it is active — not the RPC URL. The host is the hostname only; hosted keys live in the path. Create the three types through `/api/v1/monitors` or the MCP `create_monitor` tool; pass `web3NetworkId` from that list and, optionally, a compatible `web3FallbackNetworkId`.

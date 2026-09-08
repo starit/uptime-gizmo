@@ -61,8 +61,8 @@ column at narrow widths. It was visually checked at desktop width and at
 
 ## Compatibility decisions
 
-- The existing database schema and required data-directory layout are
-  unchanged; beta.4 directories continue through the normal startup path.
+- Configuration Backup itself does not change the required data-directory
+  layout. Beta.4 directories continue through the normal startup path.
 - Format v1 rejects unknown data instead of guessing. A future archive version
   needs an explicit compatibility adapter.
 - Replace import, rather than merge, keeps relation semantics deterministic.
@@ -94,11 +94,11 @@ The release gate completed on 2026-09-04:
   widths in light theme; there were no browser console errors.
 - `git diff --check` and a relative documentation-link check passed.
 
-Beta.5 adds no database migration or required data-directory layout change
-relative to the beta.4 tag. Private import-state files are created only after an
-administrator stages an import. The full migration suite and beta.4 regression
-remain green, so an existing beta.4 data directory follows the same startup
-path unchanged.
+Configuration Backup adds no required data-directory layout change relative to
+the beta.4 tag. Private import-state files are created only after an
+administrator stages an import. Beta.5's separate additive migrations preserve
+existing monitor data. The full migration suite and beta.4 regression remain
+green, so an existing beta.4 data directory follows the normal startup path.
 
 During the full backend run, the Domain Expiry webhook test exposed fixed local
 ports and a listener that could outlive its test. Its mock now uses an

@@ -26,6 +26,9 @@ accounts and authentication identity in place.
 - Incremental overview reads through
   `/api/v1/overview?since=<unix-seconds>`, using whole Unix seconds rather than
   implementation-dependent date-string parsing.
+- An optional same-chain fallback network for all three Web3 monitor types. RPC
+  failures may switch networks; valid threshold failures never do. Deleting a
+  primary promotes a still-valid fallback instead of breaking the monitor.
 
 ### Safety and compatibility
 
@@ -52,9 +55,9 @@ accounts and authentication identity in place.
 - Imported ownership is mapped to the target instance owner. Existing target
   accounts, passwords, 2FA, API keys, administrator flags, JWT secret, and
   authentication policy remain unchanged.
-- Existing beta.4 data directories still open in place. Configuration backup
-  adds no database migration; private import-state files appear only after an
-  administrator stages an import.
+- Existing beta.4 data directories still open in place. The Web3 fallback
+  migration adds one nullable monitor reference; existing monitors keep their
+  previous single-network behaviour.
 
 ### Full-database compatibility
 

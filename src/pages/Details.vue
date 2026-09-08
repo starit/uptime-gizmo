@@ -536,6 +536,15 @@ export default {
             return (this.$root.web3NetworkList || []).find((network) => network.id === this.monitor.web3NetworkId) ?? null;
         },
 
+        web3FallbackNetwork() {
+            if (!this.monitor?.web3FallbackNetworkId) {
+                return null;
+            }
+            return (this.$root.web3NetworkList || []).find(
+                (network) => Number(network.id) === Number(this.monitor.web3FallbackNetworkId)
+            ) ?? null;
+        },
+
         /**
          * What this Web3 monitor is actually pointed at.
          *
@@ -565,6 +574,13 @@ export default {
             }
             if (this.monitor?.type === "web3-contract" && (this.monitor.web3CallTo || this.monitor.web3Address)) {
                 parts.push(this.monitor.web3CallTo || this.monitor.web3Address);
+            }
+            if (this.web3FallbackNetwork) {
+                const fallback = [ this.web3FallbackNetwork.name ];
+                if (this.web3FallbackNetwork.rpcHost) {
+                    fallback.push(this.web3FallbackNetwork.rpcHost);
+                }
+                parts.push(this.$t("web3FallbackTarget", [ fallback.join(" · ") ]));
             }
 
             return parts.join(" · ");

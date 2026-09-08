@@ -11,6 +11,7 @@ const { llmCredentialSummaries } = require("../utils/llm-credentials");
 const { Notification } = require("../notification");
 const { NOTIFICATION_FIELDS: PROVIDER_FIELDS } = require("../notification-fields");
 const { validateTagColor } = require("../../src/tag-color");
+const { assertWeb3NetworkSelection } = require("../monitor-types/web3-network");
 
 const router = express.Router();
 
@@ -176,6 +177,13 @@ const MONITOR_FIELDS = {
      * non-EVM chains are not these fields.
      */
     web3NetworkId: { column: "web3_network_id", type: "int", writable: true },
+    web3FallbackNetworkId: {
+        column: "web3_fallback_network_id",
+        type: "int",
+        writable: true,
+        nullable: true,
+        description: "Optional fallback network. It must be active, owned by the caller, and use the same chain ID as the primary network.",
+    },
     web3Address: { column: "web3_address", type: "string", writable: true },
     web3TokenContract: { column: "web3_token_contract", type: "string", writable: true },
     web3TokenDecimals: { column: "web3_token_decimals", type: "int", writable: true },
@@ -348,7 +356,9 @@ function parseWith(fields, body, partial) {
             }
             continue;
         }
-        const coerced = coerce(body[name], field.type, name);
+        const coerced = body[name] === null && field.nullable
+            ? null
+            : coerce(body[name], field.type, name);
         if (Array.isArray(field.enum) && !field.enum.includes(coerced)) {
             throw new Error(`${name} must be one of ${field.enum.join(", ")}`);
         }
@@ -1510,30 +1520,6 @@ async function assertParentAllowed(parent, userID, monitorID) {
 }
 
 /**
- * Check a proposed web3 network.
- *
- * The network holds an RPC URL, and a hosted endpoint carries its API key in
- * that URL. Referencing a network belonging to somebody else would let a caller
- * spend another user's quota through a monitor of their own, without ever seeing
- * the credential — so ownership is checked here rather than left to the fact
- * that the id is only listed to its owner.
- * @param {number|null} networkID proposed network id
- * @param {number|null} userID the authenticated principal
- * @returns {Promise<void>} resolves when the network is acceptable
- * @throws {Error} when it is not
- */
-async function assertWeb3NetworkAllowed(networkID, userID) {
-    if (networkID === null || networkID === undefined) {
-        return;
-    }
-
-    const network = await R.findOne("web3_network", " id = ? AND user_id = ? ", [ networkID, userID ]);
-    if (!network) {
-        throw new Error("web3NetworkId must be a network you own; see GET /api/v1/web3-networks");
-    }
-}
-
-/**
  * Send a 400 describing why a body was refused.
  * @param {express.Response} res Express response object
  * @param {Error} e the validation failure
@@ -1584,7 +1570,11 @@ router.post(
 
         try {
             await assertParentAllowed(bean.parent, bean.user_id, null);
-            await assertWeb3NetworkAllowed(bean.web3_network_id, bean.user_id);
+            await assertWeb3NetworkSelection(
+                bean.web3_network_id,
+                bean.web3_fallback_network_id,
+                bean.user_id
+            );
         } catch (e) {
             badRequest(res, e);
             return;
@@ -1675,8 +1665,12 @@ router.patch(
             if ("parent" in columns) {
                 await assertParentAllowed(bean.parent, bean.user_id, bean.id);
             }
-            if ("web3_network_id" in columns) {
-                await assertWeb3NetworkAllowed(bean.web3_network_id, bean.user_id);
+            if ("web3_network_id" in columns || "web3_fallback_network_id" in columns) {
+                await assertWeb3NetworkSelection(
+                    bean.web3_network_id,
+                    bean.web3_fallback_network_id,
+                    bean.user_id
+                );
             }
             bean.validate();
         } catch (e) {
@@ -2103,19 +2097,21 @@ router.delete(
  * @returns {object} schema fragment
  */
 function fieldSchema(field) {
+    let schema;
     if (field.type === "int") {
-        return { type: "integer" };
+        schema = { type: "integer" };
+    } else if (field.type === "number") {
+        schema = { type: "number" };
+    } else if (field.type === "bool") {
+        schema = { type: "boolean" };
+    } else if (field.type === "jsonArray") {
+        schema = { type: "array", items: { type: "string" } };
+    } else {
+        schema = { type: "string", nullable: true };
     }
-    if (field.type === "number") {
-        return { type: "number" };
+    if (field.nullable) {
+        schema.nullable = true;
     }
-    if (field.type === "bool") {
-        return { type: "boolean" };
-    }
-    if (field.type === "jsonArray") {
-        return { type: "array", items: { type: "string" } };
-    }
-    const schema = { type: "string", nullable: true };
     if (Array.isArray(field.enum)) {
         schema.enum = [ ...field.enum ];
     }

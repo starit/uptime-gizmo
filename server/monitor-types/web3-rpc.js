@@ -1,8 +1,8 @@
 const { MonitorType } = require("./monitor-type");
-const { R } = require("redbean-node");
 const { UP } = require("../../src/util");
 const dayjs = require("dayjs");
-const { getChainId, getLatestBlock, blockAgeSeconds } = require("../modules/web3-rpc");
+const { getLatestBlock, blockAgeSeconds } = require("../modules/web3-rpc");
+const { formatWeb3ResultMessage, runWeb3NetworkOperation } = require("./web3-network");
 
 /**
  * Whether an RPC endpoint is serving a chain that is still moving.
@@ -29,26 +29,11 @@ class Web3RpcMonitorType extends MonitorType {
     async check(monitor, heartbeat, _server) {
         const started = dayjs().valueOf();
 
-        const network = await R.findOne("web3_network", " id = ? ", [ monitor.web3_network_id ]);
-        if (!network) {
-            throw new Error("No network is configured for this monitor");
-        }
-        if (!network.active) {
-            throw new Error(`The network "${network.name}" is disabled`);
-        }
-
-        const timeout = (monitor.timeout || 20) * 1000;
-
-        if (network.chain_id) {
-            const actual = await getChainId(network.rpc_url, timeout);
-            if (actual !== String(network.chain_id)) {
-                throw new Error(
-                    `The endpoint is serving chain ${actual}, but this network is configured as ${network.chain_id}`
-                );
-            }
-        }
-
-        const block = await getLatestBlock(network.rpc_url, timeout);
+        const result = await runWeb3NetworkOperation(
+            monitor,
+            (network, timeout) => getLatestBlock(network.rpc_url, timeout())
+        );
+        const block = result.value;
         heartbeat.ping = dayjs().valueOf() - started;
 
         const age = blockAgeSeconds(block.timestamp, Date.now() / 1000);
@@ -60,7 +45,7 @@ class Web3RpcMonitorType extends MonitorType {
          * heartbeat, which is what makes a stall visible in hindsight.
          */
         if (!maxAge) {
-            heartbeat.msg = `Block ${block.number}, ${age}s old`;
+            heartbeat.msg = formatWeb3ResultMessage(result, `Block ${block.number}, ${age}s old`);
             heartbeat.status = UP;
             return;
         }
@@ -69,7 +54,7 @@ class Web3RpcMonitorType extends MonitorType {
             throw new Error(`Block ${block.number} is ${age}s old, over the limit of ${maxAge}s`);
         }
 
-        heartbeat.msg = `Block ${block.number}, ${age}s old, limit ${maxAge}s`;
+        heartbeat.msg = formatWeb3ResultMessage(result, `Block ${block.number}, ${age}s old, limit ${maxAge}s`);
         heartbeat.status = UP;
     }
 }

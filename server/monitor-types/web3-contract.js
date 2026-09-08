@@ -1,5 +1,4 @@
 const { MonitorType } = require("./monitor-type");
-const { R } = require("redbean-node");
 const { UP } = require("../../src/util");
 const dayjs = require("dayjs");
 const {
@@ -9,10 +8,10 @@ const {
     parseThreshold,
     formatValue,
     compareValue,
-    getChainId,
     isAddress,
     OPERATOR_SYMBOLS,
 } = require("../modules/web3-rpc");
+const { formatWeb3ResultMessage, runWeb3NetworkOperation } = require("./web3-network");
 
 /**
  * Watch one value inside a contract.
@@ -41,47 +40,24 @@ class Web3ContractMonitorType extends MonitorType {
     async check(monitor, heartbeat, _server) {
         const started = dayjs().valueOf();
 
-        const network = await R.findOne("web3_network", " id = ? ", [ monitor.web3_network_id ]);
-        if (!network) {
-            throw new Error("No network is configured for this monitor");
-        }
-        if (!network.active) {
-            throw new Error(`The network "${network.name}" is disabled`);
-        }
-
         const to = (monitor.web3_call_to ?? "").trim();
         if (!isAddress(to)) {
             throw new Error("A valid contract address is required");
         }
 
-        const timeout = (monitor.timeout || 20) * 1000;
-
-        /*
-         * Confirm the endpoint is still serving the chain it was configured for
-         * before reading anything from it. The same contract address on another
-         * chain is a different contract, and it answers with a value that is
-         * plausible and wrong.
-         */
-        if (network.chain_id) {
-            const actual = await getChainId(network.rpc_url, timeout);
-            if (actual !== String(network.chain_id)) {
-                throw new Error(
-                    `The endpoint is serving chain ${actual}, but this network is configured as ${network.chain_id}`
-                );
-            }
-        }
-
         const data = (monitor.web3_call_data ?? "").trim();
         const blockTag = (monitor.web3_block_tag ?? "latest").trim() || "latest";
-        const result = await ethCall(network.rpc_url, to, data, blockTag, timeout);
+        const type = (monitor.web3_value_type ?? "uint256").trim() || "uint256";
+        const offset = Number(monitor.web3_value_offset ?? 0);
+        const result = await runWeb3NetworkOperation(monitor, async (network, timeout) => {
+            const raw = await ethCall(network.rpc_url, to, data, blockTag, timeout());
+            return decodeWord(readWord(raw, offset), type);
+        });
 
         heartbeat.ping = dayjs().valueOf() - started;
 
-        const type = (monitor.web3_value_type ?? "uint256").trim() || "uint256";
-        const offset = Number(monitor.web3_value_offset ?? 0);
         const decimals = Number.isInteger(monitor.web3_value_decimals) ? monitor.web3_value_decimals : 0;
-
-        const value = decodeWord(readWord(result, offset), type);
+        const value = result.value;
         const shown = formatValue(value, type, decimals);
 
         const operator = (monitor.web3_value_operator ?? "").trim();
@@ -93,7 +69,7 @@ class Web3ContractMonitorType extends MonitorType {
          * message, and nothing alerts on it.
          */
         if (!operator || !wanted) {
-            heartbeat.msg = `Value ${shown}`;
+            heartbeat.msg = formatWeb3ResultMessage(result, `Value ${shown}`);
             heartbeat.status = UP;
             return;
         }
@@ -105,7 +81,7 @@ class Web3ContractMonitorType extends MonitorType {
             throw new Error(`Value ${shown} is not ${symbol} ${wanted}`);
         }
 
-        heartbeat.msg = `Value ${shown} ${symbol} ${wanted}`;
+        heartbeat.msg = formatWeb3ResultMessage(result, `Value ${shown} ${symbol} ${wanted}`);
         heartbeat.status = UP;
     }
 }

@@ -31,7 +31,7 @@ See the **[Wiki](docs/wiki)** for feature guides and current screenshots.
   default; writable keys can create and update monitors without deleting them.
 - **[EVM monitoring](docs/articles/web3-monitoring.md).** Read-only checks cover
   RPC freshness, native or ERC-20 balances, and decoded contract values without
-  accepting a wallet private key.
+  accepting a wallet private key, with an optional same-chain fallback RPC.
 - **[Configuration Backup](docs/articles/backup.md).** Administrators can move
   monitoring configuration—including status pages—between SQLite, MariaDB and
   MySQL instances without moving users, authentication settings or history.
@@ -110,6 +110,9 @@ call.
   threshold — reserves, an oracle answer, a supply cap, a paused flag, an owner
   address. You supply the calldata; nothing here encodes it for you, and the form
   will make the call once so you can check the value before saving.
+
+Each monitor may use a second configured network on the same chain. RPC failures
+switch to that fallback; valid threshold failures do not.
 
 Amounts are compared as integers. Chains count in units of 10^-18, where a float
 comparison can report a drained account as funded, or a threshold as met.

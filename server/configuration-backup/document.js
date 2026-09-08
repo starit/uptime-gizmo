@@ -368,6 +368,28 @@ function canonicalizeConfigurationDocument(input) {
 
     assertAcyclicMonitorParents(canonicalResources.monitors);
 
+    const web3NetworkByID = new Map(
+        canonicalResources.web3Networks.map((network) => [ network.id, network ])
+    );
+    for (let index = 0; index < canonicalResources.monitors.length; index++) {
+        const monitor = canonicalResources.monitors[index];
+        if (monitor.web3_fallback_network_id == null) {
+            continue;
+        }
+        const path = `archive.resources.monitors[${index}].web3_fallback_network_id`;
+        if (monitor.web3_fallback_network_id === monitor.web3_network_id) {
+            throw new ConfigurationDocumentError(`${path} must differ from web3_network_id`);
+        }
+        const primary = web3NetworkByID.get(monitor.web3_network_id);
+        const fallback = web3NetworkByID.get(monitor.web3_fallback_network_id);
+        if (!fallback?.active) {
+            throw new ConfigurationDocumentError(`${path} must refer to an active network`);
+        }
+        if (!primary?.chain_id || String(primary.chain_id) !== String(fallback.chain_id)) {
+            throw new ConfigurationDocumentError(`${path} must use the primary network's chain ID`);
+        }
+    }
+
     for (const [index, tag] of canonicalResources.tags.entries()) {
         if (!isValidTagColor(tag.color)) {
             throw new ConfigurationDocumentError(

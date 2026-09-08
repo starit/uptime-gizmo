@@ -48,6 +48,7 @@ if (!semver.satisfies(nodeVersion, requiredNodeVersions)) {
 const args = require("args-parser")(process.argv);
 const { sleep, log, getRandomInt, genSecret, isDev } = require("../src/util");
 const { validateTagColor } = require("../src/tag-color");
+const { assertWeb3NetworkSelection } = require("./monitor-types/web3-network");
 const config = require("./config");
 
 process.title = "uptime-gizmo";
@@ -1022,6 +1023,7 @@ let needSetup = false;
                 // comparison; a chain counts in units of 10^-18 and a float
                 // would round the threshold before it was ever used.
                 bean.web3_network_id = monitor.web3NetworkId || null;
+                bean.web3_fallback_network_id = monitor.web3FallbackNetworkId || null;
                 bean.web3_address = monitor.web3Address;
                 bean.web3_token_contract = monitor.web3TokenContract || null;
                 bean.web3_token_decimals = monitor.web3TokenDecimals ?? 18;
@@ -1055,6 +1057,11 @@ let needSetup = false;
                 bean.ping_count = monitor.ping_count;
                 bean.ping_per_request_timeout = monitor.ping_per_request_timeout;
 
+                await assertWeb3NetworkSelection(
+                    bean.web3_network_id,
+                    bean.web3_fallback_network_id,
+                    bean.user_id
+                );
                 bean.validate();
 
                 await R.store(bean);

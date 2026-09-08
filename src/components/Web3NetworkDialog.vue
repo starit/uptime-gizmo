@@ -203,10 +203,16 @@ export default {
                 this.processing = false;
                 this.$root.toastRes(res);
                 if (res.ok) {
-                    // Monitors keep existing but lose their network, so say so
-                    // rather than let them start failing unexplained.
-                    if (res.affectedMonitors > 0) {
-                        this.$root.toastError(this.$t("web3NetworkInUse", [ res.affectedMonitors ]));
+                    if (res.promotedMonitors > 0) {
+                        this.$root.toastSuccess(this.$t("web3FallbackPromoted", [ res.promotedMonitors ]));
+                    }
+                    if (res.affectedPrimaryMonitors > 0) {
+                        this.$root.toastError(this.$t("web3NetworkInUse", [ res.affectedPrimaryMonitors ]));
+                    }
+                    if (res.affectedFallbackMonitors > 0) {
+                        this.$root.toastError(
+                            this.$t("web3FallbackNetworkInUse", [ res.affectedFallbackMonitors ])
+                        );
                     }
                     this.setOpen(false);
                 }
