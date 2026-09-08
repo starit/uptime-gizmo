@@ -193,7 +193,12 @@ describe("Domain Expiry", () => {
     });
 
     test("sendNotifications() triggers notification for expiring domain", async () => {
-        await DomainExpiry.findByName("google.com");
+        const domainName = "expiring.example.com";
+        const domain = DomainExpiry.createByName(domainName);
+        domain.expiry = R.isoDateTimeMillis(dayjs.utc().add(30, "day"));
+        domain.lastExpiryNotificationSent = null;
+        await R.store(domain);
+
         const hookUrl = "capture";
         const manyDays = 3650;
         await setSetting("domainExpiryNotifyDays", [manyDays], "general");
@@ -209,9 +214,9 @@ describe("Domain Expiry", () => {
                 user_id: 1,
                 name: "Testhook",
             });
-            await DomainExpiry.sendNotifications("google.com", [notif]);
+            await DomainExpiry.sendNotifications(domainName, [notif]);
         });
-        assert.match(data.msg, /will expire in/);
+        assert.match(data.msg, new RegExp(`Domain name ${domainName} will expire in`));
     });
 
     test("sendNotifications() handles domain with null expiry without sending NaN", async () => {
