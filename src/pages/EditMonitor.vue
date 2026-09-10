@@ -311,23 +311,33 @@
                                     <label for="web3-fallback-network" class="gizmo-field-label">
                                         {{ $t("web3FallbackNetwork") }} ({{ $t("optional") }})
                                     </label>
-                                    <select
-                                        id="web3-fallback-network"
-                                        v-model="monitor.web3FallbackNetworkId"
-                                        class="gizmo-native-control gizmo-native-select"
-                                        :disabled="!monitor.web3NetworkId"
-                                        data-testid="web3-fallback-network"
-                                    >
-                                        <option :value="null">{{ $t("web3NoFallbackNetwork") }}</option>
-                                        <option
-                                            v-for="net in fallbackWeb3Networks"
-                                            :key="net.id"
-                                            :value="net.id"
-                                            :disabled="!web3FallbackNetworkEligible(net)"
+                                    <div v-for="(id, index) in web3FallbackRows" :key="index" class="tw-flex tw-flex-wrap tw-items-center tw-gap-2 tw-mb-2">
+                                        <select
+                                            :id="index === 0 ? 'web3-fallback-network' : `web3-fallback-network-${index}`"
+                                            :value="id ?? ''"
+                                            :aria-label="`${$t('web3FallbackNetwork')} ${index + 1}`"
+                                            class="gizmo-native-control gizmo-native-select"
+                                            :disabled="!monitor.web3NetworkId"
+                                            :data-testid="index === 0 ? 'web3-fallback-network' : `web3-fallback-network-${index}`"
+                                            @change="setWeb3Fallback(index, $event.target.value)"
                                         >
-                                            {{ web3NetworkOptionLabel(net) }}
-                                        </option>
-                                    </select>
+                                            <option value="">{{ $t("web3NoFallbackNetwork") }}</option>
+                                            <option
+                                                v-for="net in fallbackWeb3Networks"
+                                                :key="net.id"
+                                                :value="net.id"
+                                                :disabled="!web3FallbackNetworkEligible(net) || (web3FallbackIds.includes(Number(net.id)) && Number(net.id) !== id)"
+                                            >
+                                                {{ web3NetworkOptionLabel(net) }}
+                                            </option>
+                                        </select>
+                                        <button v-if="id && index > 0" type="button" class="gizmo-native-button gizmo-native-button--secondary" :aria-label="`${$t('web3FallbackMoveUp')} ${index + 1}`" @click="moveWeb3FallbackUp(index)">
+                                            {{ $t("web3FallbackMoveUp") }}
+                                        </button>
+                                        <button v-if="id" type="button" class="gizmo-native-button gizmo-native-button--secondary" :aria-label="`${$t('web3FallbackRemove')} ${$t('web3FallbackNetwork')} ${index + 1}`" @click="setWeb3Fallback(index, '')">
+                                            {{ $t("web3FallbackRemove") }}
+                                        </button>
+                                    </div>
                                     <div class="gizmo-field-help">{{ $t("web3FallbackHelp") }}</div>
                                     <div
                                         v-if="web3FallbackIssue"
@@ -3724,6 +3734,7 @@ const monitorDefaults = {
     ntpRootDispersionThreshold: 500,
     web3NetworkId: null,
     web3FallbackNetworkId: null,
+    web3FallbackNetworkIds: [],
     web3Address: "",
     web3TokenContract: "",
     // Most ERC-20s use 18; read from the contract when one is entered.
@@ -3907,31 +3918,32 @@ export default {
             );
         },
 
-        selectedWeb3FallbackNetwork() {
-            if (!this.monitor.web3FallbackNetworkId) {
-                return null;
-            }
-            return (this.$root.web3NetworkList || []).find(
-                (network) => Number(network.id) === Number(this.monitor.web3FallbackNetworkId)
-            ) ?? null;
+        web3FallbackIds() {
+            return this.monitor.web3FallbackNetworkIds ?? (this.monitor.web3FallbackNetworkId ? [Number(this.monitor.web3FallbackNetworkId)] : []);
+        },
+
+        web3FallbackRows() {
+            return this.web3FallbackIds.length < 10 ? [...this.web3FallbackIds, null] : this.web3FallbackIds;
         },
 
         web3FallbackIssue() {
-            const fallback = this.selectedWeb3FallbackNetwork;
-            if (!fallback) {
-                return this.monitor.web3FallbackNetworkId ? this.$t("web3FallbackMissing") : "";
-            }
-            if (Number(fallback.id) === Number(this.monitor.web3NetworkId)) {
-                return this.$t("web3FallbackMustDiffer");
-            }
-            if (!fallback.active) {
-                return this.$t("web3FallbackDisabledHelp");
-            }
-            if (
-                !this.selectedWeb3Network
-                || String(fallback.chainId) !== String(this.selectedWeb3Network.chainId)
-            ) {
-                return this.$t("web3FallbackChainMismatch");
+            for (const id of this.web3FallbackIds) {
+                const fallback = (this.$root.web3NetworkList || []).find((network) => Number(network.id) === id);
+                if (!fallback) {
+                    return this.$t("web3FallbackMissing");
+                }
+                if (Number(fallback.id) === Number(this.monitor.web3NetworkId)) {
+                    return this.$t("web3FallbackMustDiffer");
+                }
+                if (!fallback.active) {
+                    return this.$t("web3FallbackDisabledHelp");
+                }
+                if (
+                    !this.selectedWeb3Network
+                    || String(fallback.chainId) !== String(this.selectedWeb3Network.chainId)
+                ) {
+                    return this.$t("web3FallbackChainMismatch");
+                }
             }
             return "";
         },
@@ -4624,6 +4636,20 @@ message HealthCheckResponse {
             );
         },
 
+        setWeb3Fallback(index, value) {
+            const ids = [...this.web3FallbackIds];
+            ids.splice(index, 1, ...(value ? [Number(value)] : []));
+            this.monitor.web3FallbackNetworkIds = ids;
+            this.monitor.web3FallbackNetworkId = ids[0] ?? null;
+        },
+
+        moveWeb3FallbackUp(index) {
+            const ids = [...this.web3FallbackIds];
+            [ids[index - 1], ids[index]] = [ids[index], ids[index - 1]];
+            this.monitor.web3FallbackNetworkIds = ids;
+            this.monitor.web3FallbackNetworkId = ids[0] ?? null;
+        },
+
         /**
          * Ask the chain how many decimals the token uses.
          *
@@ -4640,7 +4666,7 @@ message HealthCheckResponse {
                 return;
             }
 
-            this.$root.getSocket().emit("web3TokenDecimals", this.monitor.web3NetworkId, contract, (res) => {
+            this.$root.getSocket().emit("web3TokenDecimals", { networkId: this.monitor.web3NetworkId, fallbackNetworkIds: this.web3FallbackIds }, contract, (res) => {
                 if (res.ok) {
                     this.monitor.web3TokenDecimals = res.decimals;
                 } else {
@@ -4668,7 +4694,7 @@ message HealthCheckResponse {
 
             this.$root.getSocket().emit(
                 "web3ContractRead",
-                this.monitor.web3NetworkId,
+                { networkId: this.monitor.web3NetworkId, fallbackNetworkIds: this.web3FallbackIds },
                 {
                     to: (this.monitor.web3CallTo || "").trim(),
                     data: (this.monitor.web3CallData || "").trim(),

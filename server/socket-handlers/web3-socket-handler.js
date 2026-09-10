@@ -12,6 +12,8 @@ const {
     validateContractRead,
 } = require("../modules/web3-rpc");
 const { log } = require("../../src/util");
+const { getFallbackIDs, normalizeFallbackIDs, setFallbackIDs } = require("../modules/web3-fallback");
+const { assertWeb3NetworkSelection, runWeb3NetworkOperation } = require("../monitor-types/web3-network");
 
 /** How long a settings-time probe of an endpoint may take. */
 const PROBE_TIMEOUT_MS = 15000;
@@ -32,6 +34,102 @@ async function ownedNetwork(id, userID) {
 }
 
 /**
+ * Resolve an owner-scoped selection for form previews; numeric IDs remain valid
+ * for older clients.
+ * @param {number|object} selection primary ID or selection with fallbackNetworkIds
+ * @param {number} userID authenticated owner
+ * @param {Function} operation RPC reads
+ * @returns {Promise<object>} result from the shared failover runner
+ */
+async function previewOperation(selection, userID, operation) {
+    const primaryID = typeof selection === "object" && selection !== null ? selection.networkId : selection;
+    const ids = normalizeFallbackIDs(typeof selection === "object" && selection !== null ? selection.fallbackNetworkIds ?? [] : []);
+    const findOwnedNetwork = (id) => ownedNetwork(id, userID);
+    await assertWeb3NetworkSelection(primaryID, ids, userID, { findOwnedNetwork });
+    return runWeb3NetworkOperation({
+        web3_network_id: primaryID,
+        web3_fallback_network_ids: JSON.stringify(ids),
+        timeout: PROBE_TIMEOUT_MS / 1000,
+    }, operation, { findNetwork: findOwnedNetwork });
+}
+
+/**
+ * Resolve monitors affected by deleting a network and the fallback changes the
+ * deletion would make. Preview and mutation share this calculation so the
+ * confirmation cannot describe different behavior from the delete itself.
+ * @param {object} database RedBean instance or transaction
+ * @param {object} bean owned Web3 network bean
+ * @returns {Promise<object>} usage plan and affected monitor counts
+ */
+async function inspectNetworkUsage(database, bean) {
+    let primaryMonitors = 0;
+    let fallbackMonitors = 0;
+    let promotedMonitors = 0;
+    const affected = [];
+    const monitors = await database.find("monitor", " web3_network_id IS NOT NULL OR web3_fallback_network_id IS NOT NULL OR web3_fallback_network_ids IS NOT NULL ");
+
+    for (const monitor of monitors) {
+        const ids = getFallbackIDs(monitor);
+        const isPrimary = Number(monitor.web3_network_id) === Number(bean.id);
+        const isFallback = ids.includes(Number(bean.id));
+        if (!isPrimary && !isFallback) {
+            continue;
+        }
+
+        let remaining = ids.filter((id) => id !== Number(bean.id));
+        let promotedNetworkID = null;
+        if (isPrimary) {
+            primaryMonitors++;
+            const eligible = [];
+            for (const id of remaining) {
+                const network = await database.findOne("web3_network", " id = ? ", [id]);
+                if (network?.active && bean.chain_id && String(network.chain_id) === String(bean.chain_id)
+                    && Number(network.user_id) === Number(bean.user_id)) {
+                    eligible.push(id);
+                }
+            }
+            promotedNetworkID = eligible.shift() ?? null;
+            remaining = eligible;
+            if (promotedNetworkID) {
+                promotedMonitors++;
+            }
+        } else {
+            fallbackMonitors++;
+        }
+
+        affected.push({
+            monitor,
+            nextPrimaryNetworkID: isPrimary ? promotedNetworkID : monitor.web3_network_id,
+            remainingFallbackIDs: remaining,
+        });
+    }
+
+    return {
+        monitors: affected,
+        affectedMonitors: primaryMonitors + fallbackMonitors,
+        affectedPrimaryMonitors: primaryMonitors - promotedMonitors,
+        affectedFallbackMonitors: fallbackMonitors,
+        promotedMonitors,
+    };
+}
+
+/**
+ * Return only the safe, read-only summary used by the confirmation dialog.
+ * @param {object} database RedBean instance
+ * @param {object} bean owned Web3 network bean
+ * @returns {Promise<object>} affected monitor counts
+ */
+async function getNetworkDeleteImpact(database, bean) {
+    const impact = await inspectNetworkUsage(database, bean);
+    return {
+        affectedMonitors: impact.affectedMonitors,
+        affectedPrimaryMonitors: impact.affectedPrimaryMonitors,
+        affectedFallbackMonitors: impact.affectedFallbackMonitors,
+        promotedMonitors: impact.promotedMonitors,
+    };
+}
+
+/**
  * Delete a network without leaving monitors with a fallback but no primary.
  * A still-active same-chain fallback becomes the new primary. Any fallback
  * that no longer meets that boundary is cleared before the foreign key nulls
@@ -43,53 +141,18 @@ async function ownedNetwork(id, userID) {
 async function deleteNetworkAndReassign(database, bean) {
     const transaction = await database.begin();
     try {
-        const primaryMonitors = Number(
-            await transaction.count("monitor", " web3_network_id = ? ", [ bean.id ])
-        );
-        const fallbackMonitors = Number(
-            await transaction.count("monitor", " web3_fallback_network_id = ? ", [ bean.id ])
-        );
-        const promotedMonitors = Number(await transaction.getCell(
-            `SELECT COUNT(*)
-             FROM monitor
-             INNER JOIN web3_network
-                ON web3_network.id = monitor.web3_fallback_network_id
-             WHERE monitor.web3_network_id = ?
-               AND web3_network.active = 1
-               AND web3_network.chain_id = ?`,
-            [ bean.id, bean.chain_id ]
-        ));
-
-        await transaction.exec(
-            `UPDATE monitor
-             SET web3_fallback_network_id = NULL
-             WHERE web3_network_id = ?
-               AND web3_fallback_network_id IS NOT NULL
-               AND NOT EXISTS (
-                   SELECT 1
-                   FROM web3_network
-                   WHERE web3_network.id = monitor.web3_fallback_network_id
-                     AND web3_network.active = 1
-                     AND web3_network.chain_id = ?
-               )`,
-            [ bean.id, bean.chain_id ]
-        );
-        await transaction.exec(
-            `UPDATE monitor
-             SET web3_network_id = web3_fallback_network_id,
-                 web3_fallback_network_id = NULL
-             WHERE web3_network_id = ?
-               AND web3_fallback_network_id IS NOT NULL`,
-            [ bean.id ]
-        );
+        const { monitors, ...impact } = await inspectNetworkUsage(transaction, bean);
+        for (const item of monitors) {
+            item.monitor.web3_network_id = item.nextPrimaryNetworkID;
+            setFallbackIDs(item.monitor, item.remainingFallbackIDs);
+            await transaction.store(item.monitor);
+        }
         await transaction.trash(bean);
         await transaction.commit();
 
         return {
-            affectedMonitors: primaryMonitors + fallbackMonitors,
-            affectedPrimaryMonitors: primaryMonitors - promotedMonitors,
-            affectedFallbackMonitors: fallbackMonitors,
-            promotedMonitors,
+            ...impact,
+            affectedMonitorIDs: monitors.map((item) => Number(item.monitor.id)),
         };
     } catch (error) {
         await transaction.rollback();
@@ -98,11 +161,53 @@ async function deleteNetworkAndReassign(database, bean) {
 }
 
 /**
+ * Restart affected monitors that are currently running so their timers and
+ * heartbeat closures use fresh beans loaded from the committed database state.
+ * Paused monitors remain paused and load the new selection when resumed.
+ * @param {object} server running server instance
+ * @param {number} userID authenticated owner
+ * @param {number[]} monitorIDs affected monitor ids
+ * @param {Function} restartMonitor monitor lifecycle hook
+ * @param {Function|undefined} pauseMonitor monitor lifecycle hook used after a failed restart
+ * @returns {Promise<number[]>} IDs that could not be restarted
+ */
+async function restartRunningMonitors(server, userID, monitorIDs, restartMonitor, pauseMonitor) {
+    const failedMonitorIDs = [];
+    for (const monitorID of monitorIDs) {
+        if (server.monitorList[monitorID]?.active) {
+            try {
+                await restartMonitor(userID, monitorID);
+            } catch (error) {
+                failedMonitorIDs.push(monitorID);
+                log.error("web3", `Monitor ${monitorID} could not restart after a network deletion; stopping it`);
+                try {
+                    if (typeof pauseMonitor === "function") {
+                        await pauseMonitor(userID, monitorID);
+                    } else {
+                        await server.monitorList[monitorID]?.stop?.();
+                        delete server.monitorList[monitorID];
+                    }
+                } catch (stopError) {
+                    log.error("web3", `Monitor ${monitorID} could not be stopped after its restart failed`);
+                    try {
+                        await server.monitorList[monitorID]?.stop?.();
+                    } finally {
+                        delete server.monitorList[monitorID];
+                    }
+                }
+            }
+        }
+    }
+    return failedMonitorIDs;
+}
+
+/**
  * Handlers for Web3 networks.
  * @param {Socket} socket Socket.io instance
+ * @param {{restartMonitor?: Function, pauseMonitor?: Function}} lifecycle monitor lifecycle hooks
  * @returns {void}
  */
-module.exports.web3SocketHandler = (socket) => {
+module.exports.web3SocketHandler = (socket, lifecycle = {}) => {
     socket.on("addWeb3Network", async (network, networkID, callback) => {
         try {
             checkLogin(socket);
@@ -166,20 +271,59 @@ module.exports.web3SocketHandler = (socket) => {
     });
 
     socket.on("deleteWeb3Network", async (networkID, callback) => {
+        let deletion;
+        let server;
         try {
             checkLogin(socket);
 
             const bean = await ownedNetwork(networkID, socket.userID);
+            if (typeof lifecycle.restartMonitor !== "function") {
+                throw new Error("Web3 monitor restart lifecycle is unavailable");
+            }
+            const { UptimeGizmoServer } = require("../uptime-gizmo-server");
+            server = UptimeGizmoServer.getInstance();
+            deletion = await deleteNetworkAndReassign(R, bean);
+        } catch (e) {
+            callback({ ok: false, msg: e.message });
+            return;
+        }
 
-            const affected = await deleteNetworkAndReassign(R, bean);
+        const { affectedMonitorIDs, ...affected } = deletion;
+        let runtimeRestartFailures = [];
+        if (affected.affectedMonitors > 0) {
+            runtimeRestartFailures = await restartRunningMonitors(
+                server,
+                socket.userID,
+                affectedMonitorIDs,
+                lifecycle.restartMonitor,
+                lifecycle.pauseMonitor
+            );
+            try {
+                await server.sendMonitorList(socket);
+            } catch (error) {
+                log.error("web3", "Could not refresh the monitor list after deleting a Web3 network");
+            }
+        }
+        try {
             await sendWeb3NetworkList(socket);
+        } catch (error) {
+            log.error("web3", "Could not refresh the Web3 network list after deletion");
+        }
 
-            callback({
-                ok: true,
-                msg: "successDeleted",
-                msgi18n: true,
-                ...affected,
-            });
+        callback({
+            ok: true,
+            msg: "successDeleted",
+            msgi18n: true,
+            ...affected,
+            runtimeRestartFailures: runtimeRestartFailures.length,
+        });
+    });
+
+    socket.on("getWeb3NetworkDeleteImpact", async (networkID, callback) => {
+        try {
+            checkLogin(socket);
+            const bean = await ownedNetwork(networkID, socket.userID);
+            callback({ ok: true, ...await getNetworkDeleteImpact(R, bean) });
         } catch (e) {
             callback({ ok: false, msg: e.message });
         }
@@ -220,14 +364,13 @@ module.exports.web3SocketHandler = (socket) => {
         try {
             checkLogin(socket);
 
-            const bean = await ownedNetwork(networkID, socket.userID);
-
             if (!isAddress(contract)) {
                 throw new Error("Not a contract address");
             }
 
-            const decimals = await getTokenDecimals(bean.rpc_url, contract, PROBE_TIMEOUT_MS);
-            callback({ ok: true, decimals });
+            const result = await previewOperation(networkID, socket.userID,
+                (network, timeout) => getTokenDecimals(network.rpc_url, contract, timeout()));
+            callback({ ok: true, decimals: result.value, usedFallback: result.usedFallback, networkId: result.network.id });
         } catch (e) {
             log.debug("web3", `decimals lookup failed: ${e.message}`);
             callback({ ok: false, msg: e.message });
@@ -250,27 +393,29 @@ module.exports.web3SocketHandler = (socket) => {
         try {
             checkLogin(socket);
 
-            const bean = await ownedNetwork(networkID, socket.userID);
-
             // The same rules the monitor is saved under, minus the threshold:
             // this reads a value rather than judging one.
             validateContractRead({ ...read, operator: "", threshold: "" });
 
-            const raw = await ethCall(
-                bean.rpc_url,
-                String(read.to).trim(),
-                String(read.data).trim(),
-                read.blockTag,
-                PROBE_TIMEOUT_MS
-            );
+            const result = await previewOperation(networkID, socket.userID, async (network, timeout) => {
+                const raw = await ethCall(
+                    network.rpc_url,
+                    String(read.to).trim(),
+                    String(read.data).trim(),
+                    read.blockTag,
+                    timeout()
+                );
 
-            const type = read.type || "uint256";
-            const value = decodeWord(readWord(raw, Number(read.offset ?? 0)), type);
+                const type = read.type || "uint256";
+                const value = decodeWord(readWord(raw, Number(read.offset ?? 0)), type);
+                return { raw, value: formatValue(value, type, Number(read.decimals ?? 0)) };
+            });
 
             callback({
                 ok: true,
-                raw,
-                value: formatValue(value, type, Number(read.decimals ?? 0)),
+                ...result.value,
+                usedFallback: result.usedFallback,
+                networkId: result.network.id,
             });
         } catch (e) {
             log.debug("web3", `contract read failed: ${e.message}`);
@@ -281,4 +426,7 @@ module.exports.web3SocketHandler = (socket) => {
 
 module.exports.internals = {
     deleteNetworkAndReassign,
+    getNetworkDeleteImpact,
+    inspectNetworkUsage,
+    restartRunningMonitors,
 };

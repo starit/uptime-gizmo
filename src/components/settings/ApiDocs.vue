@@ -284,6 +284,12 @@ export default {
             if (resolved.maximum !== undefined) {
                 parts.push(`max ${resolved.maximum}`);
             }
+            if (resolved.maxItems !== undefined) {
+                parts.push(`up to ${resolved.maxItems} items`);
+            }
+            if (resolved.uniqueItems) {
+                parts.push("unique items");
+            }
             if (resolved.default !== undefined) {
                 parts.push(`default ${resolved.default}`);
             }

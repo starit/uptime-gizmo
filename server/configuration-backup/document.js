@@ -8,6 +8,7 @@ const {
     TABLE_REGISTRY,
 } = require("./registry");
 const { TextDecoder } = require("util");
+const { getFallbackIDs } = require("../modules/web3-fallback");
 const { DEFAULT_TAG_HEX_COLOR, isValidTagColor } = require("../../src/tag-color");
 
 const TOP_LEVEL_KEYS = ["format", "formatVersion", "appVersion", "createdAt", "scope", "resources"];
@@ -373,20 +374,28 @@ function canonicalizeConfigurationDocument(input) {
     );
     for (let index = 0; index < canonicalResources.monitors.length; index++) {
         const monitor = canonicalResources.monitors[index];
-        if (monitor.web3_fallback_network_id == null) {
-            continue;
+        let ids;
+        try {
+            ids = getFallbackIDs(monitor);
+        } catch (_) {
+            throw new ConfigurationDocumentError(`archive.resources.monitors[${index}].web3_fallback_network_ids must contain unique positive network IDs (at most 10)`);
         }
-        const path = `archive.resources.monitors[${index}].web3_fallback_network_id`;
-        if (monitor.web3_fallback_network_id === monitor.web3_network_id) {
-            throw new ConfigurationDocumentError(`${path} must differ from web3_network_id`);
+        if (monitor.web3_fallback_network_ids != null && (monitor.web3_fallback_network_id ?? null) !== (ids[0] ?? null)) {
+            throw new ConfigurationDocumentError(`archive.resources.monitors[${index}] has inconsistent fallback references`);
         }
-        const primary = web3NetworkByID.get(monitor.web3_network_id);
-        const fallback = web3NetworkByID.get(monitor.web3_fallback_network_id);
-        if (!fallback?.active) {
-            throw new ConfigurationDocumentError(`${path} must refer to an active network`);
-        }
-        if (!primary?.chain_id || String(primary.chain_id) !== String(fallback.chain_id)) {
-            throw new ConfigurationDocumentError(`${path} must use the primary network's chain ID`);
+        for (const id of ids) {
+            const path = `archive.resources.monitors[${index}].web3_fallback_network_ids`;
+            if (id === monitor.web3_network_id) {
+                throw new ConfigurationDocumentError(`${path} must differ from web3_network_id`);
+            }
+            const primary = web3NetworkByID.get(monitor.web3_network_id);
+            const fallback = web3NetworkByID.get(id);
+            if (!fallback) {
+                throw new ConfigurationDocumentError(`${path} refers to a missing web3Networks row`);
+            }
+            if (!primary?.chain_id || String(primary.chain_id) !== String(fallback.chain_id)) {
+                throw new ConfigurationDocumentError(`${path} must use the primary network's chain ID`);
+            }
         }
     }
 

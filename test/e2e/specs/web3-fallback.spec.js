@@ -64,10 +64,12 @@ async function addNetwork(page, name, url) {
 test.describe("Web3 fallback network", () => {
     let primaryRpc;
     let fallbackRpc;
+    let lastRpc;
 
     test.beforeEach(async ({ page }) => {
         primaryRpc = await startRpcServer();
         fallbackRpc = await startRpcServer();
+        lastRpc = await startRpcServer();
         await restoreSqliteSnapshot(page);
     });
 
@@ -75,6 +77,7 @@ test.describe("Web3 fallback network", () => {
         await Promise.all([
             closeRpcServer(primaryRpc.server),
             closeRpcServer(fallbackRpc.server),
+            closeRpcServer(lastRpc.server),
         ]);
     });
 
@@ -85,9 +88,11 @@ test.describe("Web3 fallback network", () => {
 
         await addNetwork(page, "Primary Ethereum", primaryRpc.url);
         await addNetwork(page, "Fallback Ethereum", fallbackRpc.url);
+        await addNetwork(page, "Last Ethereum", lastRpc.url);
 
         await page.goto("./add");
         await page.getByTestId("monitor-type-select").selectOption("web3-balance");
+        await expect(page.getByTestId("web3-fallback-network")).toBeDisabled();
         const primaryValue = await page.locator("#web3-network option", { hasText: "Primary Ethereum" }).getAttribute("value");
         await page.getByLabel("Web3 Network").selectOption(primaryValue);
 
@@ -95,26 +100,69 @@ test.describe("Web3 fallback network", () => {
         await expect(fallbackSelect).toBeEnabled();
         const fallbackValue = await fallbackSelect.locator("option", { hasText: "Fallback Ethereum" }).getAttribute("value");
         await fallbackSelect.selectOption(fallbackValue);
+        const secondFallback = page.getByTestId("web3-fallback-network-1");
+        const lastValue = await secondFallback.locator("option", { hasText: "Last Ethereum" }).getAttribute("value");
+        await secondFallback.selectOption(lastValue);
+        await page.getByRole("button", { name: "Move up 2", exact: true }).click();
+        await expect(fallbackSelect).toHaveValue(lastValue);
+        await page.getByRole("button", { name: "Move up 2", exact: true }).click();
+        await expect(fallbackSelect).toHaveValue(fallbackValue);
         await expect(page.getByText(/Used only when the primary RPC/)).toBeVisible();
 
         await closeRpcServer(primaryRpc.server);
+        await closeRpcServer(fallbackRpc.server);
 
         await page.getByTestId("friendly-name-input").fill("Treasury with fallback");
         await page.getByLabel("Address").fill("0x0000000000000000000000000000000000000001");
         await page.getByTestId("save-button").click();
         await page.waitForURL(/\/dashboard\//);
         await expect(page.getByTestId("monitor-status")).toHaveText("Up", { timeout: 15000 });
-        await expect(page.locator(".heartbeat-msg").first()).toContainText("used fallback Fallback Ethereum", { timeout: 15000 });
+        await expect(page.locator(".heartbeat-msg").first()).toContainText("used fallback Last Ethereum", { timeout: 15000 });
 
         await page.getByRole("link", { name: "Edit" }).click();
         await page.waitForURL(/\/edit\//);
         await expect(page.getByTestId("web3-fallback-network")).toHaveValue(/\d+/);
+        await expect(page.getByTestId("web3-fallback-network-1")).toHaveValue(lastValue);
+        for (const close of await page.locator(".Vue-Toastification__close-button").all()) {
+            await close.click();
+        }
+        await expect(page.locator(".Vue-Toastification__toast")).toHaveCount(0);
+        await page.screenshot({ path: "private/web3-fallback-desktop.png", fullPage: true });
 
         await page.setViewportSize({ width: 390, height: 844 });
         await expect(page.getByTestId("web3-fallback-network")).toBeVisible();
+        await expect(page.getByRole("button", { name: "Move up 2", exact: true })).toBeVisible();
+        await page.screenshot({ path: "private/web3-fallback-mobile.png", fullPage: true });
+
+        await page.goto("./settings/web3");
+        const fallbackRow = page.getByRole("listitem").filter({ hasText: "Fallback Ethereum" });
+        await fallbackRow.getByRole("link", { name: "Edit" }).click();
+        const networkDialog = page.getByRole("dialog").filter({ hasText: "RPC URL" });
+        await networkDialog.getByRole("button", { name: "Delete", exact: true }).click();
+        const deleteDialog = page.getByRole("dialog").filter({ hasText: "Delete Web3 network?" });
+        await expect(deleteDialog.getByTestId("web3-delete-impact")).toContainText(
+            "1 monitor(s) currently use this network"
+        );
+        await expect(deleteDialog).toContainText("remove this network from their fallback list");
+        expect(await deleteDialog.evaluate((dialog) => dialog.scrollWidth <= dialog.clientWidth)).toBe(true);
+        await deleteDialog.screenshot({ path: "private/web3-delete-impact-mobile.png" });
+        await deleteDialog.getByRole("button", { name: "Cancel", exact: true }).click();
+        await networkDialog.getByRole("button", { name: "Close", exact: true }).click();
+        await page.goBack();
+        await page.waitForURL(/\/edit\//);
+
+        await page.getByTestId("web3-fallback-network-1").selectOption("");
+        await expect(page.getByTestId("web3-fallback-network-1")).toHaveValue("");
+        await page.getByRole("button", { name: "Remove Fallback network 1", exact: true }).click();
+        await page.getByTestId("save-button").click();
+        await expect(page.getByText("Saved.", { exact: true })).toBeVisible();
+        await page.reload();
+        await expect(page.getByTestId("web3-fallback-network")).toHaveValue("");
+        await expect(page.getByTestId("web3-fallback-network-1")).toHaveCount(0);
     });
 
     test("does not hide a valid threshold failure with fallback", async ({ page }) => {
+        await page.emulateMedia({ colorScheme: "dark" });
         await page.goto("./settings/web3");
         await login(page);
         await page.goto("./settings/web3");
@@ -131,6 +179,8 @@ test.describe("Web3 fallback network", () => {
         await fallbackSelect.selectOption(fallbackValue);
 
         await page.getByTestId("friendly-name-input").fill("Low treasury stays down");
+        await expect(page.locator("body")).toHaveClass(/dark/);
+        await fallbackSelect.locator("../..").screenshot({ path: "private/web3-fallback-dark.png" });
         await page.getByLabel("Address").fill("0x0000000000000000000000000000000000000001");
         await page.getByLabel(/Minimum Balance/).fill("50");
         await page.getByTestId("save-button").click();

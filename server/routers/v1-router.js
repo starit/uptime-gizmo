@@ -12,6 +12,7 @@ const { Notification } = require("../notification");
 const { NOTIFICATION_FIELDS: PROVIDER_FIELDS } = require("../notification-fields");
 const { validateTagColor } = require("../../src/tag-color");
 const { assertWeb3NetworkSelection } = require("../monitor-types/web3-network");
+const { getFallbackIDs, normalizeFallbackIDs, setFallbackIDs } = require("../modules/web3-fallback");
 
 const router = express.Router();
 
@@ -177,6 +178,15 @@ const MONITOR_FIELDS = {
      * non-EVM chains are not these fields.
      */
     web3NetworkId: { column: "web3_network_id", type: "int", writable: true },
+    web3FallbackNetworkIds: {
+        column: "web3_fallback_network_ids",
+        type: "jsonArray",
+        writable: true,
+        items: { type: "integer", minimum: 1 },
+        maxItems: 10,
+        uniqueItems: true,
+        description: "Ordered list of up to 10 different active networks owned by the caller on the primary chain. Send [] to clear. Takes precedence over web3FallbackNetworkId.",
+    },
     web3FallbackNetworkId: {
         column: "web3_fallback_network_id",
         type: "int",
@@ -322,7 +332,19 @@ function projectWith(fields, bean) {
     return out;
 }
 
-const monitorToAPI = makeProjection(MONITOR_FIELDS);
+const projectMonitor = makeProjection(MONITOR_FIELDS);
+
+/**
+ * Project a monitor while keeping rows written by the beta.5 single-fallback
+ * format readable through the ordered fallback field.
+ * @param {object} bean database bean
+ * @returns {object} safe API projection
+ */
+function monitorToAPI(bean) {
+    const out = projectMonitor(bean);
+    out.web3FallbackNetworkIds = getFallbackIDs(bean);
+    return out;
+}
 
 /**
  * Turn a request body into the columns it is allowed to set.
@@ -382,7 +404,13 @@ function parseWith(fields, body, partial) {
  * @returns {object} column/value pairs
  */
 function monitorFromAPI(body, partial) {
-    return parseWith(MONITOR_FIELDS, body, partial);
+    const columns = parseWith(MONITOR_FIELDS, body, partial);
+    if (Object.hasOwn(body, "web3FallbackNetworkIds")) {
+        setFallbackIDs(columns, normalizeFallbackIDs(body.web3FallbackNetworkIds));
+    } else if (Object.hasOwn(body, "web3FallbackNetworkId")) {
+        setFallbackIDs(columns, columns.web3_fallback_network_id == null ? [] : [columns.web3_fallback_network_id]);
+    }
+    return columns;
 }
 
 /*
@@ -1572,7 +1600,7 @@ router.post(
             await assertParentAllowed(bean.parent, bean.user_id, null);
             await assertWeb3NetworkSelection(
                 bean.web3_network_id,
-                bean.web3_fallback_network_id,
+                getFallbackIDs(bean),
                 bean.user_id
             );
         } catch (e) {
@@ -1665,10 +1693,10 @@ router.patch(
             if ("parent" in columns) {
                 await assertParentAllowed(bean.parent, bean.user_id, bean.id);
             }
-            if ("web3_network_id" in columns || "web3_fallback_network_id" in columns) {
+            if ("web3_network_id" in columns || "web3_fallback_network_id" in columns || "web3_fallback_network_ids" in columns) {
                 await assertWeb3NetworkSelection(
                     bean.web3_network_id,
-                    bean.web3_fallback_network_id,
+                    getFallbackIDs(bean),
                     bean.user_id
                 );
             }
@@ -2105,7 +2133,11 @@ function fieldSchema(field) {
     } else if (field.type === "bool") {
         schema = { type: "boolean" };
     } else if (field.type === "jsonArray") {
-        schema = { type: "array", items: { type: "string" } };
+        schema = { type: "array", items: field.items ?? { type: "string" } };
+        if (field.maxItems !== undefined) {
+            schema.maxItems = field.maxItems;
+            schema.uniqueItems = field.uniqueItems;
+        }
     } else {
         schema = { type: "string", nullable: true };
     }

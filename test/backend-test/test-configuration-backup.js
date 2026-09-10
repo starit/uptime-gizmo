@@ -101,6 +101,32 @@ after(() => {
 });
 
 describe("configuration archive registry", () => {
+    test("ordered Web3 fallback pools and disabled networks survive export and restore", async () => {
+        const db = await freshDatabase("web3-pool-roundtrip");
+        try {
+            await insertUser(db, { username: "pool-owner", password: "test-hash", admin: true });
+            await db("web3_network").insert([1, 2, 3].map((id) => ({
+                id, user_id: 1, name: `RPC ${id}`, chain_id: "1", active: id === 3 ? 0 : 1,
+                rpc_url: `https://rpc${id}.example`, created_date: "2026-09-09 00:00:00",
+            })));
+            await db("monitor").insert({
+                id: 1, user_id: 1, name: "pool", type: "web3-rpc",
+                web3_network_id: 1, web3_fallback_network_id: 3,
+                web3_fallback_network_ids: "[3,2]", created_date: "2026-09-09 00:00:00",
+            });
+            const archive = await createConfigurationDocument(db, "3.0.0-test");
+            assert.strictEqual(archive.resources.web3Networks.find((network) => network.id === 3).active, false);
+            await replaceConfiguration(db, archive);
+            const row = await db("monitor").where({ id: 1 }).first();
+            assert.strictEqual(row.web3_fallback_network_ids, "[3,2]");
+            assert.strictEqual(row.web3_fallback_network_id, 3);
+            assert.strictEqual(Boolean((await db("web3_network").where({ id: 3 }).first()).active), false);
+            assert.strictEqual(await db("web3_network").whereIn("id", [2, 3]).count("id as count").first().then((row) => row.count), 2);
+        } finally {
+            await db.destroy();
+        }
+    });
+
     test("classifies every current table and every configuration column", async () => {
         const db = await freshDatabase("schema-coverage");
         try {

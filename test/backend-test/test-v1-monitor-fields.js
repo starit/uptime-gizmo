@@ -295,11 +295,17 @@ describe("v1 monitor field table", () => {
     it("accepts and clears an optional Web3 fallback network", () => {
         assert.deepStrictEqual(
             internals.monitorFromAPI({ web3FallbackNetworkId: 2 }, true),
-            { web3_fallback_network_id: 2 }
+            {
+                web3_fallback_network_id: 2,
+                web3_fallback_network_ids: "[2]",
+            }
         );
         assert.deepStrictEqual(
             internals.monitorFromAPI({ web3FallbackNetworkId: null }, true),
-            { web3_fallback_network_id: null }
+            {
+                web3_fallback_network_id: null,
+                web3_fallback_network_ids: "[]",
+            }
         );
         const schema = internals.buildOpenAPI().components.schemas.MonitorInput.properties.web3FallbackNetworkId;
         assert.strictEqual(schema.type, "integer");

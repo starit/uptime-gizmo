@@ -1,5 +1,26 @@
 # Changelog
 
+## 3.0.0-beta.6 — 2026-09-10
+
+- Web3 fallback now supports an ordered pool of up to 10 same-chain RPC networks
+  across balance, RPC health, contract monitoring, token-decimal lookup, and
+  contract previews. Includes ordered UI controls, REST/MCP array fields,
+  configuration backup, and safe promotion when a network is deleted. Legacy
+  single-fallback configurations remain compatible. Deletion now previews how
+  many monitors will continue through promotion, stop, or lose fallback
+  coverage before the administrator confirms it, then immediately reloads the
+  affected running monitors. Configuration Backup preserves fallback references
+  when a network is temporarily disabled.
+- REST monitor writes and projections now keep the ordered fallback field
+  writable while reading beta.5 single-fallback rows through the new array
+  contract.
+- If an affected monitor cannot restart after network deletion, it is paused
+  instead of continuing with a stale in-memory network selection. The UI reports
+  the affected count while the completed deletion remains a successful result.
+- Updated JSONata, Axios, MySQL2, LiquidJS, gRPC, Protobuf, WebSocket, and HTTP
+  cookie-agent dependencies to versions that address known production security
+  advisories without weakening the package release-age policy.
+
 ## 3.0.0-beta.5 — 2026-09-04
 
 Beta.5 adds database-independent configuration backup and a full-width monitor

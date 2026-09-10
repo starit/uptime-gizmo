@@ -1,4 +1,5 @@
 const dayjs = require("dayjs");
+const { getFallbackIDs } = require("../modules/web3-fallback");
 const axios = require("axios");
 const { setTimeout, clearTimeout } = require("unlimited-timeout");
 const { Prometheus } = require("../prometheus");
@@ -208,6 +209,7 @@ class Monitor extends BeanModel {
             ntpStratumThreshold: this.ntp_stratum_threshold,
             web3NetworkId: this.web3_network_id,
             web3FallbackNetworkId: this.web3_fallback_network_id,
+            web3FallbackNetworkIds: getFallbackIDs(this),
             web3Address: this.web3_address,
             web3TokenContract: this.web3_token_contract,
             web3TokenDecimals: this.web3_token_decimals,

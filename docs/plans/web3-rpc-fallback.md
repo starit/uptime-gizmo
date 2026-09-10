@@ -1,5 +1,8 @@
 # Web3 RPC fallback plan
 
+This records the original single-fallback design. The current implementation
+supports ordered pools; see [Web3 monitoring](../wiki/web3-monitoring.md#rpc-fallback).
+
 ## Objective
 
 Allow each Web3 monitor to name one optional fallback Web3 Network. Existing
@@ -42,6 +45,8 @@ Deleting a primary network atomically promotes its still-active same-chain
 fallback to the new primary. A fallback that is disabled or no longer on the
 same chain is cleared instead, so deletion cannot silently move a monitor to a
 different chain or leave a fallback with no primary.
+Affected running monitors reload the committed selection immediately. Paused
+monitors stay paused and load it when they are resumed.
 
 The same behaviour applies to Web3 Balance, RPC Health, and Contract Value. RPC
 Health users who need to alert on one provider specifically should use a
@@ -62,6 +67,8 @@ that per-provider RPC health requires separate monitors.
   relation validation.
 - Old databases migrate with `NULL`; old `.ugbackup` documents may omit the
   field and still import.
+- Backup preserves disabled fallback networks instead of treating an ordinary
+  operational state as a malformed archive.
 - Validate ownership and chain equality in both Socket.IO and REST write paths.
 - Preserve the network-pair invariant when either referenced network is deleted.
 - Never return RPC URLs through monitor or Web3 Network projections.

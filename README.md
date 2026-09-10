@@ -21,6 +21,14 @@ server, AI and EVM monitoring, and a rebuilt interface.
 
 See the **[Wiki](docs/wiki)** for feature guides and current screenshots.
 
+### 3.0.0-beta.6 highlights
+
+- **Ordered Web3 RPC fallback.** EVM monitors can try up to 10 same-chain RPC
+  networks in priority order. Network deletion previews its monitor impact,
+  promotes a valid fallback atomically, and reloads affected running monitors.
+- **Security maintenance.** JSONata, Axios, MySQL2, LiquidJS, gRPC, Protobuf,
+  WebSocket, and HTTP cookie-agent dependencies are updated to patched versions.
+
 ### 3.0.0-beta.5 highlights
 
 - **[Monitor inventory](docs/articles/monitor-inventory.md).** A full-width
@@ -111,8 +119,8 @@ call.
   address. You supply the calldata; nothing here encodes it for you, and the form
   will make the call once so you can check the value before saving.
 
-Each monitor may use a second configured network on the same chain. RPC failures
-switch to that fallback; valid threshold failures do not.
+Each monitor may select up to 10 fallback networks on the same chain. RPC failures
+try them in order within one timeout budget; valid threshold failures do not.
 
 Amounts are compared as integers. Chains count in units of 10^-18, where a float
 comparison can report a drained account as funded, or a threshold as met.
@@ -369,7 +377,8 @@ The [Roadmap](ROADMAP.md) has the current list. The short version:
 Design notes: [REST API plan](docs/plans/rest-api.md),
 [MCP and agent-facing API plan](docs/plans/mcp-and-agent-api.md),
 [multi-user plan](docs/plans/multi-user.md), and
-[beta.5 configuration backup plan](docs/plans/beta-5-release.md).
+[beta.5 configuration backup plan](docs/plans/beta-5-release.md). The current
+release scope is in the [beta.6 release plan](docs/plans/beta-6-release.md).
 
 ## How this is built
 

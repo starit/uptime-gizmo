@@ -52,16 +52,21 @@ test.describe("Monitor Form", () => {
 
         const saveButton = page.getByTestId("save-button");
         const bottomNavigation = page.locator(".bottom-nav");
+        await expect.poll(() => page.evaluate(() => document.body.classList.contains("mobile"))).toBe(true);
         await expect(saveButton).toBeVisible();
         await expect(bottomNavigation).toBeVisible();
 
-        const [saveBox, navigationBox] = await Promise.all([
-            saveButton.boundingBox(),
-            bottomNavigation.boundingBox(),
-        ]);
-        expect(saveBox).not.toBeNull();
-        expect(navigationBox).not.toBeNull();
-        expect(saveBox.y + saveBox.height).toBeLessThanOrEqual(navigationBox.y);
+        await expect
+            .poll(async () => {
+                const [saveBox, navigationBox] = await Promise.all([
+                    saveButton.boundingBox(),
+                    bottomNavigation.boundingBox(),
+                ]);
+                return Boolean(
+                    saveBox && navigationBox && saveBox.y + saveBox.height <= navigationBox.y
+                );
+            })
+            .toBe(true);
         expect(
             await saveButton.evaluate((button) => {
                 const bounds = button.getBoundingClientRect();

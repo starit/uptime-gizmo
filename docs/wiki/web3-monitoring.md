@@ -14,26 +14,35 @@ Then add a monitor and pick the network.
 
 ## RPC fallback
 
-Every Web3 monitor can optionally select a **Fallback network**. It must be an
-active, separately configured network with the same chain ID as the primary.
+Every Web3 monitor can select up to 10 **Fallback networks**, in priority order.
+Each must be an active, separately configured network on the primary chain.
+Use **Move up** to change priority or select the empty option to remove an entry.
+If a selected network is disabled later, checks skip it and configuration Backup
+still preserves it so it can be re-enabled after a restore.
 
 Fallback runs only when the primary RPC cannot return a usable result, such as
 a timeout, HTTP or JSON-RPC error, malformed response, missing/disabled network,
 or chain-ID mismatch. A valid low balance, stale block, or failed contract-value
 comparison remains a failed check and does not try the fallback.
 
-The primary and fallback share the monitor timeout. A successful fallback
+The primary and fallback pool share the monitor timeout. The primary receives
+60% of the budget; the remaining time is divided among untried fallbacks.
+Fast failures leave their unused time to later endpoints. A successful fallback
 heartbeat names the network used and includes a bounded, credential-safe primary
-error. If both fail, the heartbeat records both reasons without exposing either
+error. If all fail, the heartbeat records bounded reasons without exposing any
 RPC URL.
 
 For **Web3 RPC Health**, fallback changes the monitor's meaning from “this RPC
-provider is healthy” to “this chain is reachable through either provider.” Use
+provider is healthy” to “this chain is reachable through the configured providers.” Use
 separate RPC Health monitors if each provider must alert independently.
 
-If you delete a primary network, an active same-chain fallback becomes that
-monitor's new primary network. Deleting a fallback only removes fallback
-coverage. A disabled or cross-chain fallback is never promoted.
+If you delete a primary network, the first active same-chain fallback becomes
+the new primary and eligible remaining fallbacks stay in order. Deleting a
+fallback removes only that entry. Disabled or cross-chain fallbacks are never promoted.
+Token-decimal lookup and **Test read** use the same pool and chain validation.
+Saving a network still probes that exact endpoint to verify its configuration.
+Running monitors affected by a confirmed network deletion are reloaded immediately;
+paused monitors keep their paused state and load the new selection when resumed.
 
 ## Balance
 
@@ -108,4 +117,4 @@ Not in this type: events/logs, strings or arrays, multiple conditions, or writin
 
 ## API and agents
 
-`GET /api/v1/web3-networks` returns id, name, chain id, host, and whether it is active — not the RPC URL. The host is the hostname only; hosted keys live in the path. Create the three types through `/api/v1/monitors` or the MCP `create_monitor` tool; pass `web3NetworkId` from that list and, optionally, a compatible `web3FallbackNetworkId`.
+`GET /api/v1/web3-networks` returns id, name, chain id, host, and whether it is active — not the RPC URL. The host is the hostname only; hosted keys live in the path. Create the three types through `/api/v1/monitors` or the MCP `create_monitor` tool; pass `web3NetworkId` from that list and, optionally, an ordered `web3FallbackNetworkIds` array.

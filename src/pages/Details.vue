@@ -536,13 +536,11 @@ export default {
             return (this.$root.web3NetworkList || []).find((network) => network.id === this.monitor.web3NetworkId) ?? null;
         },
 
-        web3FallbackNetwork() {
-            if (!this.monitor?.web3FallbackNetworkId) {
-                return null;
-            }
-            return (this.$root.web3NetworkList || []).find(
-                (network) => Number(network.id) === Number(this.monitor.web3FallbackNetworkId)
-            ) ?? null;
+        web3FallbackNetworks() {
+            const ids = this.monitor?.web3FallbackNetworkIds ?? (this.monitor?.web3FallbackNetworkId ? [this.monitor.web3FallbackNetworkId] : []);
+            return ids.map((id) => (this.$root.web3NetworkList || []).find(
+                (network) => Number(network.id) === Number(id)
+            )).filter(Boolean);
         },
 
         /**
@@ -575,10 +573,10 @@ export default {
             if (this.monitor?.type === "web3-contract" && (this.monitor.web3CallTo || this.monitor.web3Address)) {
                 parts.push(this.monitor.web3CallTo || this.monitor.web3Address);
             }
-            if (this.web3FallbackNetwork) {
-                const fallback = [ this.web3FallbackNetwork.name ];
-                if (this.web3FallbackNetwork.rpcHost) {
-                    fallback.push(this.web3FallbackNetwork.rpcHost);
+            for (const network of this.web3FallbackNetworks) {
+                const fallback = [ network.name ];
+                if (network.rpcHost) {
+                    fallback.push(network.rpcHost);
                 }
                 parts.push(this.$t("web3FallbackTarget", [ fallback.join(" · ") ]));
             }

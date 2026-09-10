@@ -217,7 +217,7 @@ These names are the writable properties on `MonitorInput` in
 `timeout`, `method`,
 `maxredirects`, `ignoreTls`, `upsideDown`, `keyword`, `invertKeyword`,
 `acceptedStatuscodes`, `dnsResolveType`, `dnsResolveServer`,
-`web3NetworkId`, `web3FallbackNetworkId`, `web3Address`, `web3TokenContract`, `web3TokenDecimals`,
+`web3NetworkId`, `web3FallbackNetworkIds`, `web3FallbackNetworkId`, `web3Address`, `web3TokenContract`, `web3TokenDecimals`,
 `web3MinBalance`, `web3MaxBlockAge`, `web3CallTo`, `web3CallData`,
 `web3ValueOffset`, `web3ValueType`, `web3ValueDecimals`, `web3ValueOperator`,
 `web3ValueThreshold`, `web3BlockTag`, `llmCredentialId`, `llmModel`, `llmPrompt`,
@@ -254,10 +254,12 @@ An empty list means nobody has configured a chain yet. Say so and stop — there
 nothing to point a monitor at, and the fix is a human adding the endpoint.
 `web3NetworkId` pointing at a network that is not yours is refused with `400`.
 
-`web3FallbackNetworkId` is optional. Choose a different active network with the
-same `chainId`. It is used only when the primary RPC cannot return a usable
-result; a valid low balance, stale block, or failed contract comparison does not
-switch networks. Send `null` in a monitor `PATCH` to remove the fallback.
+`web3FallbackNetworkIds` is an optional ordered array of up to 10 unique active
+network IDs on the primary `chainId`. RPC failures try them in order within one
+timeout budget; valid low balances, stale blocks, or failed contract comparisons
+do not switch networks. Send `[]` in a monitor `PATCH` to clear the pool.
+Legacy `web3FallbackNetworkId` writes replace the pool with one entry (`null`
+clears it); the array takes precedence if both fields are supplied.
 
 ### Reading a value out of a contract
 

@@ -164,6 +164,7 @@ const TABLE_REGISTRY = Object.freeze({
             "gamedig_token",
             "web3_network_id",
             "web3_fallback_network_id",
+            "web3_fallback_network_ids",
             "web3_address",
             "web3_token_contract",
             "web3_token_decimals",

@@ -3,7 +3,7 @@
 _Track RPC freshness, account balances, and contract state with ordinary uptime
 checks—and never put a signing key in the monitor._
 
-> This walkthrough uses Uptime Gizmo 3.0.0-beta.5.
+> This walkthrough uses Uptime Gizmo 3.0.0-beta.6.
 
 Web3 failures are often quiet. An RPC endpoint can still answer while serving an
 old block. A relayer can keep running after its gas balance falls too low to send
@@ -42,8 +42,8 @@ Uptime Gizmo currently supports EVM networks: Ethereum, Base, Arbitrum, Optimism
 Polygon, BSC, compatible testnets, and local EVM nodes. Bitcoin, Solana, and
 Cosmos-style RPC endpoints are not supported by these monitor types.
 
-You can configure a second network on the same chain and select it as a monitor's
-fallback. Uptime Gizmo uses it only when the primary RPC cannot return a usable
+You can select up to 10 configured networks on the same chain as an ordered
+fallback pool. Uptime Gizmo tries them only when the primary RPC cannot return a usable
 result. A real threshold failure—such as a low balance or stale block—does not
 switch providers.
 
@@ -130,7 +130,7 @@ handy for contract monitors, where an agent can derive calldata from an ABI and
 explain which result word it expects.
 
 Network creation stays in the UI. Give the agent the configured `web3NetworkId`,
-an optional same-chain `web3FallbackNetworkId`, the contract and function, the
+an optional ordered same-chain `web3FallbackNetworkIds` array, the contract and function, the
 healthy condition, and a writable API key only for the duration of the change.
 Then open the monitor and run **Test read** yourself before relying on the alert.
 

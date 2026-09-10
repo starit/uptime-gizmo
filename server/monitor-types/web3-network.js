@@ -1,5 +1,6 @@
 const { R } = require("redbean-node");
 const { getChainId, rpcHostFromUrl } = require("../modules/web3-rpc");
+const { getFallbackIDs, normalizeFallbackIDs } = require("../modules/web3-fallback");
 
 const DEFAULT_TIMEOUT_MS = 20000;
 const PRIMARY_BUDGET_SHARE = 0.6;
@@ -91,7 +92,7 @@ async function runOnNetwork(network, expectedChainId, deadline, operation, now, 
 }
 
 /**
- * Run RPC reads on the primary network, then once on the optional fallback.
+ * Run RPC reads on the primary network, then each ordered fallback in turn.
  * Business rules must run after this function returns so a valid low balance,
  * stale block, or failed contract comparison is never retried elsewhere.
  * @param {object} monitor monitor row
@@ -104,11 +105,8 @@ async function runWeb3NetworkOperation(monitor, operation, options = {}) {
     const now = options.now ?? Date.now;
     const probeChainId = options.probeChainId ?? getChainId;
     const primaryID = monitor.web3_network_id ?? null;
-    const fallbackID = monitor.web3_fallback_network_id ?? null;
-    const [primary, fallback] = await Promise.all([
-        primaryID ? findNetwork(primaryID) : null,
-        fallbackID ? findNetwork(fallbackID) : null,
-    ]);
+    const fallbackIDs = getFallbackIDs(monitor);
+    const networks = await Promise.all([primaryID, ...fallbackIDs].map((id) => id ? findNetwork(id) : null));
 
     const configuredSeconds = Number(monitor.timeout || DEFAULT_TIMEOUT_MS / 1000);
     const totalTimeout = Number.isFinite(configuredSeconds) && configuredSeconds > 0
@@ -116,29 +114,29 @@ async function runWeb3NetworkOperation(monitor, operation, options = {}) {
         : DEFAULT_TIMEOUT_MS;
     const started = now();
     const finalDeadline = started + totalTimeout;
-    const primaryDeadline = fallbackID
+    const primaryDeadline = fallbackIDs.length
         ? started + Math.max(1, Math.floor(totalTimeout * PRIMARY_BUDGET_SHARE))
         : finalDeadline;
-    const expectedChainId = String(primary?.chain_id ?? fallback?.chain_id ?? "");
-
-    try {
-        const value = await runOnNetwork(primary, expectedChainId, primaryDeadline, operation, now, probeChainId);
-        return { value, network: primary, usedFallback: false, primaryFailure: null };
-    } catch (primaryError) {
-        if (!fallbackID) {
-            throw primaryError;
-        }
-
-        const primaryFailure = describeFailure(primaryError);
+    const expectedChainId = String(networks.find((network) => network?.chain_id)?.chain_id ?? "");
+    const failures = [];
+    for (let index = 0; index < networks.length; index++) {
+        // Reserve an equal share of the remaining time for each backup. Fast
+        // failures donate unused time to later endpoints.
+        const deadline = index === 0 ? primaryDeadline
+            : now() + Math.max(1, Math.floor((finalDeadline - now()) / (networks.length - index)));
         try {
-            const value = await runOnNetwork(fallback, expectedChainId, finalDeadline, operation, now, probeChainId);
-            return { value, network: fallback, usedFallback: true, primaryFailure };
-        } catch (fallbackError) {
-            throw new Error(
-                `Primary RPC failed: ${primaryFailure}; fallback RPC failed: ${describeFailure(fallbackError)}`
-            );
+            const value = await runOnNetwork(networks[index], expectedChainId, Math.min(deadline, finalDeadline), operation, now, probeChainId);
+            return { value, network: networks[index], usedFallback: index > 0, primaryFailure: failures[0] ?? null };
+        } catch (error) {
+            if (!fallbackIDs.length) {
+                throw error;
+            }
+            failures.push(describeFailure(error));
         }
     }
+    throw new Error(`Primary RPC failed: ${failures[0]}; ${failures.slice(1).map((failure, index) =>
+        `${index === 0 ? "fallback RPC" : `fallback RPC ${index + 1}`} failed: ${failure}`
+    ).join("; ")}`);
 }
 
 /**
@@ -157,12 +155,20 @@ function formatWeb3ResultMessage(result, message) {
 /**
  * Validate monitor network references in Socket.IO and REST write paths.
  * @param {number|null} primaryID primary network id
- * @param {number|null} fallbackID fallback network id
+ * @param {number|number[]|null} fallbackID ordered fallback IDs or legacy network ID
  * @param {number|null} userID instance owner id
  * @param {{findOwnedNetwork?: Function}} options test seam
  * @returns {Promise<void>} nothing
  */
 async function assertWeb3NetworkSelection(primaryID, fallbackID, userID, options = {}) {
+    if (Array.isArray(fallbackID)) {
+        const ids = normalizeFallbackIDs(fallbackID);
+        await assertWeb3NetworkSelection(primaryID, null, userID, options);
+        for (const id of ids) {
+            await assertWeb3NetworkSelection(primaryID, id, userID, options);
+        }
+        return;
+    }
     const findOwnedNetwork = options.findOwnedNetwork
         ?? ((id) => R.findOne("web3_network", " id = ? AND user_id = ? ", [ id, userID ]));
 

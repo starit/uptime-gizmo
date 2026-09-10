@@ -67,8 +67,51 @@
         </template>
     </GizmoDialog>
 
-    <Confirm ref="confirmDelete" btn-style="btn-danger" :yes-text="$t('Yes')" :no-text="$t('No')" @yes="deleteNetwork">
-        {{ $t("deleteWeb3NetworkMsg") }}
+    <Confirm
+        ref="confirmDelete"
+        btn-style="btn-danger"
+        :title="$t('deleteWeb3NetworkTitle')"
+        :yes-text="$t('Delete')"
+        :no-text="$t('Cancel')"
+        @no="deleteImpact = null"
+        @yes="deleteNetwork"
+    >
+        <div class="gizmo-form-stack">
+            <p class="gizmo-dialog-copy">{{ $t("deleteWeb3NetworkMsg") }}</p>
+            <div
+                v-if="deleteImpact && deleteImpact.affectedMonitors > 0"
+                class="gizmo-native-alert gizmo-native-alert--warning"
+                role="alert"
+                data-testid="web3-delete-impact"
+            >
+                <div class="tw-flex tw-items-start tw-gap-2">
+                    <font-awesome-icon icon="exclamation-triangle" class="tw-mt-1 tw-shrink-0" aria-hidden="true" />
+                    <div class="tw-min-w-0">
+                        <strong class="gizmo-native-alert__title">
+                            {{ $t("deleteWeb3NetworkUsed", [ deleteImpact.affectedMonitors ]) }}
+                        </strong>
+                        <ul class="tw-mb-0 tw-mt-2 tw-ps-4">
+                            <li v-if="deleteImpact.promotedMonitors > 0">
+                                {{ $t("deleteWeb3NetworkPromoted", [ deleteImpact.promotedMonitors ]) }}
+                            </li>
+                            <li v-if="deleteImpact.affectedPrimaryMonitors > 0">
+                                {{ $t("deleteWeb3NetworkStopped", [ deleteImpact.affectedPrimaryMonitors ]) }}
+                            </li>
+                            <li v-if="deleteImpact.affectedFallbackMonitors > 0">
+                                {{ $t("deleteWeb3NetworkFallbackRemoved", [ deleteImpact.affectedFallbackMonitors ]) }}
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <p
+                v-else-if="deleteImpact"
+                class="gizmo-dialog-copy"
+                data-testid="web3-delete-unused"
+            >
+                {{ $t("deleteWeb3NetworkUnused") }}
+            </p>
+        </div>
     </Confirm>
 </template>
 
@@ -92,6 +135,7 @@ export default {
             processing: false,
             id: null,
             saveError: "",
+            deleteImpact: null,
             network: this.blank(),
         };
     },
@@ -130,6 +174,7 @@ export default {
             this.id = id ?? null;
             this.network = this.blank();
             this.saveError = "";
+            this.deleteImpact = null;
             this.processing = false;
 
             if (this.id) {
@@ -160,6 +205,7 @@ export default {
             if (!open) {
                 this.processing = false;
                 this.saveError = "";
+                this.deleteImpact = null;
             }
         },
 
@@ -190,7 +236,20 @@ export default {
          * @returns {void}
          */
         deleteConfirm() {
-            this.$refs.confirmDelete.show();
+            this.processing = true;
+            this.saveError = "";
+            this.$root.getSocket().emit("getWeb3NetworkDeleteImpact", this.id, (res) => {
+                this.processing = false;
+                if (!res.ok) {
+                    this.saveError = res.msg;
+                    this.$nextTick(() => {
+                        this.$refs.saveError?.scrollIntoView({ block: "nearest" });
+                    });
+                    return;
+                }
+                this.deleteImpact = res;
+                this.$refs.confirmDelete.show();
+            });
         },
 
         /**
@@ -199,6 +258,7 @@ export default {
          */
         deleteNetwork() {
             this.processing = true;
+            this.deleteImpact = null;
             this.$root.getSocket().emit("deleteWeb3Network", this.id, (res) => {
                 this.processing = false;
                 this.$root.toastRes(res);
@@ -212,6 +272,11 @@ export default {
                     if (res.affectedFallbackMonitors > 0) {
                         this.$root.toastError(
                             this.$t("web3FallbackNetworkInUse", [ res.affectedFallbackMonitors ])
+                        );
+                    }
+                    if (res.runtimeRestartFailures > 0) {
+                        this.$root.toastError(
+                            this.$t("web3MonitorRestartFailed", [ res.runtimeRestartFailures ])
                         );
                     }
                     this.setOpen(false);

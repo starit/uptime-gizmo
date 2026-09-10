@@ -231,10 +231,14 @@ retry intervals when omitted. The complete writable field list, type-specific
 enums, and request schema are in `MonitorInput`; use that schema instead of
 copying a field list into a client.
 
-Web3 monitors may set `web3FallbackNetworkId` to another active network returned
-by `GET /api/v1/web3-networks`. It must differ from `web3NetworkId` and have the
-same chain ID. Send `null` in a `PATCH` to remove it. Fallback handles RPC-layer
-failures only; valid threshold failures are not retried on another network.
+Web3 monitors may set `web3FallbackNetworkIds` to an ordered array of up to 10
+unique active network IDs returned by `GET /api/v1/web3-networks`. Each must
+differ from `web3NetworkId`, belong to the caller, and have the same chain ID.
+Send `[]` in a `PATCH` to clear the pool. RPC failures try each network in order
+within one timeout budget; valid threshold failures are not retried.
+The legacy `web3FallbackNetworkId` remains supported: writing it replaces the
+pool with one entry, and `null` clears it. If both fields are supplied, the array
+takes precedence. Responses include the array and its first entry in the legacy field.
 
 ### Idempotent provisioning with `externalRef`
 

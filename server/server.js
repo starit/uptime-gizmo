@@ -49,6 +49,7 @@ const args = require("args-parser")(process.argv);
 const { sleep, log, getRandomInt, genSecret, isDev } = require("../src/util");
 const { validateTagColor } = require("../src/tag-color");
 const { assertWeb3NetworkSelection } = require("./monitor-types/web3-network");
+const { getFallbackIDs, setFallbackIDs } = require("./modules/web3-fallback");
 const config = require("./config");
 
 process.title = "uptime-gizmo";
@@ -840,13 +841,19 @@ let needSetup = false;
                     }
                 }
 
+                const fallbackIDs = monitor.web3FallbackNetworkIds !== undefined
+                    ? monitor.web3FallbackNetworkIds
+                    : monitor.web3FallbackNetworkId == null ? [] : [Number(monitor.web3FallbackNetworkId)];
+                delete monitor.web3FallbackNetworkIds;
                 bean.import(monitor);
+                setFallbackIDs(bean, fallbackIDs);
                 // Map camelCase frontend property to snake_case database column
                 if (monitor.retryOnlyOnStatusCodeFailure !== undefined) {
                     bean.retry_only_on_status_code_failure = monitor.retryOnlyOnStatusCodeFailure;
                 }
                 bean.user_id = socket.userID;
 
+                await assertWeb3NetworkSelection(bean.web3_network_id, getFallbackIDs(bean), bean.user_id);
                 bean.validate();
 
                 await R.store(bean);
@@ -1023,7 +1030,9 @@ let needSetup = false;
                 // comparison; a chain counts in units of 10^-18 and a float
                 // would round the threshold before it was ever used.
                 bean.web3_network_id = monitor.web3NetworkId || null;
-                bean.web3_fallback_network_id = monitor.web3FallbackNetworkId || null;
+                setFallbackIDs(bean, monitor.web3FallbackNetworkIds !== undefined
+                    ? monitor.web3FallbackNetworkIds
+                    : monitor.web3FallbackNetworkId == null ? [] : [Number(monitor.web3FallbackNetworkId)]);
                 bean.web3_address = monitor.web3Address;
                 bean.web3_token_contract = monitor.web3TokenContract || null;
                 bean.web3_token_decimals = monitor.web3TokenDecimals ?? 18;
@@ -1059,7 +1068,7 @@ let needSetup = false;
 
                 await assertWeb3NetworkSelection(
                     bean.web3_network_id,
-                    bean.web3_fallback_network_id,
+                    getFallbackIDs(bean),
                     bean.user_id
                 );
                 bean.validate();
@@ -2013,7 +2022,7 @@ let needSetup = false;
         maintenanceSocketHandler(socket);
         apiKeySocketHandler(socket);
         remoteBrowserSocketHandler(socket);
-        web3SocketHandler(socket);
+        web3SocketHandler(socket, { restartMonitor, pauseMonitor });
         userSocketHandler(socket);
         generalSocketHandler(socket, server);
         chartSocketHandler(socket);

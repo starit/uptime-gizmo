@@ -34,6 +34,8 @@ const SCHEMA_KEYS = new Set([
     "default",
     "maximum",
     "minimum",
+    "maxItems",
+    "uniqueItems",
     "description",
     "format",
     "example",

@@ -248,6 +248,13 @@ const WEB3_PROPERTIES = {
         type: [ "integer", "null" ],
         description: "Optional fallback from list_web3_networks. It must be a different active network on the same chain. It is tried only when the primary RPC cannot return a usable result; null removes it.",
     },
+    web3FallbackNetworkIds: {
+        type: "array",
+        items: { type: "integer", minimum: 1 },
+        maxItems: 10,
+        uniqueItems: true,
+        description: "Ordered fallback pool from list_web3_networks. Each network must be active, different from the primary, and on the same chain. Tried in order within one timeout budget for RPC failures only. [] clears the pool. Takes precedence over web3FallbackNetworkId.",
+    },
     web3Address: { type: "string", description: "web3-balance: the address to watch." },
     web3TokenContract: {
         type: "string",

@@ -1,5 +1,8 @@
 # Web3 RPC fallback execution
 
+This records the original single-fallback implementation. It has since been
+extended to ordered pools; see [Web3 monitoring](../wiki/web3-monitoring.md#rpc-fallback).
+
 **Release:** [3.0.0-beta.5](../plans/beta-5-release.md)
 
 **Plan:** [Web3 RPC fallback](../plans/web3-rpc-fallback.md)
@@ -29,13 +32,16 @@ URL paths are removed before they reach a heartbeat.
   MCP create/update fields, and configuration Backup. `PATCH` accepts `null` to
   remove it.
 - Extended Backup graph validation so a malicious or inconsistent archive
-  cannot introduce a missing, disabled, duplicate, or cross-chain fallback.
+  cannot introduce a missing, duplicate, or cross-chain fallback. Disabled
+  networks are preserved because an operator may disable one after assigning it.
 - Added a translated fallback selector below the primary network. It uses the
   existing form controls and layout, disables invalid choices, explains the
   runtime boundary, and remains visible at 390 × 844.
 - Updated monitor details and Web3 Network deletion feedback to show fallback
   use and loss of fallback coverage. Deleting a primary atomically promotes an
-  active same-chain fallback; an unsafe fallback is cleared instead.
+  active same-chain fallback; an unsafe fallback is cleared instead. Affected
+  running monitors restart from the committed configuration, while paused
+  monitors remain paused.
 - Updated README, Web3 guides, REST API documentation, agent instructions, the
   beta.5 plan, and changelog.
 

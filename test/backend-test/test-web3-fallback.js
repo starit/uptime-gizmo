@@ -91,6 +91,44 @@ function archiveWithFallback(primaryNetwork = primary, fallbackNetwork = fallbac
 }
 
 describe("Web3 fallback execution", () => {
+    test("tries the whole ordered pool and reserves time for the final RPC", async () => {
+        const third = { ...fallback, id: 3, name: "Last" };
+        let time = 1000;
+        const called = [];
+        const result = await runWeb3NetworkOperation(monitor({ web3_fallback_network_ids: "[2,3]" }), async (network, timeout) => {
+            called.push([network.id, timeout()]);
+            if (network.id !== 3) {
+                time += timeout();
+                throw new Error("timeout");
+            }
+            return 42n;
+        }, { ...options([primary, fallback, third]), now: () => time });
+        assert.deepStrictEqual(called, [[1, 6000], [2, 2000], [3, 2000]]);
+        assert.strictEqual(result.value, 42n);
+        assert.strictEqual(result.network.id, 3);
+        assert.strictEqual(result.usedFallback, true);
+    });
+
+    test("skips missing, disabled, and mismatched endpoints in a pool", async () => {
+        const networks = [primary, { ...fallback, active: 0 }, { ...fallback, id: 4, chain_id: "2" }, { ...fallback, id: 5 }];
+        const called = [];
+        const result = await runWeb3NetworkOperation(monitor({ web3_fallback_network_ids: "[2,3,4,5]" }), async (network) => {
+            called.push(network.id);
+            if (network.id === 1) {
+                throw new Error("unavailable");
+            }
+            return true;
+        }, options(networks));
+        assert.deepStrictEqual(called, [1, 5]);
+        assert.strictEqual(result.network.id, 5);
+    });
+
+    test("explicit empty pool overrides legacy fallback", async () => {
+        await assert.rejects(runWeb3NetworkOperation(monitor({ web3_fallback_network_ids: "[]" }), async () => {
+            throw new Error("primary failure");
+        }, options()), /^Error: primary failure$/);
+    });
+
     test("does not touch fallback after a successful primary read", async () => {
         const called = [];
         const result = await runWeb3NetworkOperation(
@@ -169,6 +207,39 @@ describe("Web3 fallback execution", () => {
 });
 
 describe("Web3 fallback configuration", () => {
+    test("validates every pool member and rejects invalid arrays", async () => {
+        const findOwnedNetwork = options().findNetwork;
+        for (const ids of [[2, 2], [2, 0], ["2"], [true], Array.from({ length: 11 }, (_, i) => i + 2)]) {
+            await assert.rejects(assertWeb3NetworkSelection(1, ids, 7, { findOwnedNetwork }));
+        }
+        await assert.rejects(assertWeb3NetworkSelection(1, [2, 3], 7, { findOwnedNetwork }), /network you own/);
+    });
+
+    test("REST pool precedence, clearing, legacy writes, and projections", () => {
+        const { monitorFromAPI, monitorToAPI } = require("../../server/routers/v1-router").internals;
+        const columns = monitorFromAPI({ web3FallbackNetworkIds: [3, 2], web3FallbackNetworkId: 2 }, true);
+        assert.strictEqual(columns.web3_fallback_network_ids, "[3,2]");
+        assert.strictEqual(columns.web3_fallback_network_id, 3);
+        assert.deepStrictEqual(monitorToAPI(columns).web3FallbackNetworkIds, [3, 2]);
+        assert.deepStrictEqual(monitorToAPI({ web3_fallback_network_id: 2 }).web3FallbackNetworkIds, [2]);
+        assert.strictEqual(monitorFromAPI({ web3FallbackNetworkId: null }, true).web3_fallback_network_ids, "[]");
+        assert.strictEqual(monitorFromAPI({ web3FallbackNetworkIds: [] }, true).web3_fallback_network_id, null);
+        for (const value of [null, "[2]", [2, 2], [2.5]]) {
+            assert.throws(() => monitorFromAPI({ web3FallbackNetworkIds: value }, true));
+        }
+    });
+
+    test("backup preserves ordered pools and validates every reference", () => {
+        const document = archiveWithFallback();
+        document.resources.web3Networks.push({ id: 3, chain_id: "1", active: true });
+        document.resources.monitors[0].web3_fallback_network_ids = "[2,3]";
+        assert.strictEqual(canonicalizeConfigurationDocument(document).resources.monitors[0].web3_fallback_network_ids, "[2,3]");
+        document.resources.web3Networks[2].chain_id = "2";
+        assert.throws(() => canonicalizeConfigurationDocument(document), /primary network's chain ID/);
+        document.resources.web3Networks.pop();
+        assert.throws(() => canonicalizeConfigurationDocument(document), /missing web3Networks row/);
+    });
+
     test("accepts a different active network on the same chain", async () => {
         const byID = new Map([primary, fallback].map((network) => [ network.id, network ]));
         await assert.doesNotReject(
@@ -225,9 +296,11 @@ describe("Web3 fallback configuration", () => {
         duplicate.resources.web3Networks = [duplicate.resources.web3Networks[0]];
         assert.throws(() => canonicalizeConfigurationDocument(duplicate), /must differ/);
 
-        assert.throws(
-            () => canonicalizeConfigurationDocument(archiveWithFallback(primary, { ...fallback, active: 0 })),
-            /must refer to an active network/
+        assert.strictEqual(
+            canonicalizeConfigurationDocument(
+                archiveWithFallback(primary, { ...fallback, active: 0 })
+            ).resources.web3Networks[1].active,
+            false
         );
         assert.throws(
             () => canonicalizeConfigurationDocument(archiveWithFallback(primary, { ...fallback, chain_id: "8453" })),
@@ -252,6 +325,7 @@ describe("Web3 fallback configuration", () => {
                 table.increments("id");
                 table.string("chain_id");
                 table.boolean("active");
+                table.integer("user_id").defaultTo(7);
             });
             await db.schema.createTable("monitor", (table) => {
                 table.increments("id");
@@ -276,10 +350,23 @@ describe("Web3 fallback configuration", () => {
 
             await db("monitor").where({ id: 1 }).update({ web3_fallback_network_id: 2 });
             await db("monitor").where({ id: 2 }).update({ web3_fallback_network_id: 4 });
+            await require("../../db/knex_migrations/2026-09-09-0100-web3-fallback-networks").up(db);
 
             const redbean = new RedBeanNode();
             redbean.setup(db);
             redbean.freeze(true);
+            const primaryImpact = await web3SocketInternals.getNetworkDeleteImpact(
+                redbean,
+                await redbean.load("web3_network", 1)
+            );
+            assert.deepStrictEqual(primaryImpact, {
+                affectedMonitors: 1,
+                affectedPrimaryMonitors: 0,
+                affectedFallbackMonitors: 0,
+                promotedMonitors: 1,
+            });
+            assert.strictEqual((await db("monitor").where({ id: 1 }).first()).web3_network_id, 1);
+
             const promoted = await web3SocketInternals.deleteNetworkAndReassign(
                 redbean,
                 await redbean.load("web3_network", 1)
@@ -289,6 +376,7 @@ describe("Web3 fallback configuration", () => {
                 affectedPrimaryMonitors: 0,
                 affectedFallbackMonitors: 0,
                 promotedMonitors: 1,
+                affectedMonitorIDs: [1],
             });
             assert.strictEqual((await db("monitor").where({ id: 1 }).first()).web3_network_id, 2);
             assert.strictEqual((await db("monitor").where({ id: 1 }).first()).web3_fallback_network_id, null);
@@ -299,15 +387,87 @@ describe("Web3 fallback configuration", () => {
             );
             assert.strictEqual(refused.promotedMonitors, 0);
             assert.strictEqual(refused.affectedPrimaryMonitors, 1);
+            assert.deepStrictEqual(refused.affectedMonitorIDs, [2]);
             assert.strictEqual((await db("monitor").where({ id: 2 }).first()).web3_network_id, null);
             assert.strictEqual((await db("monitor").where({ id: 2 }).first()).web3_fallback_network_id, null);
 
-            await db("web3_network").where({ id: 2 }).delete();
+            await db("web3_network").insert([
+                { id: 5, chain_id: "1", active: 1 },
+                { id: 6, chain_id: "1", active: 1 },
+            ]);
+            await db("monitor").insert({ id: 3, name: "pool", web3_network_id: 2, web3_fallback_network_id: 4, web3_fallback_network_ids: "[4,5,6]" });
+            assert.deepStrictEqual(
+                await web3SocketInternals.getNetworkDeleteImpact(redbean, await redbean.load("web3_network", 6)),
+                {
+                    affectedMonitors: 1,
+                    affectedPrimaryMonitors: 0,
+                    affectedFallbackMonitors: 1,
+                    promotedMonitors: 0,
+                }
+            );
+            const removed = await web3SocketInternals.deleteNetworkAndReassign(redbean, await redbean.load("web3_network", 6));
+            assert.strictEqual(removed.affectedFallbackMonitors, 1);
+            assert.deepStrictEqual(removed.affectedMonitorIDs, [3]);
+            assert.strictEqual((await db("monitor").where({ id: 3 }).first()).web3_network_id, 2);
+            assert.strictEqual((await db("monitor").where({ id: 3 }).first()).web3_fallback_network_ids, "[4,5]");
+            const promotedPool = await web3SocketInternals.deleteNetworkAndReassign(redbean, await redbean.load("web3_network", 2));
+            assert.strictEqual(promotedPool.promotedMonitors, 1);
+            assert.deepStrictEqual(promotedPool.affectedMonitorIDs.sort((a, b) => a - b), [1, 3]);
+            const poolRow = await db("monitor").where({ id: 3 }).first();
+            assert.strictEqual(poolRow.web3_network_id, 5);
+            assert.strictEqual(poolRow.web3_fallback_network_ids, "[]");
             assert.strictEqual((await db("monitor").where({ id: 1 }).first()).web3_network_id, null);
         } finally {
             await db.destroy();
             fs.rmSync(directory, { recursive: true, force: true });
         }
+    });
+
+    test("restarts only affected monitors that are currently running", async () => {
+        const calls = [];
+        const server = {
+            monitorList: {
+                1: { active: 1 },
+                2: { active: 0 },
+            },
+        };
+
+        const failures = await web3SocketInternals.restartRunningMonitors(
+            server,
+            7,
+            [1, 2, 3],
+            async (userID, monitorID) => calls.push([userID, monitorID])
+        );
+
+        assert.deepStrictEqual(calls, [[7, 1]]);
+        assert.deepStrictEqual(failures, []);
+    });
+
+    test("stops an affected monitor when its post-delete restart fails", async () => {
+        const calls = [];
+        const server = {
+            monitorList: {
+                1: { active: 1 },
+                2: { active: 0 },
+            },
+        };
+
+        const failures = await web3SocketInternals.restartRunningMonitors(
+            server,
+            7,
+            [1, 2],
+            async () => {
+                throw new Error("restart failed");
+            },
+            async (userID, monitorID) => {
+                calls.push([userID, monitorID]);
+                server.monitorList[monitorID].active = 0;
+            }
+        );
+
+        assert.deepStrictEqual(failures, [1]);
+        assert.deepStrictEqual(calls, [[7, 1]]);
+        assert.strictEqual(server.monitorList[1].active, 0);
     });
 });
 
