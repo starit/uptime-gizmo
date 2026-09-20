@@ -21,7 +21,7 @@ If a selected network is disabled later, checks skip it and configuration Backup
 still preserves it so it can be re-enabled after a restore.
 
 Fallback runs only when the primary RPC cannot return a usable result, such as
-a timeout, HTTP or JSON-RPC error, malformed response, missing/disabled network,
+a timeout, HTTP or JSON-RPC error, malformed response, empty quantity, missing/disabled network,
 or chain-ID mismatch. A valid low balance, stale block, or failed contract-value
 comparison remains a failed check and does not try the fallback.
 
@@ -51,6 +51,8 @@ paused monitors keep their paused state and load the new selection when resumed.
 - Native token if you leave **Token Contract** empty.
 - ERC-20 if you fill the contract. Decimals are read from the chain and you can correct them.
 - Optional **Minimum Balance**. Below that floor the monitor is down.
+
+An empty RPC quantity (`0x`) is a failed read, not a balance of zero, so it can use fallback instead of alerting that the account is empty. A real native `0x0` is still compared against the minimum. ERC-20 `balanceOf` must return a 32-byte ABI word; short DATA such as `0x0` or `0x00` is a failed read, not a zero balance.
 
 Amounts are compared as integers. Type the threshold as a decimal string (`0.05`); do not rely on floating-point. A `Number` cannot represent 18-decimal wei exactly, which is how a drained account can look funded.
 

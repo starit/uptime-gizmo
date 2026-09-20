@@ -1,5 +1,6 @@
 const { describe, it } = require("node:test");
 const assert = require("node:assert");
+const axios = require("axios");
 const {
     scaleToInteger,
     scaleSignedToInteger,
@@ -14,6 +15,8 @@ const {
     compareValue,
     validateContractRead,
     rpcHostFromUrl,
+    getTokenBalance,
+    getTokenDecimals,
 } = require("../../server/modules/web3-rpc");
 const { internals: rpcInternals } = require("../../server/modules/web3-rpc");
 
@@ -528,6 +531,68 @@ describe("RPC error bodies stay readable", () => {
             describeRpcHttpError("eth_chainId", 400, { error: { message: "Must be authenticated!" } }),
             "RPC eth_chainId returned HTTP 400: Must be authenticated!"
         );
+    });
+});
+
+describe("web3 quantities", () => {
+    const { toBigInt } = rpcInternals;
+
+    it("parses a hex quantity without going through Number", () => {
+        assert.strictEqual(toBigInt("0x0", "Balance"), 0n);
+        assert.strictEqual(toBigInt("0x12", "Balance"), 18n);
+        assert.strictEqual(toBigInt("0xde0b6b3a7640000", "Balance"), 10n ** 18n);
+    });
+
+    it("refuses an empty quantity rather than treating it as zero", () => {
+        // Empty "0x" is DATA, not QUANTITY. Treating it as 0 made a missing
+        // eth_getBalance look like a drained account.
+        assert.throws(() => toBigInt("0x", "Balance"), /was not a hex quantity/);
+        for (const bad of [ null, undefined, "", "0", 0, "0x0g" ]) {
+            assert.throws(() => toBigInt(bad, "Balance"), /was not a hex quantity/, `accepted ${JSON.stringify(bad)}`);
+        }
+    });
+});
+
+describe("token eth_call results are ABI words", () => {
+    const address = "0x" + "1".repeat(40);
+
+    it("reads a 32-byte balanceOf word", async (t) => {
+        t.mock.method(axios, "post", async () => ({
+            status: 200,
+            data: { jsonrpc: "2.0", id: 1, result: result("0xde0b6b3a7640000") },
+        }));
+        assert.strictEqual(await getTokenBalance("https://rpc.example", address, address, 1000), 10n ** 18n);
+    });
+
+    it("reads decimals from a 32-byte word", async (t) => {
+        t.mock.method(axios, "post", async () => ({
+            status: 200,
+            data: { jsonrpc: "2.0", id: 1, result: result("0x12") },
+        }));
+        assert.strictEqual(await getTokenDecimals("https://rpc.example", address, 1000), 18);
+    });
+
+    it("refuses short DATA rather than treating it as zero", async (t) => {
+        let rpcResult = "0x0";
+        t.mock.method(axios, "post", async () => ({
+            status: 200,
+            data: { jsonrpc: "2.0", id: 1, result: rpcResult },
+        }));
+        for (const short of [ "0x", "0x0", "0x00", "0x0000" ]) {
+            rpcResult = short;
+            const balanceError = short === "0x" ? /No token contract/ : /whole bytes|no 32-byte word/;
+            const decimalsError = short === "0x" ? /does not report decimals/ : /whole bytes|no 32-byte word/;
+            await assert.rejects(getTokenBalance("https://rpc.example", address, address, 1000), balanceError);
+            await assert.rejects(getTokenDecimals("https://rpc.example", address, 1000), decimalsError);
+        }
+    });
+
+    it("takes only the first word of extra return data", async (t) => {
+        t.mock.method(axios, "post", async () => ({
+            status: 200,
+            data: { jsonrpc: "2.0", id: 1, result: result("0x12", "0x34") },
+        }));
+        assert.strictEqual(await getTokenBalance("https://rpc.example", address, address, 1000), 18n);
     });
 });
 

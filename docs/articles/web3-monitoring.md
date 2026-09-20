@@ -78,6 +78,9 @@ Create another monitor and choose **Web3 Balance**.
 - For ERC-20, enter the token contract and confirm its decimals.
 - Set **Minimum Balance** to the floor below which the monitor should go down.
 
+An empty RPC quantity (`0x`) is a failed read, not a balance of zero. A real
+native `0x0` still fails the minimum. ERC-20 reads require a 32-byte ABI word.
+
 Amounts are entered as ordinary decimal strings, such as `0.15` or `2500`. They
 stay exact all the way through the comparison; Uptime Gizmo does not round large
 on-chain integers through JavaScript floating point.

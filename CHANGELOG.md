@@ -2,6 +2,10 @@
 
 ## 3.0.0-beta.6 — 2026-09-10
 
+- Native Web3 balances no longer treat an empty RPC quantity (`0x`) as zero,
+  and ERC-20 reads no longer parse short `eth_call` DATA as a numeric zero.
+  Those empty or truncated results are failed reads, so fallback can run
+  instead of alerting that a funded account is below its minimum.
 - Web3 fallback now supports an ordered pool of up to 10 same-chain RPC networks
   across balance, RPC health, contract monitoring, token-decimal lookup, and
   contract previews. Includes ordered UI controls, REST/MCP array fields,

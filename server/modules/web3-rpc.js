@@ -122,10 +122,14 @@ async function rpcCall(rpcUrl, method, params, timeoutMs) {
  * @throws {Error} when the string is not a hex quantity
  */
 function toBigInt(hex, what) {
-    if (typeof hex !== "string" || !/^0x[0-9a-fA-F]*$/.test(hex)) {
+    // QUANTITY encoding needs at least one digit: zero is "0x0". Empty "0x" is
+    // DATA for no bytes. Mapping it to zero made a missing eth_getBalance look
+    // like a drained account, which then failed the minimum without trying
+    // fallback.
+    if (typeof hex !== "string" || !/^0x[0-9a-fA-F]+$/.test(hex)) {
         throw new Error(`${what} was not a hex quantity: ${hex}`);
     }
-    return BigInt(hex === "0x" ? "0x0" : hex);
+    return BigInt(hex);
 }
 
 /**
@@ -158,15 +162,16 @@ async function getTokenBalance(rpcUrl, contract, address, timeoutMs) {
     const result = await rpcCall(rpcUrl, "eth_call", [ { to: contract, data }, "latest" ], timeoutMs);
 
     /*
-     * A call to an address holding no code returns "0x" rather than failing, so
-     * a mistyped contract would otherwise read as a balance of zero and alert
-     * as if the account had been drained.
+     * A call to an address holding no code returns "0x" rather than failing.
+     * Short DATA such as "0x0" would parse as the quantity zero if this used
+     * toBigInt, and a mistyped or overloaded endpoint would then alert as if
+     * the account had been drained. ABI uint256 is one 32-byte word.
      */
     if (result === "0x") {
         throw new Error(`No token contract at ${contract} on this network`);
     }
 
-    return toBigInt(result, "Token balance");
+    return decodeWord(readWord(result, 0), "uint256");
 }
 
 /**
@@ -187,7 +192,7 @@ async function getTokenDecimals(rpcUrl, contract, timeoutMs) {
         throw new Error(`The contract at ${contract} does not report decimals; enter it manually`);
     }
 
-    const value = toBigInt(result, "Decimals");
+    const value = decodeWord(readWord(result, 0), "uint256");
     // ERC-20 declares decimals as uint8. Anything outside that is a contract
     // doing something else, and guessing on the operator's behalf would set a
     // threshold wrong by orders of magnitude.
@@ -779,5 +784,5 @@ module.exports = {
     OPERATOR_SYMBOLS,
     UNORDERED_TYPES,
     MAX_CALL_DATA_BYTES,
-    internals: { describeRpcBody, describeRpcHttpError, flattenText },
+    internals: { describeRpcBody, describeRpcHttpError, flattenText, toBigInt },
 };

@@ -2,6 +2,7 @@ const { test } = require("node:test");
 const assert = require("node:assert/strict");
 const axios = require("axios");
 const { R } = require("redbean-node");
+const { UP } = require("../../src/util");
 const { Web3BalanceMonitorType } = require("../../server/monitor-types/web3-balance");
 const { Web3RpcMonitorType } = require("../../server/monitor-types/web3-rpc");
 const { Web3ContractMonitorType } = require("../../server/monitor-types/web3-contract");
@@ -67,4 +68,121 @@ test("all monitor reads and form previews reach the final fallback, but valid fa
         await assert.rejects(new Type().check({ ...monitor, ...extra }, {}), message);
         assert.ok(calls.every(([url]) => url.includes("rpc1")));
     }
+});
+
+test("an empty native balance is an RPC failure, not a zero below the minimum", async (t) => {
+    const address = "0x" + "1".repeat(40);
+    const calls = [];
+    t.mock.method(R, "findOne", async (_table, _query, [id]) => {
+        return { id, name: `RPC ${id}`, rpc_url: `https://rpc${id}.example`, active: 1, chain_id: "1", user_id: 7 };
+    });
+    t.mock.method(axios, "post", async (url, body) => {
+        calls.push([url, body.method]);
+        let result = "0x1";
+        if (body.method === "eth_getBalance") {
+            // Primary answers, but with empty DATA rather than QUANTITY 0x0.
+            result = url.includes("rpc1") ? "0x" : "0xde0b6b3a7640000";
+        }
+        return { status: 200, data: { jsonrpc: "2.0", id: 1, result } };
+    });
+
+    const heartbeat = {};
+    await new Web3BalanceMonitorType().check({
+        web3_network_id: 1,
+        web3_fallback_network_ids: "[2]",
+        timeout: 10,
+        web3_address: address,
+        web3_min_balance: "0.05",
+    }, heartbeat);
+
+    assert.strictEqual(heartbeat.status, UP);
+    assert.match(heartbeat.msg, /^Balance 1, minimum 0\.05/);
+    assert.match(heartbeat.msg, /used fallback RPC 2/);
+    assert.match(heartbeat.msg, /was not a hex quantity/);
+    assert.doesNotMatch(heartbeat.msg, /below the minimum/);
+    assert.ok(calls.some(([url, method]) => url.includes("rpc2") && method === "eth_getBalance"));
+});
+
+test("a real zero native balance stays a threshold failure on the primary", async (t) => {
+    const address = "0x" + "1".repeat(40);
+    const calls = [];
+    t.mock.method(R, "findOne", async (_table, _query, [id]) => {
+        return { id, name: `RPC ${id}`, rpc_url: `https://rpc${id}.example`, active: 1, chain_id: "1", user_id: 7 };
+    });
+    t.mock.method(axios, "post", async (url, body) => {
+        calls.push([url, body.method]);
+        const result = body.method === "eth_chainId" ? "0x1" : "0x0";
+        return { status: 200, data: { jsonrpc: "2.0", id: 1, result } };
+    });
+
+    await assert.rejects(
+        new Web3BalanceMonitorType().check({
+            web3_network_id: 1,
+            web3_fallback_network_ids: "[2]",
+            timeout: 10,
+            web3_address: address,
+            web3_min_balance: "0.05",
+        }, {}),
+        /Balance 0 is below the minimum of 0\.05/
+    );
+    assert.ok(calls.every(([url]) => url.includes("rpc1")));
+});
+
+test("short ERC-20 return data is an RPC failure, not a zero below the minimum", async (t) => {
+    const address = "0x" + "1".repeat(40);
+    const oneEth = "0x" + "de0b6b3a7640000".padStart(64, "0");
+    const calls = [];
+    t.mock.method(R, "findOne", async (_table, _query, [id]) => {
+        return { id, name: `RPC ${id}`, rpc_url: `https://rpc${id}.example`, active: 1, chain_id: "1", user_id: 7 };
+    });
+    t.mock.method(axios, "post", async (url, body) => {
+        calls.push([url, body.method]);
+        let result = "0x1";
+        if (body.method === "eth_call") {
+            result = url.includes("rpc1") ? "0x0" : oneEth;
+        }
+        return { status: 200, data: { jsonrpc: "2.0", id: 1, result } };
+    });
+
+    const heartbeat = {};
+    await new Web3BalanceMonitorType().check({
+        web3_network_id: 1,
+        web3_fallback_network_ids: "[2]",
+        timeout: 10,
+        web3_address: address,
+        web3_token_contract: address,
+        web3_min_balance: "0.05",
+    }, heartbeat);
+
+    assert.strictEqual(heartbeat.status, UP);
+    assert.match(heartbeat.msg, /^Balance 1, minimum 0\.05/);
+    assert.match(heartbeat.msg, /used fallback RPC 2/);
+    assert.doesNotMatch(heartbeat.msg, /below the minimum/);
+    assert.ok(calls.some(([url, method]) => url.includes("rpc2") && method === "eth_call"));
+});
+
+test("a real zero ERC-20 word stays a threshold failure on the primary", async (t) => {
+    const address = "0x" + "1".repeat(40);
+    const calls = [];
+    t.mock.method(R, "findOne", async (_table, _query, [id]) => {
+        return { id, name: `RPC ${id}`, rpc_url: `https://rpc${id}.example`, active: 1, chain_id: "1", user_id: 7 };
+    });
+    t.mock.method(axios, "post", async (url, body) => {
+        calls.push([url, body.method]);
+        const result = body.method === "eth_chainId" ? "0x1" : "0x" + "0".repeat(64);
+        return { status: 200, data: { jsonrpc: "2.0", id: 1, result } };
+    });
+
+    await assert.rejects(
+        new Web3BalanceMonitorType().check({
+            web3_network_id: 1,
+            web3_fallback_network_ids: "[2]",
+            timeout: 10,
+            web3_address: address,
+            web3_token_contract: address,
+            web3_min_balance: "0.05",
+        }, {}),
+        /Balance 0 is below the minimum of 0\.05/
+    );
+    assert.ok(calls.every(([url]) => url.includes("rpc1")));
 });
