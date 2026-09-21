@@ -103,7 +103,7 @@ test("an empty native balance is an RPC failure, not a zero below the minimum", 
     assert.ok(calls.some(([url, method]) => url.includes("rpc2") && method === "eth_getBalance"));
 });
 
-test("a real zero native balance stays a threshold failure on the primary", async (t) => {
+test("a native balance that reads zero everywhere in the pool stays a threshold failure", async (t) => {
     const address = "0x" + "1".repeat(40);
     const calls = [];
     t.mock.method(R, "findOne", async (_table, _query, [id]) => {
@@ -125,7 +125,45 @@ test("a real zero native balance stays a threshold failure on the primary", asyn
         }, {}),
         /Balance 0 is below the minimum of 0\.05/
     );
-    assert.ok(calls.every(([url]) => url.includes("rpc1")));
+    // A zero is confirmed against the fallback before it is trusted, so both
+    // networks in the pool were asked, and both agreeing is why it stands.
+    assert.ok(calls.some(([url]) => url.includes("rpc1")));
+    assert.ok(calls.some(([url]) => url.includes("rpc2")));
+});
+
+test("a stale pool member's zero native balance is overruled by a fallback that reads the real one", async (t) => {
+    const address = "0x" + "1".repeat(40);
+    const calls = [];
+    t.mock.method(R, "findOne", async (_table, _query, [id]) => {
+        return { id, name: `RPC ${id}`, rpc_url: `https://rpc${id}.example`, active: 1, chain_id: "1", user_id: 7 };
+    });
+    t.mock.method(axios, "post", async (url, body) => {
+        calls.push([url, body.method]);
+        let result = "0x1";
+        if (body.method === "eth_getBalance") {
+            // Primary answers with a well-formed but wrong QUANTITY 0x0, the
+            // way a lagging member of a pooled RPC endpoint does for a
+            // funded address, rather than failing outright.
+            result = url.includes("rpc1") ? "0x0" : "0xde0b6b3a7640000";
+        }
+        return { status: 200, data: { jsonrpc: "2.0", id: 1, result } };
+    });
+
+    const heartbeat = {};
+    await new Web3BalanceMonitorType().check({
+        web3_network_id: 1,
+        web3_fallback_network_ids: "[2]",
+        timeout: 10,
+        web3_address: address,
+        web3_min_balance: "0.05",
+    }, heartbeat);
+
+    assert.strictEqual(heartbeat.status, UP);
+    assert.match(heartbeat.msg, /^Balance 1, minimum 0\.05/);
+    assert.match(heartbeat.msg, /used fallback RPC 2/);
+    assert.match(heartbeat.msg, /suspicious value \(0\)/);
+    assert.doesNotMatch(heartbeat.msg, /below the minimum/);
+    assert.ok(calls.some(([url, method]) => url.includes("rpc2") && method === "eth_getBalance"));
 });
 
 test("short ERC-20 return data is an RPC failure, not a zero below the minimum", async (t) => {
@@ -161,7 +199,7 @@ test("short ERC-20 return data is an RPC failure, not a zero below the minimum",
     assert.ok(calls.some(([url, method]) => url.includes("rpc2") && method === "eth_call"));
 });
 
-test("a real zero ERC-20 word stays a threshold failure on the primary", async (t) => {
+test("an ERC-20 word that reads zero everywhere in the pool stays a threshold failure", async (t) => {
     const address = "0x" + "1".repeat(40);
     const calls = [];
     t.mock.method(R, "findOne", async (_table, _query, [id]) => {
@@ -184,5 +222,8 @@ test("a real zero ERC-20 word stays a threshold failure on the primary", async (
         }, {}),
         /Balance 0 is below the minimum of 0\.05/
     );
-    assert.ok(calls.every(([url]) => url.includes("rpc1")));
+    // A zero is confirmed against the fallback before it is trusted, so both
+    // networks in the pool were asked, and both agreeing is why it stands.
+    assert.ok(calls.some(([url]) => url.includes("rpc1")));
+    assert.ok(calls.some(([url]) => url.includes("rpc2")));
 });

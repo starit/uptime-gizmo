@@ -93,17 +93,26 @@ async function runOnNetwork(network, expectedChainId, deadline, operation, now, 
 
 /**
  * Run RPC reads on the primary network, then each ordered fallback in turn.
- * Business rules must run after this function returns so a valid low balance,
- * stale block, or failed contract comparison is never retried elsewhere.
+ * Business rules must run after this function returns so a stale block or
+ * failed contract comparison is never retried elsewhere. The exception is a
+ * value the caller flags with `isSuspicious`: a pooled or load-balanced
+ * endpoint can answer with a well-formed but wrong reading (a lagging member
+ * serving `0x0` for a funded address) rather than failing outright, so that
+ * value is held back and the next network is asked to confirm it before it is
+ * trusted. If every network in the pool agrees, or none is left to ask, the
+ * last suspicious reading is returned rather than discarded — two independent
+ * agreeing reads, or a single one nothing could corroborate, is real
+ * information and business rules still need it.
  * @param {object} monitor monitor row
  * @param {(network: object, timeout: () => number) => Promise<any>} operation RPC reads only
- * @param {{findNetwork?: Function, now?: () => number, probeChainId?: Function}} options test seams
+ * @param {{findNetwork?: Function, now?: () => number, probeChainId?: Function, isSuspicious?: (value:any) => boolean}} options test seams and the suspicious-value predicate
  * @returns {Promise<{value:any, network:object, usedFallback:boolean, primaryFailure:string|null}>} result
  */
 async function runWeb3NetworkOperation(monitor, operation, options = {}) {
     const findNetwork = options.findNetwork ?? ((id) => R.findOne("web3_network", " id = ? ", [ id ]));
     const now = options.now ?? Date.now;
     const probeChainId = options.probeChainId ?? getChainId;
+    const isSuspicious = options.isSuspicious ?? null;
     const primaryID = monitor.web3_network_id ?? null;
     const fallbackIDs = getFallbackIDs(monitor);
     const networks = await Promise.all([primaryID, ...fallbackIDs].map((id) => id ? findNetwork(id) : null));
@@ -119,6 +128,7 @@ async function runWeb3NetworkOperation(monitor, operation, options = {}) {
         : finalDeadline;
     const expectedChainId = String(networks.find((network) => network?.chain_id)?.chain_id ?? "");
     const failures = [];
+    let unconfirmed = null;
     for (let index = 0; index < networks.length; index++) {
         // Reserve an equal share of the remaining time for each backup. Fast
         // failures donate unused time to later endpoints.
@@ -126,13 +136,22 @@ async function runWeb3NetworkOperation(monitor, operation, options = {}) {
             : now() + Math.max(1, Math.floor((finalDeadline - now()) / (networks.length - index)));
         try {
             const value = await runOnNetwork(networks[index], expectedChainId, Math.min(deadline, finalDeadline), operation, now, probeChainId);
-            return { value, network: networks[index], usedFallback: index > 0, primaryFailure: failures[0] ?? null };
+            const result = { value, network: networks[index], usedFallback: index > 0, primaryFailure: failures[0] ?? null };
+            if (isSuspicious && isSuspicious(value) && index < networks.length - 1) {
+                unconfirmed = result;
+                failures.push(`${networkLabel(networks[index])} read a suspicious value (${String(value)}); confirming with the next network`);
+                continue;
+            }
+            return result;
         } catch (error) {
             if (!fallbackIDs.length) {
                 throw error;
             }
             failures.push(describeFailure(error));
         }
+    }
+    if (unconfirmed) {
+        return unconfirmed;
     }
     throw new Error(`Primary RPC failed: ${failures[0]}; ${failures.slice(1).map((failure, index) =>
         `${index === 0 ? "fallback RPC" : `fallback RPC ${index + 1}`} failed: ${failure}`

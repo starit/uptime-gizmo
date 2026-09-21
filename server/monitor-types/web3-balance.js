@@ -45,6 +45,11 @@ class Web3BalanceMonitorType extends MonitorType {
             return contract
                 ? getTokenBalance(network.rpc_url, contract, address, timeout())
                 : getNativeBalance(network.rpc_url, address, timeout());
+        }, {
+            // A well-formed zero is exactly what a lagging pool member serves
+            // for a funded address, so it is confirmed against a fallback
+            // network before it is trusted enough to trip the minimum.
+            isSuspicious: (value) => value === 0n,
         });
         const balance = result.value;
 
