@@ -71,11 +71,16 @@ class Web3BalanceMonitorType extends MonitorType {
             if (!hasFallback) {
                 return { balance: await readBalance(network, timeout), blockAge: null };
             }
+            // The block read is a bonus freshness signal, not a second thing
+            // the balance read now depends on: an endpoint whose key or plan
+            // does not cover eth_getBlockByNumber must not lose a balance it
+            // read successfully, so its failure here becomes "unknown
+            // freshness" rather than failing the whole attempt.
             const [balance, block] = await Promise.all([
                 readBalance(network, timeout),
-                getLatestBlock(network.rpc_url, timeout()),
+                getLatestBlock(network.rpc_url, timeout()).catch(() => null),
             ]);
-            return { balance, blockAge: blockAgeSeconds(block.timestamp, Date.now() / 1000) };
+            return { balance, blockAge: block ? blockAgeSeconds(block.timestamp, Date.now() / 1000) : null };
         }, {
             // A well-formed zero is exactly what a lagging pool member serves
             // for a funded address, and a balance read against a stale block

@@ -228,6 +228,44 @@ test("a balance read against a stale block is overruled by a fallback that reads
     assert.ok(calls.some(([url, method]) => url.includes("rpc2") && method === "eth_getBalance"));
 });
 
+test("a balance read succeeds on its own when the endpoint cannot answer eth_getBlockByNumber", async (t) => {
+    const address = "0x" + "1".repeat(40);
+    const balance = 3n * 10n ** 17n;
+    const calls = [];
+    t.mock.method(R, "findOne", async (_table, _query, [id]) => {
+        return { id, name: `RPC ${id}`, rpc_url: `https://rpc${id}.example`, active: 1, chain_id: "1", user_id: 7 };
+    });
+    t.mock.method(axios, "post", async (url, body) => {
+        calls.push([url, body.method]);
+        if (body.method === "eth_chainId") {
+            return { status: 200, data: { jsonrpc: "2.0", id: 1, result: "0x1" } };
+        }
+        if (body.method === "eth_getBlockByNumber") {
+            // A key or plan that does not cover this method, the way some
+            // metered providers scope eth_getBalance and eth_getBlockByNumber
+            // separately. The balance itself is otherwise perfectly readable.
+            throw new Error("method not authorized for this API key");
+        }
+        return { status: 200, data: { jsonrpc: "2.0", id: 1, result: `0x${balance.toString(16)}` } };
+    });
+
+    const heartbeat = {};
+    await new Web3BalanceMonitorType().check({
+        web3_network_id: 1,
+        web3_fallback_network_ids: "[2]",
+        timeout: 10,
+        web3_address: address,
+        web3_min_balance: "0.05",
+    }, heartbeat);
+
+    assert.strictEqual(heartbeat.status, UP);
+    assert.match(heartbeat.msg, /^Balance 0\.3, minimum 0\.05/);
+    assert.doesNotMatch(heartbeat.msg, /used fallback/);
+    // The primary answered the balance itself; a block-read failure on it
+    // must not push the check onto the fallback network at all.
+    assert.ok(calls.every(([url]) => url.includes("rpc1")));
+});
+
 test("short ERC-20 return data is an RPC failure, not a zero below the minimum", async (t) => {
     const address = "0x" + "1".repeat(40);
     const oneEth = "0x" + "de0b6b3a7640000".padStart(64, "0");
