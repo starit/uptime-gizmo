@@ -8,6 +8,17 @@ const { Web3RpcMonitorType } = require("../../server/monitor-types/web3-rpc");
 const { Web3ContractMonitorType } = require("../../server/monitor-types/web3-contract");
 const { web3SocketHandler } = require("../../server/socket-handlers/web3-socket-handler");
 
+/**
+ * A recent block, so a balance read against it never trips the staleness
+ * guard in tests that are not about staleness at all.
+ * @param {number} ageSeconds how far behind now the block's timestamp is
+ * @returns {{number: string, timestamp: string}} eth_getBlockByNumber result
+ */
+function freshBlock(ageSeconds = 0) {
+    const timestamp = Math.floor(Date.now() / 1000) - ageSeconds;
+    return { number: "0x10", timestamp: `0x${timestamp.toString(16)}` };
+}
+
 test("all monitor reads and form previews reach the final fallback, but valid failures stop", async (t) => {
     const address = "0x" + "1".repeat(40);
     const word = "0x" + "12".padStart(64, "0");
@@ -24,8 +35,10 @@ test("all monitor reads and form previews reach the final fallback, but valid fa
         if (body.method !== "eth_chainId" && failures && !url.includes("rpc3")) {
             throw new Error("unavailable");
         }
+        // 30s old: past the 10s limit the RPC Health case below configures,
+        // but nowhere near the balance monitor's much coarser staleness guard.
         const result = body.method === "eth_chainId" ? "0x1"
-            : body.method === "eth_getBlockByNumber" ? { number: "0x10", timestamp: "0x1" }
+            : body.method === "eth_getBlockByNumber" ? freshBlock(30)
                 : body.method === "eth_getBalance" ? "0x12" : word;
         return { status: 200, data: { jsonrpc: "2.0", id: 1, result } };
     });
@@ -79,7 +92,9 @@ test("an empty native balance is an RPC failure, not a zero below the minimum", 
     t.mock.method(axios, "post", async (url, body) => {
         calls.push([url, body.method]);
         let result = "0x1";
-        if (body.method === "eth_getBalance") {
+        if (body.method === "eth_getBlockByNumber") {
+            result = freshBlock();
+        } else if (body.method === "eth_getBalance") {
             // Primary answers, but with empty DATA rather than QUANTITY 0x0.
             result = url.includes("rpc1") ? "0x" : "0xde0b6b3a7640000";
         }
@@ -111,7 +126,9 @@ test("a native balance that reads zero everywhere in the pool stays a threshold 
     });
     t.mock.method(axios, "post", async (url, body) => {
         calls.push([url, body.method]);
-        const result = body.method === "eth_chainId" ? "0x1" : "0x0";
+        const result = body.method === "eth_chainId" ? "0x1"
+            : body.method === "eth_getBlockByNumber" ? freshBlock()
+                : "0x0";
         return { status: 200, data: { jsonrpc: "2.0", id: 1, result } };
     });
 
@@ -140,7 +157,9 @@ test("a stale pool member's zero native balance is overruled by a fallback that 
     t.mock.method(axios, "post", async (url, body) => {
         calls.push([url, body.method]);
         let result = "0x1";
-        if (body.method === "eth_getBalance") {
+        if (body.method === "eth_getBlockByNumber") {
+            result = freshBlock();
+        } else if (body.method === "eth_getBalance") {
             // Primary answers with a well-formed but wrong QUANTITY 0x0, the
             // way a lagging member of a pooled RPC endpoint does for a
             // funded address, rather than failing outright.
@@ -161,7 +180,50 @@ test("a stale pool member's zero native balance is overruled by a fallback that 
     assert.strictEqual(heartbeat.status, UP);
     assert.match(heartbeat.msg, /^Balance 1, minimum 0\.05/);
     assert.match(heartbeat.msg, /used fallback RPC 2/);
-    assert.match(heartbeat.msg, /suspicious value \(0\)/);
+    assert.match(heartbeat.msg, /read a zero balance/);
+    assert.doesNotMatch(heartbeat.msg, /below the minimum/);
+    assert.ok(calls.some(([url, method]) => url.includes("rpc2") && method === "eth_getBalance"));
+});
+
+test("a balance read against a stale block is overruled by a fallback that reads a fresher one", async (t) => {
+    const address = "0x" + "1".repeat(40);
+    // The account's balance before a top-up that has since landed, and its
+    // current balance after — both nonzero, so the zero guard alone would
+    // have let the stale one straight through.
+    const staleBalance = 10n ** 16n;
+    const freshBalance = 3n * 10n ** 17n;
+    const calls = [];
+    t.mock.method(R, "findOne", async (_table, _query, [id]) => {
+        return { id, name: `RPC ${id}`, rpc_url: `https://rpc${id}.example`, active: 1, chain_id: "1", user_id: 7 };
+    });
+    t.mock.method(axios, "post", async (url, body) => {
+        calls.push([url, body.method]);
+        if (body.method === "eth_chainId") {
+            return { status: 200, data: { jsonrpc: "2.0", id: 1, result: "0x1" } };
+        }
+        if (body.method === "eth_getBlockByNumber") {
+            // Primary's own view of "latest" is hours behind, the way a node
+            // serving a rolled-back or long-cached state would answer.
+            const age = url.includes("rpc1") ? 20000 : 5;
+            return { status: 200, data: { jsonrpc: "2.0", id: 1, result: freshBlock(age) } };
+        }
+        const balance = url.includes("rpc1") ? staleBalance : freshBalance;
+        return { status: 200, data: { jsonrpc: "2.0", id: 1, result: `0x${balance.toString(16)}` } };
+    });
+
+    const heartbeat = {};
+    await new Web3BalanceMonitorType().check({
+        web3_network_id: 1,
+        web3_fallback_network_ids: "[2]",
+        timeout: 10,
+        web3_address: address,
+        web3_min_balance: "0.05",
+    }, heartbeat);
+
+    assert.strictEqual(heartbeat.status, UP);
+    assert.match(heartbeat.msg, /^Balance 0\.3, minimum 0\.05/);
+    assert.match(heartbeat.msg, /used fallback RPC 2/);
+    assert.match(heartbeat.msg, /block \d+ minutes old/);
     assert.doesNotMatch(heartbeat.msg, /below the minimum/);
     assert.ok(calls.some(([url, method]) => url.includes("rpc2") && method === "eth_getBalance"));
 });
@@ -176,7 +238,9 @@ test("short ERC-20 return data is an RPC failure, not a zero below the minimum",
     t.mock.method(axios, "post", async (url, body) => {
         calls.push([url, body.method]);
         let result = "0x1";
-        if (body.method === "eth_call") {
+        if (body.method === "eth_getBlockByNumber") {
+            result = freshBlock();
+        } else if (body.method === "eth_call") {
             result = url.includes("rpc1") ? "0x0" : oneEth;
         }
         return { status: 200, data: { jsonrpc: "2.0", id: 1, result } };
@@ -207,7 +271,9 @@ test("an ERC-20 word that reads zero everywhere in the pool stays a threshold fa
     });
     t.mock.method(axios, "post", async (url, body) => {
         calls.push([url, body.method]);
-        const result = body.method === "eth_chainId" ? "0x1" : "0x" + "0".repeat(64);
+        const result = body.method === "eth_chainId" ? "0x1"
+            : body.method === "eth_getBlockByNumber" ? freshBlock()
+                : "0x" + "0".repeat(64);
         return { status: 200, data: { jsonrpc: "2.0", id: 1, result } };
     });
 

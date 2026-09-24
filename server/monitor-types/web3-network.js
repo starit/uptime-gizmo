@@ -96,16 +96,17 @@ async function runOnNetwork(network, expectedChainId, deadline, operation, now, 
  * Business rules must run after this function returns so a stale block or
  * failed contract comparison is never retried elsewhere. The exception is a
  * value the caller flags with `isSuspicious`: a pooled or load-balanced
- * endpoint can answer with a well-formed but wrong reading (a lagging member
- * serving `0x0` for a funded address) rather than failing outright, so that
- * value is held back and the next network is asked to confirm it before it is
- * trusted. If every network in the pool agrees, or none is left to ask, the
- * last suspicious reading is returned rather than discarded — two independent
- * agreeing reads, or a single one nothing could corroborate, is real
- * information and business rules still need it.
+ * endpoint can answer with a well-formed but wrong reading — a lagging member
+ * serving `0x0` for a funded address, or a balance read against a block that
+ * is old enough to be a different, past state of the account — rather than
+ * failing outright, so that value is held back and the next network is asked
+ * to confirm it before it is trusted. If every network in the pool agrees, or
+ * none is left to ask, the last suspicious reading is returned rather than
+ * discarded — two independent agreeing reads, or a single one nothing could
+ * corroborate, is real information and business rules still need it.
  * @param {object} monitor monitor row
  * @param {(network: object, timeout: () => number) => Promise<any>} operation RPC reads only
- * @param {{findNetwork?: Function, now?: () => number, probeChainId?: Function, isSuspicious?: (value:any) => boolean}} options test seams and the suspicious-value predicate
+ * @param {{findNetwork?: Function, now?: () => number, probeChainId?: Function, isSuspicious?: (value:any) => boolean, describeSuspicious?: (value:any) => string}} options test seams, the suspicious-value predicate, and how to describe it
  * @returns {Promise<{value:any, network:object, usedFallback:boolean, primaryFailure:string|null}>} result
  */
 async function runWeb3NetworkOperation(monitor, operation, options = {}) {
@@ -113,6 +114,7 @@ async function runWeb3NetworkOperation(monitor, operation, options = {}) {
     const now = options.now ?? Date.now;
     const probeChainId = options.probeChainId ?? getChainId;
     const isSuspicious = options.isSuspicious ?? null;
+    const describeSuspicious = options.describeSuspicious ?? ((value) => `a suspicious value (${String(value)})`);
     const primaryID = monitor.web3_network_id ?? null;
     const fallbackIDs = getFallbackIDs(monitor);
     const networks = await Promise.all([primaryID, ...fallbackIDs].map((id) => id ? findNetwork(id) : null));
@@ -139,7 +141,7 @@ async function runWeb3NetworkOperation(monitor, operation, options = {}) {
             const result = { value, network: networks[index], usedFallback: index > 0, primaryFailure: failures[0] ?? null };
             if (isSuspicious && isSuspicious(value) && index < networks.length - 1) {
                 unconfirmed = result;
-                failures.push(`${networkLabel(networks[index])} read a suspicious value (${String(value)}); confirming with the next network`);
+                failures.push(`${networkLabel(networks[index])} read ${describeSuspicious(value)}; confirming with the next network`);
                 continue;
             }
             return result;

@@ -22,13 +22,14 @@ still preserves it so it can be re-enabled after a restore.
 
 Fallback runs only when the primary RPC cannot return a usable result, such as
 a timeout, HTTP or JSON-RPC error, malformed response, empty quantity, missing/disabled network,
-or chain-ID mismatch. A stale block or failed contract-value comparison remains
-a failed check and does not try the fallback. A **Web3 Balance** read of exactly
-zero is the one exception: it is confirmed against the fallback pool before it
-is trusted, since a lagging member of a pooled RPC endpoint can answer with a
-well-formed `0x0` for a funded address rather than failing outright. It still
-fails the minimum once every network that answered agrees, or once there is no
-fallback left to ask.
+or chain-ID mismatch. A stale block reported by **Web3 RPC Health**, or a
+failed contract-value comparison, remains a failed check and does not try the
+fallback. A **Web3 Balance** reading is the exception: a read of exactly zero,
+or one made against a block more than 15 minutes old on that same network, is
+confirmed against the fallback pool before it is trusted, since a lagging
+member of a pooled RPC endpoint can answer with a well-formed but stale or
+zero reading rather than failing outright. It still fails the minimum once
+every network that answered agrees, or once there is no fallback left to ask.
 
 The primary and fallback pool share the monitor timeout. The primary receives
 60% of the budget; the remaining time is divided among untried fallbacks.
@@ -57,7 +58,7 @@ paused monitors keep their paused state and load the new selection when resumed.
 - ERC-20 if you fill the contract. Decimals are read from the chain and you can correct them.
 - Optional **Minimum Balance**. Below that floor the monitor is down.
 
-An empty RPC quantity (`0x`) is a failed read, not a balance of zero, so it can use fallback instead of alerting that the account is empty. ERC-20 `balanceOf` must return a 32-byte ABI word; short DATA such as `0x0` or `0x00` is a failed read, not a zero balance. A well-formed native or ERC-20 zero is confirmed against a fallback network, when one is configured, before it fails the minimum — see [RPC fallback](#rpc-fallback).
+An empty RPC quantity (`0x`) is a failed read, not a balance of zero, so it can use fallback instead of alerting that the account is empty. ERC-20 `balanceOf` must return a 32-byte ABI word; short DATA such as `0x0` or `0x00` is a failed read, not a zero balance. A well-formed native or ERC-20 zero, and any balance read against a block more than 15 minutes old, is confirmed against a fallback network, when one is configured, before it fails the minimum — see [RPC fallback](#rpc-fallback). Checking the block costs one extra RPC call per attempt, so it only runs when a fallback is configured to confirm against.
 
 Amounts are compared as integers. Type the threshold as a decimal string (`0.05`); do not rely on floating-point. A `Number` cannot represent 18-decimal wei exactly, which is how a drained account can look funded.
 

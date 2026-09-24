@@ -6,12 +6,14 @@
   and ERC-20 reads no longer parse short `eth_call` DATA as a numeric zero.
   Those empty or truncated results are failed reads, so fallback can run
   instead of alerting that a funded account is below its minimum.
-- A Web3 Balance read of exactly zero is now confirmed against the configured
-  fallback pool before it fails the minimum. A well-formed `0x0` is what a
-  lagging member of a pooled RPC endpoint answers for a funded address rather
-  than failing outright, so on its own it no longer trips the alert; it still
-  fails once every network that answered agrees, or once there is no fallback
-  left to ask.
+- A Web3 Balance read of exactly zero, or one made against a block more than
+  15 minutes old, is now confirmed against the configured fallback pool
+  before it fails the minimum. A lagging member of a pooled RPC endpoint can
+  answer with a well-formed `0x0`, or with a plausible but stale amount from
+  before a top-up landed, rather than failing outright, so neither trips the
+  alert on its own; it still fails once every network that answered agrees,
+  or once there is no fallback left to ask. The extra block read only runs
+  when a fallback network is configured to confirm against.
 - Web3 fallback now supports an ordered pool of up to 10 same-chain RPC networks
   across balance, RPC health, contract monitoring, token-decimal lookup, and
   contract previews. Includes ordered UI controls, REST/MCP array fields,

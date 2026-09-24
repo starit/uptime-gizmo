@@ -4,11 +4,28 @@ const dayjs = require("dayjs");
 const {
     getNativeBalance,
     getTokenBalance,
+    getLatestBlock,
+    blockAgeSeconds,
     scaleToInteger,
     formatUnits,
     isAddress,
 } = require("../modules/web3-rpc");
 const { formatWeb3ResultMessage, runWeb3NetworkOperation } = require("./web3-network");
+const { getFallbackIDs } = require("../modules/web3-fallback");
+
+/**
+ * How stale a network's own latest block can be before a balance read against
+ * it is untrustworthy on its own, rather than a normal gap between blocks.
+ *
+ * There is deliberately no per-chain tuning here, unlike Web3 RPC Health's
+ * configured limit: this is not a judgment about whether the chain is healthy,
+ * only a coarse sanity check on whether *this* read is fresh enough to act on.
+ * 15 minutes is far beyond the block time of any chain this feature targets,
+ * including an idle one, so it only catches a read that is stale by a wide
+ * margin — such as a pool member serving an old, cached, or rolled-back view
+ * of the account rather than its current state.
+ */
+const MAX_TRUSTED_BLOCK_AGE_SECONDS = 15 * 60;
 
 /**
  * Watch the balance of an address and fail when it falls below a floor.
@@ -41,17 +58,37 @@ class Web3BalanceMonitorType extends MonitorType {
         const contract = (monitor.web3_token_contract ?? "").trim();
         const decimals = Number.isInteger(monitor.web3_token_decimals) ? monitor.web3_token_decimals : 18;
 
-        const result = await runWeb3NetworkOperation(monitor, (network, timeout) => {
-            return contract
-                ? getTokenBalance(network.rpc_url, contract, address, timeout())
-                : getNativeBalance(network.rpc_url, address, timeout());
+        const readBalance = (network, timeout) => contract
+            ? getTokenBalance(network.rpc_url, contract, address, timeout())
+            : getNativeBalance(network.rpc_url, address, timeout());
+
+        // Only worth the extra RPC call when there is a fallback network to
+        // confirm a stale-looking read against; a monitor with none has
+        // nothing to cross-check with, so this would just be added latency.
+        const hasFallback = getFallbackIDs(monitor).length > 0;
+
+        const result = await runWeb3NetworkOperation(monitor, async (network, timeout) => {
+            if (!hasFallback) {
+                return { balance: await readBalance(network, timeout), blockAge: null };
+            }
+            const [balance, block] = await Promise.all([
+                readBalance(network, timeout),
+                getLatestBlock(network.rpc_url, timeout()),
+            ]);
+            return { balance, blockAge: blockAgeSeconds(block.timestamp, Date.now() / 1000) };
         }, {
             // A well-formed zero is exactly what a lagging pool member serves
-            // for a funded address, so it is confirmed against a fallback
-            // network before it is trusted enough to trip the minimum.
-            isSuspicious: (value) => value === 0n,
+            // for a funded address, and a balance read against a stale block
+            // can be any amount but the wrong, out-of-date one — the account's
+            // past state rather than its current one. Both are confirmed
+            // against a fallback network before they trip the minimum.
+            isSuspicious: (reading) => reading.balance === 0n
+                || (reading.blockAge !== null && reading.blockAge > MAX_TRUSTED_BLOCK_AGE_SECONDS),
+            describeSuspicious: (reading) => reading.balance === 0n
+                ? "a zero balance"
+                : `a balance read against a block ${Math.round(reading.blockAge / 60)} minutes old`,
         });
-        const balance = result.value;
+        const balance = result.value.balance;
 
         heartbeat.ping = dayjs().valueOf() - started;
 
